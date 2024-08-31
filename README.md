@@ -6,23 +6,28 @@ This repository host the source code of the backend and the frontend of the **Ju
 <!-- omit in toc -->
 ## Table of Contents
 
+- [Presentation of the project](#presentation-of-the-project)
 - [Installation](#installation)
 - [New contributor](#new-contributor)
 - [New user](#new-user)
 - [Contributors](#contributors)
 - [Acknowledgments](#acknowledgments)
 
+## Presentation of the project
+
+**Junqo** is a multi-platform solution designed to help young people find internships and work-study programs.
+
 ## Installation
 
-If you want to install the project on your machine, you should start by reading the [installation documentation]().
+If you want to install the project on your machine, you should start by reading the [installation documentation](/docs/index.md).
 
 ## New contributor
 
-If you never contributed to the project, you should start by reading the [developer documentation]().
+If you never contributed to the project, you should start by reading the [developer documentation](/docs/developer/index.md).
 
 ## New user
 
-If you are a new user of the project, you should start by reading the [user documentation]().
+If you are a new user of the project, you should start by reading the [user documentation](/docs/user/index.md).
 
 ## Contributors
 
