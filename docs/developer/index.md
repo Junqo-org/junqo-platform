@@ -18,6 +18,7 @@ If you need some precise information, see the following sections :
 - [Learn more](#learn-more)
   - [Project structure](#project-structure)
   - [Interactions](#interactions)
+  - [Operation](#operation)
   - [Networking](#networking)
   - [Technologies](#technologies)
 
@@ -107,17 +108,25 @@ docker-compose.yml
 
 The following diagram shows the interactions between the different parts of the project:  
 
-```txt
+![
    +-----------+       +----------+       +------------+
    |   Front   | <---> |   Back   | <---> |  DataBase  |
    +-----------+       +----------+       +------------+
-```
+](../assets/interactions_diagram.png)
 
 > Interactions diagram
 
 The **front** communicates with the back using the REST API.  
 The **back** communicates with the database using the database driver.  
 The **database** stores the data.  
+
+### Operation
+
+The following diagram shows how the different programs are executed:  
+
+![Operational diagram](../assets/operational_diagram.png)
+
+> Operational diagram
 
 ### Networking
 
