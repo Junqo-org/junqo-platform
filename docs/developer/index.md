@@ -194,6 +194,12 @@ To generate the documentation, run the following command:
 bundle exec jekyll build
 ```
 
+To serve the documentation locally, run the following command:
+
+```bash
+bundle exec jekyll serve --baseurl=""
+```
+
 For more information, see the [the official github page documentation](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll#building-your-site-locally).
 
 ### Technologies
