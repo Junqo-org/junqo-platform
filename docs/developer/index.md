@@ -1,3 +1,8 @@
+---
+title: Developer documentation
+nav_order: 1
+---
+
 <!-- omit in toc -->
 # Developer documentation
 
@@ -20,6 +25,8 @@ If you need some precise information, see the following sections :
   - [Interactions](#interactions)
   - [Operation](#operation)
   - [Networking](#networking)
+  - [API](#api)
+  - [Documentation Generation](#documentation-generation)
   - [Technologies](#technologies)
 
 ## Getting started
@@ -146,6 +153,48 @@ The **front** is accessible on the World Wide Web at port **80**/**443**.
 The **back** is accessible on the World Wide Web at port **4200**.
 The **database** is accessible on the World Wide Web at port **5432** (admitting that you are using Postgresql).
 The **adminer** is accessible on the World Wide Web at port **3000**.
+
+### API
+
+The **backend** API uses **GraphQL** to communicate with the **frontend**.  
+A schema is available at [/schemas/schema.graphqls](../../schemas/schema.graphqls).
+Yous can find the API documentation at [http://doc.junqo.org/api/index.html](../api/index.html).
+
+### Documentation Generation
+
+The project uses **Magidoc** to generate the backend API documentation.  
+The documentation is available at [http://doc.junqo.org/api/index.html](../api/index.html).  
+The documentation is generated automatically when the project is deployed using Github Action.  
+
+If you want to generate the documentation manually, you can use the following command:
+
+```bash
+npx @magidoc/cli@latest generate
+```
+
+The rest of the documentation is written in Markdown and is available in the [docs](../../docs) directory.
+It is automatically generated into a static website using Jekyll and is deployed using Github Pages.
+The documentation is available at [http://doc.junqo.org/developer/index.html](../developer/index.html).
+
+Install the dependencies by running the following command:
+
+```bash
+bundle install
+```
+
+Update the `Gemfile.lock` file by running the following command:
+
+```bash
+bundle update
+```
+
+To generate the documentation, run the following command:
+
+```bash
+bundle exec jekyll build
+```
+
+For more information, see the [the official github page documentation](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll#building-your-site-locally).
 
 ### Technologies
 

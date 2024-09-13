@@ -1,3 +1,8 @@
+---
+title: User documentation
+nav_order: 2
+---
+
 <!-- omit in toc -->
 # User documentation
 
