@@ -10,7 +10,7 @@ export default {
         options: {
             appTitle: 'Junqo Documentation',
             appLogo: 'https://seeklogo.com/images/G/green-bird-logo-B0C45C520C-seeklogo.com.png',
-            siteRoot: '/docs/api',
+            siteRoot: '/api',
             siteMeta: {
                 description: 'The Junqo Project API Documentation',
                 keywords: 'docs,cool,42,api,junqo',
