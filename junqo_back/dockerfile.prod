@@ -1,0 +1,31 @@
+# Project: junqo
+# Description: Dockerfile for the development environment of the back-end application.
+
+## Stage 1: Build the application
+# Using node image as base
+FROM node:slim as build
+
+# Setting up the work directory
+WORKDIR /usr/src/app
+
+# Copying all the files in our project
+COPY . /usr/src/app/
+
+# Installing the dependencies
+RUN npm install
+
+## Stage 2: Run the application
+# Using node image as base
+FROM node:slim
+
+# Setting up the work directory
+WORKDIR /usr/src/app
+
+# Copying the built files from the previous stage
+COPY --from=build /usr/src/app/ /usr/src/app/
+
+# Exposing the port
+EXPOSE 3000
+
+# Running the application
+CMD ["npm", "run", "start:production"]

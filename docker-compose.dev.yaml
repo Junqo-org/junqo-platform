@@ -1,0 +1,69 @@
+# Project: Junqo
+# Description: This file is the development docker-compose file for the Junqo project.
+#              It deploy everything needed to run the project in development mode.
+
+# Docker-compose version
+version: '3.9'
+
+services:
+  front:
+    container_name: junqo_front_dev
+    build:
+      context: ./junqo_front
+      dockerfile: ./dockerfile.dev
+      args:
+        - FLUTTER_VERSION=3.24.1
+    restart: always
+    ports:
+      - "4200:4200"
+    depends_on:
+      - back
+
+  back:
+    container_name: junqo_back_dev
+    build:
+      context: ./junqo_back
+      dockerfile: ./dockerfile.dev
+    restart: always
+    environment:
+      NODE_ENV: development
+      DATABASE_NAME: junqo
+      DATABASE_USER: junqo
+      DATABASE_PASSWORD: password
+      DATABASE_HOST: db
+    networks:
+      - back-net
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  db:
+    container_name: junqo_db_dev
+    image: postgres:alpine
+    restart: always
+    shm_size: 128mb
+    networks:
+      - back-net
+    environment:
+      POSTGRES_USER: junqo
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: junqo
+
+  adminer:
+    container_name: junqo_adminer_dev
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DESIGN: pepa-linha-dark
+      ADMINER_DEFAULT_SERVER: db
+    networks:
+      - back-net
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+networks:
+  back-net:
+    driver: bridge

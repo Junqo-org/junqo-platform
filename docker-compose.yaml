@@ -1,0 +1,72 @@
+# Project: Junqo
+# Description: This file is the production docker-compose file for the Junqo project.
+#              It deploy everything needed to run the project in production mode.
+
+# Docker-compose version
+version: '3.9'
+
+services:
+  front:
+    container_name: junqo_front
+    build:
+      context: ./junqo_front
+      dockerfile: ./dockerfile.prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - back
+
+  back:
+    container_name: junqo_back
+    build:
+      context: ./junqo_back
+      dockerfile: ./dockerfile.prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      DATABASE_NAME: junqo
+      DATABASE_USER: junqo
+      DATABASE_PASSWORD: password
+      DATABASE_HOST: db
+    networks:
+      - back-net
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  db:
+    container_name: junqo_db
+    image: postgres:alpine
+    restart: always
+    shm_size: 128mb
+    networks:
+      - back-net
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: junqo
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: junqo
+
+  adminer:
+    container_name: junqo_adminer
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DESIGN: pepa-linha-dark
+      ADMINER_DEFAULT_SERVER: db
+    networks:
+      - back-net
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+networks:
+  back-net:
+    driver: bridge
+
+volumes:
+  db_data:
