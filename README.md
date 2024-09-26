@@ -37,6 +37,7 @@ If you are a new user of the project, you should start by reading the [user docu
 
 - [GitHub](https://github.com)
 - [GitHub Pages](https://pages.github.com)
+- [Github Projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects)
 - [GitHub Actions](https://docs.github.com/en/actions)
 - [Swagger](https://swagger.io/)
 - [Markdown](https://daringfireball.net/projects/markdown)
@@ -53,5 +54,4 @@ If you are a new user of the project, you should start by reading the [user docu
 - [Docker Swarm](https://docs.docker.com/engine/swarm/)
 - [Kubernetes](https://kubernetes.io/docs/home/)
 - [Helm](https://helm.sh/)
-- [Jira](https://www.atlassian.com/software/jira)
 - [Discord](https://discord.com/)
