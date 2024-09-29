@@ -207,6 +207,7 @@ The project uses the following technologies:
   - [NestJs](https://nestjs.com/)
   - [PostgreSQL](https://www.postgresql.org/)
   - [Sequelize](https://sequelize.org/)
+  - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
 - Operations
   - [Docker Compose](https://docs.docker.com/compose/)
   - [Docker Swarm](https://docs.docker.com/engine/swarm/)

@@ -25,3 +25,5 @@ It's main goal is to provide an API to interact with the database.
   - It is a powerful, open-source object-relational database system.
 - [Sequelize](https://sequelize.org/)
   - It is a promise-based Node.js ORM for Postgres, MySQL, MariaDB, SQLite, and Microsoft SQL Server.
+- [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
+  - It is a community-maintained open-source GraphQL server that works with many Node.js HTTP server frameworks.
