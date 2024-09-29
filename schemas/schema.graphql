@@ -1,5 +1,6 @@
 # Junqo Project
 # This file contains the schema for the Junqo API
+# Please read the `README.md` file before making any changes
 
 # Endpoints
 type Query {
