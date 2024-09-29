@@ -54,6 +54,7 @@ If you are a new user of the project, you should start by reading the [user docu
   - [NestJs](https://nestjs.com/)
   - [PostgreSQL](https://www.postgresql.org/)
   - [Sequelize](https://sequelize.org/)
+  - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
 - Operations
   - [Docker Compose](https://docs.docker.com/compose/)
   - [Docker Swarm](https://docs.docker.com/engine/swarm/)
