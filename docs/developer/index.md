@@ -174,7 +174,7 @@ The **adminer** is accessible on the World Wide Web at port **3000**.
 ### API
 
 The **backend** API uses **GraphQL** to communicate with the **frontend**.  
-A schema is available at [/schemas/schema.graphqls](../../schemas/schema.graphqls).
+A schema is available at [/schemas/schema.graphql](../../schemas/schema.graphqls).
 Yous can find the API documentation at [http://doc.junqo.fr/api/index.html](../api/index.html).
 
 ### CI/CD
