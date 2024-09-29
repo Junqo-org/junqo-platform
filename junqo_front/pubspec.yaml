@@ -1,5 +1,5 @@
 name: junqo_front
-description: "A new Flutter project."
+description: "The Junqo web and mobile app"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -31,6 +31,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Dependencies from https://ferrygraphql.com/docs/flutter and https://ferrygraphql.com/docs/setup
+  ferry: #[latest-version]
+  gql_http_link: #[latest-version]
+  ferry_flutter: #[latest-version]
+  hive: #[latest-version]
+  ferry_hive_store: #[latest-version]
+  hive_flutter: #[latest-version]
+  get_it: #[latest-version]
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -40,6 +48,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Dev dependencies from https://ferrygraphql.com/docs/setup
+  ferry_generator: #[latest-version]
+  build_runner: #[latest-version]
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

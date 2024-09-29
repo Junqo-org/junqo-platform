@@ -1,0 +1,13 @@
+targets:
+  $default:
+    builders:
+      ferry_generator|graphql_builder:
+        enabled: true
+        options:
+          schemas:
+            - junqo_front|lib/graphql/schema.graphql
+      ferry_generator|serializer_builder:
+        enabled: true
+        options:
+          schemas:
+            - junqo_front|lib/graphql/schema.graphql
