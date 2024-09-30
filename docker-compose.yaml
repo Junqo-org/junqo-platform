@@ -32,7 +32,7 @@ services:
     networks:
       - back-net
     ports:
-      - "3000:3000"
+      - "4200:4200"
     depends_on:
       - db
 
@@ -60,7 +60,7 @@ services:
     networks:
       - back-net
     ports:
-      - 8080:8080
+      - 3000:3000
     depends_on:
       - db
 

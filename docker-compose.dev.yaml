@@ -15,7 +15,8 @@ services:
         - FLUTTER_VERSION=3.24.1
     restart: always
     ports:
-      - "4200:4200"
+      - "80:80"
+      - "443:443"
     depends_on:
       - back
 
@@ -34,7 +35,7 @@ services:
     networks:
       - back-net
     ports:
-      - "3000:3000"
+      - "4200:4200"
     depends_on:
       - db
 
@@ -60,7 +61,7 @@ services:
     networks:
       - back-net
     ports:
-      - 8080:8080
+      - 3000:3000
     depends_on:
       - db
 

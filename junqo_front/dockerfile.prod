@@ -1,25 +1,34 @@
 # Project: junqo
 # Description: Dockerfile for the production environment of the front-end application.
 
-## Stage 1: Build the flutter application
-FROM ghcr.io/cirruslabs/android-sdk:34
+# Stage 1 - Install dependencies and build the app in a build environment
+FROM debian:latest AS build-env
 
-LABEL org.opencontainers.image.source=https://github.com/cirruslabs/docker-images-flutter
-USER root
+# Install flutter dependencies
+RUN apt-get update
+RUN apt-get install -y curl git wget unzip libgconf-2-4 gdb libstdc++6 libglu1-mesa fonts-droid-fallback lib32stdc++6 python3 sed
+RUN apt-get clean
 
-ARG flutter_version
+# Clone the flutter repo
+RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
 
-ENV FLUTTER_HOME=${HOME}/sdks/flutter \
-    FLUTTER_VERSION=$flutter_version
-ENV FLUTTER_ROOT=$FLUTTER_HOME
+# Set flutter path
+ENV PATH="${PATH}:/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin"
 
-ENV PATH ${PATH}:${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
+# Verify flutter installation
+RUN flutter doctor -v
+RUN flutter channel master
+RUN flutter upgrade
 
-RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME}
+# Copy files to container and build
+RUN mkdir /app/
+COPY . /app/
+WORKDIR /app/
 
-RUN yes | flutter doctor --android-licenses \
-    && flutter doctor \
-    && chown -R root:root ${FLUTTER_HOME}
+RUN flutter build web --release
 
-RUN flutter precache --android --release
-# RUN flutter run --release
+# Stage 2 - Create the run-time image
+FROM nginx:1.21.1-alpine
+COPY --from=build-env /app/build/web /usr/share/nginx/html
+
+EXPOSE 80

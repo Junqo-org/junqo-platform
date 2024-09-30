@@ -27,5 +27,8 @@ COPY --from=build /usr/src/app/ /usr/src/app/
 # Exposing the port
 EXPOSE 3000
 
+# Building the application
+RUN ["npm", "run", "build"]
+
 # Running the application
-CMD ["npm", "run", "start:production"]
+CMD ["npm", "run", "start:prod"]
