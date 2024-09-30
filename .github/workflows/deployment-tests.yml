@@ -1,0 +1,36 @@
+name: deployment-tests
+
+on: [pull_request]
+
+jobs:
+    deployment-dev-tests:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+
+        - name: Start containers
+          run: docker-compose -f docker-compose.dev.yaml up -d --build
+
+        # Check if all the services are up and running
+        - name: Check if all services are up and running
+          run: docker-compose -f docker-compose.yaml ps -q | xargs docker inspect --format '{{ .State.Status }}' | grep -v running && exit 1 || exit 0
+
+        - name: Stop containers
+          if: always()
+          run: docker-compose down
+
+    deployment-prod-tests:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+
+        - name: Start containers
+          run: docker-compose -f docker-compose.yaml up -d --build
+
+        # Check if all the services are up and running
+        - name: Check if all services are up and running
+          run: docker-compose -f docker-compose.yaml ps -q | xargs docker inspect --format '{{ .State.Status }}' | grep -v running && exit 1 || exit 0
+
+        - name: Stop containers
+          if: always()
+          run: docker-compose down

@@ -1,3 +1,5 @@
+# This file is used to run Schemathesis tests on every pull request
+# It test the implementation of the API against the schema
 name: Schemathesis Test
 
 on: [pull_request]
