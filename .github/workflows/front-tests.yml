@@ -16,12 +16,15 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.0.0' # Specify the Flutter version you want to use
+        channel: stable
+        flutter-version-file: junqo_front/pubspec.yaml
+
+    - run: flutter --version
 
     - name: Install dependencies
       run: flutter pub get

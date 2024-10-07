@@ -62,7 +62,7 @@ Before you begin, you should have a basic understanding of the following:
 3. Deploy the project locally using Docker Compose
 
     ```bash
-    docker-compose up --build
+    docker compose up --build
     ```
 
 ### Usage
