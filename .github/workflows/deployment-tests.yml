@@ -1,6 +1,13 @@
-name: deployment-tests
+name: Deployment Tests
 
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - "junqo_front/**"
+      - "junqo_back/**"
 
 jobs:
     deployment-dev-tests:

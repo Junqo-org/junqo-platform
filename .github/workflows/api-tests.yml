@@ -1,8 +1,14 @@
 # This file is used to run Schemathesis tests on every pull request
 # It test the implementation of the API against the schema
-name: Schemathesis Test
+name: Schemathesis Tests
 
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - "junqo_back/**"
 
 jobs:
   api-tests:
