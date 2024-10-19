@@ -62,7 +62,7 @@ Before you begin, you should have a basic understanding of the following:
 3. Deploy the project locally using Docker Compose
 
     ```bash
-    docker-compose up --build
+    docker compose up --build
     ```
 
 ### Usage
@@ -145,6 +145,24 @@ External ports:   80/443              4200                5432                 3
                +-----------+       +----------+       +------------+       +-----------+
                |   Front   |       |   Back   |       |  DataBase  |       |  Adminer  |
                +-----------+       +----------+       +------------+       +-----------+
+```
+
+```mermaid
+---
+title: Networking
+---
+flowchart BT
+%% External ports
+    A("**Front**") --> P1;
+    B("**Back**") --> P2;
+    C("**Database**") --> P3;
+    D("**Adminer**
+    (*development only*)") --> P4;
+    P1[[80/443]];
+    P2[[4200]];
+    P3[[5432]];
+    P4[[3000]];
+    linkStyle 0,1,2,3 stroke-dasharray: 4 3
 ```
 
 > Networking diagram
