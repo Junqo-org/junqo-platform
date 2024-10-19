@@ -50,20 +50,6 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: junqo
 
-  adminer:
-    container_name: junqo_adminer
-    image: adminer
-    restart: always
-    environment:
-      ADMINER_DESIGN: pepa-linha-dark
-      ADMINER_DEFAULT_SERVER: db
-    networks:
-      - back-net
-    ports:
-      - 3000:3000
-    depends_on:
-      - db
-
 networks:
   back-net:
     driver: bridge
