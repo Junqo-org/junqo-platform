@@ -1,3 +1,4 @@
 # documentation builds
 docs/_site
 docs/api
+node_modules
