@@ -2,9 +2,6 @@
 # Description: This file is the development docker-compose file for the Junqo project.
 #              It deploy everything needed to run the project in development mode.
 
-# Docker-compose version
-version: '3.9'
-
 services:
   front:
     container_name: junqo_front_dev
@@ -12,13 +9,22 @@ services:
       context: ./junqo_front
       dockerfile: ./dockerfile.dev
       args:
-        - FLUTTER_VERSION=3.24.1
+        - FLUTTER_VERSION=3.22.2
     restart: always
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - back
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./junqo_front/nginx.conf
+          target: /etc/nginx/nginx.conf
+        - action: rebuild
+          path: ./junqo_front
+          ignore:
+            - ./junqo_front/nginx.conf
 
   back:
     container_name: junqo_back_dev
@@ -30,14 +36,23 @@ services:
       NODE_ENV: development
       DATABASE_NAME: junqo
       DATABASE_USER: junqo
-      DATABASE_PASSWORD: password
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
       DATABASE_HOST: db
     networks:
       - back-net
     ports:
-      - "4200:4200"
+      - "4200:3000"
     depends_on:
       - db
+    secrets:
+      - db_password
+    develop:
+      watch:
+        - action: sync
+          path: ./junqo_back
+          target: /usr/src/app/
+          ignore:
+            - node_modules/
 
   db:
     container_name: junqo_db_dev
@@ -48,8 +63,10 @@ services:
       - back-net
     environment:
       POSTGRES_USER: junqo
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       POSTGRES_DB: junqo
+    secrets:
+      - db_password
 
   adminer:
     container_name: junqo_adminer_dev
@@ -61,10 +78,14 @@ services:
     networks:
       - back-net
     ports:
-      - 3000:3000
+      - 3000:8080
     depends_on:
       - db
 
 networks:
   back-net:
     driver: bridge
+
+secrets:
+  db_password:
+    file: ./db_password.conf

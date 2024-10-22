@@ -3,7 +3,7 @@
 
 ## Stage 1: Build the application
 # Using node image as base
-FROM node:slim as build
+FROM node:slim AS build
 
 # Setting up the work directory
 WORKDIR /usr/src/app
@@ -18,14 +18,23 @@ RUN npm install
 # Using node image as base
 FROM node:slim
 
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000 || exit 1
+
+RUN useradd -ms /bin/sh -u 1001 app
+USER app
+
 # Setting up the work directory
 WORKDIR /usr/src/app
 
 # Copying the built files from the previous stage
-COPY --from=build /usr/src/app/ /usr/src/app/
+COPY --chown=app:app  --from=build /usr/src/app/ /usr/src/app/
 
 # Exposing the port
 EXPOSE 3000
+
+# Building the application
+RUN ["npm", "run", "build"]
 
 # Running the application
 CMD ["npm", "run", "start:dev"]

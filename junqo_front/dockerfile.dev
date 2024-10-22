@@ -4,6 +4,8 @@
 # Stage 1 - Install dependencies and build the app in a build environment
 FROM debian:bullseye AS build-env
 
+ARG FLUTTER_VERSION=3.22.2
+
 # Install flutter dependencies
 RUN apt-get update && apt-get install -y \
     curl \
@@ -22,30 +24,32 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Flutter version 3.22.2
 # See https://docs.flutter.dev/release/archive to change the version
-WORKDIR /usr/local
-ENV PATH="/usr/local/development/flutter/bin:${PATH}"
-RUN wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.22.2-stable.tar.xz && \
-    mkdir development && \
-    tar -xf flutter_linux_3.22.2-stable.tar.xz -C development && \
-    rm flutter_linux_3.22.2-stable.tar.xz && \
+WORKDIR /usr/local/
+ENV PATH="/usr/local/src/flutter/bin:${PATH}"
+ADD https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz  .
+RUN tar -xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C src && \
+    rm flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
+    git config --global --add safe.directory /usr/local/src/flutter && \
     flutter doctor -v
 
 # Copy files to container and build
 WORKDIR /app
 COPY . .
 
-# Set User to unprivileged user and build the app
+# Build the app
 RUN flutter build web
 
 # Clean up unnecessary files to reduce image size
-USER root
-RUN rm -rf /usr/local/development
+RUN rm -rf /usr/local/src/flutter
 
 # Stage 2 - Create the run-time image
 FROM nginx:1.21.1-alpine
-COPY --from=build-env /app/build/web /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
+
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost || exit 1
+
+COPY --chown=app:app --from=build-env /app/build/web /usr/share/nginx/html
+COPY --chown=app:app nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
