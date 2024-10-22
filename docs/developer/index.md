@@ -26,6 +26,7 @@ If you need some precise information, see the following sections :
   - [Operation](#operation)
   - [Networking](#networking)
   - [API](#api)
+  - [CI/CD](#cicd)
   - [Documentation Generation](#documentation-generation)
   - [Technologies](#technologies)
 
@@ -84,23 +85,22 @@ Notice, the following sections are admitting that you are using the default conf
 The project is structured as follows:
 
 ```bash
-docker-compose.yml
 ├── /junqo_back
-│   ├── Dockerfile
-│   ├── Dockerfile.dev
+│   ├── dockerfile.prod
+│   ├── dockerfile.dev
 │   ├── /src
 │       ├── main.ts
 ├── /junqo_front
-│   ├── Dockerfile
-│   ├── Dockerfile.dev
+│   ├── dockerfile.prod
+│   ├── dockerfile.dev
 │   ├── /lib
 │       ├── main.dart
 ├── /docs
 │   ├── developer_documentation/
 │   ├── user_documentation/
 │   ├── index.md
-├── docker-compose.yml
-├── docker-compose.dev.yml
+├── docker-compose.yaml
+├── docker-compose.dev.yaml
 ```
 
 > Project structure diagram
@@ -108,8 +108,8 @@ docker-compose.yml
 - `back`: Runs the REST API server to communicate with the database.
 - `front`: Runs the web server / Flutter app seen by the user.
 - `docs`: Contains the documentation of the project.
-- `docker-compose.yml`: The main file to deploy the project in production mode.
-- `docker-compose.dev.yml`: The main file to deploy the project in development mode.
+- `docker-compose.yaml`: The main file to deploy the project in production mode.
+- `docker-compose.dev.yaml`: The main file to deploy the project in development mode.
 
 ### Interactions
 
@@ -177,6 +177,14 @@ The **adminer** is accessible on the World Wide Web at port **3000**.
 The **backend** API uses **GraphQL** to communicate with the **frontend**.  
 A schema is available at [/schemas/schema.graphqls](../../schemas/schema.graphqls).
 Yous can find the API documentation at [http://doc.junqo.org/api/index.html](../api/index.html).
+
+### CI/CD
+
+For the continuous integration and continuous deployment, the project uses **Github Actions** and **Docker Compose**.
+The CI/CD pipeline is defined in the [.github/workflows](../../.github/workflows) directory.
+
+You can find the CI/CD documentation at [here](ci_cd/md).
+
 
 ### Documentation Generation
 
