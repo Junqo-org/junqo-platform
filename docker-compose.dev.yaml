@@ -9,18 +9,19 @@ services:
       context: ./junqo_front
       dockerfile: ./dockerfile.dev
       args:
-        - FLUTTER_VERSION=3.22.2
+        - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
     restart: always
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - back
     develop:
       watch:
+        # Sync and restart when nginx.conf changes
         - action: sync+restart
           path: ./junqo_front/nginx.conf
           target: /etc/nginx/nginx.conf
+        # Rebuild the container when any other files in junqo_front change
         - action: rebuild
           path: ./junqo_front
           ignore:
