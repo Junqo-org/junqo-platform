@@ -20,7 +20,7 @@ jobs:
 
     - name: Setup Database configuration
       run: |
-        echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf"
+        echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf
 
     - name: Start containers
       run: docker compose up -d --build
