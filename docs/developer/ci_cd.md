@@ -17,7 +17,7 @@ This documentation is intended for developers who want to contribute to the proj
     - [Development deployment](#development-deployment)
     - [Production deployment](#production-deployment)
   - [Configuration](#configuration)
-    - [Docker Compose File](#docker-compose-file)
+    - [Environment Variables](#environment-variables)
     - [Configuration Files](#configuration-files)
     - [Secret Files](#secret-files)
 
@@ -78,8 +78,8 @@ The development deployment have few differences with the production deployment:
 
 - The back server is running in development mode. And the watch flag is enabled.
 - The front server is running in development mode. And the watch flag is enabled.
-- The database has no volume. So, the data will be lost when the container is stopped.
-- The database adminer is deployed. Allowing you to access the database adminer at [http://localhost:3000](http://localhost:3000).
+- The database volume is set to the `./database-volume` folder. Allowing you interact with the database files.
+- The database adminer is deployed. Allowing you to access the database adminer at [http://localhost:3000](http://localhost:3000). (The port can be changed using the `ADMINER_PORT` environment variable)
 
 #### Production deployment
 
@@ -94,19 +94,31 @@ The production deployment have few differences with the development deployment:
 
 - The back server is running in production mode.
 - The front server is running in production mode.
-- The database has a volume. So, the data will be persisted when the container is stopped.
+- The database volume is set to the docker volume `db_data`.
 - The database adminer is not deployed.
 
 ### Configuration
 
-#### Docker Compose File
+#### Environment Variables
 
-The deployment of the **Junqo-platform** is done using the `docker-compose.yaml` and `docker-compose.dev.yaml` files.
-You can modify these to fit your needs.
+The **Junqo-platform** uses environment variables to store the configuration of the project.
 
-The `dockerfile.yaml` file of the junqo front accepts the following arguments:
+You can add a `.env` file at the root of the project to store the environment variables.
+If an environment variable is not found, the default value will be used.
 
-- `FLUTTER_VERSION`: The version of the Flutter SDK to use.
+Here is the list of environment variables used by the **Junqo-platform**:
+
+- `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.22.2`.
+- `BACK_PORT`: The port of the back server. Default value is `42000`.
+- `DATABASE_SHM_SIZE`: The size of the shared memory for the database container. Default value is `256MB`.
+- `DATABASE_USER`: The user of the database. Default value is `junqo`.
+- `DATABASE_NAME`: The name of the database. Default value is `junqo`.
+- `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./db_password.conf`.
+
+The following are only available in development mode:
+
+- `ADMINER_PORT`: The port of the database adminer. Default value is `3000`.
+- `ADMINER_DESIGN`: The design of the database adminer. Default value is `pepa-linha-dark`.
 
 #### Configuration Files
 
@@ -122,4 +134,4 @@ These files should not be committed to the repository.
 
 The secret files are:
 
-- `db_password.conf`: Contains the password for the database user.
+- `db_password.conf`: Contains the password for the database user. (The file path may defer depending on the environment variable `DATABASE_PASSWORD_FILE`)
