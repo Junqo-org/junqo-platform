@@ -183,7 +183,7 @@ Yous can find the API documentation at [http://doc.junqo.org/api/index.html](../
 For the continuous integration and continuous deployment, the project uses **Github Actions** and **Docker Compose**.
 The CI/CD pipeline is defined in the [.github/workflows](../../.github/workflows) directory.
 
-You can find the CI/CD documentation at [here](ci_cd/md).
+You can find the CI/CD documentation at [here](ci_cd.md).
 
 
 ### Documentation Generation
