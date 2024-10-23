@@ -2,8 +2,14 @@ name: Deployment Tests
 
 on:
   pull_request:
-    branches: [main, dev]
-    paths: ['junqo_front/**', 'junqo_back/**']
+    branches:
+      - main
+      - dev
+    paths:
+      - "junqo_back/**"
+      - "junqo_front/**"
+      - ".github/workflows/deployment-tests.yml"
+  workflow_dispatch:
 
 jobs:
   deployment-dev-tests:

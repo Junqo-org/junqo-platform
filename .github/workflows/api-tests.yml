@@ -9,6 +9,8 @@ on:
       - dev
     paths:
       - "junqo_back/**"
+      - ".github/workflows/api-tests.yml"
+  workflow_dispatch:
 
 jobs:
   api-tests:
