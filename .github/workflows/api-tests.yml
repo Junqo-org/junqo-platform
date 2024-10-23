@@ -16,6 +16,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup Database configuration
+      run: |
+        echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf"
+
     - name: Start containers
       run: docker compose up -d --build
 
