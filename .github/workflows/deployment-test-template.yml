@@ -1,0 +1,28 @@
+name: Deployment Test Template
+
+on:
+  workflow_call:
+    inputs:
+      compose_file:
+        required: true
+        type: string
+
+jobs:
+  deployment-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start containers
+        run: docker compose -f ${{ inputs.compose_file }} up -d --build
+
+      - name: Check if all services are up and running
+        run: |
+          if [ $(docker-compose -f ${{ inputs.compose_file }} ps | grep -c "Up") -ne $(docker-compose -f ${{ inputs.compose_file }} config --services | wc -l) ]; then
+            echo "Not all services are running"
+            exit 1
+          fi
+
+      - name: Stop containers
+        if: always()
+        run: docker compose -f ${{ inputs.compose_file }} down

@@ -19,9 +19,11 @@ jobs:
     - name: Start containers
       run: docker compose up -d --build
 
-    - uses: schemathesis/action@v1
+    - name: Run Schemathesis tests
+      uses: schemathesis/action@v1
       with:
-        schema: 'http://127.0.0.1:4200/graphql'
+        schema: "./schemas/schema.graphqls"
+        base-url: "http://127.0.0.1:4200/"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
 
     - name: Stop containers

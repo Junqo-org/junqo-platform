@@ -89,12 +89,6 @@ services:
 networks:
   back-net:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.20.0.0/16
-    driver_opts:
-      com.docker.network.bridge.name: junqo_back_net
 
 secrets:
   db_password:
