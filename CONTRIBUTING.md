@@ -167,7 +167,7 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/Junqo-
 
 A set of rules for git branch names have been defined.
 This leads to more readable branch names that are easy to follow when looking through the project history.
-The branch describe the part of the project you are working on, the issue id and the name of the issue.
+The branch describes the part of the project you are working on, the issue id and the name of the issue.
 We strongly recommend you to create a branch directly from the issue you are working on.
 The branch name should be structured as follows:
 
