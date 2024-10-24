@@ -1,6 +1,6 @@
 ---
 title: Developer documentation
-nav_order: 1
+nav_order: 3
 ---
 
 <!-- omit in toc -->

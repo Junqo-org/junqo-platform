@@ -26,7 +26,6 @@ The community looks forward to your contributions. 🎉
   - [Suggesting Enhancements](#suggesting-enhancements)
   - [Your First Code Contribution](#your-first-code-contribution)
     - [From An Issue](#from-an-issue)
-    - [From A Jira Ticket](#from-a-jira-ticket)
   - [Improving The Documentation](#improving-the-documentation)
 - [Styleguides](#styleguides)
   - [Branch Naming Convention](#branch-naming-convention)
@@ -149,18 +148,6 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/Junqo-
   If there are any concerns, you will be notified and possibly asked to make changes to your pull request.
   If your pull request is accepted, it will be merged into the `dev` branch or the mother branch of your feature branch.
 
-#### From A Jira Ticket
-
-- Create a branch following the [branch naming convention](#branch-naming-convention).
-- You should incrementally add commits to the branch as you make progress.
-  This helps reviewers understand your thought process as they review the code.
-  It also makes it easier for you to fix mistakes or add missed tests during the review process.
-  The commits should follow the [commit message convention](#commit-message-convention).
-- Once your changes satisfy your ticket and you are ready for review, create a pull request from your branch to the `dev` branch or the mother branch of your feature branch.
-  The pull request should follow the [pull request template](https://github.com/Junqo-org/Junqo-platform/blob/main/.github/pull_request_template.md).
-  The pull request will be reviewed by the project team. If there are any concerns, you will be notified and possibly asked to make changes to your pull request.
-  If your pull request is accepted, it will be merged into the `dev` branch or the mother branch of your feature branch.
-
 ### Improving The Documentation
 
 - Create a branch following the [branch naming convention](#branch-naming-convention).
@@ -180,20 +167,20 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/Junqo-
 
 A set of rules for git branch names have been defined.
 This leads to more readable branch names that are easy to follow when looking through the project history.
-Moreover, it allows linking the branch to a Jira ticket.
-The branch describe the part of the project you are working on, the ticket nbr and the name of the ticket.
+The branch describes the part of the project you are working on, the issue id and the name of the issue.
+We strongly recommend you to create a branch directly from the issue you are working on.
 The branch name should be structured as follows:
 
 - Name of the branch
 
   ```md
-  ISSUE-KEY/name-of-the-branch (jira)
+  ISSUE-KEY-name-of-the-branch
   ```
 
 ex:
 
 ```bash
-git checkout -b JRA-123/mettre-en-place-les-schemas-de-db
+git checkout -b 12-move-from-jira-to-github-project
 ```
 
 ### Commit Message Convention
