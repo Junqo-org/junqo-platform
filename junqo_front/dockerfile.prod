@@ -1,0 +1,55 @@
+# Project: junqo
+# Description: Dockerfile for the production environment of the front-end application.
+
+# Stage 1 - Install dependencies and build the app in a build environment
+FROM debian:bullseye AS build-env
+
+ARG FLUTTER_VERSION=3.22.2
+
+# Install flutter dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    wget \
+    unzip \
+    xz-utils \
+    libgconf-2-4 \
+    gdb \
+    libstdc++6 \
+    libglu1-mesa \
+    fonts-droid-fallback \
+    lib32stdc++6 \
+    python3 \
+    sed \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# See https://docs.flutter.dev/release/archive to change the version
+WORKDIR /usr/local/
+ENV PATH="/usr/local/src/flutter/bin:${PATH}"
+ADD https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz  .
+RUN tar -xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C src && \
+    rm flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
+    git config --global --add safe.directory /usr/local/src/flutter && \
+    flutter doctor -v
+
+# Copy files to container and build
+WORKDIR /app
+COPY . .
+
+# Build the app
+RUN flutter build web --release
+
+# Clean up unnecessary files to reduce image size
+RUN rm -rf /usr/local/src/flutter
+
+# Stage 2 - Create the run-time image
+FROM nginx:1.21.1-alpine
+
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost || exit 1
+
+COPY --chown=app:app --from=build-env /app/build/web /usr/share/nginx/html
+COPY --chown=app:app nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80

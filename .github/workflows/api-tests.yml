@@ -1,0 +1,37 @@
+# This file is used to run Schemathesis tests on every pull request
+# It test the implementation of the API against the schema
+name: Schemathesis Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - "junqo_back/**"
+      - ".github/workflows/api-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Database configuration
+      run: |
+        echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf
+
+    - name: Start containers
+      run: docker compose up -d --build
+
+    - name: Run Schemathesis tests
+      uses: schemathesis/action@v1
+      with:
+        schema: "./schemas/schema.graphqls"
+        base-url: "http://127.0.0.1:4200/"
+        token: ${{ secrets.SCHEMATHESIS_TOKEN }}
+
+    - name: Stop containers
+      if: always()
+      run: docker compose down

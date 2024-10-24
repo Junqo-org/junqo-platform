@@ -26,7 +26,7 @@ If you need some precise information, see the following sections :
   - [Operation](#operation)
   - [Networking](#networking)
   - [API](#api)
-  - [Documentation Generation](#documentation-generation)
+  - [CI/CD](#cicd)
   - [Technologies](#technologies)
 
 ## Getting started
@@ -62,7 +62,7 @@ Before you begin, you should have a basic understanding of the following:
 3. Deploy the project locally using Docker Compose
 
     ```bash
-    docker-compose up --build
+    docker compose up --build
     ```
 
 ### Usage
@@ -84,23 +84,22 @@ Notice, the following sections are admitting that you are using the default conf
 The project is structured as follows:
 
 ```bash
-docker-compose.yml
 ├── /junqo_back
-│   ├── Dockerfile
-│   ├── Dockerfile.dev
+│   ├── dockerfile.prod
+│   ├── dockerfile.dev
 │   ├── /src
 │       ├── main.ts
 ├── /junqo_front
-│   ├── Dockerfile
-│   ├── Dockerfile.dev
+│   ├── dockerfile.prod
+│   ├── dockerfile.dev
 │   ├── /lib
 │       ├── main.dart
 ├── /docs
 │   ├── developer_documentation/
 │   ├── user_documentation/
 │   ├── index.md
-├── docker-compose.yml
-├── docker-compose.dev.yml
+├── docker-compose.yaml
+├── docker-compose.dev.yaml
 ```
 
 > Project structure diagram
@@ -108,8 +107,8 @@ docker-compose.yml
 - `back`: Runs the REST API server to communicate with the database.
 - `front`: Runs the web server / Flutter app seen by the user.
 - `docs`: Contains the documentation of the project.
-- `docker-compose.yml`: The main file to deploy the project in production mode.
-- `docker-compose.dev.yml`: The main file to deploy the project in development mode.
+- `docker-compose.yaml`: The main file to deploy the project in production mode.
+- `docker-compose.dev.yaml`: The main file to deploy the project in development mode.
 
 ### Interactions
 
@@ -147,6 +146,24 @@ External ports:   80/443              4200                5432                 3
                +-----------+       +----------+       +------------+       +-----------+
 ```
 
+```mermaid
+---
+title: Networking
+---
+flowchart BT
+%% External ports
+    A("**Front**") --> P1;
+    B("**Back**") --> P2;
+    C("**Database**") --> P3;
+    D("**Adminer**
+    (*development only*)") --> P4;
+    P1[[80/443]];
+    P2[[4200]];
+    P3[[5432]];
+    P4[[3000]];
+    linkStyle 0,1,2,3 stroke-dasharray: 4 3
+```
+
 > Networking diagram
 
 The **front** is accessible on the World Wide Web at port **80**/**443**.
@@ -158,49 +175,14 @@ The **adminer** is accessible on the World Wide Web at port **3000**.
 
 The **backend** API uses **GraphQL** to communicate with the **frontend**.  
 A schema is available at [/schemas/schema.graphqls](../../schemas/schema.graphqls).
-Yous can find the API documentation at [http://doc.junqo.org/api/index.html](../api/index.html).
+Yous can find the API documentation at [http://doc.junqo.fr/api/index.html](../api/index.html).
 
-### Documentation Generation
+### CI/CD
 
-The project uses **Magidoc** to generate the backend API documentation.  
-The documentation is available at [http://doc.junqo.org/api/index.html](../api/index.html).  
-The documentation is generated automatically when the project is deployed using Github Action.  
+For the continuous integration and continuous deployment, the project uses **Github Actions** and **Docker Compose**.
+The CI/CD pipeline is defined in the [.github/workflows](../../.github/workflows) directory.
 
-If you want to generate the documentation manually, you can use the following command:
-
-```bash
-npx @magidoc/cli@latest generate
-```
-
-The rest of the documentation is written in Markdown and is available in the [docs](../../docs) directory.
-It is automatically generated into a static website using Jekyll and is deployed using Github Pages.
-The documentation is available at [http://doc.junqo.org/developer/index.html](../developer/index.html).
-
-Install the dependencies by running the following command:
-
-```bash
-bundle install
-```
-
-Update the `Gemfile.lock` file by running the following command:
-
-```bash
-bundle update
-```
-
-To generate the documentation, run the following command:
-
-```bash
-bundle exec jekyll build
-```
-
-To serve the documentation locally, run the following command:
-
-```bash
-bundle exec jekyll serve --baseurl=""
-```
-
-For more information, see the [the official github page documentation](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll#building-your-site-locally).
+You can find the CI/CD documentation at [here](ci_cd.md).
 
 ### Technologies
 

@@ -1,3 +1,10 @@
-# documentation builds
+# Documentation builds
 docs/_site
 docs/api
+
+# Secrets and environment variables
+*.env
+db_password.conf
+
+# Development
+database-volume
