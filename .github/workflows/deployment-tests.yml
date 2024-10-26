@@ -2,22 +2,36 @@ name: Deployment Tests
 
 on:
   pull_request:
-    branches:
-      - main
-      - dev
-    paths:
-      - "junqo_back/**"
-      - "junqo_front/**"
-      - ".github/workflows/deployment-tests.yml"
+    branches: [main, dev]
   workflow_dispatch:
 
 jobs:
   deployment-dev-tests:
+    if: |
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'opened' ||
+        (github.event.action == 'synchronize' &&
+          (contains(github.event.pull_request.changed_files, 'junqo_back/**') ||
+            contains(github.event.pull_request.changed_files, 'junqo_front/**') ||
+            contains(github.event.pull_request.changed_files, '.github/workflows/deployment-tests.yml')
+          )
+        )
+      )
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.dev.yaml
 
   deployment-prod-tests:
+    if: |
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'opened' ||
+        (github.event.action == 'synchronize' &&
+          (contains(github.event.pull_request.changed_files, 'junqo_back/**') ||
+            contains(github.event.pull_request.changed_files, 'junqo_front/**') ||
+            contains(github.event.pull_request.changed_files, '.github/workflows/deployment-tests.yml')
+          )
+        )
+      )
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.yaml

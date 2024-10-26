@@ -3,16 +3,20 @@ name: Backend Tests
 
 on:
   pull_request:
-    branches:
-      - main
-      - dev
-    paths:
-      - "junqo_back/**"
-      - ".github/workflows/back-tests.yml"
+    branches: [main, dev]
   workflow_dispatch:
 
 jobs:
   test:
+    if: |
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'opened' ||
+        (github.event.action == 'synchronize' &&
+          (contains(github.event.pull_request.changed_files, 'junqo_back/**') ||
+            contains(github.event.pull_request.changed_files, '.github/workflows/back-tests.yml')
+          )
+        )
+      )
     runs-on: ubuntu-latest
 
     steps:
