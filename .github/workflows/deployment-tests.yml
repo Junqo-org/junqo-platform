@@ -6,17 +6,24 @@ on:
   workflow_dispatch:
 
 jobs:
+  changes-check:
+    runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.filter.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            any_changed:
+              - 'junqo_back/**'
+              - 'junqo_front/**'
+              - '.github/workflows/deployment-tests.yml'
+
   deployment-dev-tests:
-    if: |
-      github.event_name == 'pull_request' &&
-      (github.event.action == 'opened' ||
-        (github.event.action == 'synchronize' &&
-          (contains(github.event.pull_request.changed_files, 'junqo_back/**') ||
-            contains(github.event.pull_request.changed_files, 'junqo_front/**') ||
-            contains(github.event.pull_request.changed_files, '.github/workflows/deployment-tests.yml')
-          )
-        )
-      )
+    needs: changes-check
+    if: github.event.action == 'opened' || (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.dev.yaml
