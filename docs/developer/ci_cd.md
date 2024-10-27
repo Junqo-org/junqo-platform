@@ -1,5 +1,5 @@
 ---
-title: Developer documentation
+title: CI/CD
 ---
 
 <!-- omit in toc -->
