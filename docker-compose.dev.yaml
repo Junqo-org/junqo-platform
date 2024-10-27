@@ -1,0 +1,95 @@
+# Project: Junqo
+# Description: This file is the development docker-compose file for the Junqo project.
+#              It deploy everything needed to run the project in development mode.
+
+services:
+  front:
+    container_name: junqo_front_dev
+    build:
+      context: ./junqo_front
+      dockerfile: ./dockerfile.dev
+      args:
+        - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - back
+    develop:
+      watch:
+        # Sync and restart when nginx.conf changes
+        - action: sync+restart
+          path: ./junqo_front/nginx.conf
+          target: /etc/nginx/nginx.conf
+        # Rebuild the container when any other files in junqo_front change
+        - action: rebuild
+          path: ./junqo_front
+          ignore:
+            - ./junqo_front/nginx.conf
+
+  back:
+    container_name: junqo_back_dev
+    build:
+      context: ./junqo_back
+      dockerfile: ./dockerfile.dev
+    restart: always
+    environment:
+      NODE_ENV: development
+      DATABASE_NAME: junqo
+      DATABASE_USER: junqo
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
+      DATABASE_HOST: db
+    networks:
+      - back-net
+    ports:
+      - "${BACK_PORT:-4200}:3000"
+    depends_on:
+      - db
+    secrets:
+      - db_password
+    develop:
+      watch:
+        # Sync all files except node_modules for live reloading
+        - action: sync
+          path: ./junqo_back
+          target: /usr/src/app/
+          ignore:
+            - node_modules/
+
+  db:
+    container_name: junqo_db_dev
+    image: postgres:alpine
+    restart: always
+    shm_size: ${DATABASE_SHM_SIZE:-128mb}
+    networks:
+      - back-net
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-junqo}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: ${DATABASE_NAME:-junqo}
+    secrets:
+      - db_password
+    volumes:
+      - ./database-volume:/var/lib/postgresql/data
+
+  adminer:
+    container_name: junqo_adminer_dev
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DESIGN: ${ADMINER_DESIGN:-pepa-linha-dark}
+      ADMINER_DEFAULT_SERVER: db
+    networks:
+      - back-net
+    ports:
+      - ${ADMINER_PORT:-3000}:8080
+    depends_on:
+      - db
+
+networks:
+  back-net:
+    driver: bridge
+
+secrets:
+  db_password:
+    file: ${DATABASE_PASSWORD_FILE:-./db_password.conf}
