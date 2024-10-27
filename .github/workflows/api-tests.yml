@@ -28,7 +28,7 @@ jobs:
     - name: Run Schemathesis tests
       uses: schemathesis/action@v1
       with:
-        schema: "./schemas/schema.graphqls"
+        schema: "./schemas/schema.graphql"
         base-url: "http://127.0.0.1:4200/"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
 
