@@ -1,0 +1,66 @@
+# Project: Junqo
+# Description: This file is the production docker-compose file for the Junqo project.
+#              It deploy everything needed to run the project in production mode.
+
+services:
+  front:
+    container_name: junqo_front
+    build:
+      context: ./junqo_front
+      dockerfile: ./dockerfile.prod
+      args:
+        - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - back
+
+  back:
+    container_name: junqo_back
+    build:
+      context: ./junqo_back
+      dockerfile: ./dockerfile.prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      DATABASE_NAME: junqo
+      DATABASE_USER: junqo
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
+      DATABASE_HOST: db
+    networks:
+      - back-net
+    ports:
+      - "${BACK_PORT:-4200}:3000"
+    depends_on:
+      - db
+    secrets:
+      - db_password
+
+  db:
+    container_name: junqo_db
+    image: postgres:alpine
+    restart: always
+    shm_size: ${POSTGRES_SHM_SIZE:-128mb}
+    networks:
+      - back-net
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-junqo}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: ${POSTGRES_DB:-junqo}
+    secrets:
+      - db_password
+
+networks:
+  back-net:
+    driver: bridge
+
+
+volumes:
+  db_data:
+
+secrets:
+  db_password:
+    file: ${DB_PASSWORD_FILE:-./db_password.conf}

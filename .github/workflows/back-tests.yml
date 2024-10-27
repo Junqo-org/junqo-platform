@@ -1,0 +1,33 @@
+# Launch tests for the backend
+name: Backend Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - "junqo_back/**"
+      - ".github/workflows/back-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16' # Specify the Node.js version you are using
+
+    - name: Install dependencies
+      working-directory: junqo_back
+      run: npm install
+
+    - name: Run tests
+      working-directory: junqo_back
+      run: npm test
