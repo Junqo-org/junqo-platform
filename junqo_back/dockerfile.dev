@@ -1,40 +1,39 @@
 # Project: junqo
 # Description: Dockerfile for the development environment of the back-end application.
 
-## Stage 1: Build the application
-# Using node image as base
-FROM node:slim AS build
-
-# Setting up the work directory
-WORKDIR /usr/src/app
-
-# Copying all the files in our project
-COPY . /usr/src/app/
-
-# Installing the dependencies
-RUN npm install
-
-## Stage 2: Run the application
-# Using node image as base
 FROM node:slim
+
+# Environment variables
+ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas/**/*.graphql
+ENV NODE_ENV=development
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3000 || exit 1
 
+# Creating an unprivileged user
 RUN useradd -ms /bin/sh -u 1001 app
-USER app
+
+# Ensure app user owns the work directory and has permissions
+RUN mkdir -p /home/app/junqo_back/dist && chown -R app:app /home/app/junqo_back
 
 # Setting up the work directory
-WORKDIR /usr/src/app
+WORKDIR /home/app/junqo_back
 
-# Copying the built files from the previous stage
-COPY --chown=app:app  --from=build /usr/src/app/ /usr/src/app/
+# Using a non-root user
+USER app
 
-# Exposing the port
-EXPOSE 3000
+# Copying project files
+COPY --chown=app:app ./junqo_back /home/app/junqo_back/
+COPY --chown=app:app ./schemas/ /home/app/schemas/
+
+# Installing dependencies
+RUN npm install --include=dev
 
 # Building the application
 RUN ["npm", "run", "build"]
+
+# Exposing the port
+EXPOSE 3000
 
 # Running the application
 CMD ["npm", "run", "start:dev"]

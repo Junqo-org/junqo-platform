@@ -5,7 +5,7 @@
 # Endpoints
 type Query {
     # Users
-    users: [User!]!
+    users(first: Int, after: String): UserConnection!
     user(id: ID!): User!
 
     # Messages
@@ -24,37 +24,66 @@ type Query {
 type Mutation {
     # Users
     createUser(name: String!, email: String!, password: String!): User!
-    updateUser(id: ID!, name: String, email: String, password: String): User!
+    updateUser(id: ID!, input: UpdateUserInput!): User!
     deleteUser(id: ID!): User!
 
     # Messages
-    createMessage(text: String!): Message!
+    createMessage(text: String!, userId: ID!): Message!
     updateMessage(id: ID!, text: String): Message!
     deleteMessage(id: ID!): Message!
 
     # Offers
-    createOffer(title: String!, description: String!): Offer!
+    createOffer(title: String!, description: String!, userId: ID!): Offer!
     updateOffer(id: ID!, title: String, description: String): Offer!
     deleteOffer(id: ID!): Offer!
 }
 
 type Subscription {
     # Messages
-    messageAdded: Message!
+    messageAdded(userId: ID): Message!
+
+    # Offers
+    offerAdded(category: String): Offer!
+}
+
+type UserConnection {
+    edges: [UserEdge!]!
+    pageInfo: PageInfo!
+}
+
+type UserEdge {
+    node: User!
+    cursor: String!
+}
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  password: String
 }
 
 # Types
 ## Users
+
 type User {
     id: ID!
     name: String!
     email: String!
-    password: String!
     createdAt: String!
     updatedAt: String!
+    messages: [Message!]!
+    offers: [Offer!]!
 }
 
 ## Messages
+
 type Message {
     id: ID!
     text: String!
@@ -63,7 +92,6 @@ type Message {
     user: User!
 }
 
-## Offers
 type Offer {
     id: ID!
     title: String!
@@ -71,4 +99,11 @@ type Offer {
     createdAt: String!
     updatedAt: String!
     user: User!
+    status: OfferStatus!
+}
+
+enum OfferStatus {
+    OPEN
+    CLOSED
+    PENDING
 }

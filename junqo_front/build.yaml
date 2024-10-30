@@ -1,13 +1,16 @@
 targets:
   $default:
     builders:
+      # For more information see: https://ferrygraphql.com/docs/codegen/
       ferry_generator|graphql_builder:
         enabled: true
         options:
-          schemas:
-            - junqo_front|lib/graphql/schema.graphql
+          schema: junqo_front|lib/schemas/schema.graphql
+          # schemas:
+          #   - junqo_front|lib/schemas/schema2.graphql
       ferry_generator|serializer_builder:
         enabled: true
         options:
-          schemas:
-            - junqo_front|lib/graphql/schema.graphql
+          schema: junqo_front|lib/schemas/schema.graphql
+          # schemas:
+          #   - junqo_front|lib/schemas/schema2.graphql

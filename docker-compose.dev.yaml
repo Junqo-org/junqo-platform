@@ -6,8 +6,8 @@ services:
   front:
     container_name: junqo_front_dev
     build:
-      context: ./junqo_front
-      dockerfile: ./dockerfile.dev
+      context: ./
+      dockerfile: ./junqo_front/dockerfile.dev
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
     restart: always
@@ -30,11 +30,10 @@ services:
   back:
     container_name: junqo_back_dev
     build:
-      context: ./junqo_back
-      dockerfile: ./dockerfile.dev
+      context: ./
+      dockerfile: ./junqo_back/dockerfile.dev
     restart: always
     environment:
-      NODE_ENV: development
       DATABASE_NAME: junqo
       DATABASE_USER: junqo
       DATABASE_PASSWORD_FILE: /run/secrets/db_password

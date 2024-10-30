@@ -2,17 +2,20 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import * as path from 'path';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      typePaths: ['../schemas/**/*.graphql'],
+      typePaths: [
+        process.env.GRAPHQL_SCHEMAS_PATH || '../schemas/**/*.graphql',
+      ],
       // Generate typePaths
       definitions: {
-        path: process.cwd() + 'src/graphql.ts',
+        path: path.join(process.cwd(), 'src', 'graphql.ts'),
       },
-      // playground: false, // Disable playground and debug
+      playground: process.env.NODE_ENV === 'production' ? false : true,
     }),
   ],
 })

@@ -32,13 +32,13 @@ dependencies:
   flutter:
     sdk: flutter
   # Dependencies from https://ferrygraphql.com/docs/flutter and https://ferrygraphql.com/docs/setup
-  ferry: #[latest-version]
-  gql_http_link: #[latest-version]
-  ferry_flutter: #[latest-version]
-  hive: #[latest-version]
-  ferry_hive_store: #[latest-version]
-  hive_flutter: #[latest-version]
-  get_it: #[latest-version]
+  ferry: ">=0.14.0 <1.0.0"
+  gql_http_link: ">=1.0.1 <2.0.0"
+  ferry_flutter: ">=0.8.1 <1.0.0"
+  hive: ">=2.2.3 <3.0.0"
+  ferry_hive_store: ">=0.5.1 <1.0.0"
+  hive_flutter: ">=1.1.0 <2.0.0"
+  get_it: ">=8.0.0 <9.0.0"
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -49,15 +49,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   # Dev dependencies from https://ferrygraphql.com/docs/setup
-  ferry_generator: #[latest-version]
-  build_runner: #[latest-version]
+  ferry_generator: ">=0.8.1 <1.0.0"
+  build_runner: ">=2.4.6 <3.0.0"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ">=3.0.0 <6.0.0"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
