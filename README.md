@@ -47,6 +47,7 @@ If you are a new user of the project, you should start by reading the [user docu
   - [GitHub Pages](https://pages.github.com)
 - CI/CD
   - [GitHub Actions](https://docs.github.com/en/actions)
+  - [MochaJs](https://mochajs.org/)
 - Frontend
   - [Flutter](https://flutter.dev/)
   - [Ferry Graphql](https://ferrygraphql.com/)
@@ -60,6 +61,5 @@ If you are a new user of the project, you should start by reading the [user docu
   - [Docker Swarm](https://docs.docker.com/engine/swarm/)
   - [Kubernetes](https://kubernetes.io/docs/home/)
   - [Helm](https://helm.sh/)
-  - [MochaJs](https://mochajs.org/)
   - [Prometheus](https://prometheus.io/docs/introduction/overview/)
   - [Grafana](https://grafana.com/docs/grafana/latest/getting-started/getting-started-prometheus/)
