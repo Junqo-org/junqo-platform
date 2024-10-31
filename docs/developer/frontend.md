@@ -14,6 +14,10 @@ nav_order: 2
   - [Installation](#installation)
   - [Local Development Setup](#local-development-setup)
   - [Running the Application](#running-the-application)
+  - [Development Environment Configuration](#development-environment-configuration)
+  - [Hot Reload/Restart](#hot-reloadrestart)
+  - [Common Development Commands](#common-development-commands)
+  - [Platform-Specific Build Instructions](#platform-specific-build-instructions)
 - [Technologies](#technologies)
 
 ## Getting started
@@ -32,7 +36,7 @@ Its main goal is to provide a user interface to interact with the backend.
 1. Clone the repository:
 
   ```sh
-  git clone https://github.com/your-repo/junqo-platform.git
+  git clone https://github.com/Junqo-org/junqo-platform.git
   ```
 
 2. Navigate to the frontend directory:
@@ -68,6 +72,77 @@ Its main goal is to provide a user interface to interact with the backend.
 
   ```sh
   flutter build apk
+  ```
+
+### Development Environment Configuration
+
+- **VS Code**: Install the Flutter and Dart extensions.
+- **Android Studio**: Install the Flutter and Dart plugins.
+
+### Hot Reload/Restart
+
+- **Hot Reload**: Press `r` in the terminal or use the hot reload button in your IDE.
+- **Hot Restart**: Press `R` in the terminal or use the hot restart button in your IDE.
+
+### Common Development Commands
+
+- Clean the project:
+
+  ```sh
+  flutter clean
+  ```
+
+- Upgrade dependencies:
+
+  ```sh
+  flutter pub upgrade
+  ```
+
+- Upgrade dependencies versions:
+
+  ```sh
+  flutter pub outdated
+  flutter pub upgrade --major-versions
+  ```
+
+- Run tests:
+
+  ```sh
+  flutter test
+  ```
+
+- Run lint checks:
+
+  ```sh
+  flutter analyze
+  ```
+
+- Generate GraphQL code:
+
+  ```sh
+  flutter pub run build_runner build
+  ```
+
+### Platform-Specific Build Instructions
+
+- **iOS**: Ensure you have Xcode installed. Run:
+
+  ```sh
+  flutter build ios
+  ```
+
+- **Web**: Ensure you have Chrome installed. Run:
+
+  ```sh
+  flutter build web
+  ```
+
+- **Desktop**: Ensure you have the necessary dependencies installed. Run:
+
+  ```sh
+  flutter build windows
+  flutter build macos
+  flutter build linux
   ```
 
 ## Technologies

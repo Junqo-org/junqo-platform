@@ -1,30 +1,43 @@
 import 'package:gql_http_link/gql_http_link.dart';
 import 'package:ferry/ferry.dart';
 import 'package:ferry_hive_store/ferry_hive_store.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-const apiUrl = 'localhost:3000';
+const apiUrl = String.fromEnvironment(
+  'API_URL',
+  defaultValue: 'http://localhost:3000',
+);
 
+/// Initializes a GraphQL client with local caching using Hive.
+///
+/// [clearBox] - When true, clears any existing cached data.
+///
+/// Throws [HiveError] if box initialization fails.
+/// Throws [HttpLinkError] if API URL is invalid.
 Future<Client> initClient({bool clearBox = false}) async {
-  await Hive.initFlutter();
+  try {
+    await Hive.initFlutter();
 
-  final box = await Hive.openBox<Map<String, dynamic>>("graphql");
+    final box = await Hive.openBox<Map<String, dynamic>>("graphql");
 
-  if (clearBox) {
-    await box.clear();
+    if (clearBox) {
+      await box.clear();
+    }
+
+    final store = HiveStore(box);
+    final cache = Cache(store: store);
+    final link = HttpLink(
+      apiUrl,
+      defaultHeaders: {'Accept': 'application/json'},
+    );
+
+    final client = Client(
+      link: link,
+      cache: cache,
+    );
+
+    return client;
+  } catch (e) {
+    throw Exception('Failed to initialize GraphQL client: $e');
   }
-
-  final store = HiveStore(box);
-
-  final cache = Cache(store: store);
-
-  final link = HttpLink(apiUrl);
-
-  final client = Client(
-    link: link,
-    cache: cache,
-  );
-
-  return client;
 }

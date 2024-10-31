@@ -9,11 +9,11 @@ type Query {
     user(id: ID!): User!
 
     # Messages
-    messages: [Message!]!
+    messages(first: Int, after: String): MessageConnection!
     message(id: ID!): Message!
 
     # Offers
-    offers: [Offer!]!
+    offers(first: Int, after: String): OfferConnection!
     offer(id: ID!): Offer!
 
     # AI
@@ -44,6 +44,23 @@ type Subscription {
 
     # Offers
     offerAdded(category: String): Offer!
+}
+
+type MessageConnection {
+    edges: [MessageEdge!]!
+    pageInfo: PageInfo!
+}
+type MessageEdge {
+    node: Message!
+    cursor: String!
+}
+type OfferConnection {
+    edges: [OfferEdge!]!
+    pageInfo: PageInfo!
+}
+type OfferEdge {
+    node: Offer!
+    cursor: String!
 }
 
 type UserConnection {

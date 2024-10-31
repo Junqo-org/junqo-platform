@@ -35,7 +35,7 @@ Before you begin, ensure you have the following software installed:
 1. Clone the repository:
 
   ```bash
-  git clone https://github.com/your-repo/junqo-platform.git
+  git clone https://github.com/Junqo-org/junqo-platform.git
   cd junqo-platform
   ```
 
