@@ -10,7 +10,7 @@ services:
       dockerfile: ./junqo_front/dockerfile.dev
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
-    restart: always
+    restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
@@ -32,7 +32,7 @@ services:
     build:
       context: ./
       dockerfile: ./junqo_back/dockerfile.dev
-    restart: always
+    restart: unless-stopped
     environment:
       DATABASE_NAME: junqo
       DATABASE_USER: junqo
@@ -58,7 +58,7 @@ services:
   db:
     container_name: junqo_db_dev
     image: postgres:alpine
-    restart: always
+    restart: unless-stopped
     shm_size: ${DATABASE_SHM_SIZE:-128mb}
     networks:
       - back-net
@@ -74,7 +74,7 @@ services:
   adminer:
     container_name: junqo_adminer_dev
     image: adminer
-    restart: always
+    restart: unless-stopped
     environment:
       ADMINER_DESIGN: ${ADMINER_DESIGN:-pepa-linha-dark}
       ADMINER_DEFAULT_SERVER: db
