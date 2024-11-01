@@ -29,7 +29,7 @@ jobs:
       uses: schemathesis/action@v1
       with:
         schema: "./schemas/schema.graphql"
-        base-url: "http://127.0.0.1:4200/"
+        base-url: "http://127.0.0.1:4200/graphql"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
 
     - name: Stop containers
