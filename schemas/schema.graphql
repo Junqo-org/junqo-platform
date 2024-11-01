@@ -229,13 +229,6 @@ compliant with the `date-time` format outlined in section 5.6 of RFC 3339.
 """
 scalar DateTime
 
-
-"""
-A field whose value conforms to the standard internet email address format
-as specified in RFC822: https://www.w3.org/Protocols/rfc822/.
-"""
-# scalar EmailAddress
-
 """
 Interface for common fields
 """
