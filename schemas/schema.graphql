@@ -169,6 +169,13 @@ type User implements Stored {
   offers: [Offer!]!
 }
 
+type Experience {
+  title: String!
+  company: String!
+  startDate: String!
+  endDate: String
+}
+
 type Message implements Stored {
     id: ID!
     createdAt: String!
