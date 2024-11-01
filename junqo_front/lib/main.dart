@@ -8,7 +8,7 @@ import 'package:junqo_front/src/app.dart';
 void main() async {
   final client = await initClient();
   // Register the client to be accessible globally
-  GetIt.instance.registerLazySingleton<TypedLink>(() => client);
+  GetIt.instance.registerLazySingleton<Client>(() => client);
 
   runApp(const App());
 }

@@ -18,7 +18,7 @@ RUN npm run build
 FROM node:slim
 
 # Environment variables
-ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas/**/*.graphql
+ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas
 ENV NODE_ENV=production
 
 # Create an unprivileged user

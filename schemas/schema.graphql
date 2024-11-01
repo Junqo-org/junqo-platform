@@ -17,25 +17,25 @@ type Query {
     offer(id: ID!): Offer!
 
     # AI
-    profileFromResume(resume: String!): User!
-    interviewReply(interview: String!): String!
+    profileFromResume(input: ResumeInput!): UserProfile!
+    interviewReply(input: InterviewInput!): InterviewResponse!
 }
 
 type Mutation {
     # Users
-    createUser(name: String!, email: String!, password: String!): User!
-    updateUser(id: ID!, input: UpdateUserInput!): User!
-    deleteUser(id: ID!): User!
+    createUser(name: String!, email: String!, password: String!): MutationResponse!
+    updateUser(id: ID!, input: UpdateUserInput!): MutationResponse!
+    deleteUser(id: ID!): MutationResponse!
 
     # Messages
-    createMessage(text: String!, userId: ID!): Message!
-    updateMessage(id: ID!, text: String): Message!
-    deleteMessage(id: ID!): Message!
+    createMessage(text: String!, userId: ID!): MutationResponse!
+    updateMessage(id: ID!, text: String): MutationResponse!
+    deleteMessage(id: ID!): MutationResponse!
 
     # Offers
-    createOffer(title: String!, description: String!, userId: ID!): Offer!
-    updateOffer(id: ID!, title: String, description: String): Offer!
-    deleteOffer(id: ID!): Offer!
+    createOffer(title: String!, description: String!, userId: ID!): MutationResponse!
+    updateOffer(id: ID!, title: String, description: String): MutationResponse!
+    deleteOffer(id: ID!): MutationResponse!
 }
 
 type Subscription {
@@ -46,22 +46,29 @@ type Subscription {
     offerAdded(category: String): Offer!
 }
 
-type MessageConnection {
-    edges: [MessageEdge!]!
-    pageInfo: PageInfo!
+# Responses types
+
+"""
+Union type for mutation responses
+"""
+union MutationResponse = SuccessResponse | ValidationError | NotFoundError
+
+type SuccessResponse {
+  success: Boolean!
+  message: String
 }
-type MessageEdge {
-    node: Message!
-    cursor: String!
+
+type ValidationError {
+  field: String!
+  message: String!
 }
-type OfferConnection {
-    edges: [OfferEdge!]!
-    pageInfo: PageInfo!
+
+type NotFoundError {
+  message: String!
 }
-type OfferEdge {
-    node: Offer!
-    cursor: String!
-}
+
+# Input / Output types
+## User
 
 type UserConnection {
     edges: [UserEdge!]!
@@ -73,6 +80,65 @@ type UserEdge {
     cursor: String!
 }
 
+input UpdateUserInput {
+  name: String
+  email: String
+  password: String
+}
+
+## Message
+
+type MessageConnection {
+    edges: [MessageEdge!]!
+    pageInfo: PageInfo!
+}
+type MessageEdge {
+    node: Message!
+    cursor: String!
+}
+
+## Offer
+
+type OfferConnection {
+    edges: [OfferEdge!]!
+    pageInfo: PageInfo!
+}
+type OfferEdge {
+    node: Offer!
+    cursor: String!
+}
+
+## AI
+
+"""
+Input type for resume parsing
+"""
+input ResumeInput {
+  content: String!
+  format: ResumeFormat!
+}
+
+"""
+Input type for interview responses
+"""
+input InterviewInput {
+  question: String!
+  context: String
+}
+
+type UserProfile {
+  name: String
+  skills: [String!]!
+  experience: [Experience!]!
+}
+
+type InterviewResponse {
+  answer: String!
+  confidence: Float!
+}
+
+## Common
+
 type PageInfo {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
@@ -80,41 +146,43 @@ type PageInfo {
     endCursor: String
 }
 
-input UpdateUserInput {
-  name: String
-  email: String
-  password: String
+# Interfaces
+
+"""
+Interface for common fields
+"""
+interface Stored {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
 }
 
-# Types
-## Users
+# Main types
 
-type User {
+type User implements Stored {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+  email: String!
+  messages: [Message!]!
+  offers: [Offer!]!
+}
+
+type Message implements Stored {
     id: ID!
-    name: String!
-    email: String!
     createdAt: String!
     updatedAt: String!
-    messages: [Message!]!
-    offers: [Offer!]!
-}
-
-## Messages
-
-type Message {
-    id: ID!
     text: String!
-    createdAt: String!
-    updatedAt: String!
     user: User!
 }
 
-type Offer {
+type Offer implements Stored {
     id: ID!
-    title: String!
-    description: String!
     createdAt: String!
     updatedAt: String!
+    title: String!
+    description: String!
     user: User!
     status: OfferStatus!
 }
@@ -123,4 +191,9 @@ enum OfferStatus {
     OPEN
     CLOSED
     PENDING
+}
+
+enum ResumeFormat {
+  PDF
+  HTML
 }

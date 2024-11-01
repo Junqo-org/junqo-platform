@@ -9,7 +9,10 @@ import * as path from 'path';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       typePaths: [
-        process.env.GRAPHQL_SCHEMAS_PATH || '../schemas/**/*.graphql',
+        path.join(
+          process.env.GRAPHQL_SCHEMAS_PATH || '../schemas',
+          '/**/*.graphql',
+        ),
       ],
       // Generate typePaths
       definitions: {
