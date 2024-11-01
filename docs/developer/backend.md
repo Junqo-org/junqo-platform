@@ -82,7 +82,7 @@ Before you begin, ensure you have the following software installed:
 
 ### Basic Usage
 
-Once the application is running, you can access the API at `http://localhost:3000`. For detailed API documentation, refer to the [API documentation](http://doc.junqo.fr/api/introduction).
+Once the application is running, you can access the API at `http://localhost:3000/graphql`. For detailed API documentation, refer to the [API documentation](http://doc.junqo.fr/api/introduction).
 
 ## Technologies
 

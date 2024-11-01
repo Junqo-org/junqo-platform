@@ -5,7 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 const apiUrl = String.fromEnvironment(
   'API_URL',
-  defaultValue: 'http://localhost:3000',
+  defaultValue: 'http://localhost:3000/graphql',
 );
 
 /// Initializes a GraphQL client with local caching using Hive.

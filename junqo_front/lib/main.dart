@@ -6,6 +6,7 @@ import 'package:junqo_front/src/client.dart';
 import 'package:junqo_front/src/app.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final client = await initClient();
   // Register the client to be accessible globally
   GetIt.instance.registerLazySingleton<Client>(() => client);

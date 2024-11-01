@@ -4,38 +4,50 @@
 
 # Endpoints
 type Query {
-    # Users
-    users(first: Int, after: String): UserConnection!
-    user(id: ID!): User!
+  # Users
+  users(
+    first: Int,
+    after: String
+    filter: UserFilterInput
+  ): UserConnection!
+  user(id: ID!): User!
 
-    # Messages
-    messages(first: Int, after: String): MessageConnection!
-    message(id: ID!): Message!
+  # Messages
+  messages(
+    first: Int,
+    after: String
+    filter: MessageFilterInput
+  ): MessageConnection!
+  message(id: ID!): Message!
 
-    # Offers
-    offers(first: Int, after: String): OfferConnection!
-    offer(id: ID!): Offer!
+  # Offers
+  offers(
+    first: Int,
+    after: String,
+    filter: OfferFilterInput
+  ): OfferConnection!
+  offer(id: ID!): Offer!
 
-    # AI
-    profileFromResume(input: ResumeInput!): UserProfile!
-    interviewReply(input: InterviewInput!): InterviewResponse!
+  # AI
+  profileFromResume(input: ResumeInput!): UserProfile!
+  interviewReply(input: InterviewInput!): InterviewResponse!
 }
 
 type Mutation {
-    # Users
-    createUser(name: String!, email: String!, password: String!): MutationResponse!
-    updateUser(id: ID!, input: UpdateUserInput!): MutationResponse!
-    deleteUser(id: ID!): MutationResponse!
+  # Users
+  createUser(name: String!, email: String!, password: String!): MutationResponse!
+  updateUser(id: ID!, input: UpdateUserInput!): MutationResponse!
+  deleteUser(id: ID!): MutationResponse!
 
-    # Messages
-    createMessage(text: String!, userId: ID!): MutationResponse!
-    updateMessage(id: ID!, text: String): MutationResponse!
-    deleteMessage(id: ID!): MutationResponse!
+  # Messages
+  createMessage(text: String!, userId: ID!): MutationResponse!
+  updateMessage(id: ID!, text: String): MutationResponse!
+  deleteMessage(id: ID!): MutationResponse!
 
-    # Offers
-    createOffer(title: String!, description: String!, userId: ID!): MutationResponse!
-    updateOffer(id: ID!, title: String, description: String): MutationResponse!
-    deleteOffer(id: ID!): MutationResponse!
+  # Offers
+  createOffer(title: String!, description: String!, userId: ID!): MutationResponse!
+  updateOffer(id: ID!, title: String, description: String): MutationResponse!
+  deleteOffer(id: ID!): MutationResponse!
 }
 
 type Subscription {
@@ -51,7 +63,7 @@ type Subscription {
 """
 Union type for mutation responses
 """
-union MutationResponse = SuccessResponse | ValidationError | NotFoundError
+union MutationResponse = SuccessResponse | ValidationError | NotFoundError | AuthenticationError | AuthorizationError | RateLimitError
 
 type SuccessResponse {
   success: Boolean!
@@ -67,17 +79,42 @@ type NotFoundError {
   message: String!
 }
 
+type AuthenticationError {
+    message: String!
+    loginUrl: String!
+}
+
+type AuthorizationError {
+    message: String!
+    requiredPermissions: [String!]!
+}
+
+type RateLimitError {
+    message: String!
+    retryAfter: Int!
+}
+
+
+type ValidationError {
+  field: String!
+  message: String!
+}
+
+type NotFoundError {
+  message: String!
+}
+
 # Input / Output types
 ## User
 
 type UserConnection {
-    edges: [UserEdge!]!
-    pageInfo: PageInfo!
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
 }
 
 type UserEdge {
-    node: User!
-    cursor: String!
+  node: User!
+  cursor: String!
 }
 
 input UpdateUserInput {
@@ -86,26 +123,49 @@ input UpdateUserInput {
   password: String
 }
 
+input UserFilterInput {
+  nameContains: String
+  email: String
+  createdAfter: String
+  createdBefore: String
+}
+
 ## Message
 
 type MessageConnection {
-    edges: [MessageEdge!]!
-    pageInfo: PageInfo!
+  edges: [MessageEdge!]!
+  pageInfo: PageInfo!
 }
 type MessageEdge {
-    node: Message!
-    cursor: String!
+  node: Message!
+  cursor: String!
+}
+
+input MessageFilterInput {
+  userId: ID
+  textContains: String
+  createdAfter: String
+  createdBefore: String
 }
 
 ## Offer
 
 type OfferConnection {
-    edges: [OfferEdge!]!
-    pageInfo: PageInfo!
+  edges: [OfferEdge!]!
+  pageInfo: PageInfo!
 }
+
 type OfferEdge {
-    node: Offer!
-    cursor: String!
+  node: Offer!
+  cursor: String!
+}
+
+input OfferFilterInput {
+  userId: ID
+  status: OfferStatus
+  titleContains: String
+  createdAfter: String
+  createdBefore: String
 }
 
 ## AI
@@ -140,29 +200,35 @@ type InterviewResponse {
 ## Common
 
 type PageInfo {
-    hasNextPage: Boolean!
-    hasPreviousPage: Boolean!
-    startCursor: String
-    endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
 }
 
 # Interfaces
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z,
+compliant with the `date-time` format outlined in section 5.6 of RFC 3339.
+"""
+scalar DateTime
 
 """
 Interface for common fields
 """
 interface Stored {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 # Main types
 
 type User implements Stored {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   name: String!
   email: String!
   messages: [Message!]!
@@ -172,32 +238,34 @@ type User implements Stored {
 type Experience {
   title: String!
   company: String!
-  startDate: String!
-  endDate: String
+  startDate: DateTime!
+  endDate: DateTime
+  description: String!
+  skills: [String!]!
 }
 
 type Message implements Stored {
-    id: ID!
-    createdAt: String!
-    updatedAt: String!
-    text: String!
-    user: User!
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  text: String!
+  user: User!
 }
 
 type Offer implements Stored {
-    id: ID!
-    createdAt: String!
-    updatedAt: String!
-    title: String!
-    description: String!
-    user: User!
-    status: OfferStatus!
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  title: String!
+  description: String!
+  user: User!
+  status: OfferStatus!
 }
 
 enum OfferStatus {
-    OPEN
-    CLOSED
-    PENDING
+  OPEN
+  CLOSED
+  PENDING
 }
 
 enum ResumeFormat {
