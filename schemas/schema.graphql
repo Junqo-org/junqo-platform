@@ -94,16 +94,6 @@ type RateLimitError {
     retryAfter: Int!
 }
 
-
-type ValidationError {
-  field: String!
-  message: String!
-}
-
-type NotFoundError {
-  message: String!
-}
-
 # Input / Output types
 ## User
 
