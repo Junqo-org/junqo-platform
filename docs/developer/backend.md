@@ -20,8 +20,7 @@ nav_order: 2
 ## Getting started
 
 The backend of the **Junqo-platform** is a NestJs application.  
-Its main goal is to provide a GraphQL API that enables efficient and flexible database interactions.  
-This API allows clients to request exactly the data they need and supports real-time updates through subscriptions.
+Its main goal is to provide a GraphQL API that enables efficient and flexible database interactions.
 
 ### Prerequisites
 

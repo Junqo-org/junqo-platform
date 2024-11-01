@@ -29,13 +29,17 @@ type Query {
   offer(id: ID!): Offer!
 
   # AI
-  profileFromResume(input: ResumeInput!): UserProfile!
-  interviewReply(input: InterviewInput!): InterviewResponse!
+  profileFromResume(input: ResumeInput!): ProfileFromResumeResponse!
+  interviewReply(input: InterviewInput!): InterviewReplyResponse!
 }
 
 type Mutation {
   # Users
-  createUser(name: String!, email: String!, password: String!): MutationResponse!
+  createUser(
+    name: String!
+    email: EmailAddress!
+    password: String!
+  ): MutationResponse!
   updateUser(id: ID!, input: UpdateUserInput!): MutationResponse!
   deleteUser(id: ID!): MutationResponse!
 
@@ -71,6 +75,7 @@ type SuccessResponse {
 }
 
 type ValidationError {
+  code: ErrorCode!
   field: String!
   message: String!
 }
@@ -94,6 +99,23 @@ type RateLimitError {
     retryAfter: Int!
 }
 
+enum ErrorCode {
+  VALIDATION_FAILED
+  AUTHENTICATION_REQUIRED
+  PERMISSION_DENIED
+  RESOURCE_NOT_FOUND
+  RATE_LIMIT_EXCEEDED
+}
+
+union ProfileFromResumeResponse = UserProfile | AIError
+union InterviewReplyResponse = InterviewResponse | AIError
+
+type AIError {
+  code: String!
+  message: String!
+  retryable: Boolean!
+}
+
 # Input / Output types
 ## User
 
@@ -109,15 +131,15 @@ type UserEdge {
 
 input UpdateUserInput {
   name: String
-  email: String
+  email: EmailAddress
   password: String
 }
 
 input UserFilterInput {
   nameContains: String
-  email: String
-  createdAfter: String
-  createdBefore: String
+  email: EmailAddress
+  createdAfter: DateTime
+  createdBefore: DateTime
 }
 
 ## Message
@@ -134,8 +156,8 @@ type MessageEdge {
 input MessageFilterInput {
   userId: ID
   textContains: String
-  createdAfter: String
-  createdBefore: String
+  createdAfter: DateTime
+  createdBefore: DateTime
 }
 
 ## Offer
@@ -154,8 +176,8 @@ input OfferFilterInput {
   userId: ID
   status: OfferStatus
   titleContains: String
-  createdAfter: String
-  createdBefore: String
+  createdAfter: DateTime
+  createdBefore: DateTime
 }
 
 ## AI
@@ -204,6 +226,13 @@ compliant with the `date-time` format outlined in section 5.6 of RFC 3339.
 """
 scalar DateTime
 
+
+"""
+A field whose value conforms to the standard internet email address format
+as specified in RFC822: https://www.w3.org/Protocols/rfc822/.
+"""
+scalar EmailAddress
+
 """
 Interface for common fields
 """
@@ -211,6 +240,7 @@ interface Stored {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
+  deletedAt: DateTime
 }
 
 # Main types
@@ -219,8 +249,9 @@ type User implements Stored {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
+  deletedAt: DateTime
   name: String!
-  email: String!
+  email: EmailAddress!
   messages: [Message!]!
   offers: [Offer!]!
 }
@@ -238,6 +269,7 @@ type Message implements Stored {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
+  deletedAt: DateTime
   text: String!
   user: User!
 }
@@ -246,10 +278,15 @@ type Offer implements Stored {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
+  deletedAt: DateTime
   title: String!
   description: String!
   user: User!
   status: OfferStatus!
+  expiresAt: DateTime
+  category: String!
+  tags: [String!]
+  viewCount: Int!
 }
 
 enum OfferStatus {
