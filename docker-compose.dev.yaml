@@ -38,6 +38,7 @@ services:
       DATABASE_USER: junqo
       DATABASE_PASSWORD_FILE: /run/secrets/db_password
       DATABASE_HOST: db
+      DATABASE_PORT: ${DATABASE_PORT:-5432}
     networks:
       - back-net
     ports:
@@ -66,6 +67,7 @@ services:
       POSTGRES_USER: ${DATABASE_USER:-junqo}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
+      POSTGRES_PORT: ${DATABASE_PORT:-5432}
     secrets:
       - db_password
     volumes:

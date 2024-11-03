@@ -5,7 +5,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Graceful shutdown
-  // Graceful shutdown
   const shutdown = async (signal: string) => {
     console.log(`Received ${signal}. Starting graceful shutdown...`);
     try {
@@ -24,6 +23,6 @@ async function bootstrap() {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 
-  await app.listen(3000);
+  await app.listen(process.env.BACK_PORT ?? 3000);
 }
 bootstrap();

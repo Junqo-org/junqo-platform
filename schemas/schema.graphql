@@ -1,297 +1,59 @@
 # Junqo Project
-# This file contains the schema for the Junqo API
+# This file contains the implemented schema for the Junqo API
 # Please read the `README.md` file before making any changes
 
-# Endpoints
+# Operations
+
 type Query {
-  # Users
-  users(
-    first: Int,
-    after: String
-    filter: UserFilterInput
-  ): UserConnection!
-  user(id: ID!): User!
+  # Get all the users
+  users: [User!]!
 
-  # Messages
-  messages(
-    first: Int,
-    after: String
-    filter: MessageFilterInput
-  ): MessageConnection!
-  message(id: ID!): Message!
-
-  # Offers
-  offers(
-    first: Int,
-    after: String,
-    filter: OfferFilterInput
-  ): OfferConnection!
-  offer(id: ID!): Offer!
-
-  # AI
-  profileFromResume(input: ResumeInput!): ProfileFromResumeResponse!
-  interviewReply(input: InterviewInput!): InterviewReplyResponse!
+  # Get a user by their ID
+  user(id: ID!): User
 }
 
 type Mutation {
-  # Users
-  createUser(
-    name: String!
-    email: String!
-    password: String!
-  ): MutationResponse!
-  updateUser(id: ID!, input: UpdateUserInput!): MutationResponse!
-  deleteUser(id: ID!): MutationResponse!
+  # Create a new user
+  createUser(input: CreateUserInput!): User!
 
-  # Messages
-  createMessage(text: String!, userId: ID!): MutationResponse!
-  updateMessage(id: ID!, text: String): MutationResponse!
-  deleteMessage(id: ID!): MutationResponse!
+  # Update a user by their ID
+  updateUser(id: ID!, input: UpdateUserInput!): User!
 
-  # Offers
-  createOffer(title: String!, description: String!, userId: ID!): MutationResponse!
-  updateOffer(id: ID!, title: String, description: String): MutationResponse!
-  deleteOffer(id: ID!): MutationResponse!
+  # Delete a user by their ID
+  deleteUser(id: ID!): User!
 }
 
 type Subscription {
-    # Messages
-    messageAdded(userId: ID): Message!
-
-    # Offers
-    offerAdded(category: String): Offer!
+  # Subscribe to new users
+  userCreated: User!
 }
 
-# Responses types
+# Main Types
+type User {
+  # The ID of the user
+  id: ID!
 
-"""
-Union type for mutation responses
-"""
-union MutationResponse = SuccessResponse | ValidationError | NotFoundError | AuthenticationError | AuthorizationError | RateLimitError
+  # The name of the user
+  name: String!
 
-type SuccessResponse {
-  success: Boolean!
-  message: String
+  # The email of the user
+  email: String!
 }
 
-type ValidationError {
-  code: ErrorCode!
-  field: String!
-  message: String!
-}
+# Inputs
 
-type NotFoundError {
-  message: String!
-}
+input CreateUserInput {
+  # The name of the user
+  name: String!
 
-type AuthenticationError {
-    message: String!
-    loginUrl: String!
-}
-
-type AuthorizationError {
-    message: String!
-    requiredPermissions: [String!]!
-}
-
-type RateLimitError {
-    message: String!
-    retryAfter: Int!
-}
-
-enum ErrorCode {
-  VALIDATION_FAILED
-  AUTHENTICATION_REQUIRED
-  PERMISSION_DENIED
-  RESOURCE_NOT_FOUND
-  RATE_LIMIT_EXCEEDED
-  AI_PROCESSING_FAILED
-  AI_INVALID_INPUT
-  AI_SERVICE_UNAVAILABLE
-}
-
-union ProfileFromResumeResponse = UserProfile | AIError
-union InterviewReplyResponse = InterviewResponse | AIError
-
-type AIError {
-  code: ErrorCode!
-  message: String!
-  retryable: Boolean!
-}
-
-# Input / Output types
-## User
-
-type UserConnection {
-  edges: [UserEdge!]!
-  pageInfo: PageInfo!
-}
-
-type UserEdge {
-  node: User!
-  cursor: String!
+  # The email of the user
+  email: String!
 }
 
 input UpdateUserInput {
+  # The name of the user
   name: String
+
+  # The email of the user
   email: String
-  password: String
-}
-
-input UserFilterInput {
-  nameContains: String
-  email: String
-  createdAfter: DateTime
-  createdBefore: DateTime
-}
-
-## Message
-
-type MessageConnection {
-  edges: [MessageEdge!]!
-  pageInfo: PageInfo!
-}
-type MessageEdge {
-  node: Message!
-  cursor: String!
-}
-
-input MessageFilterInput {
-  userId: ID
-  textContains: String
-  createdAfter: DateTime
-  createdBefore: DateTime
-}
-
-## Offer
-
-type OfferConnection {
-  edges: [OfferEdge!]!
-  pageInfo: PageInfo!
-}
-
-type OfferEdge {
-  node: Offer!
-  cursor: String!
-}
-
-input OfferFilterInput {
-  userId: ID
-  status: OfferStatus
-  titleContains: String
-  createdAfter: DateTime
-  createdBefore: DateTime
-}
-
-## AI
-
-"""
-Input type for resume parsing
-"""
-input ResumeInput {
-  content: String!
-  format: ResumeFormat!
-}
-
-"""
-Input type for interview responses
-"""
-input InterviewInput {
-  question: String!
-  context: String
-}
-
-type UserProfile {
-  name: String
-  skills: [String!]!
-  experience: [Experience!]!
-}
-
-type InterviewResponse {
-  answer: String!
-  confidence: Float!
-}
-
-## Common
-
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-}
-
-# Interfaces
-
-"""
-A date-time string at UTC, such as 2007-12-03T10:15:30Z,
-compliant with the `date-time` format outlined in section 5.6 of RFC 3339.
-"""
-scalar DateTime
-
-"""
-Interface for common fields
-"""
-interface Stored {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  deletedAt: DateTime
-}
-
-# Main types
-
-type User implements Stored {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  deletedAt: DateTime
-  name: String!
-  email: String!
-  messages: [Message!]!
-  offers: [Offer!]!
-}
-
-type Experience {
-  title: String!
-  company: String!
-  startDate: DateTime!
-  endDate: DateTime
-  description: String!
-  skills: [String!]!
-}
-
-type Message implements Stored {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  deletedAt: DateTime
-  text: String!
-  user: User!
-}
-
-type Offer implements Stored {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  deletedAt: DateTime
-  title: String!
-  description: String!
-  user: User!
-  status: OfferStatus!
-  expiresAt: DateTime
-  category: String!
-  tags: [String!]
-  viewCount: Int!
-}
-
-enum OfferStatus {
-  OPEN
-  CLOSED
-  PENDING
-}
-
-enum ResumeFormat {
-  PDF
-  HTML
 }
