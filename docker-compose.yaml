@@ -21,13 +21,13 @@ services:
     build:
       context: ./
       dockerfile: ./junqo_back/dockerfile.prod
+      args:
+        - DATABASE_NAME=${DATABASE_NAME:-junqo}
+        - DATABASE_USER=${DATABASE_USER:-junqo}
+        - DATABASE_PASSWORD_FILE=/run/secrets/db_password
+        - DATABASE_HOST=db
+        - DATABASE_PORT=${DATABASE_PORT:-5432}
     restart: always
-    environment:
-      DATABASE_NAME: ${DATABASE_NAME:-junqo}
-      DATABASE_USER: ${DATABASE_USER:-junqo}
-      DATABASE_PASSWORD_FILE: /run/secrets/db_password
-      DATABASE_HOST: db
-      DATABASE_PORT: ${DATABASE_PORT:-5432}
     networks:
       - back-net
     ports:
