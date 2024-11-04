@@ -52,9 +52,15 @@ services:
         # Sync all files except node_modules for live reloading
         - action: sync
           path: ./junqo_back
-          target: /usr/src/app/
+          target: /home/app/junqo_back/
           ignore:
             - node_modules/
+        - action: sync+restart
+          path: ./schemas
+          target: /home/app/schemas/
+          ignore:
+            - ./schemas/README.md
+            - ./schemas/schema.graphql.planned
 
   db:
     container_name: junqo_db_dev

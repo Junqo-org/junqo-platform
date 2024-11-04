@@ -2,9 +2,9 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import * as path from 'path';
 import { UsersModule } from './users/users.module';
 import { SequelizeModule } from '@nestjs/sequelize';
+import * as path from 'path';
 import * as fs from 'fs';
 
 function getDbPassword(): string {
@@ -43,9 +43,11 @@ function getDbPassword(): string {
       ],
       // Generate typePaths
       definitions: {
-        path: path.join(process.cwd(), 'src', 'graphql.ts'),
+        path: path.join(process.cwd(), 'src', 'graphql.schema.ts'),
+        outputAs: 'class',
       },
       playground: process.env.NODE_ENV === 'production' ? false : true,
+      debug: process.env.NODE_ENV === 'production' ? false : true,
     }),
   ],
 })

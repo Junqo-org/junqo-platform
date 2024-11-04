@@ -31,7 +31,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Ensure app user owns the work directory and has permissions
-RUN mkdir -p /home/app/junqo_back/dist && chown -R app:app /home/app/junqo_back
+RUN mkdir -p /home/app/junqo_back/dist/ && chown -R app:app /home/app/junqo_back/
 
 # Set the working directory
 WORKDIR /home/app/junqo_back
@@ -40,8 +40,8 @@ WORKDIR /home/app/junqo_back
 USER app
 
 # Copy necessary files from the build stage
-COPY --from=builder --chown=app:app /build/dist ./dist
-COPY --from=builder --chown=app:app /build/package*.json ./
+COPY --from=builder --chown=app:app /build/dist/ ./dist/
+COPY --from=builder --chown=app:app /build/package*.json .
 COPY --from=builder --chown=app:app /schemas/ /home/app/schemas/
 
 # Install production dependencies

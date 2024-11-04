@@ -1,8 +1,10 @@
-import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { UsersService } from './users.service';
-import { UsersGuard } from './users.guard';
+import { User } from './models/user.model';
+import { CreateUserInput } from './dto/create-user.input';
+import { UpdateUserInput } from './dto/update-user.input';
+import { HttpException } from '@nestjs/common';
 
 const pubSub = new PubSub();
 
@@ -10,36 +12,38 @@ const pubSub = new PubSub();
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Query('users')
-  @UseGuards(UsersGuard)
-  async getUsers() {
-    return this.usersService.getUsers();
+  @Query(() => [User])
+  public async users(): Promise<User[]> {
+    return this.usersService.findAll();
   }
 
-  @Query('user')
-  async getUser(@Args('id') id: string) {
-    return this.usersService.getUser(id);
-  }
-
-  @Mutation('createUser')
-  async createUser(@Args('name') name: string, @Args('email') email: string) {
-    const user = this.usersService.createUser(name, email);
-    pubSub.publish('userCreated', { userCreated: user });
+  @Query(() => User)
+  public async user(@Args('id') id: string): Promise<User> {
+    const user = await this.usersService.findOneById(id);
+    if (!user) {
+      throw new HttpException(`User #${id} not found`, 404);
+    }
     return user;
   }
 
-  @Mutation('updateUser')
-  async updateUser(
-    @Args('id') id: string,
-    @Args('name') name: string,
-    @Args('email') email: string,
-  ) {
-    return this.usersService.updateUser(id, name, email);
+  @Mutation(() => User)
+  public async createUser(
+    @Args('createUserInput') createUserInput: CreateUserInput,
+  ): Promise<User> {
+    return await this.usersService.create(createUserInput);
   }
 
-  @Mutation('deleteUser')
-  async deleteUser(@Args('id') id: string) {
-    return this.usersService.deleteUser(id);
+  @Mutation(() => User)
+  public async updateUser(
+    @Args('id') id: string,
+    @Args('updateUserInput') updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    return await this.usersService.update(id, updateUserInput);
+  }
+
+  @Mutation(() => User)
+  public async deleteUser(@Args('id') id: string): Promise<any> {
+    return this.usersService.delete(id);
   }
 
   @Subscription('userCreated')

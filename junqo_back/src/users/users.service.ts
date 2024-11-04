@@ -1,53 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '../graphql';
+import { Injectable, HttpException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { User } from './models/user.model';
+import { CreateUserInput } from './dto/create-user.input';
+import { UpdateUserInput } from './dto/update-user.input';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    {
-      id: '1',
-      name: 'John Doe',
-      email: 'mail',
-    },
-    {
-      id: '2',
-      name: 'Jane Doe',
-      email: 'mail',
-    },
-  ];
+  constructor(
+    @InjectModel(User)
+    private readonly userModel: typeof User,
+  ) {}
 
-  getUsers(): User[] {
-    return this.users;
+  public async findAll(): Promise<User[]> {
+    return this.userModel.findAll();
   }
 
-  getUser(id: string): User {
-    return this.users.find((user) => user.id === id);
-  }
-
-  createUser(name: string, email: string): User {
-    const user: User = {
-      id: String(this.users.length + 1),
-      name,
-      email,
-    };
-    this.users.push(user);
+  public async findOneById(id: string): Promise<User> {
+    const user = await this.userModel.findByPk(id);
+    if (!user) {
+      throw new HttpException(`User #${id} not found`, 404);
+    }
     return user;
   }
 
-  updateUser(id: string, name: string, email: string): User {
-    const userIndex = this.users.findIndex((user) => user.id === id);
-    this.users[userIndex] = {
-      ...this.users[userIndex],
-      name,
-      email,
-    };
-    return this.users[userIndex];
+  public async create(createUserInput: CreateUserInput): Promise<User> {
+    return this.userModel.create({
+      name: createUserInput.name,
+      email: createUserInput.email,
+    });
   }
 
-  deleteUser(id: string): User {
-    const userIndex = this.users.findIndex((user) => user.id === id);
-    const user = this.users[userIndex];
-    this.users.splice(userIndex, 1);
+  public async update(
+    id: string,
+    updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    const user = await this.findOneById(id);
+    await user.update(updateUserInput);
     return user;
+  }
+
+  public async delete(id: string): Promise<any> {
+    const user = await this.findOneById(id);
+    await user.destroy();
   }
 }
