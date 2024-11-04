@@ -15,7 +15,7 @@ type Query {
   # Messages
   messages(
     first: Int,
-    after: String
+    after: String,
     filter: MessageFilterInput
   ): MessageConnection!
   message(id: ID!): Message!
@@ -96,7 +96,7 @@ type AuthorizationError {
 
 type RateLimitError {
     message: String!
-    retryAfter: Int!
+    retryAfterSeconds: Int!
 }
 
 enum ErrorCode {

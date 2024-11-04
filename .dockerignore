@@ -13,3 +13,8 @@ dist
 # IDE files (.vscode, .idea)
 .vscode
 .idea
+
+# documentation
+/docs
+README.md
+*.planned

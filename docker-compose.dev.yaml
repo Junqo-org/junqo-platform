@@ -25,7 +25,7 @@ services:
         - action: rebuild
           path: ./junqo_front
           ignore:
-            - ./junqo_front/nginx.conf
+            - ./nginx.conf
 
   back:
     container_name: junqo_back_dev
@@ -54,13 +54,14 @@ services:
           path: ./junqo_back
           target: /home/app/junqo_back/
           ignore:
-            - node_modules/
+            - ./node_modules/
+        # Sync and restart when schema files change
         - action: sync+restart
           path: ./schemas
           target: /home/app/schemas/
           ignore:
-            - ./schemas/README.md
-            - ./schemas/schema.graphql.planned
+            - ./*.md
+            - ./*.planned
 
   db:
     container_name: junqo_db_dev
