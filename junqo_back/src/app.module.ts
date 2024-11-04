@@ -27,7 +27,7 @@ function getDbPassword(): string {
       dialect: 'postgres',
       host: process.env.DATABASE_HOST || 'localhost',
       port: parseInt(process.env.DATABASE_PORT) || 5432,
-      username: process.env.DATABASE_USER || 'root',
+      username: process.env.DATABASE_USER || 'junqo',
       password: getDbPassword(),
       database: process.env.DATABASE_NAME || 'junqo',
       autoLoadModels: true,

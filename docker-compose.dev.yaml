@@ -34,8 +34,8 @@ services:
       dockerfile: ./junqo_back/dockerfile.dev
     restart: unless-stopped
     environment:
-      DATABASE_NAME: junqo
-      DATABASE_USER: junqo
+      DATABASE_NAME: ${DATABASE_NAME:-junqo}
+      DATABASE_USER: ${DATABASE_USER:-junqo}
       DATABASE_PASSWORD_FILE: /run/secrets/db_password
       DATABASE_HOST: db
       DATABASE_PORT: ${DATABASE_PORT:-5432}
@@ -70,15 +70,15 @@ services:
     shm_size: ${DATABASE_SHM_SIZE:-128mb}
     networks:
       - back-net
+    volumes:
+      - ./database-volume:/var/lib/postgresql/data
     environment:
+      POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_PORT: ${DATABASE_PORT:-5432}
     secrets:
       - db_password
-    volumes:
-      - ./database-volume:/var/lib/postgresql/data
 
   adminer:
     container_name: junqo_adminer_dev
