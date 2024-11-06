@@ -117,7 +117,7 @@ If an environment variable is not found, the default value will be used.
 Here is the list of environment variables used by the **Junqo-platform**:
 
 - `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.22.2`.
-- `BACK_PORT`: The port of the back server. Default value is `42000`.
+- `BACK_PORT`: The port of the back server. Default value is `4200`.
 - `DATABASE_SHM_SIZE`: The size of the shared memory for the database container. Default value is `256MB`.
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
 - `DATABASE_NAME`: The name of the database. Default value is `junqo`.
@@ -147,7 +147,18 @@ The secret files are:
 ## Automatic tests
 
 Automatic tests are run using the Github Actions pipeline.  
-These are defined in the `.github/workflows` folder.
+These are defined in the `.github/workflows` folder.  
+
+You can use the [nektosact](https://nektosact.com/introduction.html) to run the tests locally.  
+First, you need to install the nektosact.  
+Then you can run the following command to run the tests:
+
+```bash
+# Run the tests specified in the <specific file>
+sudo act workflow_dispatch -W '.github/workflows/<specific_file>' -s DATABASE_PASSWORD=password
+# Example
+sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml' -s DATABASE_PASSWORD=password
+```
 
 ### Deployment tests
 
@@ -200,7 +211,7 @@ If you want to run the test locally, launch the project in development mode and 
 docker compose -f docker-compose.dev.yaml up
 
 # Launch the schemathesis tests using container
-docker run --network="host" schemathesis/schemathesis:stable run  http://localhost:4200/graphql/
+docker run --network="junqo-platform_default" schemathesis/schemathesis:stable run  http://localhost:4200/graphql/
 ```
 
 ### Front tests
