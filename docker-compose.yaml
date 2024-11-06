@@ -25,7 +25,6 @@ services:
       args:
         - DATABASE_NAME=${DATABASE_NAME:-junqo}
         - DATABASE_USER=${DATABASE_USER:-junqo}
-        - DATABASE_PASSWORD_FILE=/run/secrets/db_password
         - DATABASE_HOST=db
         - DATABASE_PORT=${DATABASE_PORT:-5432}
     restart: always
@@ -36,6 +35,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
     secrets:
       - db_password
 

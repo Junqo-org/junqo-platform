@@ -9,6 +9,7 @@ import * as fs from 'fs';
 
 function getDbPassword(): string {
   if (process.env.DATABASE_PASSWORD) {
+    console.log('Database password loaded from environment variable');
     return process.env.DATABASE_PASSWORD;
   }
   const passwordFile: string =
@@ -18,6 +19,10 @@ function getDbPassword(): string {
     let password = fs.readFileSync(passwordFile, 'utf8');
 
     password = password.split('\n')[0].trim();
+    if (password == '') {
+      throw new Error('Database password file is empty');
+    }
+    console.log('Database password loaded from file');
     return password;
   }
   throw new Error('No database password provided');

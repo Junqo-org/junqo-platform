@@ -2,7 +2,6 @@
 # Description: Dockerfile for the production environment of the back-end application.
 
 # Global arguments
-ARG DATABASE_PASSWORD_FILE=/run/secrets/db_password
 ARG DATABASE_HOST=db
 ARG DATABASE_PORT=5432
 ARG DATABASE_NAME=junqo
@@ -21,7 +20,6 @@ RUN npm run build
 FROM node:22-slim
 
 # Global arguments
-ARG DATABASE_PASSWORD_FILE
 ARG DATABASE_HOST
 ARG DATABASE_PORT
 ARG DATABASE_NAME
@@ -30,7 +28,6 @@ ARG DATABASE_USER
 # Environment variables
 ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas
 ENV NODE_ENV=production
-ENV DATABASE_PASSWORD_FILE=$DATABASE_PASSWORD_FILE
 ENV DATABASE_HOST=$DATABASE_HOST
 ENV DATABASE_PORT=$DATABASE_PORT
 ENV DATABASE_NAME=$DATABASE_NAME
