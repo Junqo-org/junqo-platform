@@ -16,11 +16,15 @@ jobs:
       - name: Stop containers
         run: docker compose down
 
-      - name: Start containers
+      - name: Setup Database configuration
+        shell: bash
+        env:
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
         run: |
-          echo "${{ secrets.DATABASE_PASSWORD }}" > ./db_password.conf;
-          export DATABASE_PASSWORD_FILE=$PWD/db_password.conf;
-          docker compose -f ${{ inputs.compose_file }} up -d --build
+          echo $DATABASE_PASSWORD > db_password.conf
+
+      - name: Start containers
+        run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
       - name: Check if all services are up and running
         run: |

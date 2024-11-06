@@ -14,9 +14,11 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Setup Database configuration
+      shell: bash
+      env:
+        DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
       run: |
-        echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf;
-        echo "DATABASE_PASSWORD_FILE=$PWD/db_password.conf" >> $GITHUB_ENV
+        echo $DATABASE_PASSWORD > db_password.conf
 
     - name: Start containers
       run: docker compose -f docker-compose.dev.yaml up -d --build
