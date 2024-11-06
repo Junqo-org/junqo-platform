@@ -13,17 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Stop containers
-        run: docker compose down
-
-      - name: Setup Database configuration
+      - name: Start containers
         shell: bash
         env:
-          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-        run: |
-          echo $DATABASE_PASSWORD > db_password.conf
-
-      - name: Start containers
+          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
       - name: Check if all services are up and running
