@@ -21,15 +21,14 @@ ENV DATABASE_NAME=${DATABASE_NAME}
 ENV DATABASE_USER=${DATABASE_USER}
 
 # Create an unprivileged user
-RUN useradd -ms /bin/sh -u 1001 app
+RUN useradd -ms /bin/sh app
 
 # Set the working directory
 WORKDIR /home/app/junqo_back/
 
 # Copy source code and schema definition
-COPY --chown=app:app ./junqo_back/package*.json .
-COPY --chown=app:app ./junqo_back/ ./
-COPY --chown=app:app ./schemas/ ../schemas/
+COPY --chown=app ./junqo_back/ ./
+COPY --chown=app ./schemas/ ../schemas/
 
 # Install npm and healthcheck dependencies
 RUN apt-get update && \
@@ -38,16 +37,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Ensure app user owns the work directory and has permissions
-RUN mkdir -p /home/app/junqo_back/dist/ && chown -R app:app /home/app/junqo_back/
+RUN mkdir -p /home/app/junqo_back/dist/ && chown -R app /home/app/junqo_back/
 
 # Use non-root user
 USER app
 
 # Install dependencies
 RUN npm ci --include=dev
-
-# Build the application
-RUN npm run build
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -X POST -H "Content-Type: application/json" -d '{"query":"query{__typename}"}' http://localhost:3000/graphql || exit 1

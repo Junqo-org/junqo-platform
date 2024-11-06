@@ -3,7 +3,6 @@
 # Please read the `README.md` file before making any changes
 
 # Operations
-
 type Query {
   # Get all the users
   users: [User!]!

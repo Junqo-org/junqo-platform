@@ -23,6 +23,7 @@ This documentation is intended for developers who want to contribute to the proj
 - [Automatic tests](#automatic-tests)
   - [Deployment tests](#deployment-tests)
   - [Api tests](#api-tests)
+    - [Run locally](#run-locally)
   - [Front tests](#front-tests)
   - [Back tests](#back-tests)
 - [Documentation Generation](#documentation-generation)
@@ -189,6 +190,18 @@ The workflow runs the following steps:
 2. Start the docker compose services.
 3. Run API tests using [shemathesis](https://schemathesis.readthedocs.io/).
 4. Stop the docker compose services.
+
+#### Run locally
+
+If you want to run the test locally, launch the project in development mode and launch the schemathesis container.
+
+```bash
+# Launch the project in dev mode
+docker compose -f docker-compose.dev.yaml up
+
+# Launch the schemathesis tests using container
+docker run --network="host" schemathesis/schemathesis:stable run  http://localhost:4200/graphql/
+```
 
 ### Front tests
 

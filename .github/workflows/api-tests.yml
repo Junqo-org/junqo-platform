@@ -34,13 +34,12 @@ jobs:
         echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf
 
     - name: Start containers
-      run: docker compose up -d --build
+      run: docker compose -f docker-compose.dev.yaml up -d --build
 
     - name: Run Schemathesis tests
       uses: schemathesis/action@v1
       with:
-        schema: "./schemas/schema.graphql"
-        base-url: "http://127.0.0.1:4200/graphql"
+        base-url: "http://localhost:4200/graphql"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
 
     - name: Stop containers

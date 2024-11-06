@@ -50,7 +50,6 @@ services:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_PORT: ${DATABASE_PORT:-5432}
     secrets:
       - db_password
 

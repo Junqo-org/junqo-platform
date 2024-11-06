@@ -30,7 +30,7 @@ ARG DATABASE_USER
 # Environment variables
 ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas
 ENV NODE_ENV=production
-ENV DATABASE_PASSWORD_FILE=/run/secrets/db_password
+ENV DATABASE_PASSWORD_FILE=$DATABASE_PASSWORD_FILE
 ENV DATABASE_HOST=$DATABASE_HOST
 ENV DATABASE_PORT=$DATABASE_PORT
 ENV DATABASE_NAME=$DATABASE_NAME
@@ -46,7 +46,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Ensure app user owns the work directory and has permissions
-RUN mkdir -p /home/app/junqo_back/dist/ && chown -R app:app /home/app/junqo_back/
+RUN mkdir -p /home/app/junqo_back/dist/ && chown -R app /home/app/junqo_back/
 
 # Set the working directory
 WORKDIR /home/app/junqo_back
@@ -55,9 +55,9 @@ WORKDIR /home/app/junqo_back
 USER app
 
 # Copy necessary files from the build stage
-COPY --chown=app:app ./schemas/ /home/app/schemas/
-COPY --chown=app:app --from=builder /build/dist/ ./dist/
-COPY --chown=app:app --from=builder /build/node_modules/ ./node_modules/
+COPY --chown=app ./schemas/ /home/app/schemas/
+COPY --chown=app --from=builder /build/dist/ ./dist/
+COPY --chown=app --from=builder /build/node_modules/ ./node_modules/
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -X POST -H "Content-Type: application/json" -d '{"query":"query{__typename}"}' http://localhost:3000/graphql || exit 1
