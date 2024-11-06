@@ -39,7 +39,8 @@ jobs:
     - name: Run Schemathesis tests
       uses: schemathesis/action@v1
       with:
-        schema: "http://back:4200/graphql"
+        schema: "./schemas/schema.graphql"
+        base-url: "http://127.0.0.1:4200/graphql"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
 
     - name: Stop containers
