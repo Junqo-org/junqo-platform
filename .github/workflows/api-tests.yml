@@ -31,7 +31,8 @@ jobs:
 
     - name: Setup Database configuration
       run: |
-        echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf
+        echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf;
+        echo "DATABASE_PASSWORD_FILE=$PWD/db_password.conf" >> $GITHUB_ENV
 
     - name: Start containers
       run: docker compose -f docker-compose.dev.yaml up -d --build
