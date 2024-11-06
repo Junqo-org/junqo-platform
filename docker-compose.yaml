@@ -14,7 +14,8 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - back
+      back:
+        condition: service_healthy
 
   back:
     container_name: junqo_back
@@ -33,7 +34,8 @@ services:
     ports:
       - "${BACK_PORT:-4200}:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     secrets:
       - db_password
 
@@ -52,6 +54,12 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
     secrets:
       - db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 
 networks:
   back-net:
