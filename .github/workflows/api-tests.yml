@@ -39,7 +39,7 @@ jobs:
     - name: Run Schemathesis tests
       uses: schemathesis/action@v1
       with:
-        base-url: "http://localhost:4200/graphql"
+        schema: "http://localhost:4200/graphql"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
 
     - name: Stop containers
