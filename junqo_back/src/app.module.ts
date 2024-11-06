@@ -15,7 +15,10 @@ function getDbPassword(): string {
     process.env.DATABASE_PASSWORD_FILE ?? '../db_password.conf';
 
   if (passwordFile && fs.existsSync(passwordFile)) {
-    return fs.readFileSync(passwordFile, 'utf8');
+    let password = fs.readFileSync(passwordFile, 'utf8');
+
+    password = password.split('\n')[0].trim();
+    return password;
   }
   throw new Error('No database password provided');
 }
