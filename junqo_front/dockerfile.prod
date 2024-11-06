@@ -52,7 +52,7 @@ RUN rm -rf /usr/local/src/flutter
 # Stage 2 - Create the run-time image
 FROM nginx:1.21.1-alpine
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=5 \
     CMD curl -f http://localhost || exit 1
 
 COPY  --from=build-env /home/app/junqo_front/build/web /usr/share/nginx/html
