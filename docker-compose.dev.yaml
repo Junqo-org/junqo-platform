@@ -74,7 +74,7 @@ services:
     networks:
       - back-net
     volumes:
-      - ./database-volume:/var/lib/postgresql/data
+      - db_data_dev:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}
@@ -105,6 +105,9 @@ services:
 networks:
   back-net:
     driver: bridge
+
+volumes:
+  db_data_dev:
 
 secrets:
   db_password:
