@@ -8,9 +8,19 @@ targets:
           schema: junqo_front|lib/schemas/schema.graphql
           # schemas:
           #   - junqo_front|lib/schemas/schema2.graphql
+          type_overrides:
+            Email:
+              name: String
+            DateTime:
+              name: DateTime
       ferry_generator|serializer_builder:
         enabled: true
         options:
           schema: junqo_front|lib/schemas/schema.graphql
           # schemas:
           #   - junqo_front|lib/schemas/schema2.graphql
+          type_overrides:
+            Email:
+              name: String
+            DateTime:
+              name: DateTime

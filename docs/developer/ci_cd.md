@@ -150,14 +150,15 @@ Automatic tests are run using the Github Actions pipeline.
 These are defined in the `.github/workflows` folder.  
 
 You can use the [nektosact](https://nektosact.com/introduction.html) to run the tests locally.  
-First, you need to install the nektosact.  
-Then you can run the following command to run the tests:
+First, you need to install nektosact by following the [installation instructions](https://nektosact.com/installation/index.html).  
+Then run the following command to execute specific workflow tests:  
+Note: act requires root privileges to run Docker containers, hence the sudo requirement.  
 
 ```bash
 # Run the tests specified in the <specific file>
-sudo act workflow_dispatch -W '.github/workflows/<specific_file>' -s DATABASE_PASSWORD=password
+sudo act workflow_dispatch -W '.github/workflows/<specific_file>'
 # Example
-sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml' -s DATABASE_PASSWORD=password
+sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml'
 ```
 
 ### Deployment tests

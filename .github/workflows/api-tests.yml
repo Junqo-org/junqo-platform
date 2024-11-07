@@ -20,11 +20,12 @@ jobs:
       run: docker compose -f docker-compose.dev.yaml up -d --build
 
     - name: Run Schemathesis tests
-      uses: schemathesis/action@v1
+      uses: schemathesis/action@v1.0.4
       with:
         schema: "./schemas/schema.graphql"
         base-url: "http://127.0.0.1:4200/graphql"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
+        hooks: "schemathesis_hooks"
 
     - name: Stop containers
       if: always()

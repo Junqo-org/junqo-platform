@@ -3,6 +3,7 @@
 # Please read the `README.md` file before making any changes
 
 # Operations
+
 type Query {
   # Get all the users
   users: [User!]!
@@ -27,6 +28,12 @@ type Subscription {
   userCreated: User!
 }
 
+# Custom Scalars
+"""
+The `Email` scalar type represents E-Mail addresses compliant with the RFC 5322 standard.
+"""
+scalar Email
+
 # Main Types
 type User {
   # The ID of the user
@@ -36,7 +43,7 @@ type User {
   name: String!
 
   # The email of the user
-  email: String!
+  email: Email!
 }
 
 # Inputs
@@ -46,7 +53,7 @@ input CreateUserInput {
   name: String!
 
   # The email of the user
-  email: String!
+  email: Email!
 }
 
 input UpdateUserInput {
@@ -54,5 +61,5 @@ input UpdateUserInput {
   name: String
 
   # The email of the user
-  email: String
+  email: Email
 }
