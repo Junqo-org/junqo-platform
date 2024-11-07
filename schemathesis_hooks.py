@@ -12,22 +12,22 @@ schemathesis.graphql.scalar("DateTime", st.datetimes().map(nodes.String))
 schemathesis.graphql.scalar("Email", st.emails().map(nodes.String))
 schemathesis.graphql.scalar("ID", st.uuids().map(nodes.String))
 
+users_name = []
+
 @schemathesis.hook
-def filter_query(context, query):
-    print("query : ", query)
-    # Simple filtering to avoid a specific query parameter value
+def filter_body(context, body):
+    node = body.definitions[0].selection_set.selections[0]
+    if node.name.value == "createUser":
+        for argument in node.arguments:
+            if argument.name.value == "createUserInput":
+                for field in argument.value.fields:
+                    if field.name.value == "name":
+                        if (field.value.value == "" or field.value.value in users_name):
+                            return False
+                        return True
+        users_name.append(field.value.value)
     return True
 
-
-@schemathesis.hook
-def flatmap_body(context, body):
-    print("body : ", body)
-    return body
-
-@schemathesis.hook
-def before_generate_query(context, strategy):
-    print("strategy : ", strategy)
-    return strategy
 
 # Stateful hook
 # BaseAPIWorkflow = schema.as_state_machine()
@@ -40,22 +40,3 @@ def before_generate_query(context, strategy):
 #     )
 #     def init_user(self, case):
 #         return self.step(case)
-
-
-# @schema.hook
-# def flatmap_body(context, body):
-#     node = body.definitions[0].selection_set.selections[0]
-#     if node.name.value == "user":
-#         return st.just(body).map(lambda b: modify_body(b, "id"))
-#     return body
-
-
-# def modify_body(body, new_field_name):
-#     # Create a new field
-#     new_field = ...  # Create a new field node
-#     new_field.name.value = new_field_name
-
-#     # Add the new field to the query
-#     body.definitions[0].selection_set.selections.append(new_field)
-
-#     return body
