@@ -9,7 +9,9 @@ import * as fs from 'fs';
 
 function getDbPassword(): string {
   if (process.env.DATABASE_PASSWORD) {
-    console.log('Database password loaded from environment variable');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Database password loaded from environment variable');
+    }
     return process.env.DATABASE_PASSWORD;
   }
   const passwordFile: string =
@@ -22,7 +24,9 @@ function getDbPassword(): string {
     if (password == '') {
       throw new Error('Database password file is empty');
     }
-    console.log('Database password loaded from file');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Database password loaded from file');
+    }
     return password;
   }
   throw new Error('No database password provided');
@@ -40,14 +44,38 @@ function getDbPassword(): string {
       database: process.env.DATABASE_NAME || 'junqo',
       autoLoadModels: true,
       synchronize: true,
+      retry: {
+        max: 10,
+        match: [
+          /SequelizeConnectionError/,
+          /SequelizeConnectionRefusedError/,
+          /SequelizeHostNotFoundError/,
+          /SequelizeHostNotReachableError/,
+          /SequelizeInvalidConnectionError/,
+          /SequelizeConnectionTimedOutError/,
+        ],
+      },
+      pool: {
+        max: 20,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+      },
+      logging: process.env.NODE_ENV !== 'production',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       typePaths: [
-        path.join(
-          process.env.GRAPHQL_SCHEMAS_PATH || '../schemas',
-          '/**/*.graphql',
-        ),
+        (() => {
+          const schemaPath = path.resolve(
+            process.env.GRAPHQL_SCHEMAS_PATH ||
+              path.join(__dirname, '..', 'schemas'),
+          );
+          if (!fs.existsSync(schemaPath)) {
+            throw new Error(`GraphQL schema path not found: ${schemaPath}`);
+          }
+          return path.join(schemaPath, '**/*.graphql');
+        })(),
       ],
       // Generate typePaths
       definitions: {

@@ -17,14 +17,31 @@ export class User extends Model {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
+    unique: true,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
   })
   id: string;
 
-  @Field()
-  @Column
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  })
   name: string;
 
-  @Field()
-  @Column
+  @Column({
+    type: DataType.STRING,
+    unique: true,
+    allowNull: false,
+    validate: {
+      isEmail: true,
+      notEmpty: true,
+    },
+  })
   email: string;
 }

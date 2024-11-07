@@ -14,7 +14,7 @@ We provide support and security updates for the following versions:
 If you discover a security vulnerability in this project, please follow these steps:
 
 1. **Do not disclose it publicly.**
-2. Send an email to [junqo-project@junqo.fr](mailto:junqo-project@junqo.fr) with details of the vulnerability.
+2. Send an e-mail to [junqo-project@junqo.fr](mailto:junqo-project@junqo.fr) with details of the vulnerability.
 3. Include as much information as possible to help us understand and address the issue.
 
 We will respond within **48 hours** to acknowledge the report, and we aim to resolve reported vulnerabilities within **30 days**.

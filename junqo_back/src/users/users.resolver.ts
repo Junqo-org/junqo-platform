@@ -4,7 +4,7 @@ import { UsersService } from './users.service';
 import { User } from './models/user.model';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { HttpException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 
 const pubSub = new PubSub();
 
@@ -21,7 +21,7 @@ export class UsersResolver {
   public async user(@Args('id') id: string): Promise<User> {
     const user = await this.usersService.findOneById(id);
     if (!user) {
-      throw new HttpException(`User #${id} not found`, 404);
+      throw new NotFoundException(`User #${id} not found`);
     }
     return user;
   }
@@ -42,7 +42,7 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
-  public async deleteUser(@Args('id') id: string): Promise<any> {
+  public async deleteUser(@Args('id') id: string): Promise<void> {
     return this.usersService.delete(id);
   }
 
