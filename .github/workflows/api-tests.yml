@@ -46,3 +46,10 @@ jobs:
     - name: Stop containers
       if: always()
       run: docker compose down
+
+  mark-tests-passed-if-no-changes:
+    if: needs.changes-check.outputs.any_changed != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark tests as passed
+        run: echo "No relevant changes detected - marking as passed."
