@@ -47,6 +47,7 @@ jobs:
       working-directory: junqo_front
 
   mark-tests-passed-if-no-changes:
+    needs: changes-check
     if: needs.changes-check.outputs.any_changed != 'true'
     runs-on: ubuntu-latest
     steps:
