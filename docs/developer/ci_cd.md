@@ -304,7 +304,7 @@ Finally in a different job:
 
 ## Mirroring
 
-As the project is evaluated by the [EPITECH](https://www.epitech.eu/) school, the project is mirrored on the [G-EIP-700-TLS-7-1-eip-maceo.jalbert](https://github.com/EpitechPromo2026/G-EIP-700-TLS-7-1-eip-maceo.jalbert) private repository.  
+As the project is evaluated by the [EPITECH](https://www.epitech.eu/) school, the project is mirrored to a private evaluation repository.
 
 ### Why is the project mirrored
 
