@@ -1,6 +1,9 @@
 name: EIP Mirroring
 
-on: [push, delete]
+on:
+  push:
+  delete:
+  workflow_dispatch:
 
 jobs:
   mirror_to_eip:
