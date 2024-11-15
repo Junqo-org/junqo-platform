@@ -27,6 +27,9 @@ This documentation is intended for developers who want to contribute to the proj
   - [Back tests](#back-tests)
 - [Documentation Generation](#documentation-generation)
   - [Automatic documentation deployment](#automatic-documentation-deployment)
+- [Mirroring](#mirroring)
+  - [Why is the project mirrored](#why-is-the-project-mirrored)
+  - [How is the project mirrored](#how-is-the-project-mirrored)
 
 ## Deployment
 
@@ -298,3 +301,26 @@ Finally in a different job:
 
 1. Fetch the final documentation artifacts.
 2. Deploy the documentation to Github Pages.
+
+## Mirroring
+
+As the project is evaluated by the [EPITECH](https://www.epitech.eu/) school, the project is mirrored on the [G-EIP-700-TLS-7-1-eip-maceo.jalbert](https://github.com/EpitechPromo2026/G-EIP-700-TLS-7-1-eip-maceo.jalbert) private repository.  
+
+### Why is the project mirrored
+
+The project is mirrored to allow the EPITECH school to evaluate the project.  
+It is developed on the [Junqo-org](https://github.com/Junqo-org) as an open-source project.  
+We chose to create an open-source project to allow the community to contribute to the project.  
+Furthermore it allows the project to be more transparent and to be evaluated by the community.  
+We can also take advantage of the many advantageous plans offered by some organizations to open-source projects.  
+These organizations includes:
+
+- [Github](https://github.com/)
+- [CodeRabbit](https://www.coderabbit.ai/)
+- [Schemathesis](https://schemathesis.readthedocs.io/)
+
+### How is the project mirrored
+
+The mirroring is done using the Github Actions pipeline.  
+The workflow is triggered when a **push** or **delete** event is triggered.  
+The workflow configuration can be found in the `.github/workflows/eip-mirroring.yml` file.  
