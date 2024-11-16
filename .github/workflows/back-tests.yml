@@ -42,3 +42,11 @@ jobs:
     - name: Run tests
       working-directory: junqo_back
       run: npm test
+
+  mark-tests-passed-if-no-changes:
+    needs: changes-check
+    if: needs.changes-check.outputs.any_changed != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark tests as passed
+        run: echo "No relevant changes detected - marking as passed."
