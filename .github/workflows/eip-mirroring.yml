@@ -1,0 +1,20 @@
+name: EIP Mirroring
+
+on:
+  push:
+  delete:
+  workflow_dispatch:
+
+jobs:
+  mirror_to_eip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            git@github.com:EpitechPromo2026/G-EIP-700-TLS-7-1-eip-maceo.jalbert.git
+          ssh_private_key:
+            ${{ secrets.EIP_MIRRORING_GITHUB_SSH_PRIVATE_KEY }}
