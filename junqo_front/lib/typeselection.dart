@@ -54,7 +54,10 @@ class Typeselection extends StatelessWidget {
         ),
         child: const Text(
           "Trouvez un stage",
-          style: TextStyle(fontSize: 20),
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
         ),
       ),
       const SizedBox(height: 32),
@@ -66,8 +69,11 @@ class Typeselection extends StatelessWidget {
           backgroundColor: Color.fromARGB(255, 134, 159, 241),
         ),
         child: const Text(
-          "Trouvez un stage",
-          style: TextStyle(fontSize: 20),
+          "Trouvez une alternance",
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
         ),
       ),
       const SizedBox(height: 32),
@@ -79,8 +85,11 @@ class Typeselection extends StatelessWidget {
           backgroundColor: Color.fromARGB(255, 134, 159, 241),
         ),
         child: const Text(
-          "Trouvez un stage",
-          style: TextStyle(fontSize: 20),
+          "Trouvez un stagiaire/alternant",
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
         ),
       ),
       const SizedBox(height: 32),
@@ -92,8 +101,11 @@ class Typeselection extends StatelessWidget {
           backgroundColor: Color.fromARGB(255, 134, 159, 241),
         ),
         child: const Text(
-          "Trouvez un stage",
-          style: TextStyle(fontSize: 20),
+          "Gérer les stages de mes étudiants",
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
         ),
       ),
     ],
