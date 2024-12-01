@@ -3,16 +3,27 @@ name: Frontend Tests
 
 on:
   pull_request:
-    branches:
-      - main
-      - dev
-    paths:
-      - "junqo_front/**"
-      - ".github/workflows/front-tests.yml"
+    branches: [main, dev]
   workflow_dispatch:
 
 jobs:
-  test:
+  changes-check:
+    runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.filter.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            any_changed:
+              - 'junqo_front/**'
+              - '.github/workflows/front-tests.yml'
+
+  front-tests:
+    needs: changes-check
+    if: github.event_name == 'workflow_dispatch' || github.event.action == 'opened' || (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
     runs-on: ubuntu-latest
 
     steps:
@@ -34,3 +45,11 @@ jobs:
     - name: Run Flutter tests
       run: flutter test
       working-directory: junqo_front
+
+  mark-tests-passed-if-no-changes:
+    needs: changes-check
+    if: needs.changes-check.outputs.any_changed != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark tests as passed
+        run: echo "No relevant changes detected - marking as passed."
