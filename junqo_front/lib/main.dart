@@ -3,7 +3,7 @@ import 'package:junqo_front/signup.dart';
 
 void main() {
   runApp(MyApp());
-}
+} 
 
 class MyApp extends StatelessWidget {
   @override
