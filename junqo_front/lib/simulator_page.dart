@@ -59,6 +59,7 @@ class _SimulatorPageState extends State<SimulatorPage> {
                 Expanded(
                   child: TextField(
                     controller: _chatController,
+                    onSubmitted: (_) => _sendMessage(),
                     decoration: InputDecoration(
                       hintText: "Taper un message",
                       border: OutlineInputBorder(
