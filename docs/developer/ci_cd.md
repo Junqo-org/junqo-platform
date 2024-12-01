@@ -21,6 +21,7 @@ This documentation is intended for developers who want to contribute to the proj
     - [Configuration Files](#configuration-files)
     - [Secret Files](#secret-files)
 - [Automatic tests](#automatic-tests)
+  - [Run github action locally](#run-github-action-locally)
   - [Deployment tests](#deployment-tests)
   - [Api tests](#api-tests)
     - [Run locally](#run-locally)
@@ -87,6 +88,7 @@ The development deployment has several differences from the production deploymen
 - The back server is running in development mode. And the watch flag is enabled.
 - The front server is running in development mode. And the watch flag is enabled.
 - The database volume is set to the `./database-volume` folder, allowing you to interact with the database files.
+- The database is initialized from the `./db/test_data.sql` file.
 - The database adminer is deployed. Allowing you to access the database adminer at [http://localhost:3000](http://localhost:3000). (The port can be changed using the `ADMINER_PORT` environment variable)
 
 #### Production deployment
@@ -127,6 +129,7 @@ The following are only available in development mode:
 
 - `ADMINER_PORT`: The port of the database adminer. Default value is `3000`.
 - `ADMINER_DESIGN`: The design of the database adminer. Default value is `pepa-linha-dark`.
+- `TEST_DATA_FOLDER`: The folder containing the test data for the database. The test should be a file ending with `.sql`. Default value is `./db`.
 
 #### Configuration Files
 
@@ -148,6 +151,8 @@ The secret files are:
 
 Automatic tests are run using the Github Actions pipeline.  
 These are defined in the `.github/workflows` folder.  
+
+### Run github action locally
 
 You can use the [nektosact](https://nektosact.com/introduction.html) to run the tests locally.  
 First, you need to install nektosact by following the [installation instructions](https://nektosact.com/installation/index.html).  

@@ -75,6 +75,7 @@ services:
       - back-net
     volumes:
       - db_data_dev:/var/lib/postgresql/data
+      - ${TEST_DATA_FOLDER:-./db}:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}

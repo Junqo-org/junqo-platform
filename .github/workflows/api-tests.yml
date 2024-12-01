@@ -26,6 +26,7 @@ jobs:
         base-url: "http://127.0.0.1:4200/graphql"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
         hooks: "schemathesis_hooks"
+        args: "--generation-graphql-allow-null=false"
 
     - name: Stop containers
       if: always()

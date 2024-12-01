@@ -24,10 +24,18 @@ export class UsersService {
   }
 
   public async create(createUserInput: CreateUserInput): Promise<User> {
-    return this.userModel.create({
-      name: createUserInput.name,
-      email: createUserInput.email,
-    });
+    try {
+      const newUser = this.userModel.create({
+        name: createUserInput.name,
+        email: createUserInput.email,
+      });
+      if (!newUser) {
+        throw new HttpException('User not created', 500);
+      }
+      return newUser;
+    } catch (error) {
+      throw new HttpException(error, 500);
+    }
   }
 
   public async update(
