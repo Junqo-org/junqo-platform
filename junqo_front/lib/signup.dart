@@ -97,27 +97,28 @@ class SignupPage extends StatelessWidget {
                   ],
                 ),
                 Container(
-                    padding: const EdgeInsets.only(top: 3, left: 3),
-
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Typeselection()),
-                        );
-                      },
-                      child: const Text(
-                        "S'inscrire",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        shape: const StadiumBorder(),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Color.fromARGB(255, 134, 159, 241),
-                      ),
-                    )
+                padding: const EdgeInsets.only(top: 3, left: 3),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Typeselection()),
+                    );
+                  },
+                  child: const Text(
+                    "S'inscrire",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Color.fromARGB(255, 134, 159, 241),
+                  ),
                 ),
-
+              ),
                 const Center(child: Text("Or")),
 
                 Container(

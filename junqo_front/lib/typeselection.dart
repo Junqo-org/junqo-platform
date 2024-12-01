@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:junqo_front/hired_tools.dart';
 
 class Typeselection extends StatelessWidget {
   const Typeselection({super.key});
@@ -39,7 +40,13 @@ class Typeselection extends StatelessWidget {
     children: [
       const SizedBox(height: 32),
       ElevatedButton(
-        onPressed: () {},
+        onPressed: (
+        ) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ToolsPage()),
+          );
+        },
         style: ElevatedButton.styleFrom(
           shape: const StadiumBorder(),
           padding: const EdgeInsets.symmetric(vertical: 16),
