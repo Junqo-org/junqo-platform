@@ -31,5 +31,3 @@
 - [ ] Testing CI ( Make the pull request in draft mode)
 
 ## Describe your changes
-
-## Issue ticket number and link
