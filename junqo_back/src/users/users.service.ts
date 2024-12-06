@@ -1,4 +1,10 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { CreateUserInput } from './dto/create-user.input';
@@ -16,25 +22,44 @@ export class UsersService {
   }
 
   public async findOneById(id: string): Promise<User> {
+    if (!id || typeof id !== 'string') {
+      throw new BadRequestException('Invalid user ID');
+    }
     const user = await this.userModel.findByPk(id);
+
     if (!user) {
-      throw new HttpException(`User #${id} not found`, 404);
+      throw new NotFoundException(`User #${id} not found`);
     }
     return user;
   }
 
   public async create(createUserInput: CreateUserInput): Promise<User> {
     try {
-      const newUser = this.userModel.create({
+      const existingUser = await this.userModel.findOne({
+        where: { email: createUserInput.email },
+      });
+      if (existingUser) {
+        throw new ConflictException('Email already exists');
+      }
+
+      createUserInput = this.sanitizeUserInput(createUserInput);
+      const newUser = await this.userModel.create({
         name: createUserInput.name,
         email: createUserInput.email,
       });
+
       if (!newUser) {
-        throw new HttpException('User not created', 500);
+        throw new InternalServerErrorException('User not created');
       }
+
       return newUser;
     } catch (error) {
-      throw new HttpException(error, 500);
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Failed to create user: ${error.message}`,
+      );
     }
   }
 
@@ -42,13 +67,43 @@ export class UsersService {
     id: string,
     updateUserInput: UpdateUserInput,
   ): Promise<User> {
-    const user = await this.findOneById(id);
-    await user.update(updateUserInput);
-    return user;
+    try {
+      return await this.userModel.sequelize.transaction(async (transaction) => {
+        const user = await this.findOneById(id);
+        if (!user) {
+          throw new NotFoundException(`User #${id} not found`);
+        }
+        updateUserInput = this.sanitizeUserInput(updateUserInput);
+        await user.update(updateUserInput, { transaction });
+        return user;
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to update user: ${error.message}`,
+      );
+    }
   }
 
-  public async delete(id: string): Promise<any> {
-    const user = await this.findOneById(id);
-    await user.destroy();
+  public async delete(id: string): Promise<{ success: boolean }> {
+    try {
+      const user = await this.findOneById(id);
+      await user.destroy();
+      return { success: true };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to delete user: ${error.message}`,
+      );
+    }
+  }
+
+  private sanitizeUserInput(
+    userInput: CreateUserInput | UpdateUserInput,
+  ): CreateUserInput {
+    let { name, email } = userInput;
+
+    name = name?.trim();
+    email = email?.toLowerCase().replace(/\s/g, '');
+    return { name, email };
   }
 }

@@ -5,10 +5,16 @@
 # Operations
 
 type Query {
-  # Get all the users
+  """
+  Get all users in the system.
+  TODO: Consider implementing pagination for large datasets.
+  """
   users: [User!]!
 
-  # Get a user by their ID
+  """
+  Get a user by their ID.
+  Returns null if the user is not found.
+  """
   user(id: ID!): User
 }
 
@@ -21,11 +27,6 @@ type Mutation {
 
   # Delete a user by their ID
   deleteUser(id: ID!): User
-}
-
-type Subscription {
-  # Subscribe to new users
-  userCreated: User!
 }
 
 # Custom Scalars

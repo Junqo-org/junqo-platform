@@ -88,12 +88,15 @@ def filter_body(context, body):
                     for field in argument.value.fields:
                         if field.name.value == "name":
                             name = field.value.value
+                            name = name.strip()
                             if name == "":
                                 return False
                             users_name.add(name)
                             continue
                         if field.name.value == "email":
                             email = field.value.value
+                            email = email.lower()
+                            email = re.sub(r'\s+', '', email)
                             if email == "":
                                 return False
                             if email in users_email:
@@ -106,12 +109,15 @@ def filter_body(context, body):
                     for field in argument.value.fields:
                         if field.name.value == "name":
                             name = field.value.value
+                            name = name.strip()
                             if name == "" or name is None:
                                 return False
                             users_name.add(name)
                             continue
                         if field.name.value == "email":
                             email = field.value.value
+                            email = email.lower()
+                            email = re.sub(r'\s+', '', email)
                             if email == "":
                                 return False
                             if email in users_email:
