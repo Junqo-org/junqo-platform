@@ -22,8 +22,6 @@ jobs:
               - '.github/workflows/front-tests.yml'
 
   front-tests:
-    needs: changes-check
-    if: github.event_name == 'workflow_dispatch' || github.event.action == 'opened' || (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
     runs-on: ubuntu-latest
 
     steps:
@@ -38,8 +36,28 @@ jobs:
 
     - run: flutter --version
 
+    - name: Restore pub cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.pub-cache
+        key: ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_front/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_front/pubspec.yaml') }}
+          ${{ runner.os }}-pub-cache
+
     - name: Install dependencies
       run: flutter pub get
+      working-directory: junqo_front
+
+    - name: Generate graphql types
+      run: |
+        mkdir -p ./lib/schemas
+        if [ ! -d "../schemas" ] || [ -z "$(ls -A ../schemas/*.graphql 2>/dev/null)" ]; then
+          echo "Error: GraphQL schema files not found in ../schemas/"
+          exit 1
+        fi
+        cp ../schemas/*.graphql ./lib/schemas/
+        dart run build_runner build
       working-directory: junqo_front
 
     - name: Run Flutter tests
