@@ -7,29 +7,42 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import * as path from 'path';
 import * as fs from 'fs';
 
+function validatePassword(password: string): string {
+  if (!password) {
+    throw new Error(
+      process.env.NODE_ENV === 'production'
+        ? 'Invalid database configuration'
+        : 'Empty password provided',
+    );
+  }
+  return password.split('\n')[0].trim();
+}
+
 function getDbPassword(): string {
   if (process.env.DATABASE_PASSWORD) {
     if (process.env.NODE_ENV !== 'production') {
       console.log('Database password loaded from environment variable');
     }
-    return process.env.DATABASE_PASSWORD;
+    return validatePassword(process.env.DATABASE_PASSWORD);
   }
   const passwordFile: string =
-    process.env.DATABASE_PASSWORD_FILE ?? '../db_password.conf';
+    process.env.DATABASE_PASSWORD_FILE ??
+    path.join(__dirname, '..', 'db_password.conf');
 
   if (passwordFile && fs.existsSync(passwordFile)) {
     let password = fs.readFileSync(passwordFile, 'utf8');
 
-    password = password.split('\n')[0].trim();
-    if (password == '') {
-      throw new Error('Database password file is empty');
-    }
+    password = validatePassword(password);
     if (process.env.NODE_ENV !== 'production') {
       console.log('Database password loaded from file');
     }
     return password;
   }
-  throw new Error('No database password provided');
+  throw new Error(
+    process.env.NODE_ENV === 'production'
+      ? 'Invalid database configuration'
+      : 'No database password provided',
+  );
 }
 
 @Module({
@@ -43,7 +56,7 @@ function getDbPassword(): string {
       password: getDbPassword(),
       database: process.env.DATABASE_NAME || 'junqo',
       autoLoadModels: true,
-      synchronize: true,
+      synchronize: process.env.NODE_ENV !== 'production',
       retry: {
         max: 10,
         match: [

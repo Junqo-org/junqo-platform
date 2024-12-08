@@ -2,6 +2,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
+const PORT_MIN = 1;
+const PORT_MAX = 65535;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -34,6 +37,11 @@ async function bootstrap() {
       },
     }),
   );
-  await app.listen(process.env.BACK_PORT ?? 3000);
+  const port = Number(process.env.BACK_PORT ?? 3000);
+
+  if (isNaN(port) || port < PORT_MIN || port > PORT_MAX) {
+    throw new Error(`Invalid port number: ${port}`);
+  }
+  await app.listen(port);
 }
 bootstrap();

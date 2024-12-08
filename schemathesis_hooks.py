@@ -1,10 +1,15 @@
+from collections import OrderedDict
+from threading import Lock
 import schemathesis
 from hypothesis import strategies as st
-from hypothesis.stateful import initialize
 from schemathesis.graphql import nodes
-import json
 import random
 import re
+import os
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 # Load the schema from a file
 schema = schemathesis.graphql.from_path("./schemas/schema.graphql")
@@ -15,6 +20,7 @@ schemathesis.graphql.scalar("DateTime", st.datetimes().map(nodes.String))
 schemathesis.graphql.scalar("Email", st.emails().map(nodes.String))
 schemathesis.graphql.scalar("ID", st.uuids().map(nodes.String))
 
+
 def extract_uuids_from_sql(file_path):
     """
     Extracts all UUIDs from an SQL file.
@@ -24,24 +30,31 @@ def extract_uuids_from_sql(file_path):
 
     Returns:
         list: A list of extracted UUIDs.
+    Raises:
+        FileNotFoundError: If the SQL file does not exist
+        IOError: If there are issues reading the file
     """
     # Regular expression to match UUIDs
-    uuid_pattern = re.compile(r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b", re.IGNORECASE)
+    uuid_pattern = re.compile(
+        r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b", re.IGNORECASE)
 
-    # Read the SQL content from the file
-    with open(file_path, "r") as file:
-        sql_content = file.read()
+    try:
+        with open(file_path, "r") as file:
+            sql_content = file.read()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"SQL file not found: {file_path}")
+    except IOError as e:
+        raise IOError(f"Error reading SQL file: {e}")
 
     # Find all UUIDs
     return uuid_pattern.findall(sql_content)
 
+
 # Example usage
-sql_file_path = "db/test_data.sql"
+sql_file_path = os.getenv('TEST_DATA_SQL_PATH', "db/test_data.sql")
 uuids = extract_uuids_from_sql(sql_file_path)
 random.seed()
 
-from threading import Lock
-from collections import OrderedDict
 
 class ThreadSafeSet:
     def __init__(self):
@@ -72,8 +85,27 @@ class ThreadSafeSet:
         with self._lock:
             return self._data.popitem()[0]
 
+
 users_name = ThreadSafeSet()
 users_email = ThreadSafeSet()
+
+
+def validate_user_fields(fields, is_update=False):
+    """Validate user fields and update tracking sets."""
+    for field in fields:
+        if field.name.value == "name":
+            name = field.value.value.strip()
+            if not name or (is_update and name is None):
+                return False
+            users_name.add(name)
+        elif field.name.value == "email":
+            email = field.value.value.lower()
+            email = re.sub(r'\s+', '', email)
+            if not email or email in users_email:
+                return False
+            users_email.add(email)
+    return True
+
 
 @schemathesis.hook
 def filter_body(context, body):
@@ -82,52 +114,23 @@ def filter_body(context, body):
             return True
 
         node = body.definitions[0].selection_set.selections[0]
-        if node.name.value == "createUser":
+        operation = node.name.value
+        if operation in ("createUser", "updateUser"):
             for argument in node.arguments:
-                if argument.name.value == "createUserInput":
-                    for field in argument.value.fields:
-                        if field.name.value == "name":
-                            name = field.value.value
-                            name = name.strip()
-                            if name == "":
-                                return False
-                            users_name.add(name)
-                            continue
-                        if field.name.value == "email":
-                            email = field.value.value
-                            email = email.lower()
-                            email = re.sub(r'\s+', '', email)
-                            if email == "":
-                                return False
-                            if email in users_email:
-                                return False
-                            users_email.add(email)
-                            continue
-        if node.name.value == "updateUser":
-            for argument in node.arguments:
-                if argument.name.value == "updateUserInput":
-                    for field in argument.value.fields:
-                        if field.name.value == "name":
-                            name = field.value.value
-                            name = name.strip()
-                            if name == "" or name is None:
-                                return False
-                            users_name.add(name)
-                            continue
-                        if field.name.value == "email":
-                            email = field.value.value
-                            email = email.lower()
-                            email = re.sub(r'\s+', '', email)
-                            if email == "":
-                                return False
-                            if email in users_email:
-                                return False
-                            users_email.add(email)
-                            continue
+                input_type = f"{operation}Input"
+                if argument.name.value == input_type:
+                    return validate_user_fields(
+                        argument.value.fields,
+                        is_update=(operation == "updateUser")
+                    )
         return True
     except AttributeError as e:
-        # Log error if needed
+        logger.error("Schemathesis Hook Error in filter_body: %s", str(e))
         return True  # Allow other hooks to process the query
+
+def set_random_uuid(argument):
+    """Set a random UUID for the given argument."""
+    argument.value.value = random.choice(uuids)
 
 
 @schemathesis.hook
@@ -137,34 +140,16 @@ def map_body(context, body):
             return body
 
         node = body.definitions[0].selection_set.selections[0]
-        if node.name.value == "user":
+        operation = node.name.value
+        if operation in ("user", "updateUser"):
             for argument in node.arguments:
                 if argument.name.value == "id":
-                    random.seed()
-                    argument.value.value = random.choice(uuids)
-        if node.name.value == "updateUser":
-            for argument in node.arguments:
-                if argument.name.value == "id":
-                    random.seed()
-                    argument.value.value = random.choice(uuids)
-        if node.name.value == "deleteUser":
+                    set_random_uuid(argument)
+        elif operation == "deleteUser":
             for argument in node.arguments:
                 if argument.name.value == "id":
                     argument.value.value = uuids.pop()
         return body
     except AttributeError as e:
-        # Log error if needed
+        logger.error("Schemathesis Hook Error in map_body: %s", str(e))
         return body
-
-
-# Stateful hook
-# BaseAPIWorkflow = schema.as_state_machine()
-
-
-# class APIWorkflow(BaseAPIWorkflow):
-#     @initialize(
-#         target=BaseAPIWorkflow.bundles["/users/"]["POST"],
-#         case=schema["/users/"]["POST"].as_strategy(),
-#     )
-#     def init_user(self, case):
-#         return self.step(case)

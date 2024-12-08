@@ -45,6 +45,7 @@ RUN dart run build_runner build --delete-conflicting-outputs
 
 # Build the app
 RUN flutter build web
+RUN test -d build/web || (echo "Error when building the web app, web build not found" && exit 1)
 
 # Clean up unnecessary files to reduce image size
 RUN rm -rf /usr/local/src/flutter

@@ -18,7 +18,13 @@ export class UsersService {
   ) {}
 
   public async findAll(): Promise<User[]> {
-    return this.userModel.findAll();
+    try {
+      return await this.userModel.findAll();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to fetch users: ${error.message}`,
+      );
+    }
   }
 
   public async findOneById(id: string): Promise<User> {

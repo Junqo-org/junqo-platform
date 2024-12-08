@@ -38,9 +38,9 @@ export class UsersResolver {
     return await this.usersService.update(id, updateUserInput);
   }
 
-  @Mutation(() => User)
+  @Mutation(() => Boolean)
   public async deleteUser(@Args('id') id: string): Promise<boolean> {
-    const isSuccess = this.usersService.delete(id);
+    const isSuccess = await this.usersService.delete(id);
     if (!isSuccess) {
       throw new NotFoundException(`User #${id} not found`);
     }
