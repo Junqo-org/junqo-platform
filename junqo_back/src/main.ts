@@ -39,7 +39,7 @@ async function bootstrap() {
   );
   const port = Number(process.env.BACK_PORT ?? 3000);
 
-  if (isNaN(port) || port < PORT_MIN || port > PORT_MAX) {
+  if (Number.isNaN(port) || port < PORT_MIN || port > PORT_MAX) {
     throw new Error(`Invalid port number: ${port}`);
   }
   await app.listen(port);

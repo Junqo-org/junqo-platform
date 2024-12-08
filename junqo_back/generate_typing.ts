@@ -30,4 +30,7 @@ async function generateTypes() {
   }
 }
 
-generateTypes();
+generateTypes().catch((error) => {
+  console.error('Unhandled error in generateTypes:', error);
+  process.exit(1);
+});
