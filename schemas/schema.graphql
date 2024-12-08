@@ -26,7 +26,7 @@ type Mutation {
   updateUser(id: ID!, updateUserInput: UpdateUserInput!): User!
 
   # Delete a user by their ID
-  deleteUser(id: ID!): User
+  deleteUser(id: ID!): Boolean!
 }
 
 # Custom Scalars
@@ -34,6 +34,12 @@ type Mutation {
 The `Email` scalar type represents E-Mail addresses compliant with the RFC 5322 standard.
 """
 scalar Email
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z,
+compliant with the `date-time` format outlined in section 5.6 of RFC 3339.
+"""
+scalar DateTime
 
 # Main Types
 type User {

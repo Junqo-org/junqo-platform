@@ -84,11 +84,11 @@ export class UsersService {
     }
   }
 
-  public async delete(id: string): Promise<{ success: boolean }> {
+  public async delete(id: string): Promise<boolean> {
     try {
       const user = await this.findOneById(id);
       await user.destroy();
-      return { success: true };
+      return true;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(

@@ -39,10 +39,11 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
-  public async deleteUser(@Args('id') id: string): Promise<void> {
+  public async deleteUser(@Args('id') id: string): Promise<boolean> {
     const isSuccess = this.usersService.delete(id);
     if (!isSuccess) {
       throw new NotFoundException(`User #${id} not found`);
     }
+    return isSuccess;
   }
 }
