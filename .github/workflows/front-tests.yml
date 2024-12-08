@@ -48,3 +48,11 @@ jobs:
     - name: Run Flutter tests
       run: flutter test
       working-directory: junqo_front
+
+  mark-tests-passed-if-no-changes:
+    needs: changes-check
+    if: needs.changes-check.outputs.any_changed != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark tests as passed
+        run: echo "No relevant changes detected - marking as passed."
