@@ -26,6 +26,15 @@ export class User extends Model {
   id: string;
 
   @Column({
+    type: DataType.ENUM('STUDENT', 'SCHOOL', 'COMPANY', 'ADMIN'),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  })
+  type: string;
+
+  @Column({
     type: DataType.STRING,
     allowNull: false,
     validate: {
@@ -44,4 +53,14 @@ export class User extends Model {
     },
   })
   email: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      hash: true,
+    },
+  })
+  password: string;
 }

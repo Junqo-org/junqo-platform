@@ -4,6 +4,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UsersModule } from './users/users.module';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { AuthModule } from './auth/auth.module';
+import { CaslModule } from './casl/casl.module';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -98,6 +100,8 @@ function getDbPassword(): string {
       playground: process.env.NODE_ENV === 'production' ? false : true,
       debug: process.env.NODE_ENV === 'production' ? false : true,
     }),
+    AuthModule,
+    CaslModule,
   ],
 })
 export class AppModule {}

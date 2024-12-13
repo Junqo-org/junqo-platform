@@ -45,3 +45,13 @@ targets:
 ## Generate the schemas for the backend
 
 The schemas are automatically retrieved and generated from the `schemas/*.graphql` files when the project is built.
+
+If you want to manually generate the schemas, you can run the following command inside the `junqo_back` directory:
+
+```bash
+npm run generate_types
+```
+
+This command will generate the `junqo_back/src/graphql.schema.ts` containing the types for the backend.
+DO NOT modify this file manually, as it will be overwritten the next time the command is run.
+DO NOT commit this file to the repository, as it is generated automatically.
