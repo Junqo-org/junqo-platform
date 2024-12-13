@@ -1,12 +1,17 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  GqlExecutionContext,
+  GraphQLExecutionContext,
+  Mutation,
+  Query,
+  Resolver,
+} from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { UpdateUserInput, User as UserGraphql } from 'src/graphql.schema';
-import {
-  ExecutionContext,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Action, CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { CurrentUser } from './users.decorator';
 
 @Resolver('User')
 export class UsersResolver {
@@ -16,8 +21,11 @@ export class UsersResolver {
   ) {}
 
   @Query(() => [UserGraphql])
-  public async users(context: ExecutionContext): Promise<UserGraphql[]> {
-    const request = context.switchToHttp().getRequest();
+  public async users(
+    @Context() context: GraphQLExecutionContext,
+  ): Promise<UserGraphql[]> {
+    const ctx = GqlExecutionContext.create(context);
+    const request = ctx.getContext().req;
     const user = request.user;
     const ability = this.caslAbilityFactory.createForUser(user);
 
@@ -29,11 +37,10 @@ export class UsersResolver {
 
   @Query(() => UserGraphql)
   public async user(
-    context: ExecutionContext,
+    @CurrentUser() requestUser: UserGraphql,
     @Args('id') id: string,
   ): Promise<UserGraphql> {
-    const request = context.switchToHttp().getRequest();
-    const requestUser = request.user;
+    console.log('requestUser', requestUser);
     const ability = this.caslAbilityFactory.createForUser(requestUser);
 
     if (ability.cannot(Action.READ, UserGraphql)) {

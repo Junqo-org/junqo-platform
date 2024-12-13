@@ -59,7 +59,6 @@ export class User extends Model {
     allowNull: false,
     validate: {
       notEmpty: true,
-      hash: true,
     },
   })
   password: string;

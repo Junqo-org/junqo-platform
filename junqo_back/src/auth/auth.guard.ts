@@ -9,6 +9,7 @@ import { Request } from 'express';
 import { jwtConstants } from './constants';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from 'src/auth/is_public.decorator';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,8 +26,8 @@ export class AuthGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
-
-    const request = context.switchToHttp().getRequest();
+    const ctx = GqlExecutionContext.create(context);
+    const request = ctx.getContext().req;
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {

@@ -39,7 +39,14 @@ type Mutation {
   """
   (Public) Sign up a new user
   """
-  signUp(createUserInput: CreateUserInput!): AuthPayload!
+  signUp("The type of the user out of (STUDENT, SCHOOL, COMPANY)"
+  type: UserType!
+  "The name of the user"
+  name: String!
+  "The email of the user"
+  email: Email!
+  "The password of the user"
+  password: String!): AuthPayload!
 
   """
   (Public) Sign in an existing user

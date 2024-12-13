@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AuthPayload, CreateUserInput, UserType } from 'src/graphql.schema';
+import { AuthPayload, CreateUserInput, User, UserType } from 'src/graphql.schema';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -15,7 +15,12 @@ export class AuthService {
       throw new UnauthorizedException('You cannot create an admin user');
     }
     const user = await this.userService.create(createUserInput);
-    const payload = { sub: user.id, username: user.name, userType: user.type };
+    const payload = {
+      sub: user.id,
+      username: user.name,
+      userType: user.type,
+      email: user.email,
+    };
     const token = await this.jwtService.signAsync(payload);
     return { token, user };
   }
