@@ -3,6 +3,10 @@
 # Please read the `README.md` file before making any changes
 # Operations
 
+# Every operation in the API needs authentication, except for the `signUp` and `signIn` operations.
+# To authenticate, the user must provide a valid JWT token in the `Authorization` header.
+# The token must be in the format `Bearer <token>`.
+
 # Main Operations
 
 """
@@ -29,7 +33,18 @@ type Mutation {
   """
   Update a user by their ID
   """
-  updateUser(id: ID!, updateUserInput: UpdateUserInput!): User!
+  updateUser(
+    "The unique identifier of the user"
+    id: ID!,
+    "The type of the user out of (STUDENT, SCHOOL, COMPANY)"
+    type: UserType
+    "The name of the user"
+    name: String
+    "The email of the user"
+    email: Email
+    "The password of the user"
+    password: String
+  ): User!
 
   """
   Delete a user by their ID
@@ -39,14 +54,16 @@ type Mutation {
   """
   (Public) Sign up a new user
   """
-  signUp("The type of the user out of (STUDENT, SCHOOL, COMPANY)"
-  type: UserType!
-  "The name of the user"
-  name: String!
-  "The email of the user"
-  email: Email!
-  "The password of the user"
-  password: String!): AuthPayload!
+  signUp(
+    "The type of the user out of (STUDENT, SCHOOL, COMPANY)"
+    type: UserType!
+    "The name of the user"
+    name: String!
+    "The email of the user"
+    email: Email!
+    "The password of the user"
+    password: String!
+  ): AuthPayload!
 
   """
   (Public) Sign in an existing user
@@ -110,34 +127,4 @@ type AuthPayload {
   token: String!
   "The user object associated with the authenticated token."
   user: User!
-}
-
-# Inputs
-
-"""
-The `CreateUserInput` input type is used to create a new user.
-"""
-input CreateUserInput {
-  "The type of the user out of (STUDENT, SCHOOL, COMPANY)"
-  type: UserType!
-  "The name of the user"
-  name: String!
-  "The email of the user"
-  email: Email!
-  "The password of the user"
-  password: String!
-}
-
-"""
-The `UpdateUserInput` input type is used to update a user.
-"""
-input UpdateUserInput {
-  "The type of the user out of (STUDENT, SCHOOL, COMPANY)"
-  type: UserType
-  "The name of the user"
-  name: String
-  "The email of the user"
-  email: Email
-  "The password of the user"
-  password: String
 }

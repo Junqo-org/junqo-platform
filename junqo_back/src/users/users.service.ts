@@ -4,26 +4,30 @@ import {
   BadRequestException,
   ConflictException,
   InternalServerErrorException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User as UserModel } from './models/user.model';
-import {
-  CreateUserInput,
-  UpdateUserInput,
-  User as UserGraphql,
-} from 'src/graphql.schema';
+import { User as UserGraphql, UserType } from 'src/graphql.schema';
 import * as bcrypt from 'bcrypt';
 import { bcryptConstants } from 'src/auth/constants';
 import { Mapper } from './mapper/mapper';
+import { CaslAbilityFactory, Action } from 'src/casl/casl-ability.factory';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(UserModel)
     private readonly userModel: typeof UserModel,
+    private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
-  public async findAll(): Promise<UserGraphql[]> {
+  public async findAll(currentUser: UserGraphql): Promise<UserGraphql[]> {
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(Action.READ, UserGraphql)) {
+      throw new ForbiddenException('You do not have permission to read users');
+    }
     try {
       const users = await this.userModel.findAll();
 
@@ -38,33 +42,54 @@ export class UsersService {
     }
   }
 
-  public async findOneById(id: string): Promise<UserGraphql> {
+  public async findOneById(
+    currentUser: UserGraphql,
+    id: string,
+  ): Promise<UserGraphql> {
     if (!id || typeof id !== 'string') {
       throw new BadRequestException('Invalid user ID');
     }
-    const user = await this.userModel.findByPk(id);
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    if (!user) {
+    const authUser = new UserGraphql();
+    authUser.id = id;
+
+    if (ability.cannot(Action.READ, authUser)) {
+      throw new ForbiddenException('You do not have permission to read users');
+    }
+    const userModel = await this.userModel.findByPk(id);
+    const userGraphql = Mapper.toGraphQL(userModel);
+
+    if (!userGraphql) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    return Mapper.toGraphQL(user);
+    return userGraphql;
   }
 
-  public async findOneByEmail(email: string): Promise<UserGraphql> {
+  public async findOneByEmail(
+    currentUser: UserGraphql,
+    email: string,
+  ): Promise<UserGraphql> {
     if (!email || typeof email !== 'string') {
       throw new BadRequestException('Invalid email');
     }
-    const user = await this.userModel.findOne({
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    const userModel = await this.userModel.findOne({
       where: { email },
     });
+    const userGraphql = Mapper.toGraphQL(userModel);
 
-    if (!user) {
+    if (ability.cannot(Action.READ, userGraphql)) {
+      throw new ForbiddenException('You do not have permission to read users');
+    }
+    if (!userGraphql) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
-    return Mapper.toGraphQL(user);
+    return userGraphql;
   }
 
-  public async findOneByEmailAndPassword(
+  public async unprotectedFindOneByEmailAndPassword(
     email: string,
     password: string,
   ): Promise<UserGraphql> {
@@ -89,24 +114,32 @@ export class UsersService {
     return Mapper.toGraphQL(user);
   }
 
-  public async create(createUserInput: CreateUserInput): Promise<UserGraphql> {
+  public async unprotectedCreate(
+    type: UserType,
+    name: string,
+    email: string,
+    password: string,
+  ): Promise<UserGraphql> {
+    email = UsersService.sanitizeInput(email);
+    name = UsersService.sanitizeInput(name);
+    password = UsersService.sanitizeInput(password);
+
     try {
       const existingUser = await this.userModel.findOne({
-        where: { email: createUserInput.email },
+        where: { email: email },
       });
       if (existingUser) {
         throw new ConflictException('Email already exists');
       }
 
-      createUserInput = UsersService.sanitizeUserInput(createUserInput);
       const hashed_password = await bcrypt.hash(
-        createUserInput.password,
+        password,
         bcryptConstants.saltOrRounds,
       );
       const newUser = await this.userModel.create({
-        type: createUserInput.type,
-        name: createUserInput.name,
-        email: createUserInput.email,
+        type: type,
+        name: name,
+        email: email,
         password: hashed_password,
       });
 
@@ -126,9 +159,34 @@ export class UsersService {
   }
 
   public async update(
+    currentUser: UserGraphql,
     id: string,
-    updateUserInput: UpdateUserInput,
+    type: UserType,
+    name: string,
+    email: string,
+    password: string,
   ): Promise<UserGraphql> {
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+    email = UsersService.sanitizeInput(email);
+    name = UsersService.sanitizeInput(name);
+    password = UsersService.sanitizeInput(password);
+
+    const authUser = new UserGraphql();
+    authUser.id = id;
+
+    if (ability.cannot(Action.UPDATE, authUser)) {
+      throw new ForbiddenException(
+        'You do not have permission to update users',
+      );
+    }
+    if (type === UserType.ADMIN) {
+      throw new ForbiddenException('You cannot update user type to admin');
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      bcryptConstants.saltOrRounds,
+    );
     try {
       const updatedUser = await this.userModel.sequelize.transaction(
         async (transaction) => {
@@ -137,10 +195,17 @@ export class UsersService {
           if (!user) {
             throw new NotFoundException(`User #${id} not found`);
           }
-          updateUserInput = UsersService.sanitizeUserInput(updateUserInput);
-          const updatedUser = await user.update(updateUserInput, {
-            transaction,
-          });
+          const updatedUser = await user.update(
+            {
+              type: type,
+              name: name,
+              email: email,
+              password: hashedPassword,
+            },
+            {
+              transaction,
+            },
+          );
           return updatedUser;
         },
       );
@@ -152,7 +217,17 @@ export class UsersService {
     }
   }
 
-  public async delete(id: string): Promise<boolean> {
+  public async delete(currentUser: UserGraphql, id: string): Promise<boolean> {
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    const authUser = new UserGraphql();
+    authUser.id = id;
+
+    if (ability.cannot(Action.DELETE, authUser)) {
+      throw new ForbiddenException(
+        'You do not have permission to delete users',
+      );
+    }
     try {
       const user = await this.userModel.findByPk(id);
 
@@ -170,18 +245,8 @@ export class UsersService {
     }
   }
 
-  private static sanitizeUserInput(
-    userInput: CreateUserInput | UpdateUserInput,
-  ): CreateUserInput {
-    let { name, email } = userInput;
-
-    name = name?.trim();
-    email = email?.toLowerCase().replace(/\s/g, '');
-    return {
-      type: userInput.type,
-      name: name,
-      email: email,
-      password: userInput.password,
-    };
+  private static sanitizeInput(input: string): string {
+    input = input?.toLowerCase().replace(/\s/g, '');
+    return input;
   }
 }
