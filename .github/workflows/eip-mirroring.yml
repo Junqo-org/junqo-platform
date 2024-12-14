@@ -7,6 +7,7 @@ on:
 
 jobs:
   mirror_to_eip:
+    if: github.repository == 'junqo-org/junqo-platform'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
