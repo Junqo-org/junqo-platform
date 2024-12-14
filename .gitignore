@@ -4,6 +4,7 @@ docs/api
 
 # Secrets and environment variables
 *.env
+!exemple.env
 db_password.conf
 
 # Development

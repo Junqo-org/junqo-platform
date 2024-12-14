@@ -33,6 +33,7 @@ jobs:
       shell: bash
       env:
         DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+        BACK_ENV_FILE: "./junqo_back/exemple.env"
       run: docker compose -f docker-compose.dev.yaml up -d --build
 
     - name: Run Schemathesis tests

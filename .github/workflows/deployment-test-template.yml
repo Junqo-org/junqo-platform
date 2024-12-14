@@ -17,6 +17,7 @@ jobs:
         shell: bash
         env:
           DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+          BACK_ENV_FILE: "./junqo_back/exemple.env"
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
       - name: Check if all services are up and running

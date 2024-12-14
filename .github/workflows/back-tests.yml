@@ -37,6 +37,8 @@ jobs:
       run: npm install
 
     - name: Run tests
+      env:
+        BACK_ENV_FILE: "./junqo_back/exemple.env"
       working-directory: junqo_back
       run: npm test
 
