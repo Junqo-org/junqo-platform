@@ -2,22 +2,45 @@ name: Deployment Tests
 
 on:
   pull_request:
-    branches:
-      - main
-      - dev
-    paths:
-      - "junqo_back/**"
-      - "junqo_front/**"
-      - ".github/workflows/deployment-tests.yml"
+    branches: [main, dev]
   workflow_dispatch:
 
 jobs:
+  changes-check:
+    runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.filter.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            any_changed:
+              - 'junqo_back/**'
+              - 'junqo_front/**'
+              - '.github/workflows/deployment-tests.yml'
+
   deployment-dev-tests:
+    needs: changes-check
+    if: github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
+        (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.dev.yaml
 
   deployment-prod-tests:
+    needs: [changes-check, deployment-dev-tests]
+    if: github.event_name == 'workflow_dispatch' || github.event.action == 'opened' || 
+        (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.yaml
+
+  mark-tests-passed-if-no-changes:
+    needs: changes-check
+    if: needs.changes-check.outputs.any_changed != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark tests as passed
+        run: echo "No relevant changes detected - marking as passed."

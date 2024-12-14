@@ -1,5 +1,5 @@
 ---
-title: Developer documentation
+title: CI/CD
 ---
 
 <!-- omit in toc -->
@@ -21,12 +21,17 @@ This documentation is intended for developers who want to contribute to the proj
     - [Configuration Files](#configuration-files)
     - [Secret Files](#secret-files)
 - [Automatic tests](#automatic-tests)
+  - [Run github action locally](#run-github-action-locally)
   - [Deployment tests](#deployment-tests)
   - [Api tests](#api-tests)
+    - [Run locally](#run-locally)
   - [Front tests](#front-tests)
   - [Back tests](#back-tests)
 - [Documentation Generation](#documentation-generation)
   - [Automatic documentation deployment](#automatic-documentation-deployment)
+- [Mirroring](#mirroring)
+  - [Why is the project mirrored](#why-is-the-project-mirrored)
+  - [How is the project mirrored](#how-is-the-project-mirrored)
 
 ## Deployment
 
@@ -86,6 +91,7 @@ The development deployment has several differences from the production deploymen
 - The back server is running in development mode. And the watch flag is enabled.
 - The front server is running in development mode. And the watch flag is enabled.
 - The database volume is set to the `./database-volume` folder, allowing you to interact with the database files.
+- The database is initialized from the `./db/test_data.sql` file.
 - The database adminer is deployed. Allowing you to access the database adminer at [http://localhost:3000](http://localhost:3000). (The port can be changed using the `ADMINER_PORT` environment variable)
 
 #### Production deployment
@@ -116,7 +122,7 @@ If an environment variable is not found, the default value will be used.
 Here is the list of environment variables used by the **Junqo-platform**:
 
 - `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.22.2`.
-- `BACK_PORT`: The port of the back server. Default value is `42000`.
+- `BACK_PORT`: The port of the back server. Default value is `4200`.
 - `DATABASE_SHM_SIZE`: The size of the shared memory for the database container. Default value is `256MB`.
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
 - `DATABASE_NAME`: The name of the database. Default value is `junqo`.
@@ -126,6 +132,7 @@ The following are only available in development mode:
 
 - `ADMINER_PORT`: The port of the database adminer. Default value is `3000`.
 - `ADMINER_DESIGN`: The design of the database adminer. Default value is `pepa-linha-dark`.
+- `TEST_DATA_FOLDER`: The folder containing the test data for the database. The test should be a file ending with `.sql`. Default value is `./db`.
 
 #### Configuration Files
 
@@ -146,7 +153,21 @@ The secret files are:
 ## Automatic tests
 
 Automatic tests are run using the Github Actions pipeline.  
-These are defined in the `.github/workflows` folder.
+These are defined in the `.github/workflows` folder.  
+
+### Run github action locally
+
+You can use the [nektosact](https://nektosact.com/introduction.html) to run the tests locally.  
+First, you need to install nektosact by following the [installation instructions](https://nektosact.com/installation/index.html).  
+Then run the following command to execute specific workflow tests:  
+Note: act requires root privileges to run Docker containers, hence the sudo requirement.  
+
+```bash
+# Run the tests specified in the <specific file>
+sudo act workflow_dispatch -W '.github/workflows/<specific_file>'
+# Example
+sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml'
+```
 
 ### Deployment tests
 
@@ -189,6 +210,18 @@ The workflow runs the following steps:
 2. Start the docker compose services.
 3. Run API tests using [shemathesis](https://schemathesis.readthedocs.io/).
 4. Stop the docker compose services.
+
+#### Run locally
+
+If you want to run the test locally, launch the project in development mode and launch the schemathesis container.
+
+```bash
+# Launch the project in dev mode
+docker compose -f docker-compose.dev.yaml up
+
+# Launch the schemathesis tests using container
+docker run --network="junqo-platform_default" schemathesis/schemathesis:stable run  http://localhost:4200/graphql/
+```
 
 ### Front tests
 
@@ -298,3 +331,26 @@ Finally in a different job:
 
 1. Fetch the final documentation artifacts.
 2. Deploy the documentation to Github Pages.
+
+## Mirroring
+
+As the project is evaluated by the [EPITECH](https://www.epitech.eu/) school, the project is mirrored to a private evaluation repository.
+
+### Why is the project mirrored
+
+The project is mirrored to allow the EPITECH school to evaluate the project.  
+It is developed on the [Junqo-org](https://github.com/Junqo-org) as an open-source project.  
+We chose to create an open-source project to allow the community to contribute to the project.  
+Furthermore it allows the project to be more transparent and to be evaluated by the community.  
+We can also take advantage of the many advantageous plans offered by some organizations to open-source projects.  
+These organizations includes:
+
+- [Github](https://github.com/)
+- [CodeRabbit](https://www.coderabbit.ai/)
+- [Schemathesis](https://schemathesis.readthedocs.io/)
+
+### How is the project mirrored
+
+The mirroring is done using the Github Actions pipeline.  
+The workflow is triggered when a **push** or **delete** event is triggered.  
+The workflow configuration can be found in the `.github/workflows/eip-mirroring.yml` file.  

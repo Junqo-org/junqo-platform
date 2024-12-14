@@ -35,23 +35,31 @@ If you are a new user of the project, you should start by reading the [user docu
 
 ## Acknowledgments
 
-- [GitHub](https://github.com)
-- [GitHub Pages](https://pages.github.com)
-- [GitHub Actions](https://docs.github.com/en/actions)
-- [Swagger](https://swagger.io/)
-- [Markdown](https://daringfireball.net/projects/markdown)
-- [NestJs](https://nestjs.com/)
-- [NodeJs](https://nodejs.org/en/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [Sequelize](https://sequelize.org/)
-- [Flutter](https://flutter.dev/)
-- [MochaJs](https://mochajs.org/)
-- [Prometheus](https://prometheus.io/docs/introduction/overview/)
-- [Grafana](https://grafana.com/docs/grafana/latest/getting-started/getting-started-prometheus/)
-- [Docker](https://www.docker.com/)
-- [Docker Compose](https://docs.docker.com/compose/)
-- [Docker Swarm](https://docs.docker.com/engine/swarm/)
-- [Kubernetes](https://kubernetes.io/docs/home/)
-- [Helm](https://helm.sh/)
-- [Jira](https://www.atlassian.com/software/jira)
-- [Discord](https://discord.com/)
+- Overall
+  - [GitHub](https://github.com)
+  - [Markdown](https://daringfireball.net/projects/markdown)
+  - [Discord](https://discord.com/)
+  - [Github Projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects)
+- Documentation
+  - [Markdown](https://daringfireball.net/projects/markdown)
+  - [Jekyll](https://jekyllrb.com/)
+  - [Magidoc](https://magidoc.github.io/)
+  - [GitHub Pages](https://pages.github.com)
+- CI/CD
+  - [GitHub Actions](https://docs.github.com/en/actions)
+  - [MochaJs](https://mochajs.org/)
+- Frontend
+  - [Flutter](https://flutter.dev/)
+  - [Ferry Graphql](https://ferrygraphql.com/)
+- Backend
+  - [NestJs](https://nestjs.com/)
+  - [PostgreSQL](https://www.postgresql.org/)
+  - [Sequelize](https://sequelize.org/)
+  - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
+- Operations
+  - [Docker Compose](https://docs.docker.com/compose/)
+  - [Docker Swarm](https://docs.docker.com/engine/swarm/)
+  - [Kubernetes](https://kubernetes.io/docs/home/)
+  - [Helm](https://helm.sh/)
+  - [Prometheus](https://prometheus.io/docs/introduction/overview/)
+  - [Grafana](https://grafana.com/docs/grafana/latest/getting-started/getting-started-prometheus/)
