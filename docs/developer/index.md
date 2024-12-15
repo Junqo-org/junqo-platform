@@ -1,6 +1,6 @@
 ---
 title: Developer documentation
-nav_order: 1
+nav_order: 3
 ---
 
 <!-- omit in toc -->
@@ -104,7 +104,7 @@ The project is structured as follows:
 
 > Project structure diagram
 
-- `back`: Runs the REST API server to communicate with the database.
+- `back`: Runs the Graphql API server to communicate with the database.
 - `front`: Runs the web server / Flutter app seen by the user.
 - `docs`: Contains the documentation of the project.
 - `docker-compose.yaml`: The main file to deploy the project in production mode.
@@ -122,7 +122,7 @@ The following diagram shows the interactions between the different parts of the 
 
 > Interactions diagram
 
-The **front** communicates with the back using the REST API.  
+The **front** communicates with the back using the Graphql API.  
 The **back** communicates with the database using the database driver.  
 The **database** stores the data.  
 
@@ -174,7 +174,7 @@ The **adminer** is accessible on the World Wide Web at port **3000**.
 ### API
 
 The **backend** API uses **GraphQL** to communicate with the **frontend**.  
-A schema is available at [/schemas/schema.graphqls](../../schemas/schema.graphqls).
+A schema is available at [/schemas/schema.graphql](../../schemas/schema.graphql).
 Yous can find the API documentation at [http://doc.junqo.fr/api/index.html](../api/index.html).
 
 ### CI/CD
@@ -188,21 +188,31 @@ You can find the CI/CD documentation at [here](ci_cd.md).
 
 The project uses the following technologies:
 
-- [GitHub](https://github.com)
-- [GitHub Pages](https://pages.github.com)
-- [GitHub Actions](https://docs.github.com/en/actions)
-- [Swagger](https://swagger.io/)
-- [Markdown](https://daringfireball.net/projects/markdown)
-- [NestJs](https://nestjs.com/)
-- [NodeJs](https://nodejs.org/en/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [Sequelize](https://sequelize.org/)
-- [Flutter](https://flutter.dev/)
-- [MochaJs](https://mochajs.org/)
-- [Prometheus](https://prometheus.io/docs/introduction/overview/)
-- [Grafana](https://grafana.com/docs/grafana/latest/getting-started/getting-started-prometheus/)
-- [Docker](https://www.docker.com/)
-- [Docker Compose](https://docs.docker.com/compose/)
-- [Docker Swarm](https://docs.docker.com/engine/swarm/)
-- [Kubernetes](https://kubernetes.io/docs/home/)
-- [Helm](https://helm.sh/)
+- Overall
+  - [GitHub](https://github.com)
+  - [Markdown](https://daringfireball.net/projects/markdown)
+  - [Discord](https://discord.com/)
+  - [Github Projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects)
+- Documentation
+  - [Markdown](https://daringfireball.net/projects/markdown)
+  - [Jekyll](https://jekyllrb.com/)
+  - [Magidoc](https://magidoc.github.io/)
+  - [GitHub Pages](https://pages.github.com)
+- CI/CD
+  - [GitHub Actions](https://docs.github.com/en/actions)
+- Frontend
+  - [Flutter](https://flutter.dev/)
+  - [Ferry Graphql](https://ferrygraphql.com/)
+- Backend
+  - [NestJs](https://nestjs.com/)
+  - [PostgreSQL](https://www.postgresql.org/)
+  - [Sequelize](https://sequelize.org/)
+  - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
+- Operations
+  - [Docker Compose](https://docs.docker.com/compose/)
+  - [Docker Swarm](https://docs.docker.com/engine/swarm/)
+  - [Kubernetes](https://kubernetes.io/docs/home/)
+  - [Helm](https://helm.sh/)
+  - [MochaJs](https://mochajs.org/)
+  - [Prometheus](https://prometheus.io/docs/introduction/overview/)
+  - [Grafana](https://grafana.com/docs/grafana/latest/getting-started/getting-started-prometheus/)

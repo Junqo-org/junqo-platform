@@ -4,34 +4,54 @@ name: Schemathesis Tests
 
 on:
   pull_request:
-    branches:
-      - main
-      - dev
-    paths:
-      - "junqo_back/**"
-      - ".github/workflows/api-tests.yml"
+    branches: [main, dev]
   workflow_dispatch:
 
 jobs:
+  changes-check:
+    runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.filter.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            any_changed:
+              - 'junqo_back/**'
+              - '.github/workflows/api-tests.yml'
+
   api-tests:
+    needs: changes-check
+    if: github.event_name == 'workflow_dispatch' || github.event.action == 'opened' || (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Database configuration
-      run: |
-        echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf
-
     - name: Start containers
-      run: docker compose up -d --build
+      shell: bash
+      env:
+        DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+      run: docker compose -f docker-compose.dev.yaml up -d --build
 
     - name: Run Schemathesis tests
-      uses: schemathesis/action@v1
+      uses: schemathesis/action@v1.0.4
       with:
-        schema: "./schemas/schema.graphqls"
-        base-url: "http://127.0.0.1:4200/"
+        schema: "./schemas/schema.graphql"
+        base-url: "http://127.0.0.1:4200/graphql"
         token: ${{ secrets.SCHEMATHESIS_TOKEN }}
+        hooks: "schemathesis_hooks"
+        args: "--generation-graphql-allow-null=false"
 
     - name: Stop containers
       if: always()
-      run: docker compose down
+      run: docker compose -f docker-compose.dev.yaml down --volumes
+
+  mark-tests-passed-if-no-changes:
+    needs: changes-check
+    if: needs.changes-check.outputs.any_changed != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark tests as passed
+        run: echo "No relevant changes detected - marking as passed."

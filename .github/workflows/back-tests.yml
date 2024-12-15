@@ -3,18 +3,26 @@ name: Backend Tests
 
 on:
   pull_request:
-    branches:
-      - main
-      - dev
-    paths:
-      - "junqo_back/**"
-      - ".github/workflows/back-tests.yml"
+    branches: [main, dev]
   workflow_dispatch:
 
 jobs:
-  test:
+  changes-check:
     runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.filter.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            any_changed:
+              - 'junqo_back/**'
+              - '.github/workflows/back-tests.yml'
 
+  backend-tests:
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -31,3 +39,11 @@ jobs:
     - name: Run tests
       working-directory: junqo_back
       run: npm test
+
+  mark-tests-passed-if-no-changes:
+    needs: changes-check
+    if: needs.changes-check.outputs.any_changed != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark tests as passed
+        run: echo "No relevant changes detected - marking as passed."
