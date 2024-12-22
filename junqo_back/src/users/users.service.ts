@@ -8,11 +8,11 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User as UserModel } from './models/user.model';
-import { User as UserGraphql, UserType } from 'src/graphql.schema';
+import { User as UserGraphql, UserType } from './../graphql.schema';
 import * as bcrypt from 'bcrypt';
-import { bcryptConstants } from 'src/auth/constants';
+import { bcryptConstants } from './../auth/constants';
 import { Mapper } from './mapper/mapper';
-import { CaslAbilityFactory, Action } from 'src/casl/casl-ability.factory';
+import { CaslAbilityFactory, Action } from './../casl/casl-ability.factory';
 
 @Injectable()
 export class UsersService {

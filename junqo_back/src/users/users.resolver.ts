@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { User as UserGraphql, UserType } from 'src/graphql.schema';
+import { User as UserGraphql, UserType } from './../graphql.schema';
 import { NotFoundException } from '@nestjs/common';
 import { CurrentUser } from './users.decorator';
 

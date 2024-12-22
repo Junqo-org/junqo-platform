@@ -36,11 +36,25 @@ jobs:
       working-directory: junqo_back
       run: npm install
 
-    - name: Run tests
+    - name: Generate graphql types
+      working-directory: junqo_back
+      run: npm run generate_types
+
+    - name: Run functional tests
       env:
         BACK_ENV_FILE: "./junqo_back/exemple.env"
       working-directory: junqo_back
       run: npm test
+
+    - name: Run e2e tests
+      env:
+        BACK_ENV_FILE: "./junqo_back/exemple.env"
+      working-directory: junqo_back
+      run: npm run test:e2e
+
+    - name: Lint code
+      working-directory: junqo_back
+      run: npm run lint
 
   mark-tests-passed-if-no-changes:
     needs: changes-check

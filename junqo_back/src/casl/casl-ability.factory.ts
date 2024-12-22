@@ -1,4 +1,4 @@
-import { User as UserGraph, UserType } from 'src/graphql.schema';
+import { User as UserGraph, UserType } from './../graphql.schema';
 import {
   AbilityBuilder,
   CreateAbility,

@@ -1,12 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AuthPayload, UserType } from 'src/graphql.schema';
-import { UsersService } from 'src/users/users.service';
+import { AuthPayload, UserType } from './../graphql.schema';
+import { UsersService } from './../users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UsersService,
+    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
@@ -19,7 +19,7 @@ export class AuthService {
     if (type === UserType.ADMIN) {
       throw new UnauthorizedException('You cannot create an admin user');
     }
-    const user = await this.userService.unprotectedCreate(
+    const user = await this.usersService.unprotectedCreate(
       type,
       name,
       email,
@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   public async signIn(email: string, password: string): Promise<AuthPayload> {
-    const user = await this.userService.unprotectedFindOneByEmailAndPassword(
+    const user = await this.usersService.unprotectedFindOneByEmailAndPassword(
       email,
       password,
     );

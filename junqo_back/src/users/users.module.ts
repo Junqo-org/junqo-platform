@@ -3,7 +3,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersService } from './users.service';
 import { UsersResolver } from './users.resolver';
 import { User } from './models/user.model';
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { CaslAbilityFactory } from './../casl/casl-ability.factory';
 
 @Module({
   imports: [SequelizeModule.forFeature([User])],

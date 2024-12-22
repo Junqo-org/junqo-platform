@@ -1,5 +1,5 @@
 import { User as UserModel } from './../models/user.model'; // Sequelize User class
-import { User as UserGraphql, UserType } from 'src/graphql.schema'; // GraphQL User class
+import { User as UserGraphql, UserType } from './../../graphql.schema'; // GraphQL User class
 
 export class Mapper {
   static toGraphQL(userModel: UserModel): UserGraphql {
