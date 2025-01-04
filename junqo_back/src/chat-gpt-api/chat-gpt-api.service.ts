@@ -48,7 +48,7 @@ export class ChatgptService {
       return recruiterResponse;
     } catch (error) {
       console.error('Erreur lors de la communication avec OpenAI:', error);
-      throw new Error('Erreur lors de la communication avec l\'API OpenAI');
+      throw new Error("Erreur lors de la communication avec l'API OpenAI");
     }
   }
 }

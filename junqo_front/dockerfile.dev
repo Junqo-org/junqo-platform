@@ -6,6 +6,8 @@ FROM debian:bullseye AS build-env
 
 ARG FLUTTER_VERSION=3.22.2
 
+ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas/**/*.graphql
+
 # Install flutter dependencies
 RUN apt-get update && apt-get install -y \
     curl \
@@ -34,11 +36,16 @@ RUN tar -xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C src && \
     flutter doctor -v
 
 # Copy files to container and build
-WORKDIR /app
-COPY . .
+WORKDIR /home/app/junqo_front
+COPY ./junqo_front/ .
+COPY ./schemas ./lib/schemas/
+
+# Generate graphql types
+RUN dart run build_runner build --delete-conflicting-outputs
 
 # Build the app
 RUN flutter build web
+RUN test -d build/web || (echo "Error when building the web app, web build not found" && exit 1)
 
 # Clean up unnecessary files to reduce image size
 RUN rm -rf /usr/local/src/flutter
@@ -46,10 +53,11 @@ RUN rm -rf /usr/local/src/flutter
 # Stage 2 - Create the run-time image
 FROM nginx:1.21.1-alpine
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=5 \
     CMD curl -f http://localhost || exit 1
 
-COPY --chown=app:app --from=build-env /app/build/web /usr/share/nginx/html
-COPY --chown=app:app nginx.conf /etc/nginx/nginx.conf
+COPY  --from=build-env /home/app/junqo_front/build/web /usr/share/nginx/html
+COPY  --chown=nginx:nginx ./junqo_front/nginx.conf /etc/nginx/nginx.conf
+RUN test -f /etc/nginx/nginx.conf || (echo "Nginx config not found" && exit 1) && chmod 644 /etc/nginx/nginx.conf
 
 EXPOSE 80

@@ -13,20 +13,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Database configuration
-        run: |
-          echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf
-
       - name: Start containers
+        shell: bash
+        env:
+          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
       - name: Check if all services are up and running
         run: |
-          if [ $(docker-compose -f ${{ inputs.compose_file }} ps | grep -c "Up") -ne $(docker-compose -f ${{ inputs.compose_file }} config --services | wc -l) ]; then
-            echo "Not all services are running"
-            exit 1
-          fi
+          max_attempts=30
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            running_count="$(docker compose -f "${{ inputs.compose_file }}" ps | grep -c "Up")"
+            total_count="$(docker compose -f "${{ inputs.compose_file }}" config --services | wc -l)"
+            if [ "$running_count" -eq "$total_count" ]; then
+              echo "All services are running"
+              exit 0
+            fi
+            echo "Attempt $attempt/$max_attempts: Waiting for services to start..."
+            sleep 2
+            attempt=$((attempt + 1))
+          done
+          echo "Timeout waiting for services to start"
+          docker compose -f "${{ inputs.compose_file }}" ps
+          exit 1
 
       - name: Stop containers
         if: always()
-        run: docker compose -f ${{ inputs.compose_file }} down
+        run: docker compose -f ${{ inputs.compose_file }} down --volumes
