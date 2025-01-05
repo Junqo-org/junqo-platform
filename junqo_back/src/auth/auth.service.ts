@@ -4,6 +4,8 @@ import { AuthPayload, UserType } from './../graphql.schema';
 import { UsersRepository } from './../users/repository/users.repository';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { UserMapper } from './../users/mapper/user-mapper';
+import * as bcrypt from 'bcrypt';
+import { bcryptConstants } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +19,10 @@ export class AuthService {
       throw new UnauthorizedException('You cannot create an admin user');
     }
 
+    signUpInput.password = await bcrypt.hash(
+      signUpInput.password,
+      bcryptConstants.saltOrRounds,
+    );
     const userModel = await this.usersRepository.create(signUpInput);
     const user = UserMapper.toDomainUser(userModel);
     const payload = {

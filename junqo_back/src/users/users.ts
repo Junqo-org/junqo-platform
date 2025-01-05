@@ -22,7 +22,8 @@ export class DomainUser {
     return new DomainUser(id, type, name, email, password);
   }
 
-  public comparePassword(password: string): boolean {
-    return bcrypt.compareSync(password, this.password);
+  public async comparePassword(password: string): Promise<boolean> {
+    let result = await bcrypt.compare(password, this.password);
+    return result;
   }
 }

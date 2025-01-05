@@ -14,6 +14,6 @@ export class UserMapper {
   }
 
   public static toDomainUsers(userModels: UserModel[]): DomainUser[] {
-    return userModels.map((userModel) => this.toDomainUser(userModel));
+    return userModels.map((userModel) => UserMapper.toDomainUser(userModel));
   }
 }
