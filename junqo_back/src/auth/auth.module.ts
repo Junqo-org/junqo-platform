@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants, bcryptConstants } from './constants';
 import { AuthService } from './auth.service';
-import { UsersModule } from './../users/users.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { AuthResolver } from './auth.resolver';
+import { UsersRepositoryModule } from 'src/users/repository/users.repository.module';
 
 if (jwtConstants.secret === undefined) {
   throw new Error('JWT_SECRET is not defined, please set it in .env file');
@@ -18,7 +18,7 @@ if (bcryptConstants.saltOrRounds === undefined) {
 
 @Module({
   imports: [
-    UsersModule,
+    UsersRepositoryModule,
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,

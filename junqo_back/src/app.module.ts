@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from './auth/auth.module';
 import { CaslModule } from './casl/casl.module';
+import { UsersRepositoryModule } from './users/repository/users.repository.module';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -102,6 +103,7 @@ function getDbPassword(): string {
     }),
     AuthModule,
     CaslModule,
+    UsersRepositoryModule,
   ],
 })
 export class AppModule {}

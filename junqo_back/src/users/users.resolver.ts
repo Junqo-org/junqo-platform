@@ -37,14 +37,13 @@ export class UsersResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<UserGraphql> {
-    return await this.usersService.update(
-      currentUser,
+    return await this.usersService.update(currentUser, {
       id,
       type,
       name,
       email,
       password,
-    );
+    });
   }
 
   @Mutation(() => Boolean)

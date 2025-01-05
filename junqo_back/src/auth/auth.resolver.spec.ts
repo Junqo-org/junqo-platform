@@ -38,12 +38,12 @@ describe('AuthResolver', () => {
       );
 
       // then
-      expect(mockAuthService.signUp).toHaveBeenCalledWith(
-        UserType.STUDENT,
-        'Test User',
-        'test@test.com',
-        'password123',
-      );
+      expect(mockAuthService.signUp).toHaveBeenCalledWith({
+        name: 'Test User',
+        email: 'test@test.com',
+        type: UserType.STUDENT,
+        password: 'password123',
+      });
       expect(result).toEqual(mockAuthPayload);
     });
   });

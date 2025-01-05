@@ -15,12 +15,12 @@ export class AuthResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<AuthPayload> {
-    const authPayload = await this.authService.signUp(
+    const authPayload = await this.authService.signUp({
       type,
       name,
       email,
       password,
-    );
+    });
     if (!authPayload) {
       console.error('Failed to sign up');
       return null;

@@ -6,7 +6,6 @@ import { ContextType } from '@nestjs/common';
 import { ExecutionContext } from '@nestjs/common/interfaces';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
-
 describe('AuthGuard', () => {
   let authGuard: AuthGuard;
   let mockJwtService: Mocked<JwtService>;

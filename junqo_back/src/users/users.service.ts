@@ -6,35 +6,37 @@ import {
   InternalServerErrorException,
   ForbiddenException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { User as UserModel } from './models/user.model';
-import { User as UserGraphql, UserType } from './../graphql.schema';
-import * as bcrypt from 'bcrypt';
-import { bcryptConstants } from './../auth/constants';
-import { Mapper } from './mapper/mapper';
 import { CaslAbilityFactory, Action } from './../casl/casl-ability.factory';
+import { UsersRepository } from './repository/users.repository';
+import { AuthUserDTO } from '../shared/dto/auth-user.dto';
+import { DomainUser } from './users';
+import { UserType } from './user-type.enum';
+import { UserMapper } from './mapper/user-mapper';
+import * as bcrypt from 'bcrypt';
+import { bcryptConstants } from 'src/auth/constants';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { UserIdDTO } from 'src/casl/dto/user-id.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(UserModel)
-    private readonly userModel: typeof UserModel,
     private readonly caslAbilityFactory: CaslAbilityFactory,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
-  public async findAll(currentUser: UserGraphql): Promise<UserGraphql[]> {
+  public async findAll(currentUser: AuthUserDTO): Promise<DomainUser[]> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    if (ability.cannot(Action.READ, UserGraphql)) {
+    if (ability.cannot(Action.READ, AuthUserDTO)) {
       throw new ForbiddenException('You do not have permission to read users');
     }
     try {
-      const users = await this.userModel.findAll();
+      const users = await this.usersRepository.findAll();
 
       if (!users) {
         throw new NotFoundException('Users not found');
       }
-      return Mapper.toGraphQl(users);
+      return UserMapper.toDomainUsers(users);
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to fetch users: ${error.message}`,
@@ -43,100 +45,62 @@ export class UsersService {
   }
 
   public async findOneById(
-    currentUser: UserGraphql,
+    currentUser: AuthUserDTO,
     id: string,
-  ): Promise<UserGraphql> {
+  ): Promise<DomainUser> {
     if (!id || typeof id !== 'string') {
       throw new BadRequestException('Invalid user ID');
     }
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const authUser = new UserGraphql();
+    const authUser = new AuthUserDTO();
     authUser.id = id;
 
     if (ability.cannot(Action.READ, authUser)) {
       throw new ForbiddenException('You do not have permission to read users');
     }
-    const userModel = await this.userModel.findByPk(id);
-    const userGraphql = Mapper.toGraphQL(userModel);
+    const userModel = await this.usersRepository.findOneById(id);
+    const domainUser = UserMapper.toDomainUser(userModel);
 
-    if (!userGraphql) {
+    if (!domainUser) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    return userGraphql;
+    return domainUser;
   }
 
   public async findOneByEmail(
-    currentUser: UserGraphql,
+    currentUser: AuthUserDTO,
     email: string,
-  ): Promise<UserGraphql> {
+  ): Promise<DomainUser> {
     if (!email || typeof email !== 'string') {
       throw new BadRequestException('Invalid email');
     }
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const userModel = await this.userModel.findOne({
-      where: { email },
-    });
-    const userGraphql = Mapper.toGraphQL(userModel);
+    const userModel = await this.usersRepository.findOneByEmail(email);
+    const userDomain = UserMapper.toDomainUser(userModel);
 
-    if (ability.cannot(Action.READ, userGraphql)) {
+    if (ability.cannot(Action.READ, userDomain)) {
       throw new ForbiddenException('You do not have permission to read users');
     }
-    if (!userGraphql) {
+    if (!userDomain) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
-    return userGraphql;
+    return userDomain;
   }
 
-  public async unprotectedFindOneByEmailAndPassword(
-    email: string,
-    password: string,
-  ): Promise<UserGraphql> {
-    if (!email || typeof email !== 'string') {
-      throw new BadRequestException('Invalid email');
-    }
-    if (!password || typeof password !== 'string') {
-      throw new BadRequestException('Invalid password');
-    }
-    const user = await this.userModel.findOne({
-      where: { email },
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with email ${email} not found`);
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new BadRequestException('Invalid password');
-    }
-    return Mapper.toGraphQL(user);
-  }
-
-  public async unprotectedCreate(
+  public async create(
     type: UserType,
     name: string,
     email: string,
     password: string,
-  ): Promise<UserGraphql> {
-    email = UsersService.sanitizeInput(email);
-    name = UsersService.sanitizeInput(name);
-    password = UsersService.sanitizeInput(password);
-
+  ): Promise<DomainUser> {
     try {
-      const existingUser = await this.userModel.findOne({
-        where: { email: email },
-      });
-      if (existingUser) {
-        throw new ConflictException('Email already exists');
-      }
-
       const hashed_password = await bcrypt.hash(
         password,
         bcryptConstants.saltOrRounds,
       );
-      const newUser = await this.userModel.create({
+      const newUser = await this.usersRepository.create({
         type: type,
         name: name,
         email: email,
@@ -147,7 +111,7 @@ export class UsersService {
         throw new InternalServerErrorException('User not created');
       }
 
-      return Mapper.toGraphQL(newUser);
+      return UserMapper.toDomainUser(newUser);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw error;
@@ -159,57 +123,35 @@ export class UsersService {
   }
 
   public async update(
-    currentUser: UserGraphql,
-    id: string,
-    type: UserType,
-    name: string,
-    email: string,
-    password: string,
-  ): Promise<UserGraphql> {
+    currentUser: AuthUserDTO,
+    updateData: UpdateUserDTO,
+  ): Promise<DomainUser> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
-    email = UsersService.sanitizeInput(email);
-    name = UsersService.sanitizeInput(name);
-    password = UsersService.sanitizeInput(password);
 
-    const authUser = new UserGraphql();
-    authUser.id = id;
+    const authUser = new UserIdDTO(currentUser.id);
 
     if (ability.cannot(Action.UPDATE, authUser)) {
       throw new ForbiddenException(
         'You do not have permission to update users',
       );
     }
-    if (type === UserType.ADMIN) {
+    if (updateData.type === UserType.ADMIN) {
       throw new ForbiddenException('You cannot update user type to admin');
     }
 
     const hashedPassword = await bcrypt.hash(
-      password,
+      updateData.password,
       bcryptConstants.saltOrRounds,
     );
     try {
-      const updatedUser = await this.userModel.sequelize.transaction(
-        async (transaction) => {
-          const user = await this.userModel.findByPk(id, { transaction });
-
-          if (!user) {
-            throw new NotFoundException(`User #${id} not found`);
-          }
-          const updatedUser = await user.update(
-            {
-              type: type,
-              name: name,
-              email: email,
-              password: hashedPassword,
-            },
-            {
-              transaction,
-            },
-          );
-          return updatedUser;
-        },
-      );
-      return Mapper.toGraphQL(updatedUser);
+      const updatedUser = await this.usersRepository.update({
+        id: currentUser.id,
+        type: updateData.type,
+        name: updateData.name,
+        email: updateData.email,
+        password: hashedPassword,
+      });
+      return UserMapper.toDomainUser(updatedUser);
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to update user: ${error.message}`,
@@ -217,11 +159,10 @@ export class UsersService {
     }
   }
 
-  public async delete(currentUser: UserGraphql, id: string): Promise<boolean> {
+  public async delete(currentUser: AuthUserDTO, id: string): Promise<boolean> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const authUser = new UserGraphql();
-    authUser.id = id;
+    const authUser = new UserIdDTO(currentUser.id);
 
     if (ability.cannot(Action.DELETE, authUser)) {
       throw new ForbiddenException(
@@ -229,12 +170,11 @@ export class UsersService {
       );
     }
     try {
-      const user = await this.userModel.findByPk(id);
+      const user = await this.usersRepository.delete(id);
 
       if (!user) {
         throw new NotFoundException(`User #${id} not found`);
       }
-      await user.destroy();
 
       return true;
     } catch (error) {
@@ -243,10 +183,5 @@ export class UsersService {
         `Failed to delete user: ${error.message}`,
       );
     }
-  }
-
-  private static sanitizeInput(input: string): string {
-    input = input?.toLowerCase().replace(/\s/g, '');
-    return input;
   }
 }

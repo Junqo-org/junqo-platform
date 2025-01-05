@@ -1,19 +1,24 @@
 import { TestBed, Mocked } from '@suites/unit';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from './../users/users.service';
-import { AuthPayload, User, UserType } from './../graphql.schema';
+import { UsersRepository } from './../users/repository/users.repository';
+import { UserModel } from './../users/repository/models/user.model';
+import { UserType } from './../users/user-type.enum';
+import { AuthPayloadDTO } from './dto/auth-payload.dto';
+import { UserMapper } from './../users/mapper/user-mapper';
+
+jest.mock('./../users/repository/models/user.model');
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let mockUsersService: Mocked<UsersService>;
+  let mockUsersRepository: Mocked<UsersRepository>;
   let mockJwtService: Mocked<JwtService>;
 
   beforeEach(async () => {
     const { unit, unitRef } = await TestBed.solitary(AuthService).compile();
 
     authService = unit;
-    mockUsersService = unitRef.get(UsersService);
+    mockUsersRepository = unitRef.get(UsersRepository);
     mockJwtService = unitRef.get(JwtService);
   });
 
@@ -21,35 +26,38 @@ describe('AuthService', () => {
     // Successfully creates new user and returns AuthPayload with token and user data
     it('should create new user and return AuthPayload when valid data provided', async () => {
       // given
-      const mockUser: User = {
-        id: '1',
-        type: UserType.STUDENT,
-        name: 'Test User',
-        email: 'mail@gmail.com',
-      };
-      const mockAuthPayload: AuthPayload = {
+      const mockUser = new UserModel();
+      mockUser.id = '1';
+      mockUser.type = UserType.STUDENT;
+      mockUser.name = 'Test User';
+      mockUser.email = 'mail@mail.com';
+      mockUser.password = 'password123';
+
+      const domainUser = UserMapper.toDomainUser(mockUser);
+
+      const mockAuthPayload: AuthPayloadDTO = {
         token: 'test-token',
-        user: mockUser,
+        user: domainUser,
       };
 
-      mockUsersService.unprotectedCreate.mockResolvedValue(mockUser);
+      mockUsersRepository.create.mockResolvedValue(mockUser);
       mockJwtService.signAsync.mockResolvedValue('test-token');
 
       // when
-      const result = await authService.signUp(
-        UserType.STUDENT,
-        'Test User',
-        'mail@gmail.com',
-        'password123',
-      );
+      const result = await authService.signUp({
+        name: 'Test User',
+        email: 'mail@mail.com',
+        type: UserType.STUDENT,
+        password: 'password123',
+      });
 
       // then
-      expect(mockUsersService.unprotectedCreate).toHaveBeenCalledWith(
-        UserType.STUDENT,
-        'Test User',
-        'mail@gmail.com',
-        'password123',
-      );
+      expect(mockUsersRepository.create).toHaveBeenCalledWith({
+        name: 'Test User',
+        email: 'mail@mail.com',
+        type: UserType.STUDENT,
+        password: 'password123',
+      });
       expect(result).toEqual(mockAuthPayload);
     });
   });
