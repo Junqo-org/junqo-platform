@@ -6,13 +6,13 @@ async function generateTypes() {
   try {
     const schemasPath = process.env.GRAPHQL_SCHEMAS_PATH
       ? path.resolve(process.env.GRAPHQL_SCHEMAS_PATH)
-      : path.resolve(__dirname, '../schemas');
+      : path.resolve(process.cwd(), '../schemas');
 
     if (!existsSync(schemasPath)) {
       throw new Error(`Schemas directory not found: ${schemasPath}`);
     }
 
-    const outputPath = path.resolve(__dirname, 'src', 'graphql.schema.ts');
+    const outputPath = path.resolve(process.cwd(), 'src', 'graphql.schema.ts');
 
     const definitionsFactory = new GraphQLDefinitionsFactory();
 

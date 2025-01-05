@@ -9,6 +9,7 @@ import { CaslModule } from './casl/casl.module';
 import { UsersRepositoryModule } from './users/repository/users.repository.module';
 import * as path from 'path';
 import * as fs from 'fs';
+import 'dotenv/config';
 
 function validatePassword(password: string): string {
   if (!password) {
@@ -30,8 +31,7 @@ function getDbPassword(): string {
   }
   const passwordFile: string =
     process.env.DATABASE_PASSWORD_FILE ??
-    path.join(__dirname, '..', 'db_password.conf');
-
+    path.join(process.cwd(), '..', 'db_password.conf');
   if (passwordFile && fs.existsSync(passwordFile)) {
     let password = fs.readFileSync(passwordFile, 'utf8');
 
@@ -85,7 +85,7 @@ function getDbPassword(): string {
         (() => {
           const schemaPath = path.resolve(
             process.env.GRAPHQL_SCHEMAS_PATH ||
-              path.join(__dirname, '..', 'schemas'),
+              path.join(process.cwd(), '..', 'schemas'),
           );
           if (!fs.existsSync(schemaPath)) {
             throw new Error(`GraphQL schema path not found: ${schemaPath}`);

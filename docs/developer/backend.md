@@ -61,6 +61,7 @@ Before you begin, ensure you have the following software installed:
   DATABASE_USER=your_db_user
   DATABASE_PASSWORD=your_db_password
   DATABASE_NAME=your_db_name
+  JWT_SECRET=your_jwt_secret
   ```
 
 2. Ensure PostgreSQL is running and the database is set up with the provided credentials.
