@@ -22,6 +22,8 @@ describe('Users', () => {
   });
 
   it('should compare passwords', () => {
-    expect(user.comparePassword(password)).toBe(true);
+    user
+      .comparePassword(password)
+      .then((result) => expect(result).toBeTruthy());
   });
 });

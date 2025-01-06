@@ -23,7 +23,16 @@ export class DomainUser {
   }
 
   public async comparePassword(password: string): Promise<boolean> {
-    let result = await bcrypt.compare(password, this.password);
+    const result = await bcrypt.compare(password, this.password);
     return result;
+  }
+
+  public toJSON() {
+    return {
+      id: this.id,
+      type: this.type,
+      name: this.name,
+      email: this.email,
+    };
   }
 }

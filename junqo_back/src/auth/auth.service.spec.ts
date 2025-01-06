@@ -31,7 +31,6 @@ describe('AuthService', () => {
       mockUser.type = UserType.STUDENT;
       mockUser.name = 'Test User';
       mockUser.email = 'mail@mail.com';
-      mockUser.password = 'password123';
 
       const domainUser = UserMapper.toDomainUser(mockUser);
 
@@ -40,6 +39,7 @@ describe('AuthService', () => {
         user: domainUser,
       };
 
+      mockUser.password = 'password123';
       mockUsersRepository.create.mockResolvedValue(mockUser);
       mockJwtService.signAsync.mockResolvedValue('test-token');
 
@@ -56,7 +56,7 @@ describe('AuthService', () => {
         name: 'Test User',
         email: 'mail@mail.com',
         type: UserType.STUDENT,
-        password: 'password123',
+        password: expect.stringContaining('$2b$'),
       });
       expect(result).toEqual(mockAuthPayload);
     });

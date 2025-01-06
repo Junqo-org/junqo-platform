@@ -32,7 +32,7 @@ export class AuthService {
       email: user.email,
     };
     const token = await this.jwtService.signAsync(payload);
-    return { token, user };
+    return { token, user: user.toJSON() };
   }
 
   public async signIn(email: string, password: string): Promise<AuthPayload> {
@@ -56,6 +56,6 @@ export class AuthService {
       email: user.email,
     };
     const token = await this.jwtService.signAsync(payload);
-    return { token, user };
+    return { token, user: user.toJSON() };
   }
 }

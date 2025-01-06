@@ -12,7 +12,8 @@ export class UsersResolver {
   public async users(
     @CurrentUser() currentUser: UserGraphql,
   ): Promise<UserGraphql[]> {
-    return this.usersService.findAll(currentUser);
+    const users = await this.usersService.findAll(currentUser);
+    return users.map((u) => u.toJSON());
   }
 
   @Query(() => UserGraphql)
@@ -25,7 +26,7 @@ export class UsersResolver {
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    return user;
+    return user.toJSON();
   }
 
   @Mutation(() => UserGraphql)
@@ -37,13 +38,14 @@ export class UsersResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<UserGraphql> {
-    return await this.usersService.update(currentUser, {
+    const user = await this.usersService.update(currentUser, {
       id,
       type,
       name,
       email,
       password,
     });
+    return user.toJSON();
   }
 
   @Mutation(() => Boolean)
