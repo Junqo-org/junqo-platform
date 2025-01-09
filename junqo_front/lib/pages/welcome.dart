@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'type_selection.dart';
+import 'package:flutter/gestures.dart';
 import 'dart:math' as math;
 import 'login.dart';
+import 'terms_of_use.dart';
+import 'privacy_policy.dart';
+
+const studentsCount = '10K+';
+const companiesCount = '500+';
+const satisfactionRate = '95%';
 
 class Welcome extends StatefulWidget {
-  const Welcome({Key? key}) : super(key: key);
+  const Welcome({Key? key,}) : super(key: key);
 
   @override
   State<Welcome> createState() => _WelcomeState();
@@ -146,7 +153,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                     transform: Matrix4.identity()
                                       ..scale(_isHovered ? 1.02 : 1.0),
                                     child: _buildWelcomeButton(
-                                      onPressed: () => Navigator.pushReplacement(
+                                      onPressed: () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => const Selection(),
@@ -175,7 +182,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                         cursor: SystemMouseCursors.click,
                                         child: GestureDetector(
                                           onTap: () {
-                                            Navigator.pushReplacement(
+                                            Navigator.push(
                                               context,
                                               MaterialPageRoute(builder: (context) => const Login()),
                                             );
@@ -201,9 +208,9 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                                     children: [
-                                      _buildStat('10K+', 'Étudiants'),
-                                      _buildStat('500+', 'Entreprises'),
-                                      _buildStat('95%', 'Satisfaction'),
+                                      _buildStat(studentsCount, 'Étudiants'),
+                                      _buildStat(companiesCount, 'Entreprises'),
+                                      _buildStat(satisfactionRate, 'Satisfaction'),
                                     ],
                                   ),
                                 ),
@@ -220,15 +227,46 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                       width: 1,
                                     ),
                                   ),
-                                  child: Text(
-                                    'En cliquant sur Continuer pour vous inscrire ou vous identifier, '
-                                    'vous acceptez les Conditions d\'utilisation, la Politique de confidentialité '
-                                    'et la Politique relative aux cookies de Junqo.',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                      height: 1.5,
-                                      letterSpacing: 0.1,
+                                  child: RichText(
+                                    textAlign: TextAlign.center,
+                                    text: TextSpan(
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade600,
+                                        height: 1.5,
+                                      ),
+                                      children: [
+                                        const TextSpan(text: 'En créant un compte ou vous identifiant, vous acceptez nos '),
+                                        TextSpan(
+                                          text: 'conditions d\'utilisation',
+                                          style: TextStyle(
+                                            color: Colors.blue.shade600,
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => Terms()),
+                                              );
+                                            },
+                                        ),
+                                        const TextSpan(text: ' et notre '),
+                                        TextSpan(
+                                          text: 'politique de confidentialité',
+                                          style: TextStyle(
+                                            color: Colors.blue.shade600,
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => PrivacyPolicy()),
+                                              );
+                                            },
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),

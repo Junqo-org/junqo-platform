@@ -2,6 +2,9 @@
   import 'dart:math' as math;
   import 'type_selection.dart';
   import 'welcome.dart';
+  import 'terms_of_use.dart';
+  import 'privacy_policy.dart';
+  import 'package:flutter/gestures.dart';
 
   class Login extends StatefulWidget {
     const Login({Key? key}) : super(key: key);
@@ -170,7 +173,7 @@
                               children: [
                                 IconButton(
                                   icon: Icon(Icons.arrow_back, color: Colors.blue.shade400),
-                                  onPressed: () => Navigator.pushReplacement(
+                                  onPressed: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => const Welcome()),
                                   ),
@@ -342,7 +345,7 @@
                                             cursor: SystemMouseCursors.click,
                                             child: GestureDetector(
                                               onTap: () {
-                                                Navigator.pushReplacement(
+                                                Navigator.push(
                                                   context,
                                                   MaterialPageRoute(builder: (context) => const Selection()),
                                                 );
@@ -368,13 +371,46 @@
                                         color: Colors.grey.shade50,
                                         borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: Text(
-                                        'En continuant, vous acceptez nos conditions d\'utilisation et notre politique de confidentialité',
+                                      child: RichText(
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey.shade600,
-                                          height: 1.5,
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey.shade600,
+                                            height: 1.5,
+                                          ),
+                                          children: [
+                                            const TextSpan(text: 'En créant un compte ou vous identifiant, vous acceptez nos '),
+                                            TextSpan(
+                                              text: 'conditions d\'utilisation',
+                                              style: TextStyle(
+                                                color: Colors.blue.shade600,
+                                                decoration: TextDecoration.underline,
+                                              ),
+                                              recognizer: TapGestureRecognizer()
+                                                ..onTap = () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(builder: (context) => Terms()),
+                                                  );
+                                                },
+                                            ),
+                                            const TextSpan(text: ' et notre '),
+                                            TextSpan(
+                                              text: 'politique de confidentialité',
+                                              style: TextStyle(
+                                                color: Colors.blue.shade600,
+                                                decoration: TextDecoration.underline,
+                                              ),
+                                              recognizer: TapGestureRecognizer()
+                                                ..onTap = () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(builder: (context) => PrivacyPolicy()),
+                                                  );
+                                                },
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),

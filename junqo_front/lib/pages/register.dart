@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'login.dart';
+import 'terms_of_use.dart';
+import 'privacy_policy.dart';
+import 'package:flutter/gestures.dart';
 
 class Register extends StatefulWidget {
   final String userType;
@@ -25,8 +28,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   // Form state
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -53,7 +57,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
       if (_emailController.text.trim().isEmpty) {
         _emailError = 'Ce champ est requis';
         isValid = false;
-      } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(_emailController.text)) {
+      } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+          .hasMatch(_emailController.text)) {
         _emailError = 'Adresse email invalide';
         isValid = false;
       } else {
@@ -249,7 +254,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                   Center(
                     child: Container(
                       constraints: const BoxConstraints(maxWidth: 450),
-                      margin: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 32, horizontal: 24),
                       child: Container(
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
@@ -278,10 +284,12 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                       Container(
                                         width: 4,
                                         height: 24,
-                                        margin: const EdgeInsets.only(right: 12),
+                                        margin:
+                                            const EdgeInsets.only(right: 12),
                                         decoration: BoxDecoration(
                                           color: mainColor,
-                                          borderRadius: BorderRadius.circular(2),
+                                          borderRadius:
+                                              BorderRadius.circular(2),
                                         ),
                                       ),
                                       const Text(
@@ -330,9 +338,11 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                               child: Column(
                                 children: [
                                   _buildTextField(
-                                    label: widget.userType == 'student' ? 'Nom complet' :
-                                           widget.userType == 'school' ? 'Nom de l\'école' :
-                                           'Nom de l\'entreprise',
+                                    label: widget.userType == 'student'
+                                        ? 'Nom complet'
+                                        : widget.userType == 'school'
+                                            ? 'Nom de l\'école'
+                                            : 'Nom de l\'entreprise',
                                     controller: _nameController,
                                     prefix: Icons.account_circle_outlined,
                                     mainColor: mainColor,
@@ -340,7 +350,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                     errorText: _nameError,
                                   ),
                                   const SizedBox(height: 24),
-                                  
                                   _buildTextField(
                                     label: 'Adresse e-mail',
                                     controller: _emailController,
@@ -351,28 +360,31 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                     errorText: _emailError,
                                   ),
                                   const SizedBox(height: 24),
-                                  
                                   _buildTextField(
                                     label: 'Mot de passe',
                                     controller: _passwordController,
                                     prefix: Icons.lock_outline,
                                     isPassword: true,
                                     isPasswordVisible: _isPasswordVisible,
-                                    onVisibilityChanged: (value) => setState(() => _isPasswordVisible = value),
+                                    onVisibilityChanged: (value) => setState(
+                                        () => _isPasswordVisible = value),
                                     mainColor: mainColor,
                                     isError: _passwordError != null,
                                     errorText: _passwordError,
                                   ),
                                   const SizedBox(height: 24),
-                                  
                                   _buildTextField(
                                     label: 'Confirmer le mot de passe',
                                     controller: _confirmPasswordController,
                                     prefix: Icons.lock_outline,
                                     isPassword: true,
-                                    isPasswordVisible: _isConfirmPasswordVisible,
-                                    onVisibilityChanged: (value) => setState(() => _isConfirmPasswordVisible = value),
-                                    isError: !_passwordsMatch || _passwordError != null,
+                                    isPasswordVisible:
+                                        _isConfirmPasswordVisible,
+                                    onVisibilityChanged: (value) => setState(
+                                        () =>
+                                            _isConfirmPasswordVisible = value),
+                                    isError: !_passwordsMatch ||
+                                        _passwordError != null,
                                     errorText: _passwordError,
                                     mainColor: mainColor,
                                   ),
@@ -399,10 +411,12 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                   MouseRegion(
                                     cursor: SystemMouseCursors.click,
                                     child: GestureDetector(
-                                    onTap: () {
-                                        Navigator.pushReplacement(
+                                      onTap: () {
+                                        Navigator.push(
                                           context,
-                                          MaterialPageRoute(builder: (context) => const Login()),
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const Login()),
                                         );
                                       },
                                       child: Text(
@@ -427,13 +441,51 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                 color: mainColor.withOpacity(0.05),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                'En créant un compte, vous acceptez nos conditions d\'utilisation et notre politique de confidentialité',
+                              child: RichText(
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade600,
-                                  height: 1.5,
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                    height: 1.5,
+                                  ),
+                                  children: [
+                                    const TextSpan(
+                                        text:
+                                            'En créant un compte ou vous identifiant, vous acceptez nos '),
+                                    TextSpan(
+                                      text: 'conditions d\'utilisation',
+                                      style: TextStyle(
+                                        color: mainColor,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => Terms()),
+                                          );
+                                        },
+                                    ),
+                                    const TextSpan(text: ' et notre '),
+                                    TextSpan(
+                                      text: 'politique de confidentialité',
+                                      style: TextStyle(
+                                        color: mainColor,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    PrivacyPolicy()),
+                                          );
+                                        },
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -489,15 +541,22 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                 ),
                 prefixIcon: Icon(
                   prefix,
-                  color: isError ? Colors.red.shade400 : mainColor.withOpacity(0.7),
+                  color: isError
+                      ? Colors.red.shade400
+                      : mainColor.withOpacity(0.7),
                 ),
-                suffixIcon: isPassword ? IconButton(
-                  icon: Icon(
-                    isPasswordVisible ?? false ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.grey.shade500,
-                  ),
-                  onPressed: () => onVisibilityChanged?.call(!(isPasswordVisible ?? false)),
-                ) : null,
+                suffixIcon: isPassword
+                    ? IconButton(
+                        icon: Icon(
+                          isPasswordVisible ?? false
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey.shade500,
+                        ),
+                        onPressed: () => onVisibilityChanged
+                            ?.call(!(isPasswordVisible ?? false)),
+                      )
+                    : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -514,8 +573,10 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                   ),
                 ),
                 filled: true,
-                fillColor: _isHovered ? mainColor.withOpacity(0.02) : Colors.white,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                fillColor:
+                    _isHovered ? mainColor.withOpacity(0.02) : Colors.white,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               ),
               style: TextStyle(
                 fontSize: 15,
@@ -580,36 +641,36 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
               },
               borderRadius: BorderRadius.circular(12),
               child: Center(
-                child: _isSubmitHovered 
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Créer mon compte',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
+                child: _isSubmitHovered
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Créer mon compte',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
                           ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white.withOpacity(0.9),
+                            size: 18,
+                          ),
+                        ],
+                      )
+                    : const Text(
+                        'Créer mon compte',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
                         ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white.withOpacity(0.9),
-                          size: 18,
-                        ),
-                      ],
-                    )
-                  : const Text(
-                      'Créer mon compte',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
                       ),
-                    ),
               ),
             ),
           ),
@@ -632,8 +693,10 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
         final scaleValue = 0.9 + (scaleAnimation.value * 0.2);
         return Transform.translate(
           offset: Offset(
-            initialOffset.dx + floatRadius * math.cos(animation.value * 2 * math.pi),
-            initialOffset.dy + floatRadius * math.sin(animation.value * 2 * math.pi),
+            initialOffset.dx +
+                floatRadius * math.cos(animation.value * 2 * math.pi),
+            initialOffset.dy +
+                floatRadius * math.sin(animation.value * 2 * math.pi),
           ),
           child: Transform.scale(
             scale: scaleValue,
