@@ -13,9 +13,9 @@ import { DomainUser } from './users';
 import { UserType } from './user-type.enum';
 import { UserMapper } from './mapper/user-mapper';
 import * as bcrypt from 'bcrypt';
-import { bcryptConstants } from 'src/auth/constants';
+import { bcryptConstants } from './../auth/constants';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { UserIdDTO } from 'src/casl/dto/user-id.dto';
+import { UserIdDTO } from './../casl/dto/user-id.dto';
 
 @Injectable()
 export class UsersService {

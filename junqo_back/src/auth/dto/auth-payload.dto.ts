@@ -1,4 +1,4 @@
-import { DomainUser } from 'src/users/users';
+import { DomainUser } from './../../users/users';
 
 export class AuthPayloadDTO {
   token: string;

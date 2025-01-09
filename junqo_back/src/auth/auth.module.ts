@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { AuthResolver } from './auth.resolver';
-import { UsersRepositoryModule } from 'src/users/repository/users.repository.module';
+import { UsersRepositoryModule } from './../users/repository/users.repository.module';
 
 if (jwtConstants.secret === undefined) {
   throw new Error('JWT_SECRET is not defined, please set it in .env file');
