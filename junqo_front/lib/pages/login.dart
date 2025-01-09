@@ -179,7 +179,7 @@
                                 SizedBox(
                                   height: 35,
                                   child: Image.asset(
-                                    '../assets/images/template_logo.png',
+                                    'assets/images/template_logo.png',
                                     fit: BoxFit.contain,
                                     alignment: Alignment.centerLeft,
                                   ),

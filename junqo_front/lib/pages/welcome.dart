@@ -74,7 +74,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
               child: SizedBox(
                 height: 35,
                 child: Image.asset(
-                  '../assets/images/template_logo.png',
+                  'assets/images/template_logo.png',
                   fit: BoxFit.contain,
                   alignment: Alignment.centerLeft,
                 ),
@@ -136,31 +136,6 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                   ),
                                 ),
                                 const SizedBox(height: 30),
-
-                                // Google Sign In Button
-                                // MouseRegion(
-                                //   onEnter: (_) => setState(() => _isHovered = true),
-                                //   onExit: (_) => setState(() => _isHovered = false),
-                                //   child: AnimatedContainer(
-                                //     duration: const Duration(milliseconds: 200),
-                                //     transform: Matrix4.identity()
-                                //       ..scale(_isHovered ? 1.02 : 1.0),
-                                //     child: _buildWelcomeButton(
-                                //       onPressed: () => Navigator.push(
-                                //         context,
-                                //         MaterialPageRoute(
-                                //           builder: (context) => const Selection(),
-                                //         ),
-                                //       ),
-                                //       icon: Image.asset(
-                                //         '../assets/images/google.svg',
-                                //         height: 20,
-                                //       ),
-                                //       label: 'Continuer avec Google',
-                                //     ),
-                                //   ),
-                                // ),
-                                // const SizedBox(height: 32),
 
                                 // Email Sign In Button
                                 MouseRegion(
@@ -307,7 +282,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                         child: Container(
                                           padding: const EdgeInsets.all(32),
                                           child: Image.asset(
-                                            '../assets/images/login_image.png',
+                                            'assets/images/login_image.png',
                                             fit: BoxFit.contain,
                                           ),
                                         ),
