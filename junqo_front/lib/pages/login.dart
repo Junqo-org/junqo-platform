@@ -170,7 +170,7 @@
                               children: [
                                 IconButton(
                                   icon: Icon(Icons.arrow_back, color: Colors.blue.shade400),
-                                  onPressed: () => Navigator.push(
+                                  onPressed: () => Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(builder: (context) => const Welcome()),
                                   ),
@@ -342,7 +342,7 @@
                                             cursor: SystemMouseCursors.click,
                                             child: GestureDetector(
                                               onTap: () {
-                                                Navigator.push(
+                                                Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(builder: (context) => const Selection()),
                                                 );

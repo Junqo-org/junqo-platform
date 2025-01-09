@@ -400,7 +400,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                     cursor: SystemMouseCursors.click,
                                     child: GestureDetector(
                                     onTap: () {
-                                        Navigator.push(
+                                        Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(builder: (context) => const Login()),
                                         );

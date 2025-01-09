@@ -105,7 +105,7 @@ class _SelectionState extends State<Selection> with TickerProviderStateMixin {
                     children: [
                       IconButton(
                         icon: Icon(Icons.arrow_back, color: Colors.blue.shade400),
-                        onPressed: () => Navigator.push(
+                        onPressed: () => Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => const Welcome()),
                         ),
@@ -219,7 +219,7 @@ class _SelectionState extends State<Selection> with TickerProviderStateMixin {
                   child: Center(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => const Login()),
                         );
@@ -300,7 +300,7 @@ class _SelectionState extends State<Selection> with TickerProviderStateMixin {
                   userType = 'student';
                   break;
               }
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => Register(userType: userType),

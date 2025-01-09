@@ -146,7 +146,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                     transform: Matrix4.identity()
                                       ..scale(_isHovered ? 1.02 : 1.0),
                                     child: _buildWelcomeButton(
-                                      onPressed: () => Navigator.push(
+                                      onPressed: () => Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => const Selection(),
@@ -175,7 +175,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                         cursor: SystemMouseCursors.click,
                                         child: GestureDetector(
                                           onTap: () {
-                                            Navigator.push(
+                                            Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(builder: (context) => const Login()),
                                             );
