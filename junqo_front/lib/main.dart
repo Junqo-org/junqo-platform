@@ -1,38 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:junqo_front/signup.dart';
+import 'pages/welcome.dart';
 
-void main() {
-  runApp(MyApp());
-} 
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build (BuildContext context) {
     return MaterialApp(
-      title: 'Junqo App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Scaffold(
-        body: HomePage(),
-      ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SignupPage()),
-          );
-        },
-        child: Text('Créer un profil'),
-      ),
+      debugShowCheckedModeBanner: false,
+      title: 'Login Screen',
+      home: Welcome(),
     );
   }
 }
