@@ -6,15 +6,16 @@ services:
   front:
     container_name: junqo_front_dev
     build:
-      context: ./junqo_front
-      dockerfile: ./dockerfile.dev
+      context: ./
+      dockerfile: ./junqo_front/dockerfile.dev
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
-    restart: always
+    restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
-      - back
+      back:
+        condition: service_healthy
     develop:
       watch:
         # Sync and restart when nginx.conf changes
@@ -25,26 +26,28 @@ services:
         - action: rebuild
           path: ./junqo_front
           ignore:
-            - ./junqo_front/nginx.conf
+            - ./nginx.conf
 
   back:
     container_name: junqo_back_dev
     build:
-      context: ./junqo_back
-      dockerfile: ./dockerfile.dev
-    restart: always
-    environment:
-      NODE_ENV: development
-      DATABASE_NAME: junqo
-      DATABASE_USER: junqo
-      DATABASE_PASSWORD_FILE: /run/secrets/db_password
-      DATABASE_HOST: db
+      context: ./
+      dockerfile: ./junqo_back/dockerfile.dev
+      args:
+        - DATABASE_NAME=${DATABASE_NAME:-junqo}
+        - DATABASE_USER=${DATABASE_USER:-junqo}
+        - DATABASE_HOST=db
+        - DATABASE_PORT=${DATABASE_PORT:-5432}
+    restart: unless-stopped
     networks:
       - back-net
     ports:
       - "${BACK_PORT:-4200}:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
     secrets:
       - db_password
     develop:
@@ -52,30 +55,44 @@ services:
         # Sync all files except node_modules for live reloading
         - action: sync
           path: ./junqo_back
-          target: /usr/src/app/
+          target: /home/app/junqo_back/
           ignore:
-            - node_modules/
+            - ./node_modules/
+        # Sync and restart when schema files change
+        - action: sync+restart
+          path: ./schemas
+          target: /home/app/schemas/
+          ignore:
+            - ./*.md
+            - ./*.planned
 
   db:
     container_name: junqo_db_dev
     image: postgres:alpine
-    restart: always
+    restart: unless-stopped
     shm_size: ${DATABASE_SHM_SIZE:-128mb}
     networks:
       - back-net
+    volumes:
+      - db_data_dev:/var/lib/postgresql/data
+      - ${TEST_DATA_FOLDER:-./db}:/docker-entrypoint-initdb.d
     environment:
+      POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB: ${DATABASE_NAME:-junqo}
     secrets:
       - db_password
-    volumes:
-      - ./database-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-junqo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 
   adminer:
     container_name: junqo_adminer_dev
     image: adminer
-    restart: always
+    restart: unless-stopped
     environment:
       ADMINER_DESIGN: ${ADMINER_DESIGN:-pepa-linha-dark}
       ADMINER_DEFAULT_SERVER: db
@@ -89,6 +106,9 @@ services:
 networks:
   back-net:
     driver: bridge
+
+volumes:
+  db_data_dev:
 
 secrets:
   db_password:

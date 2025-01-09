@@ -6,34 +6,37 @@ services:
   front:
     container_name: junqo_front
     build:
-      context: ./junqo_front
-      dockerfile: ./dockerfile.prod
+      context: ./
+      dockerfile: ./junqo_front/dockerfile.prod
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
     restart: always
     ports:
       - "80:80"
     depends_on:
-      - back
+      back:
+        condition: service_healthy
 
   back:
     container_name: junqo_back
     build:
-      context: ./junqo_back
-      dockerfile: ./dockerfile.prod
+      context: ./
+      dockerfile: ./junqo_back/dockerfile.prod
+      args:
+        - DATABASE_NAME=${DATABASE_NAME:-junqo}
+        - DATABASE_USER=${DATABASE_USER:-junqo}
+        - DATABASE_HOST=db
+        - DATABASE_PORT=${DATABASE_PORT:-5432}
     restart: always
-    environment:
-      NODE_ENV: production
-      DATABASE_NAME: junqo
-      DATABASE_USER: junqo
-      DATABASE_PASSWORD_FILE: /run/secrets/db_password
-      DATABASE_HOST: db
     networks:
       - back-net
     ports:
       - "${BACK_PORT:-4200}:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
     secrets:
       - db_password
 
@@ -41,26 +44,31 @@ services:
     container_name: junqo_db
     image: postgres:alpine
     restart: always
-    shm_size: ${POSTGRES_SHM_SIZE:-128mb}
+    shm_size: ${DATABASE_SHM_SIZE:-128mb}
     networks:
       - back-net
     volumes:
       - db_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-junqo}
+      POSTGRES_DB: ${DATABASE_NAME:-junqo}
+      POSTGRES_USER: ${DATABASE_USER:-junqo}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB: ${POSTGRES_DB:-junqo}
     secrets:
       - db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-junqo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 
 networks:
   back-net:
     driver: bridge
-
 
 volumes:
   db_data:
 
 secrets:
   db_password:
-    file: ${DB_PASSWORD_FILE:-./db_password.conf}
+    file: ${DATABASE_PASSWORD_FILE:-./db_password.conf}

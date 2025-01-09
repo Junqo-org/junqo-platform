@@ -1,0 +1,20 @@
+# Git files (.git, .gitignore)
+.git
+.gitignore
+
+# Development files (node_modules, .env)
+node_modules
+.env
+
+# Build artifacts (build/, dist/)
+build
+dist
+
+# IDE files (.vscode, .idea)
+.vscode
+.idea
+
+# documentation
+/docs
+README.md
+*.planned
