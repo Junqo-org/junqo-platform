@@ -514,9 +514,11 @@
               child: InkWell(
                 onTap: () {
                   if (_validateFields()) {
-                    print('Email: ${_emailController.text}');
-                    print('Password: ${_passwordController.text}');
-                    print('Remember me: $_rememberMe');
+                    //_emailController.text
+                    //_passwordController.text
+                    //_nameController.text
+                    //_rememberMe
+                    //userType
                   }
                 },
                 borderRadius: BorderRadius.circular(12),
