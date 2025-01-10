@@ -1,4 +1,5 @@
   import 'package:flutter/material.dart';
+  import 'home_page.dart';
   import 'dart:math' as math;
   import 'type_selection.dart';
   import 'welcome.dart';
@@ -555,6 +556,10 @@
                     //_nameController.text
                     //_rememberMe
                     //userType
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                    );
                   }
                 },
                 borderRadius: BorderRadius.circular(12),

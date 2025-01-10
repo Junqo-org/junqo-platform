@@ -150,7 +150,7 @@ class _InterviewState extends State<Interview> {
                         if (!isUserMessage)
                           CircleAvatar(
                             backgroundImage:
-                                AssetImage("assets/ai_avatar.png"),
+                                AssetImage("images/ai_avatar.png"),
                             radius: 24,
                           ),
                         const SizedBox(width: 8),
@@ -178,7 +178,7 @@ class _InterviewState extends State<Interview> {
                         if (isUserMessage)
                           CircleAvatar(
                             backgroundImage:
-                                AssetImage("assets/user_avatar.png"),
+                                AssetImage("images/profile_placeholder.jpg"),
                             radius: 24,
                           ),
                       ],

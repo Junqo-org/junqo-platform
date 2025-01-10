@@ -42,10 +42,9 @@ class _NavbarState extends State<Navbar> {
       default:
         return;
     }
-
-    Navigator.pushReplacement(
-      context,
+    Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => page),
+      (route) => false,
     );
   }
 

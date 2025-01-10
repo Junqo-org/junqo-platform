@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/navbar.dart';
 
+
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -15,10 +17,8 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Navbar en haut avec l'index 0 pour Home
           const Navbar(currentIndex: 0),
-          
-          // Contenu principal
+
           Expanded(
             child: SingleChildScrollView(
               child: Center(

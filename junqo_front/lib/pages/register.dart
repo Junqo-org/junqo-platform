@@ -54,6 +54,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
       }
 
       // Validation de l'email
+
       if (_emailController.text.trim().isEmpty) {
         _emailError = 'Ce champ est requis';
         isValid = false;
@@ -76,6 +77,18 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
       } else {
         _passwordError = null;
         _passwordsMatch = true;
+      }
+      if (_passwordController.text.length < 8) {
+        setState(() {
+          _passwordError = 'Le mot de passe doit contenir au moins 8 caractères';
+          isValid = false;
+        });
+      }
+      if (!RegExp(r'[A-Z]').hasMatch(_passwordController.text)) {
+        setState(() {
+          _passwordError = 'Le mot de passe doit contenir au moins une majuscule';
+          isValid = false;
+        });
       }
     });
     return isValid;
