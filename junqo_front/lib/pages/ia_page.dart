@@ -22,82 +22,86 @@ class _IAPageState extends State<IAPage> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // En-tête avec image de fond et texte
-                  Container(
-                    height: 200,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('images/ai_background.png'),
-                        fit: BoxFit.cover,
+                  // Section en-tête
+                  Stack(
+                    children: [
+                      Container(
+                        height: 220,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('images/ai_background.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Boostez votre carrière grâce à l'IA",
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 4,
-                              offset: const Offset(2, 2),
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black.withOpacity(0.4),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Center(
+                          child: Text(
+                            "Boostez votre carrière grâce à l'IA",
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Cartes de sélection des outils IA
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            _buildSelectionCard(
+                              context,
+                              title: "Simulateur d'entretien",
+                              description:
+                                  "Entraînez-vous pour vos entretiens avec notre simulateur interactif.",
+                              icon: Icons.person,
+                              color: Colors.blue,
+                              onTap: () {
+                                // Navigation simulée
+                              },
+                            ),
+                            _buildSelectionCard(
+                              context,
+                              title: "Améliorer votre CV",
+                              description:
+                                  "Obtenez des conseils personnalisés pour rendre votre CV exceptionnel.",
+                              icon: Icons.description,
+                              color: Colors.green,
+                              onTap: () {
+                                // Navigation simulée
+                              },
                             ),
                           ],
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-
-                  // Cartes de sélection
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: _buildSelectionCard(
-                            context,
-                            title: "Simulateur d'entretien",
-                            description:
-                                "Entraînez-vous pour vos entretiens avec notre simulateur interactif.",
-                            icon: Icons.person,
-                            color: Colors.blue,
-                            onTap: () {
-                              // Navigation vers la page du simulateur d'entretien
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: _buildSelectionCard(
-                            context,
-                            title: "Aide création/amélioration CV",
-                            description:
-                                "Obtenez des conseils personnalisés pour améliorer votre CV.",
-                            icon: Icons.description,
-                            color: Colors.green,
-                            onTap: () {
-                              // Navigation vers la page d'aide à la création/amélioration de CV
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: _buildSelectionCard(
-                            context,
-                            title: "Aide création/amélioration lettre de motivation",
-                            description:
-                                "Créez une lettre de motivation percutante avec notre assistant IA.",
-                            icon: Icons.mail,
-                            color: Colors.orange,
-                            onTap: () {
-                              // Navigation vers la page d'aide à la création/amélioration de lettre de motivation
-                            },
-                          ),
+                        Row(
+                          children: [
+                            _buildSelectionCard(
+                              context,
+                              title: "Lettre de motivation",
+                              description:
+                                  "Créez une lettre de motivation percutante avec notre assistant IA.",
+                              icon: Icons.mail,
+                              color: Colors.orange,
+                              onTap: () {
+                                // Navigation simulée
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -106,48 +110,72 @@ class _IAPageState extends State<IAPage> {
                   // Section "Comment ça marche"
                   Container(
                     color: Colors.grey[100],
+                    padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          margin: const EdgeInsets.all(24),
-                          child: const Text(
-                            "Comment ça marche ?",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        const Text(
+                          "Comment ça marche ?",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildStep(
-                                number: '1',
-                                title: 'Choisissez un outil',
-                                description:
-                                    'Sélectionnez l\'outil qui correspond à vos besoins.',
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: _buildStep(
-                                number: '2',
-                                title: 'Suivez les instructions',
-                                description:
-                                    'Répondez aux questions et suivez les conseils de notre IA.',
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: _buildStep(
-                                number: '3',
-                                title: 'Améliorez vos compétences',
-                                description:
-                                    'Mettez en pratique les recommandations pour réussir.',
-                              ),
-                            ),
-                          ],
+                        const SizedBox(height: 16),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            // Détecter si l'écran est petit (téléphone)
+                            final isMobile = constraints.maxWidth < 1200;
+
+                            return isMobile
+                                ? Column(
+                                    children: [
+                                      _buildStep(
+                                        number: "1",
+                                        title: "Choisissez un outil",
+                                        description:
+                                            "Sélectionnez l'outil qui correspond à vos besoins.",
+                                      ),
+                                      const SizedBox(height: 16),
+                                      _buildStep(
+                                        number: "2",
+                                        title: "Suivez les instructions",
+                                        description:
+                                            "Répondez aux questions et suivez les conseils IA.",
+                                      ),
+                                      const SizedBox(height: 16),
+                                      _buildStep(
+                                        number: "3",
+                                        title: "Mettez en pratique",
+                                        description:
+                                            "Utilisez les recommandations pour réussir.",
+                                      ),
+                                    ],
+                                  )
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      _buildStep(
+                                        number: "1",
+                                        title: "Choisissez un outil",
+                                        description:
+                                            "Sélectionnez l'outil qui correspond à vos besoins.",
+                                      ),
+                                      _buildStep(
+                                        number: "2",
+                                        title: "Suivez les instructions",
+                                        description:
+                                            "Répondez aux questions et suivez les conseils IA.",
+                                      ),
+                                      _buildStep(
+                                        number: "3",
+                                        title: "Mettez en pratique",
+                                        description:
+                                            "Utilisez les recommandations pour réussir.",
+                                      ),
+                                    ],
+                                  );
+                          },
                         ),
                       ],
                     ),
@@ -169,50 +197,50 @@ class _IAPageState extends State<IAPage> {
     required Color color,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                shape: BoxShape.circle,
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
-              child: Icon(icon, size: 32, color: color),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            ],
+          ),
+          child: Column(
+            children: [
+              CircleAvatar(
+                backgroundColor: color.withOpacity(0.2),
+                radius: 30,
+                child: Icon(icon, color: color, size: 30),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -225,41 +253,28 @@ class _IAPageState extends State<IAPage> {
   }) {
     return Column(
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.blue,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              number,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+        CircleAvatar(
+          backgroundColor: Colors.blue,
+          radius: 20,
+          child: Text(
+            number,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Text(
           description,
           style: TextStyle(

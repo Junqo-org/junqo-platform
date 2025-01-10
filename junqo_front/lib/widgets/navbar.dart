@@ -51,6 +51,8 @@ class _NavbarState extends State<Navbar> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -62,69 +64,106 @@ class _NavbarState extends State<Navbar> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          // Logo
-          Image.asset(
-            'assets/images/template_logo.png',
-            height: 35,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(width: 16),
-
-          // Navigation items
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: isMobile
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildNavItem(context, 0, Icons.home_outlined, 'Accueil'),
-                _buildNavItem(context, 1, Icons.smart_toy, 'IA'),
-                _buildNavItem(context, 2, Icons.notifications_outlined, 'Notifications'),
-                _buildNavItem(context, 3, Icons.message_outlined, 'Messagerie'),
-                _buildNavItem(context, 4, Icons.person_outline, 'Profil'),
+                // Logo visible en mode mobile
+                Image.asset(
+                  'assets/images/template_logo.png',
+                  height: 35,
+                  fit: BoxFit.contain,
+                ),
+                Row(
+                  children: [
+                    _buildNavItem(context, 0, Icons.home_outlined),
+                    const SizedBox(width: 16),
+                    _buildNavItem(context, 1, Icons.smart_toy),
+                    const SizedBox(width: 16),
+                    _buildNavItem(context, 2, Icons.notifications_outlined),
+                    const SizedBox(width: 16),
+                    _buildNavItem(context, 3, Icons.message_outlined),
+                    const SizedBox(width: 16),
+                    _buildNavItem(context, 4, Icons.person_outline),
+                  ],
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                // Logo à gauche
+                Image.asset(
+                  'assets/images/template_logo.png',
+                  height: 35,
+                  fit: BoxFit.contain,
+                ),
+                const Spacer(),
+                // Espacement entre les items
+                Row(
+                  children: [
+                    _buildNavItemWithLabel(context, 0, Icons.home_outlined, 'Accueil'),
+                    const SizedBox(width: 24),
+                    _buildNavItemWithLabel(context, 1, Icons.smart_toy, 'IA'),
+                    const SizedBox(width: 24),
+                    _buildNavItemWithLabel(context, 2, Icons.notifications_outlined, 'Notifications'),
+                    const SizedBox(width: 24),
+                    _buildNavItemWithLabel(context, 3, Icons.message_outlined, 'Messagerie'),
+                    const SizedBox(width: 24),
+                    _buildNavItemWithLabel(context, 4, Icons.person_outline, 'Profil'),
+                  ],
+                ),
               ],
             ),
-          ),
-        ],
+    );
+  }
+
+  Widget _buildNavItem(BuildContext context, int index, IconData icon) {
+    final isSelected = _selectedIndex == index;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+        _navigateToPage(context, index);
+      },
+      child: Icon(
+        icon,
+        color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
+        size: 24,
       ),
     );
   }
 
-  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
+  Widget _buildNavItemWithLabel(BuildContext context, int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedIndex = index;
-          });
-          _navigateToPage(context, index);
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
-                ),
-              ),
-            ],
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+        _navigateToPage(context, index);
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
+            size: 24,
           ),
-        ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
+            ),
+          ),
+        ],
       ),
     );
   }
