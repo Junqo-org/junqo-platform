@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/navbar.dart';
+import 'cv.dart';
+import 'interview.dart';
+import 'motivation.dart';
 
 class IAPage extends StatefulWidget {
   const IAPage({Key? key}) : super(key: key);
@@ -9,6 +12,8 @@ class IAPage extends StatefulWidget {
 }
 
 class _IAPageState extends State<IAPage> {
+  String? _hoveredCard;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +46,7 @@ class _IAPageState extends State<IAPage> {
                           color: Colors.black.withOpacity(0.4),
                         ),
                       ),
-                      Positioned.fill(
+                      const Positioned.fill(
                         child: Center(
                           child: Text(
                             "Boostez votre carrière grâce à l'IA",
@@ -72,7 +77,9 @@ class _IAPageState extends State<IAPage> {
                               icon: Icons.person,
                               color: Colors.blue,
                               onTap: () {
-                                // Navigation simulée
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => Interview()),
+                                );
                               },
                             ),
                             _buildSelectionCard(
@@ -83,7 +90,9 @@ class _IAPageState extends State<IAPage> {
                               icon: Icons.description,
                               color: Colors.green,
                               onTap: () {
-                                // Navigation simulée
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => CV()),
+                                );
                               },
                             ),
                           ],
@@ -98,7 +107,9 @@ class _IAPageState extends State<IAPage> {
                               icon: Icons.mail,
                               color: Colors.orange,
                               onTap: () {
-                                // Navigation simulée
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => Motivation()),
+                                );
                               },
                             ),
                           ],
@@ -197,49 +208,62 @@ class _IAPageState extends State<IAPage> {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final isHovered = _hoveredCard == title;
+
     return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: const EdgeInsets.all(8),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hoveredCard = title),
+        onExit: (_) => setState(() => _hoveredCard = null),
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            margin: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isHovered ? color.withOpacity(0.1) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isHovered ? color : Colors.transparent,
+                width: 2,
               ),
-            ],
-          ),
-          child: Column(
-            children: [
-              CircleAvatar(
-                backgroundColor: color.withOpacity(0.2),
-                radius: 30,
-                child: Icon(icon, color: color, size: 30),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
+              ],
+            ),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  backgroundColor: color.withOpacity(0.2),
+                  radius: 30,
+                  child: Icon(icon, color: color, size: 30),
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isHovered ? color : Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isHovered ? color : Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),
