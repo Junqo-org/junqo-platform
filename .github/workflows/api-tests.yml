@@ -47,6 +47,9 @@ jobs:
 
     - name: Stop containers
       if: always()
+      env:
+        DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+        BACK_ENV_FILE: "./junqo_back/exemple.env"
       run: docker compose -f docker-compose.dev.yaml down --volumes
 
   mark-tests-passed-if-no-changes:

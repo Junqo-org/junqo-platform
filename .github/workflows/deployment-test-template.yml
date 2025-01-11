@@ -40,5 +40,8 @@ jobs:
           exit 1
 
       - name: Stop containers
+        env:
+          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+          BACK_ENV_FILE: "./junqo_back/exemple.env"
         if: always()
         run: docker compose -f ${{ inputs.compose_file }} down --volumes
