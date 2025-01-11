@@ -79,16 +79,12 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
         _passwordsMatch = true;
       }
       if (_passwordController.text.length < 8) {
-        setState(() {
-          _passwordError = 'Le mot de passe doit contenir au moins 8 caractères';
-          isValid = false;
-        });
+        _passwordError = 'Le mot de passe doit contenir au moins 8 caractères';
+        isValid = false;
       }
       if (!RegExp(r'[A-Z]').hasMatch(_passwordController.text)) {
-        setState(() {
-          _passwordError = 'Le mot de passe doit contenir au moins une majuscule';
-          isValid = false;
-        });
+        _passwordError = 'Le mot de passe doit contenir au moins une majuscule';
+        isValid = false;
       }
     });
     return isValid;
