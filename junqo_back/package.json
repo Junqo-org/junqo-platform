@@ -17,7 +17,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "DOTENV_CONFIG_PATH=.env.test jest --config ./test/jest-e2e.json",
     "generate_types": "npx ts-node generate_typing.ts"
   },
   "dependencies": {
@@ -43,6 +43,7 @@
     "rxjs": "^7.8.1",
     "sequelize": "^6.37.5",
     "sequelize-typescript": "^2.1.6",
+    "testcontainers": "^10.16.0",
     "ts-morph": "^21.0.1"
   },
   "devDependencies": {

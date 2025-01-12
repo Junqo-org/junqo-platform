@@ -23,15 +23,20 @@ function validatePassword(password: string): string {
 }
 
 function getDbPassword(): string {
+  let passwordFile: string = undefined;
+
   if (process.env.DATABASE_PASSWORD) {
     if (process.env.NODE_ENV !== 'production') {
       console.log('Database password loaded from environment variable');
     }
     return validatePassword(process.env.DATABASE_PASSWORD);
   }
-  const passwordFile: string =
-    process.env.DATABASE_PASSWORD_FILE ??
-    path.join(process.cwd(), '..', 'db_password.conf');
+
+  if (process.env.DATABASE_PASSWORD_FILE) {
+    passwordFile = path.join(process.cwd(), process.env.DATABASE_PASSWORD_FILE);
+  } else {
+    passwordFile = path.join(process.cwd(), '..', 'db_password.conf');
+  }
   if (passwordFile && fs.existsSync(passwordFile)) {
     let password = fs.readFileSync(passwordFile, 'utf8');
 
