@@ -33,7 +33,7 @@ function getDbPassword(): string {
   }
 
   if (process.env.DATABASE_PASSWORD_FILE) {
-    passwordFile = path.join(process.cwd(), process.env.DATABASE_PASSWORD_FILE);
+    passwordFile = path.resolve(process.env.DATABASE_PASSWORD_FILE);
   } else {
     passwordFile = path.join(process.cwd(), '..', 'db_password.conf');
   }

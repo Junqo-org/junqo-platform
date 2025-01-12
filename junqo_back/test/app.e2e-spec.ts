@@ -37,7 +37,7 @@ const SignUpQuery = {
   },
 };
 
-describe('z', () => {
+describe('end to end testing', () => {
   let environment: StartedDockerComposeEnvironment;
   let app: INestApplication;
 
@@ -78,6 +78,13 @@ describe('z', () => {
     await environment.down({ timeout: 10000 });
   });
 
+  it('Health check', async () => {
+    await request(app.getHttpServer())
+      .post('/graphql')
+      .send({ query: 'query{__typename}' })
+      .expect(200);
+  });
+
   it('SignUp User', async () => {
     const response = await request(app.getHttpServer())
       .post('/graphql')
@@ -96,6 +103,6 @@ describe('z', () => {
           },
         },
       },
-      });
+    });
   });
 });
