@@ -53,6 +53,19 @@ Before you begin, ensure you have the following software installed:
 
 ### Configuration
 
+To configure the backend, you can use environment variables, `.env` files in the `junqo_back` directory or configuration files.
+If an environment variable is not found, the default value will be used.
+
+Here is the list of environment variables used by the **backend**:
+
+- `DATABASE_HOST`: The host of the database. Default value is `localhost`.
+- `DATABASE_PORT`: The port of the database. Default value is `5432`.
+- `DATABASE_USER`: The user of the database. Default value is `junqo`.
+- `DATABASE_NAME`: The name of the database. Default value is `junqo`.
+- `DATABASE_PASSWORD`: The password of the database. Optional, if set, used in priority to `DATABASE_PASSWORD_FILE`.
+- `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./../db_password.conf`.
+- `NODE_ENV`: The environment of the backend. Either `development` or `production`.
+
 1. Create a `.env` file in the backend directory and add the following environment variables:
 
   ```env
