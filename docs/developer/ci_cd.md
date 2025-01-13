@@ -321,7 +321,6 @@ These organizations includes:
 
 - [Github](https://github.com/)
 - [CodeRabbit](https://www.coderabbit.ai/)
-- [Schemathesis](https://schemathesis.readthedocs.io/)
 
 ### How is the project mirrored
 
