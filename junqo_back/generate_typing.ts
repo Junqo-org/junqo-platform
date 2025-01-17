@@ -21,7 +21,7 @@ async function generateTypes() {
       typePaths: [path.join(schemasPath, '**/*.graphql')],
       path: outputPath,
       outputAs: 'class',
-      watch: process.env.NODE_ENV === 'development',
+      watch: process.env.WATCH_TYPES === 'true',
     });
 
     console.log(`Types generated successfully at: ${outputPath}`);
@@ -35,3 +35,6 @@ generateTypes().catch((error) => {
   console.error('Unhandled error in generateTypes:', error);
   process.exit(1);
 });
+
+console.log('GraphQL types generation complete.');
+process.exit(0); // Explicitly exit the script
