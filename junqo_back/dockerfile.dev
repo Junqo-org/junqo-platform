@@ -5,10 +5,10 @@
 FROM node:22-slim AS builder
 
 # Arguments
-ARG DATABASE_HOST
-ARG DATABASE_PORT
-ARG DATABASE_NAME
-ARG DATABASE_USER
+ARG DATABASE_HOST=db
+ARG DATABASE_PORT=5432
+ARG DATABASE_NAME=junqo
+ARG DATABASE_USER=junqo
 
 # Environment variables
 ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas
@@ -26,7 +26,7 @@ WORKDIR /home/app/junqo_back/
 
 # Copy source code and schema definition
 COPY --chown=app ./junqo_back/ ./
-COPY --chown=app ./schemas/ ../schemas/
+COPY --chown=app ./schemas/ /home/app/schemas
 
 # Install npm and healthcheck dependencies
 RUN apt-get update && \

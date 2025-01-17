@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
-import { UserType } from './../../graphql.schema';
+import { UserType } from '../../users/user-type.enum';
 
 export class SignUpDTO {
   @IsString()

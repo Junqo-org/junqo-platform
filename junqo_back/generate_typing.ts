@@ -1,12 +1,13 @@
 import { GraphQLDefinitionsFactory } from '@nestjs/graphql';
 import * as path from 'path';
 import { existsSync } from 'fs';
+import 'dotenv/config';
 
 async function generateTypes() {
   try {
     const schemasPath = process.env.GRAPHQL_SCHEMAS_PATH
       ? path.resolve(process.env.GRAPHQL_SCHEMAS_PATH)
-      : path.resolve(process.cwd(), '../schemas');
+      : path.join(process.cwd(), '..', 'schemas');
 
     if (!existsSync(schemasPath)) {
       throw new Error(`Schemas directory not found: ${schemasPath}`);

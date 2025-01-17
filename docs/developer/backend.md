@@ -58,6 +58,7 @@ If an environment variable is not found, the default value will be used.
 
 Here is the list of environment variables used by the **backend**:
 
+- `GRAPHQL_SCHEMAS_PATH`: The path to the GraphQL schemas. Default value is `./../schemas`.
 - `DATABASE_HOST`: The host of the database. Default value is `localhost`.
 - `DATABASE_PORT`: The port of the database. Default value is `5432`.
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
