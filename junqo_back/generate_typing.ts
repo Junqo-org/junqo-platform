@@ -25,6 +25,7 @@ async function generateTypes() {
     });
 
     console.log(`Types generated successfully at: ${outputPath}`);
+    process.exit(0); // Explicitly exit the script
   } catch (error) {
     console.error('Failed to generate GraphQL types:', error);
     process.exit(1);
@@ -35,6 +36,3 @@ generateTypes().catch((error) => {
   console.error('Unhandled error in generateTypes:', error);
   process.exit(1);
 });
-
-console.log('GraphQL types generation complete.');
-process.exit(0); // Explicitly exit the script

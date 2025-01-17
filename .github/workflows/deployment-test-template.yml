@@ -20,7 +20,24 @@ jobs:
           BACK_ENV_FILE: "./junqo_back/exemple.env"
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
+      - name: Check Container Status
+        if: always()
+        run: |
+          docker ps --filter "health=unhealthy" --format "{{.Names}}" > unhealthy_containers.txt
+          if [ -s unhealthy_containers.txt ]; then
+            echo "Unhealthy containers found. Retrieving logs..."
+            while read container; do
+              echo "Logs for $container:"
+              docker logs "$container"
+            done < unhealthy_containers.txt
+            exit 1
+          fi
+        shell: bash
+
       - name: Check if all services are up and running
+        env:
+          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+          BACK_ENV_FILE: "./junqo_back/exemple.env"
         run: |
           max_attempts=30
           attempt=1
