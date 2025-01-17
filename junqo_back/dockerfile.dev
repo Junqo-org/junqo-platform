@@ -50,4 +50,4 @@ HEALTHCHECK --interval=5s --timeout=5s --start-period=20s --retries=5 \
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "run", "start:dev"]
+CMD ["sh", "-c", "npm run start:dev"]
