@@ -1,11 +1,13 @@
 import { Mutation, Resolver, Args } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { Public } from './../auth/is_public.decorator';
+import { Logger } from '@nestjs/common';
 import { AuthPayload, UserType } from './../graphql.schema';
 
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) {}
+  private readonly logger = new Logger(AuthResolver.name);
 
   @Public()
   @Mutation(() => AuthPayload)
@@ -22,8 +24,11 @@ export class AuthResolver {
       password,
     });
     if (!authPayload) {
-      console.error('Failed to sign up');
-      return null;
+      const error = new Error('Authentication failed');
+      error.name = 'AuthenticationError';
+      error.message = 'Failed to sign up';
+      this.logger.error('Failed to sign up');
+      throw error;
     }
     return authPayload;
   }
@@ -36,7 +41,7 @@ export class AuthResolver {
   ): Promise<AuthPayload> {
     const authPayload = await this.authService.signIn(email, password);
     if (!authPayload) {
-      console.error('Failed to sign in');
+      this.logger.error('Failed to sign in');
       return null;
     }
     return authPayload;

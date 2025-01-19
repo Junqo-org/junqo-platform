@@ -19,6 +19,9 @@ export class AuthService {
       throw new UnauthorizedException('You cannot create an admin user');
     }
 
+    if (signUpInput.password.length < 8) {
+      throw new UnauthorizedException('Password must be at least 8 characters');
+    }
     signUpInput.password = await bcrypt.hash(
       signUpInput.password,
       bcryptConstants.saltOrRounds,
@@ -39,14 +42,14 @@ export class AuthService {
     const userModel = await this.usersRepository.findOneByEmail(email);
 
     if (userModel == null) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const user = UserMapper.toDomainUser(userModel);
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const payload = {

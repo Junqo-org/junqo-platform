@@ -65,17 +65,24 @@ Here is the list of environment variables used by the **backend**:
 - `DATABASE_NAME`: The name of the database. Default value is `junqo`.
 - `DATABASE_PASSWORD`: The password of the database. Optional, if set, used in priority to `DATABASE_PASSWORD_FILE`.
 - `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./../db_password.conf`.
+- `JWT_SECRET`: The secret used to sign the JWT tokens. **Required**.
 - `NODE_ENV`: The environment of the backend. Either `development` or `production`.
 
 1. Create a `.env` file in the backend directory and add the following environment variables:
 
   ```env
+  # Database Configuration
   DATABASE_HOST=localhost
   DATABASE_PORT=5432
   DATABASE_USER=your_db_user
   DATABASE_PASSWORD=your_db_password
   DATABASE_NAME=your_db_name
-  JWT_SECRET=your_jwt_secret
+  DATABASE_NAME=your_db_name
+
+  # Security Configuration
+  JWT_SECRET=your_jwt_secret  # Use a strong, unique value in production
+  # Minimum 32 characters, randomly generated
+  # Example: openssl rand -base64 32
   ```
 
 2. Ensure PostgreSQL is running and the database is set up with the provided credentials.

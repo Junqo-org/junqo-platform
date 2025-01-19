@@ -21,16 +21,14 @@ describe('Users', () => {
     expect(user).toBeDefined();
   });
 
-  it('should compare passwords', () => {
-    user
-      .comparePassword(password)
-      .then((result) => expect(result).toBeTruthy());
+  it('should compare passwords', async () => {
+    const result = await user.comparePassword(password);
+    expect(result).toBeTruthy();
   });
 
-  it('should not compare passwords', () => {
-    user
-      .comparePassword('wrongPassword')
-      .then((result) => expect(result).toBeFalsy());
+  it('should not compare passwords', async () => {
+    const result = await user.comparePassword('wrongPassword');
+    expect(result).toBeFalsy();
   });
 
   it('should transform user to obfuscated json', () => {

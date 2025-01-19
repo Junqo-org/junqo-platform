@@ -38,11 +38,11 @@ type Mutation {
     id: ID!,
     "The type of the user out of (STUDENT, SCHOOL, COMPANY)"
     type: UserType
-    "The name of the user"
+    "The name must not contain spaces"
     name: String
     "The email of the user"
     email: Email
-    "The password of the user"
+    "The password must be at least 8 characters long"
     password: String
   ): User!
 

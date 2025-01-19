@@ -33,7 +33,7 @@ export class UsersService {
     try {
       const users = await this.usersRepository.findAll();
 
-      if (!users) {
+      if (!users || users.length === 0) {
         throw new NotFoundException('Users not found');
       }
       return UserMapper.toDomainUsers(users);

@@ -9,6 +9,7 @@ ARG DATABASE_USER=junqo
 
 # Build stage
 FROM node:22-slim AS builder
+
 # Environment variables
 ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas
 ENV NODE_ENV=production

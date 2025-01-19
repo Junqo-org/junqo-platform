@@ -36,10 +36,6 @@ jobs:
       working-directory: junqo_back
       run: npm install
 
-    - name: Generate graphql types
-      working-directory: junqo_back
-      run: npm run generate_types
-
     - name: Run functional tests
       env:
         BACK_ENV_FILE: "./junqo_back/exemple.env"

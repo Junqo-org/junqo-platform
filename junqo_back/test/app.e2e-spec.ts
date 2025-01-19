@@ -44,16 +44,23 @@ describe('end to end testing', () => {
   beforeAll(async () => {
     const composeFilePath = './test';
     const composeFile = 'docker-compose.test.yaml';
+    const requiredEnvVars = {
+      DATABASE_PASSWORD_FILE: 'db_password_test.conf',
+      DATABASE_NAME: process.env.DATABASE_NAME,
+      DATABASE_USER: process.env.DATABASE_USER,
+    };
+
+    for (const [key, value] of Object.entries(requiredEnvVars)) {
+      if (!value) {
+        throw new Error(`Required environment variable ${key} is not set`);
+      }
+    }
 
     environment = await new DockerComposeEnvironment(
       composeFilePath,
       composeFile,
     )
-      .withEnvironment({
-        DATABASE_PASSWORD_FILE: 'db_password_test.conf',
-        DATABASE_NAME: process.env.DATABASE_NAME,
-        DATABASE_USER: process.env.DATABASE_USER,
-      })
+      .withEnvironment({ ...requiredEnvVars })
       .withWaitStrategy('junqo_db_test', Wait.forHealthCheck())
       .up(['db']);
 
@@ -74,7 +81,7 @@ describe('end to end testing', () => {
   }, 30000);
 
   afterAll(async () => {
-    app.close();
+    await app.close();
     await environment.down({ timeout: 10000 });
   });
 
@@ -85,24 +92,91 @@ describe('end to end testing', () => {
       .expect(200);
   });
 
-  it('SignUp User', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/graphql')
-      .send(SignUpQuery)
-      .expect(200);
+  describe('Sign Up', () => {
+    it('SignUp User', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(SignUpQuery)
+        .expect(200);
 
-    expect(response.body).toMatchObject({
-      data: {
-        signUp: {
-          token: expect.anything(),
-          user: {
-            email: SignUpQuery.variables.email,
-            id: expect.anything(),
-            name: SignUpQuery.variables.name,
-            type: SignUpQuery.variables.type,
+      expect(response.body).toMatchObject({
+        data: {
+          signUp: {
+            token: expect.anything(),
+            user: {
+              email: SignUpQuery.variables.email,
+              id: expect.anything(),
+              name: SignUpQuery.variables.name,
+              type: SignUpQuery.variables.type,
+            },
           },
         },
-      },
+      });
+    });
+
+    it('SignUp with invalid email format', async () => {
+      const invalidEmailQuery = {
+        ...SignUpQuery,
+        variables: { ...SignUpQuery.variables, email: 'invalidEmail' },
+      };
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(invalidEmailQuery)
+        .expect(200);
+
+      expect(response.body.errors[0].message).toContain(
+        'Validation isEmail on email failed',
+      );
+    });
+
+    it('SignUp with duplicate email', async () => {
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .send(SignUpQuery)
+        .expect(200);
+
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(SignUpQuery)
+        .expect(200);
+
+      expect(response.body.errors[0].message).toContain('Email already exists');
+    });
+
+    it('SignUp with invalid password', async () => {
+      const invalidPasswordQuery = {
+        ...SignUpQuery,
+        variables: {
+          ...SignUpQuery.variables,
+          email: 'email2@mail.com',
+          password: '',
+        },
+      };
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(invalidPasswordQuery)
+        .expect(200);
+
+      expect(response.body.errors[0].message).toContain(
+        'Password must be at least 8 characters',
+      );
+    });
+
+    it('SignUp with invalid user type', async () => {
+      const invalidUserTypeQuery = {
+        ...SignUpQuery,
+        variables: {
+          ...SignUpQuery.variables,
+          email: 'email3@mail.com',
+          type: 'INVALID_TYPE',
+        },
+      };
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(invalidUserTypeQuery)
+        .expect(200);
+
+      expect(response.body.errors[0].message).toContain('invalid value');
     });
   });
 });

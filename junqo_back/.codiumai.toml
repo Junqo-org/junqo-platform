@@ -41,7 +41,7 @@
 #     const res = something.say();
 #
 #     // Then
-#     expect(res).to.equal("bar");
+#     expect(res).toBe("bar");
 #   });
 # });
 # """

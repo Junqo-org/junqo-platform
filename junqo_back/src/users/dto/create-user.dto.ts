@@ -17,14 +17,24 @@ export class CreateUserDTO {
   password: string;
 
   constructor(name: string, email: string, type: UserType, password: string) {
-    this.name = CreateUserDTO.sanitizeInput(name);
-    this.email = CreateUserDTO.sanitizeInput(email);
+    this.name = CreateUserDTO.checkInput(name);
+    this.email = CreateUserDTO.checkInput(email);
     this.type = type;
-    this.password = CreateUserDTO.sanitizeInput(password);
+    this.password = CreateUserDTO.checkInput(password);
   }
 
-  private static sanitizeInput(input: string): string {
-    input = input?.toLowerCase().replace(/\s/g, '');
+  /**
+   * Throw an error if the input is invalid
+   * @param input the input to check
+   * @returns the input
+   */
+  private static checkInput(input: string): string {
+    if (!input) {
+      throw new Error('Invalid input');
+    }
+    if (input.indexOf(' ') >= 0) {
+      throw new Error('Input cannot contain spaces');
+    }
     return input;
   }
 }
