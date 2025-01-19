@@ -26,14 +26,14 @@ class CardData {
   });
 }
 
-class Debug1 extends StatefulWidget {
-  const Debug1({Key? key}) : super(key: key);
+class JobCard_ extends StatefulWidget {
+  const JobCard_({Key? key}) : super(key: key);
 
   @override
-  State<Debug1> createState() => _Debug1State();
+  State<JobCard_> createState() => _Debug1State();
 }
 
-class _Debug1State extends State<Debug1> {
+class _Debug1State extends State<JobCard_> {
   final cardData = CardData(
     companyName: 'Airbus',
     companyLogo: 'assets/images/airbus_logo.png', //Didn't test that actually
