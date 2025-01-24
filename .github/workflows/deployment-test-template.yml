@@ -26,14 +26,13 @@ jobs:
           docker ps --filter "health=unhealthy" --format "{{.Names}}" > unhealthy_containers.txt
           if [ -s unhealthy_containers.txt ]; then
             echo "Unhealthy containers found. Retrieving logs..."
-            while read container; do
+            while read -r container; do
               echo "Logs for $container:"
-              docker logs "$container"
+              timeout 30s docker logs "$container" || echo "Timeout getting logs for $container"
             done < unhealthy_containers.txt
             exit 1
           fi
         shell: bash
-
       - name: Check if all services are up and running
         env:
           DATABASE_PASSWORD_FILE: "./db_password_example.conf"

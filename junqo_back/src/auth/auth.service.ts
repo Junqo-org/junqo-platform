@@ -15,6 +15,13 @@ export class AuthService {
   ) {}
 
   public async signUp(signUpInput: SignUpDTO): Promise<AuthPayload> {
+    const existingUser = await this.usersRepository.findOneByEmail(
+      signUpInput.email,
+    );
+    if (existingUser) {
+      throw new UnauthorizedException('Email already in use');
+    }
+
     if (signUpInput.type === UserType.ADMIN) {
       throw new UnauthorizedException('You cannot create an admin user');
     }

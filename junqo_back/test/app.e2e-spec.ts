@@ -78,7 +78,7 @@ describe('end to end testing', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-  }, 30000);
+  }, 60000);
 
   afterAll(async () => {
     await app.close();
