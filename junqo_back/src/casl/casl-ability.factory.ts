@@ -44,7 +44,7 @@ export class CaslAbilityFactory {
 
     can(Action.MANAGE, DomainUser, { id: user.id });
     can(Action.MANAGE, UserIdDTO, { id: user.id });
-    can(Action.CREATE, DomainUser);
+    can(Action.CREATE, DomainUser, { type: { $ne: UserType.ADMIN } });
 
     return build({
       // Read https://casl.js.org/v6/en/guide/subject-type-detection#use-classes-as-subject-types for details

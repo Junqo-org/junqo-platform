@@ -41,7 +41,7 @@ RUN mkdir -p /home/app/junqo_back/dist/ && chown -R app /home/app/junqo_back/
 USER app
 
 # Install dependencies
-RUN npm ci --include=dev
+RUN npm ci
 
 HEALTHCHECK --interval=5s --timeout=5s --start-period=20s --retries=5 \
     CMD curl -X POST -H "Content-Type: application/json" -d '{"query":"query{__typename}"}' http://localhost:3000/graphql || exit 1
