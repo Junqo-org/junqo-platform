@@ -38,6 +38,8 @@ services:
         - DATABASE_USER=${DATABASE_USER:-junqo}
         - DATABASE_HOST=db
         - DATABASE_PORT=${DATABASE_PORT:-5432}
+    env_file:
+      - ${BACK_ENV_FILE:-./junqo_back/.env}
     restart: unless-stopped
     networks:
       - back-net

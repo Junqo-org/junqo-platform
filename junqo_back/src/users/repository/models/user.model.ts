@@ -9,9 +9,16 @@ import {
 import { ObjectType } from '@nestjs/graphql';
 import { v4 as uuidv4 } from 'uuid';
 
+enum UserType {
+  STUDENT = 'STUDENT',
+  SCHOOL = 'SCHOOL',
+  COMPANY = 'COMPANY',
+  ADMIN = 'ADMIN',
+}
+
 @ObjectType()
 @Table
-export class User extends Model {
+export class UserModel extends Model {
   @PrimaryKey
   @Default(uuidv4)
   @Column({
@@ -24,6 +31,15 @@ export class User extends Model {
     },
   })
   id: string;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(UserType)),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  })
+  type: string;
 
   @Column({
     type: DataType.STRING,
@@ -44,4 +60,13 @@ export class User extends Model {
     },
   })
   email: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  })
+  password: string;
 }

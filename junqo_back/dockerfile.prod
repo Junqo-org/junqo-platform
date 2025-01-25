@@ -9,10 +9,20 @@ ARG DATABASE_USER=junqo
 
 # Build stage
 FROM node:22-slim AS builder
+
+# Environment variables
+ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas
+ENV NODE_ENV=production
+ENV DATABASE_HOST=${DATABASE_HOST}
+ENV DATABASE_PORT=${DATABASE_PORT}
+ENV DATABASE_NAME=${DATABASE_NAME}
+ENV DATABASE_USER=${DATABASE_USER}
+
 WORKDIR /build
 
 # Copy source code and build the application
 COPY ./junqo_back ./
+COPY ./schemas/ /home/app/schemas/
 RUN npm ci --only=production
 RUN npm run build
 
@@ -28,10 +38,10 @@ ARG DATABASE_USER
 # Environment variables
 ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas
 ENV NODE_ENV=production
-ENV DATABASE_HOST=$DATABASE_HOST
-ENV DATABASE_PORT=$DATABASE_PORT
-ENV DATABASE_NAME=$DATABASE_NAME
-ENV DATABASE_USER=$DATABASE_USER
+ENV DATABASE_HOST=${DATABASE_HOST}
+ENV DATABASE_PORT=${DATABASE_PORT}
+ENV DATABASE_NAME=${DATABASE_NAME}
+ENV DATABASE_USER=${DATABASE_USER}
 
 # Create an unprivileged user
 RUN useradd -ms /bin/sh -u 1001 app
@@ -52,7 +62,7 @@ WORKDIR /home/app/junqo_back
 USER app
 
 # Copy necessary files from the build stage
-COPY --chown=app ./schemas/ /home/app/schemas/
+COPY --chown=app --from=builder /home/app/schemas/ /home/app/schemas/
 COPY --chown=app --from=builder /build/dist/ ./dist/
 COPY --chown=app --from=builder /build/node_modules/ ./node_modules/
 

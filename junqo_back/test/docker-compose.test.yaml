@@ -1,0 +1,27 @@
+
+# Project: Junqo
+# Description: This file is the test docker-compose file for the Junqo project.
+#              It deploy the database for test purpose
+
+services:
+  db:
+    container_name: junqo_db_test
+    image: postgres:alpine
+    shm_size: ${DATABASE_SHM_SIZE:-128mb}
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-junqo}
+      POSTGRES_USER: ${DATABASE_USER:-junqo}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-junqo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+secrets:
+  db_password:
+    file: ${DATABASE_PASSWORD_FILE:-./db_password.conf}

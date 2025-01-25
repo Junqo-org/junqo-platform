@@ -23,8 +23,6 @@ This documentation is intended for developers who want to contribute to the proj
 - [Automatic tests](#automatic-tests)
   - [Run github action locally](#run-github-action-locally)
   - [Deployment tests](#deployment-tests)
-  - [Api tests](#api-tests)
-    - [Run locally](#run-locally)
   - [Front tests](#front-tests)
   - [Back tests](#back-tests)
 - [Documentation Generation](#documentation-generation)
@@ -68,7 +66,13 @@ The content of the file should look like this:
 my_db_password
 ```
 
-After creating the `db_password.conf` file, you can proceed to deploy the **Junqo-platform** using Docker Compose.
+Then, you need to create the `junqo_back/.env` file to configure the backend.
+You can use the `junqo_back/exemple.env` file to create the new one.
+Don't forget to change the values as they are not safe for production use.
+
+For more informations, see the [backend configuration documentation](./backend.md#configuration).
+
+After creating the `db_password.conf` and the `junqo_back/.env` files, you can proceed to deploy the **Junqo-platform** using Docker Compose.
 
 #### Development deployment
 
@@ -192,36 +196,6 @@ The workflow runs the following steps:
 2. Start the docker compose services.
 3. Check if the services are up and running.
 4. Stop the docker compose services.
-
-### Api tests
-
-These tests are used to test the API of the **Junqo-platform** in an operational environment.
-
-The API tests are run using the `api-tests.yml` workflow.  
-The workflow is triggered when the following conditions are met:
-
-- A pull request is opened.
-- The pull request merges into the `main` or `dev` branch.
-- The files inside the `junqo_back` folder are modified.
-
-The workflow runs the following steps:
-
-1. Checkout the repository.
-2. Start the docker compose services.
-3. Run API tests using [shemathesis](https://schemathesis.readthedocs.io/).
-4. Stop the docker compose services.
-
-#### Run locally
-
-If you want to run the test locally, launch the project in development mode and launch the schemathesis container.
-
-```bash
-# Launch the project in dev mode
-docker compose -f docker-compose.dev.yaml up
-
-# Launch the schemathesis tests using container
-docker run --network="junqo-platform_default" schemathesis/schemathesis:stable run  http://localhost:4200/graphql/
-```
 
 ### Front tests
 
@@ -347,7 +321,6 @@ These organizations includes:
 
 - [Github](https://github.com/)
 - [CodeRabbit](https://www.coderabbit.ai/)
-- [Schemathesis](https://schemathesis.readthedocs.io/)
 
 ### How is the project mirrored
 

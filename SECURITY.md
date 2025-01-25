@@ -19,6 +19,18 @@ If you discover a security vulnerability in this project, please follow these st
 
 We will respond within **48 hours** to acknowledge the report, and we aim to resolve reported vulnerabilities within **30 days**.
 
+We commit to:
+
+- Not take legal action against researchers following these guidelines
+- Provide a safe harbor for security research conducted in good faith
+- Allow public disclosure after 90 days from report or when a patch is available
+
+Acceptable Testing Scope:
+
+- Production systems are strictly off-limits
+- Only test against test/staging environments
+- Do not attempt DOS attacks or physical security breaches
+
 ## Responsible Disclosure Policy
 
 To encourage responsible reporting of security vulnerabilities, we pledge to:
