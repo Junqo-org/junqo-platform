@@ -2,17 +2,23 @@
 # This file contains the objective schema for the Junqo API
 # Please read the `README.md` file before making any changes
 
-# Endpoints
+"""
+Endpoints
+"""
 type Query {
-  # Users
+  """
+  Users
+  """
   users(
     first: Int,
-    after: String
+    after: String,
     filter: UserFilterInput
   ): UserConnection!
   user(id: ID!): User!
 
-  # Messages
+  """
+  Messages
+  """
   messages(
     first: Int,
     after: String,
@@ -20,7 +26,9 @@ type Query {
   ): MessageConnection!
   message(id: ID!): Message!
 
-  # Offers
+  """
+  Offers
+  """
   offers(
     first: Int,
     after: String,
@@ -28,13 +36,17 @@ type Query {
   ): OfferConnection!
   offer(id: ID!): Offer!
 
-  # AI
+  """
+  AI
+  """
   profileFromResume(input: ResumeInput!): ProfileFromResumeResponse!
   interviewReply(input: InterviewInput!): InterviewReplyResponse!
 }
 
 type Mutation {
-  # Users
+  """
+  Users
+  """
   createUser(
     name: String!
     email: String!
@@ -43,26 +55,32 @@ type Mutation {
   updateUser(id: ID!, input: UpdateUserInput!): MutationResponse!
   deleteUser(id: ID!): MutationResponse!
 
-  # Messages
+  """
+  Messages
+  """
   createMessage(text: String!, userId: ID!): MutationResponse!
   updateMessage(id: ID!, text: String): MutationResponse!
   deleteMessage(id: ID!): MutationResponse!
 
-  # Offers
+  """
+  Offers
+  """
   createOffer(title: String!, description: String!, userId: ID!): MutationResponse!
   updateOffer(id: ID!, title: String, description: String): MutationResponse!
   deleteOffer(id: ID!): MutationResponse!
 }
 
 type Subscription {
-    # Messages
-    messageAdded(userId: ID): Message!
+  """
+  Messages
+  """
+  messageAdded(userId: ID): Message!
 
-    # Offers
-    offerAdded(category: String): Offer!
+  """
+  Offers
+  """
+  offerAdded(category: String): Offer!
 }
-
-# Responses types
 
 """
 Union type for mutation responses
@@ -85,18 +103,18 @@ type NotFoundError {
 }
 
 type AuthenticationError {
-    message: String!
-    loginUrl: String!
+  message: String!
+  loginUrl: String!
 }
 
 type AuthorizationError {
-    message: String!
-    requiredPermissions: [String!]!
+  message: String!
+  requiredPermissions: [String!]!
 }
 
 type RateLimitError {
-    message: String!
-    retryAfterSeconds: Int!
+  message: String!
+  retryAfterSeconds: Int!
 }
 
 enum ErrorCode {
@@ -118,72 +136,6 @@ type AIError {
   message: String!
   retryable: Boolean!
 }
-
-# Input / Output types
-## User
-
-type UserConnection {
-  edges: [UserEdge!]!
-  pageInfo: PageInfo!
-}
-
-type UserEdge {
-  node: User!
-  cursor: String!
-}
-
-input UpdateUserInput {
-  name: String
-  email: String
-  password: String
-}
-
-input UserFilterInput {
-  nameContains: String
-  email: String
-  createdAfter: DateTime
-  createdBefore: DateTime
-}
-
-## Message
-
-type MessageConnection {
-  edges: [MessageEdge!]!
-  pageInfo: PageInfo!
-}
-type MessageEdge {
-  node: Message!
-  cursor: String!
-}
-
-input MessageFilterInput {
-  userId: ID
-  textContains: String
-  createdAfter: DateTime
-  createdBefore: DateTime
-}
-
-## Offer
-
-type OfferConnection {
-  edges: [OfferEdge!]!
-  pageInfo: PageInfo!
-}
-
-type OfferEdge {
-  node: Offer!
-  cursor: String!
-}
-
-input OfferFilterInput {
-  userId: ID
-  status: OfferStatus
-  titleContains: String
-  createdAfter: DateTime
-  createdBefore: DateTime
-}
-
-## AI
 
 """
 Input type for resume parsing
@@ -212,7 +164,63 @@ type InterviewResponse {
   confidence: Float!
 }
 
-## Common
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  password: String
+}
+
+input UserFilterInput {
+  nameContains: String
+  email: String
+  createdAfter: DateTime
+  createdBefore: DateTime
+}
+
+type MessageConnection {
+  edges: [MessageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type MessageEdge {
+  node: Message!
+  cursor: String!
+}
+
+input MessageFilterInput {
+  userId: ID
+  textContains: String
+  createdAfter: DateTime
+  createdBefore: DateTime
+}
+
+type OfferConnection {
+  edges: [OfferEdge!]!
+  pageInfo: PageInfo!
+}
+
+type OfferEdge {
+  node: Offer!
+  cursor: String!
+}
+
+input OfferFilterInput {
+  userId: ID
+  status: OfferStatus
+  titleContains: String
+  createdAfter: DateTime
+  createdBefore: DateTime
+}
 
 type PageInfo {
   hasNextPage: Boolean!
@@ -220,8 +228,6 @@ type PageInfo {
   startCursor: String
   endCursor: String
 }
-
-# Interfaces
 
 """
 A date-time string at UTC, such as 2007-12-03T10:15:30Z,
@@ -239,17 +245,63 @@ interface Stored {
   deletedAt: DateTime
 }
 
-# Main types
-
 type User implements Stored {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
   deletedAt: DateTime
+  type: UserType!
   name: String!
   email: String!
   messages: [Message!]!
+  avatar: String
+}
+
+type StudentUser implements User {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  type: UserType!
+  name: String!
+  email: String!
+  avatar: String
+  messages: [Message!]!
+  skills: [String!]!
+  experience: [Experience!]!
+}
+
+type SchoolUser implements User {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  type: UserType!
+  name: String!
+  email: String!
+  avatar: String
+  messages: [Message!]!
+  students: [StudentUser!]!
+}
+
+type CompanyUser implements User {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  type: UserType!
+  name: String!
+  email: String!
+  avatar: String
+  messages: [Message!]!
   offers: [Offer!]!
+  employees: [StudentUser!]!
+}
+
+enum UserType {
+  STUDENT
+  SCHOOL
+  COMPANY
 }
 
 type Experience {

@@ -1,9 +1,17 @@
 # Junqo Project
 # This file contains the implemented schema for the Junqo API
 # Please read the `README.md` file before making any changes
-
 # Operations
 
+# Every operation in the API needs authentication, except for the `signUp` and `signIn` operations.
+# To authenticate, the user must provide a valid JWT token in the `Authorization` header.
+# The token must be in the format `Bearer <token>`.
+
+# Main Operations
+
+"""
+The `Query` type represents all of the entry points into the API.
+"""
 type Query {
   """
   Get all users in the system.
@@ -18,18 +26,53 @@ type Query {
   user(id: ID!): User
 }
 
+"""
+The `Mutation` type represents all of the mutations that the API can perform.
+"""
 type Mutation {
-  # Create a new user
-  createUser(createUserInput: CreateUserInput!): User!
+  """
+  Update a user by their ID
+  """
+  updateUser(
+    "The unique identifier of the user"
+    id: ID!,
+    "The type of the user out of (STUDENT, SCHOOL, COMPANY)"
+    type: UserType
+    "The name must not contain spaces"
+    name: String
+    "The email of the user"
+    email: Email
+    "The password must be at least 8 characters long"
+    password: String
+  ): User!
 
-  # Update a user by their ID
-  updateUser(id: ID!, updateUserInput: UpdateUserInput!): User!
-
-  # Delete a user by their ID
+  """
+  Delete a user by their ID
+  """
   deleteUser(id: ID!): Boolean!
+
+  """
+  (Public) Sign up a new user
+  """
+  signUp(
+    "The type of the user out of (STUDENT, SCHOOL, COMPANY)"
+    type: UserType!
+    "The name of the user"
+    name: String!
+    "The email of the user"
+    email: Email!
+    "The password of the user"
+    password: String!
+  ): AuthPayload!
+
+  """
+  (Public) Sign in an existing user
+  """
+  signIn(email: Email!, password: String!): AuthPayload!
 }
 
 # Custom Scalars
+
 """
 The `Email` scalar type represents E-Mail addresses compliant with the RFC 5322 standard.
 """
@@ -41,32 +84,47 @@ compliant with the `date-time` format outlined in section 5.6 of RFC 3339.
 """
 scalar DateTime
 
+# Enums
+
+"""
+The `UserType` enum represents the situation of the user.
+"""
+enum UserType {
+  "The user is a student"
+  STUDENT
+  "The user is a school"
+  SCHOOL
+  "The user is a company"
+  COMPANY
+  "The user is an admin"
+  ADMIN
+}
+
+# Main Types
+
+"""
+The `User` type represents a user in the system.
+"""
 # Main Types
 type User {
-  # The ID of the user
+  "The unique identifier of the user"
   id: ID!
-
-  # The name of the user
+  "The type of the user out of (STUDENT, SCHOOL, COMPANY)"
+  type: UserType!
+  "The name of the user (without spaces)"
   name: String!
-
-  # The email of the user
+  "The email of the user"
   email: Email!
 }
 
-# Inputs
+# Outputs
 
-input CreateUserInput {
-  # The name of the user
-  name: String!
-
-  # The email of the user
-  email: Email!
-}
-
-input UpdateUserInput {
-  # The name of the user
-  name: String
-
-  # The email of the user
-  email: Email
+"""
+The `AuthPayload` output type is used to return the token and user after signing in.
+"""
+type AuthPayload {
+  "The JWT of the user, used for authentication"
+  token: String!
+  "The user object associated with the authenticated token."
+  user: User!
 }
