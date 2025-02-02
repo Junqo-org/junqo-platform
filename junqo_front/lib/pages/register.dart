@@ -1,23 +1,30 @@
+import 'package:ferry/ferry.dart';
 import 'package:flutter/material.dart';
+import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
+import 'package:junqo_front/schemas/src/__generated__/sign_up.data.gql.dart';
+import 'package:junqo_front/schemas/src/__generated__/sign_up.req.gql.dart';
+import 'package:junqo_front/schemas/src/__generated__/sign_up.var.gql.dart';
 import 'dart:math' as math;
 import 'login.dart';
 import 'terms_of_use.dart';
 import 'privacy_policy.dart';
 import 'package:flutter/gestures.dart';
+import 'package:get_it/get_it.dart';
+import 'package:ferry_flutter/ferry_flutter.dart';
 
 class Register extends StatefulWidget {
-  final String userType;
-
   const Register({
-    Key? key,
-    required this.userType,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<Register> createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> with TickerProviderStateMixin {
+  late String userType = 'STUDENT';
+
   // Animation controllers
   late final AnimationController _blob1Controller;
   late final AnimationController _blob2Controller;
@@ -40,6 +47,26 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
   String? _emailError;
   String? _nameError;
   bool _isSubmitHovered = false;
+
+  final authService = GetIt.instance<AuthService>();
+  String? errorMessage;
+
+  Future<void> _register() async {
+    final String name = _nameController.text;
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+    final GUserType gUserType = GUserType.valueOf(userType);
+
+    final token = await authService.register(name, email, password, gUserType);
+
+    if (!token) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      setState(() {
+        errorMessage = "Invalid username or password.";
+      });
+    }
+  }
 
   // Validation des champs
   bool _validateFields() {
@@ -88,6 +115,15 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
       }
     });
     return isValid;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null) {
+      userType = args as String;
+    }
   }
 
   @override
@@ -142,7 +178,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
   }
 
   String getUserTypeText() {
-    switch (widget.userType) {
+    switch (userType) {
       case 'school':
         return 'école';
       case 'company':
@@ -155,7 +191,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
   }
 
   Color getTypeColor() {
-    switch (widget.userType) {
+    switch (userType) {
       case 'school':
         return Colors.blue;
       case 'company':
@@ -248,9 +284,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                         ),
                         const SizedBox(width: 16),
                         SizedBox(
-                          height: 35,
+                          height: 60,
                           child: Image.asset(
-                            'assets/images/template_logo.png',
+                            'assets/images/junqo_logo.png',
                             fit: BoxFit.contain,
                             alignment: Alignment.centerLeft,
                           ),
@@ -347,9 +383,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                               child: Column(
                                 children: [
                                   _buildTextField(
-                                    label: widget.userType == 'student'
+                                    label: userType == 'student'
                                         ? 'Nom complet'
-                                        : widget.userType == 'school'
+                                        : userType == 'school'
                                             ? 'Nom de l\'école'
                                             : 'Nom de l\'entreprise',
                                     controller: _nameController,
@@ -402,7 +438,15 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                             ),
 
                             // Submit button
-                            _buildSubmitButton(mainColor),
+                            _buildSubmitButton(mainColor, _register),
+                            if (errorMessage != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  errorMessage!,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              ),
                             const SizedBox(height: 24),
 
                             // Login link
@@ -421,11 +465,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                     cursor: SystemMouseCursors.click,
                                     child: GestureDetector(
                                       onTap: () {
-                                        Navigator.push(
+                                        Navigator.pushNamed(
                                           context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const Login()),
+                                          '/login',
                                         );
                                       },
                                       child: Text(
@@ -470,10 +512,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () {
-                                          Navigator.push(
+                                          Navigator.pushNamed(
                                             context,
-                                            MaterialPageRoute(
-                                                builder: (context) => Terms()),
+                                            '/terms-of-use',
                                           );
                                         },
                                     ),
@@ -486,11 +527,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () {
-                                          Navigator.push(
+                                          Navigator.pushNamed(
                                             context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    PrivacyPolicy()),
+                                            '/privacy-policy',
                                           );
                                         },
                                     ),
@@ -610,7 +649,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSubmitButton(Color mainColor) {
+  Widget _buildSubmitButton(Color mainColor, Function onSubmit) {
     return MouseRegion(
       onEnter: (_) => setState(() => _isSubmitHovered = true),
       onExit: (_) => setState(() => _isSubmitHovered = false),
@@ -642,10 +681,11 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
               onTap: () {
                 if (_validateFields()) {
                   // Implement form submission
-                  print('UserType: ${widget.userType}');
+                  print('UserType: ${userType}');
                   print('Name: ${_nameController.text}');
                   print('Email: ${_emailController.text}');
                   print('Password: ${_passwordController.text}');
+                  onSubmit();
                 }
               },
               borderRadius: BorderRadius.circular(12),

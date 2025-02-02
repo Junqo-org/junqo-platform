@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 
 class Terms extends StatelessWidget {
+  const Terms({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Conditions d\'utilisation'),
+        title: const Text('Conditions d\'utilisation'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
-      body: Center(
+      body: const Center(
         child: Text(
           'En construction',
           style: TextStyle(fontSize: 20, color: Colors.grey),

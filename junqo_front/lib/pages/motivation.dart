@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../widgets/navbar.dart';
+import '../shared/widgets/navbar.dart';
 
 class Motivation extends StatelessWidget {
+  const Motivation({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
@@ -9,7 +11,7 @@ class Motivation extends StatelessWidget {
       body: Column(
         children: [
           // Navbar en haut avec l'index 1 pour IA
-          const Navbar(currentIndex: 1),
+          Navbar(currentIndex: 1),
           
           // Contenu principal
           Expanded(

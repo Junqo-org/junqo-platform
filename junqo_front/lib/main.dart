@@ -1,26 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ferry/ferry.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/pages/not_found_page.dart';
+import 'package:junqo_front/router.dart';
 import 'pages/welcome.dart';
-import 'package:junqo_front/client.dart';
+import 'package:junqo_front/core/client.dart';
+import 'package:junqo_front/shared/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final client = await initClient();
+  await Hive.initFlutter();
+
+  final authBox = await Hive.openBox<String>("auth");
+  final client = await initClient(authBox: authBox);
   // Register the client to be accessible globally
   GetIt.instance.registerLazySingleton<Client>(() => client);
-
-  runApp(const MyApp());
+  GetIt.instance
+      .registerLazySingleton<AuthService>(() => AuthService(client, authBox));
+  runApp(const JunqoApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  
+class JunqoApp extends StatefulWidget {
+  const JunqoApp({super.key});
+
   @override
-  Widget build (BuildContext context) {
-    return const MaterialApp(
+  State<JunqoApp> createState() => _JunqoAppState();
+}
+
+class _JunqoAppState extends State<JunqoApp> {
+  ThemeMode _themeMode = ThemeMode.system; // Uses system theme by default
+
+  void toggleTheme() {
+    setState(() {
+      _themeMode =
+          _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Junqo',
       debugShowCheckedModeBanner: false,
-      title: 'Login Screen',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: _themeMode,
+      initialRoute: '/',
+      onGenerateRoute: AppRouter.generateRoute,
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(builder: (context) => const NotFoundPage());
+      },
       home: Welcome(),
     );
   }

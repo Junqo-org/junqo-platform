@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../pages/home_page.dart';
-import '../pages/ia_page.dart';
-import '../pages/messaging_page.dart';
-import '../pages/profile_page.dart';
+import '../../pages/home_page.dart';
+import '../../pages/ia_page.dart';
+import '../../pages/messaging_page.dart';
+import '../../pages/profile_page.dart';
 
 class Navbar extends StatefulWidget {
   final int currentIndex;
-  const Navbar({Key? key, required this.currentIndex}) : super(key: key);
+  const Navbar({super.key, required this.currentIndex});
 
   @override
   State<Navbar> createState() => _NavbarState();
@@ -70,8 +70,8 @@ class _NavbarState extends State<Navbar> {
               children: [
                 // Logo visible en mode mobile
                 Image.asset(
-                  'assets/images/template_logo.png',
-                  height: 35,
+                  'assets/images/junqo_logo.png',
+                  height: 60,
                   fit: BoxFit.contain,
                 ),
                 Row(
@@ -93,23 +93,27 @@ class _NavbarState extends State<Navbar> {
               children: [
                 // Logo à gauche
                 Image.asset(
-                  'assets/images/template_logo.png',
-                  height: 35,
+                  'assets/images/junqo_logo.png',
+                  height: 60,
                   fit: BoxFit.contain,
                 ),
                 const Spacer(),
                 // Espacement entre les items
                 Row(
                   children: [
-                    _buildNavItemWithLabel(context, 0, Icons.home_outlined, 'Accueil'),
+                    _buildNavItemWithLabel(
+                        context, 0, Icons.home_outlined, 'Accueil'),
                     const SizedBox(width: 24),
                     _buildNavItemWithLabel(context, 1, Icons.smart_toy, 'IA'),
                     const SizedBox(width: 24),
-                    _buildNavItemWithLabel(context, 2, Icons.notifications_outlined, 'Notifications'),
+                    _buildNavItemWithLabel(context, 2,
+                        Icons.notifications_outlined, 'Notifications'),
                     const SizedBox(width: 24),
-                    _buildNavItemWithLabel(context, 3, Icons.message_outlined, 'Messagerie'),
+                    _buildNavItemWithLabel(
+                        context, 3, Icons.message_outlined, 'Messagerie'),
                     const SizedBox(width: 24),
-                    _buildNavItemWithLabel(context, 4, Icons.person_outline, 'Profil'),
+                    _buildNavItemWithLabel(
+                        context, 4, Icons.person_outline, 'Profil'),
                   ],
                 ),
               ],
@@ -135,7 +139,8 @@ class _NavbarState extends State<Navbar> {
     );
   }
 
-  Widget _buildNavItemWithLabel(BuildContext context, int index, IconData icon, String label) {
+  Widget _buildNavItemWithLabel(
+      BuildContext context, int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
 
     return GestureDetector(

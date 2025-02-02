@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/navbar.dart';
-
-
+import '../shared/widgets/navbar.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -18,7 +16,6 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           const Navbar(currentIndex: 0),
-
           Expanded(
             child: SingleChildScrollView(
               child: Center(
