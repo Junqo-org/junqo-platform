@@ -44,7 +44,7 @@ services:
     networks:
       - back-net
     ports:
-      - "${BACK_PORT:-4200}:3000"
+      - "${BACK_PORT:-4200}:4200"
     depends_on:
       db:
         condition: service_healthy
