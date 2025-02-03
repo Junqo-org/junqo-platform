@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'register.dart';
-import 'login.dart';
 
 class UserTypeSelection extends StatefulWidget {
   const UserTypeSelection({super.key});

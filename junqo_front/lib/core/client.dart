@@ -11,20 +11,17 @@ import 'package:junqo_front/core/config.dart';
 ///
 /// Throws [HiveError] if box initialization fails.
 /// Throws [HttpLinkError] if API URL is invalid.
-Future<Client> initClient({authBox, bool clearBox = false}) async {
+Future<Client> initClient({bool clearBox = false}) async {
   try {
-    final graphqlBox = await Hive.openBox<Map<String, dynamic>>("graphql");
+    final authBox = await Hive.openBox<String>('auth');
+
     if (clearBox) {
-      await graphqlBox.clear();
       await authBox.clear();
     }
 
-    final store = HiveStore(graphqlBox);
-    final cache = Cache(store: store);
-
-    String? token = authBox.get('token');
-
     final authLink = Link.function((request, [forward]) {
+      String? token = authBox.get('token');
+
       final headers = {
         'Accept': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
@@ -39,7 +36,6 @@ Future<Client> initClient({authBox, bool clearBox = false}) async {
 
     final client = Client(
       link: link,
-      cache: cache,
     );
 
     return client;

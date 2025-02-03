@@ -5,9 +5,9 @@ import 'package:junqo_front/schemas/src/__generated__/sign_up.req.gql.dart';
 
 class AuthService {
   final Client client;
-  final Box<String> authBox;
+  final Box<String> authBox = Hive.box<String>('auth');
 
-  AuthService(this.client, this.authBox);
+  AuthService(this.client);
 
   Future<bool> register(
       String name, String email, String password, GUserType type) async {
@@ -22,7 +22,16 @@ class AuthService {
     final response = await client.request(request).first;
 
     if (response.hasErrors) {
-      print(response.graphqlErrors);
+      print('Error: when registering');
+      if (response.graphqlErrors != null) {
+        for (final error in response.graphqlErrors!) {
+          print('Error: graphqlError ${error.message}');
+        }
+      }
+      if (response.linkException != null) {
+        print(
+            'Error: linkException ${response.linkException?.originalStackTrace}');
+      }
       return false;
     }
 
@@ -41,4 +50,6 @@ class AuthService {
   }
 
   String? get token => authBox.get('token');
+
+  bool get isLoggedIn => token != null;
 }

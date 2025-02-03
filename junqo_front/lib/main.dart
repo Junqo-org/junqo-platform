@@ -13,12 +13,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-  final authBox = await Hive.openBox<String>("auth");
-  final client = await initClient(authBox: authBox);
-  // Register the client to be accessible globally
+  final client = await initClient();
+
   GetIt.instance.registerLazySingleton<Client>(() => client);
-  GetIt.instance
-      .registerLazySingleton<AuthService>(() => AuthService(client, authBox));
+  GetIt.instance.registerLazySingleton<AuthService>(() => AuthService(client));
   runApp(const JunqoApp());
 }
 

@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
 import 'dart:math' as math;
-import 'user_type_selection.dart';
-import 'welcome.dart';
-import 'terms_of_use.dart';
-import 'privacy_policy.dart';
 import 'package:flutter/gestures.dart';
 
 class Login extends StatefulWidget {

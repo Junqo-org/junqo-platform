@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'user_type_selection.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:math' as math;
-import 'login.dart';
-import 'terms_of_use.dart';
-import 'privacy_policy.dart';
 
 const studentsCount = '10K+';
 const companiesCount = '500+';

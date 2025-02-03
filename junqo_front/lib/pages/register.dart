@@ -1,17 +1,9 @@
-import 'package:ferry/ferry.dart';
 import 'package:flutter/material.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
-import 'package:junqo_front/schemas/src/__generated__/sign_up.data.gql.dart';
-import 'package:junqo_front/schemas/src/__generated__/sign_up.req.gql.dart';
-import 'package:junqo_front/schemas/src/__generated__/sign_up.var.gql.dart';
 import 'dart:math' as math;
-import 'login.dart';
-import 'terms_of_use.dart';
-import 'privacy_policy.dart';
 import 'package:flutter/gestures.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ferry_flutter/ferry_flutter.dart';
 
 class Register extends StatefulWidget {
   const Register({
@@ -57,9 +49,10 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
     final String password = _passwordController.text;
     final GUserType gUserType = GUserType.valueOf(userType.toUpperCase());
 
-    final token = await authService.register(name, email, password, gUserType);
+    final isValid =
+        await authService.register(name, email, password, gUserType);
 
-    if (!token) {
+    if (isValid) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       setState(() {
