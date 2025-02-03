@@ -36,7 +36,8 @@ class _IAPageState extends State<IAPage> {
                         height: 220,
                         decoration: const BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage('images/ai_background.png'),
+                            image:
+                                AssetImage('assets/images/ai_background.png'),
                             fit: BoxFit.cover,
                           ),
                         ),

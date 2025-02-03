@@ -71,7 +71,8 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundImage: const AssetImage('images/profile_placeholder.jpg'),
+                backgroundImage:
+                    const AssetImage('assets/images/profile_placeholder.jpg'),
                 backgroundColor: Colors.grey[200],
               ),
               if (_isEditing)
@@ -99,7 +100,9 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _nameController.text.isEmpty ? "Votre Nom" : _nameController.text,
+                  _nameController.text.isEmpty
+                      ? "Votre Nom"
+                      : _nameController.text,
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -107,7 +110,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _schoolController.text.isEmpty ? "Votre École" : _schoolController.text,
+                  _schoolController.text.isEmpty
+                      ? "Votre École"
+                      : _schoolController.text,
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.grey,
@@ -119,11 +124,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     spacing: 8,
                     children: [
                       Chip(
-                        label: Text(_degreeController.text.isEmpty ? "Votre Formation" : _degreeController.text),
+                        label: Text(_degreeController.text.isEmpty
+                            ? "Votre Formation"
+                            : _degreeController.text),
                         backgroundColor: Colors.blue[50],
                       ),
                       Chip(
-                        label: Text(_locationController.text.isEmpty ? "Votre Localisation" : _locationController.text),
+                        label: Text(_locationController.text.isEmpty
+                            ? "Votre Localisation"
+                            : _locationController.text),
                         backgroundColor: Colors.blue[50],
                       ),
                     ],

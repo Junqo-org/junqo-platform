@@ -19,7 +19,8 @@ class _InterviewState extends State<Interview> {
       _isInterviewStarted = true;
       _messages.add({
         "sender": "ai",
-        "text": "Bonjour ! Je suis ravi de vous accompagner dans cet entretien simulé. N'hésitez pas à me poser des questions, je ferai de mon mieux pour vous aider à vous préparer. C'est parti !"
+        "text":
+            "Bonjour ! Je suis ravi de vous accompagner dans cet entretien simulé. N'hésitez pas à me poser des questions, je ferai de mon mieux pour vous aider à vous préparer. C'est parti !"
       });
     });
   }
@@ -152,7 +153,7 @@ class _InterviewState extends State<Interview> {
                         if (!isUserMessage)
                           const CircleAvatar(
                             backgroundImage:
-                                AssetImage("images/ai_avatar.png"),
+                                AssetImage("assets/images/ai_avatar.png"),
                             radius: 24,
                           ),
                         const SizedBox(width: 8),
@@ -169,9 +170,8 @@ class _InterviewState extends State<Interview> {
                               message["text"]!,
                               style: TextStyle(
                                 fontSize: 16,
-                                color: isUserMessage
-                                    ? Colors.white
-                                    : Colors.black,
+                                color:
+                                    isUserMessage ? Colors.white : Colors.black,
                               ),
                             ),
                           ),
@@ -179,8 +179,8 @@ class _InterviewState extends State<Interview> {
                         const SizedBox(width: 8),
                         if (isUserMessage)
                           const CircleAvatar(
-                            backgroundImage:
-                                AssetImage("images/profile_placeholder.jpg"),
+                            backgroundImage: AssetImage(
+                                "assets/images/profile_placeholder.jpg"),
                             radius: 24,
                           ),
                       ],

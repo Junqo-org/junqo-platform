@@ -23,7 +23,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> with TickerProviderStateMixin {
-  late String userType = 'STUDENT';
+  late String userType = 'student';
 
   // Animation controllers
   late final AnimationController _blob1Controller;
@@ -55,7 +55,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
     final String name = _nameController.text;
     final String email = _emailController.text;
     final String password = _passwordController.text;
-    final GUserType gUserType = GUserType.valueOf(userType);
+    final GUserType gUserType = GUserType.valueOf(userType.toUpperCase());
 
     final token = await authService.register(name, email, password, gUserType);
 
