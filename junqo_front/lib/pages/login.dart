@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/shared/errors/graphql_exception.dart';
+import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -27,6 +31,26 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
   String? _passwordError;
   bool _isSubmitHovered = false;
   bool _rememberMe = false;
+
+  // Authentication
+  final authService = GetIt.instance<AuthService>();
+
+  Future<void> _logIn() async {
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+
+    try {
+      await authService.signIn(email, password);
+    } on GraphQLException catch (e) {
+      e.printError();
+      showErrorDialog(e.toString(), context);
+      return;
+    } catch (e) {
+      debugPrint("Unexpected error: $e");
+      return;
+    }
+    Navigator.pushNamed(context, '/home');
+  }
 
   bool _validateFields() {
     bool isValid = true;
@@ -329,7 +353,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                   const SizedBox(height: 26),
 
                                   // Submit button
-                                  _buildSubmitButton(),
+                                  _buildSubmitButton(_logIn),
                                   const SizedBox(height: 24),
 
                                   // Sign up link
@@ -536,7 +560,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(Function onSubmit) {
     return MouseRegion(
       onEnter: (_) => setState(() => _isSubmitHovered = true),
       onExit: (_) => setState(() => _isSubmitHovered = false),
@@ -567,15 +591,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
             child: InkWell(
               onTap: () {
                 if (_validateFields()) {
-                  //_emailController.text
-                  //_passwordController.text
-                  //_nameController.text
-                  //_rememberMe
-                  //userType
-                  Navigator.pushNamed(
-                    context,
-                    '/home',
-                  );
+                  onSubmit();
                 }
               },
               borderRadius: BorderRadius.circular(12),

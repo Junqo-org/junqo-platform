@@ -4,32 +4,14 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:gql/ast.dart' as _i1;
 
-const signup = _i1.OperationDefinitionNode(
+const signInGetUser = _i1.OperationDefinitionNode(
   type: _i1.OperationType.mutation,
-  name: _i1.NameNode(value: 'signup'),
+  name: _i1.NameNode(value: 'signInGetUser'),
   variableDefinitions: [
-    _i1.VariableDefinitionNode(
-      variable: _i1.VariableNode(name: _i1.NameNode(value: 'type')),
-      type: _i1.NamedTypeNode(
-        name: _i1.NameNode(value: 'UserType'),
-        isNonNull: true,
-      ),
-      defaultValue: _i1.DefaultValueNode(value: null),
-      directives: [],
-    ),
     _i1.VariableDefinitionNode(
       variable: _i1.VariableNode(name: _i1.NameNode(value: 'email')),
       type: _i1.NamedTypeNode(
         name: _i1.NameNode(value: 'Email'),
-        isNonNull: true,
-      ),
-      defaultValue: _i1.DefaultValueNode(value: null),
-      directives: [],
-    ),
-    _i1.VariableDefinitionNode(
-      variable: _i1.VariableNode(name: _i1.NameNode(value: 'name')),
-      type: _i1.NamedTypeNode(
-        name: _i1.NameNode(value: 'String'),
         isNonNull: true,
       ),
       defaultValue: _i1.DefaultValueNode(value: null),
@@ -48,20 +30,12 @@ const signup = _i1.OperationDefinitionNode(
   directives: [],
   selectionSet: _i1.SelectionSetNode(selections: [
     _i1.FieldNode(
-      name: _i1.NameNode(value: 'signUp'),
+      name: _i1.NameNode(value: 'signIn'),
       alias: null,
       arguments: [
         _i1.ArgumentNode(
-          name: _i1.NameNode(value: 'type'),
-          value: _i1.VariableNode(name: _i1.NameNode(value: 'type')),
-        ),
-        _i1.ArgumentNode(
           name: _i1.NameNode(value: 'email'),
           value: _i1.VariableNode(name: _i1.NameNode(value: 'email')),
-        ),
-        _i1.ArgumentNode(
-          name: _i1.NameNode(value: 'name'),
-          value: _i1.VariableNode(name: _i1.NameNode(value: 'name')),
         ),
         _i1.ArgumentNode(
           name: _i1.NameNode(value: 'password'),
@@ -84,7 +58,7 @@ const signup = _i1.OperationDefinitionNode(
           directives: [],
           selectionSet: _i1.SelectionSetNode(selections: [
             _i1.FragmentSpreadNode(
-              name: _i1.NameNode(value: 'data'),
+              name: _i1.NameNode(value: 'userData'),
               directives: [],
             )
           ]),
@@ -93,8 +67,8 @@ const signup = _i1.OperationDefinitionNode(
     )
   ]),
 );
-const data = _i1.FragmentDefinitionNode(
-  name: _i1.NameNode(value: 'data'),
+const userData = _i1.FragmentDefinitionNode(
+  name: _i1.NameNode(value: 'userData'),
   typeCondition: _i1.TypeConditionNode(
       on: _i1.NamedTypeNode(
     name: _i1.NameNode(value: 'User'),
@@ -104,6 +78,13 @@ const data = _i1.FragmentDefinitionNode(
   selectionSet: _i1.SelectionSetNode(selections: [
     _i1.FieldNode(
       name: _i1.NameNode(value: 'id'),
+      alias: null,
+      arguments: [],
+      directives: [],
+      selectionSet: null,
+    ),
+    _i1.FieldNode(
+      name: _i1.NameNode(value: 'type'),
       alias: null,
       arguments: [],
       directives: [],
@@ -126,6 +107,6 @@ const data = _i1.FragmentDefinitionNode(
   ]),
 );
 const document = _i1.DocumentNode(definitions: [
-  signup,
-  data,
+  signInGetUser,
+  userData,
 ]);

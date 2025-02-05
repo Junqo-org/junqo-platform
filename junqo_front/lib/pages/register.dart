@@ -4,6 +4,8 @@ import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
 import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:get_it/get_it.dart';
+import 'package:junqo_front/shared/errors/graphql_exception.dart';
+import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
 class Register extends StatefulWidget {
   const Register({
@@ -40,8 +42,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
   String? _nameError;
   bool _isSubmitHovered = false;
 
+  // Authentication
   final authService = GetIt.instance<AuthService>();
-  String? errorMessage;
 
   Future<void> _register() async {
     final String name = _nameController.text;
@@ -49,31 +51,28 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
     final String password = _passwordController.text;
     final GUserType gUserType = GUserType.valueOf(userType.toUpperCase());
 
-    final isValid =
-        await authService.register(name, email, password, gUserType);
-
-    if (isValid) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      setState(() {
-        errorMessage = "Invalid username or password.";
-      });
+    try {
+      await authService.signUp(name, email, password, gUserType);
+    } on GraphQLException catch (e) {
+      e.printError();
+      showErrorDialog(e.toString(), context);
+      return;
+    } catch (e) {
+      debugPrint("Unexpected error: $e");
+      return;
     }
+    Navigator.pushNamed(context, '/home');
   }
 
-  // Validation des champs
   bool _validateFields() {
     bool isValid = true;
     setState(() {
-      // Validation du nom
       if (_nameController.text.trim().isEmpty) {
         _nameError = 'Ce champ est requis';
         isValid = false;
       } else {
         _nameError = null;
       }
-
-      // Validation de l'email
 
       if (_emailController.text.trim().isEmpty) {
         _emailError = 'Ce champ est requis';
@@ -86,7 +85,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
         _emailError = null;
       }
 
-      // Validation du mot de passe
       if (_passwordController.text.isEmpty) {
         _passwordError = 'Ce champ est requis';
         isValid = false;
@@ -432,14 +430,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
 
                             // Submit button
                             _buildSubmitButton(mainColor, _register),
-                            if (errorMessage != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  errorMessage!,
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              ),
                             const SizedBox(height: 24),
 
                             // Login link
@@ -673,11 +663,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
             child: InkWell(
               onTap: () {
                 if (_validateFields()) {
-                  // Implement form submission
-                  print('UserType: ${userType}');
-                  print('Name: ${_nameController.text}');
-                  print('Email: ${_emailController.text}');
-                  print('Password: ${_passwordController.text}');
                   onSubmit();
                 }
               },

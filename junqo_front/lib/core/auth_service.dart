@@ -1,17 +1,35 @@
 import 'package:ferry/ferry.dart';
 import 'package:hive/hive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
-import 'package:junqo_front/schemas/src/__generated__/sign_up.req.gql.dart';
+import 'package:junqo_front/schemas/requests/__generated__/is_logged_in.req.gql.dart';
+import 'package:junqo_front/schemas/requests/__generated__/sign_in.req.gql.dart';
+import 'package:junqo_front/schemas/requests/__generated__/sign_up.req.gql.dart';
+import 'package:junqo_front/shared/errors/graphql_exception.dart';
 
 class AuthService {
   final Client client;
-  final Box<String> authBox = Hive.box<String>('auth');
+  late final Box<String> authBox;
+  bool? _isLoggedIn;
 
-  AuthService(this.client);
+  AuthService(this.client) {
+    _initialize();
+  }
 
-  Future<bool> register(
+  String? get token => authBox.get('token');
+
+  Future<void> _initialize() async {
+    try {
+      authBox = await Hive.openBox<String>('auth');
+    } catch (e, stack) {
+      debugPrint('Error initializing Hive box: $e');
+      debugPrint('$stack');
+    }
+  }
+
+  Future<void> signUp(
       String name, String email, String password, GUserType type) async {
-    final request = GsignupReq(
+    final request = GsignUpGetUserReq(
       (b) => b
         ..vars.name = name
         ..vars.email = email
@@ -22,34 +40,105 @@ class AuthService {
     final response = await client.request(request).first;
 
     if (response.hasErrors) {
-      print('Error: when registering');
       if (response.graphqlErrors != null) {
-        for (final error in response.graphqlErrors!) {
-          print('Error: graphqlError ${error.message}');
-        }
+        throw GraphQLException(
+          "Registration failed",
+          errors: response.graphqlErrors?.map((e) => e.message).toList(),
+        );
       }
       if (response.linkException != null) {
-        print(
-            'Error: linkException ${response.linkException?.originalStackTrace}');
+        throw 'Link Exception: ${response.linkException?.originalStackTrace}';
       }
-      return false;
+      return;
     }
 
     final token = response.data?.signUp.token;
 
     if (token != null) {
       await authBox.put('token', token);
-      print('Token: $token');
-      return true;
+      debugPrint('Token saved successfully.');
+      return;
     }
-    return false;
+    throw 'Error: Token is null.';
+  }
+
+  Future<void> signIn(String email, String password) async {
+    final request = GsignInGetUserReq(
+      (b) => b
+        ..vars.email = email
+        ..vars.password = password,
+    );
+
+    final response = await client.request(request).first;
+
+    if (response.hasErrors) {
+      if (response.graphqlErrors != null) {
+        throw GraphQLException(
+          "Sign in failed",
+          errors: response.graphqlErrors?.map((e) => e.message).toList(),
+        );
+      }
+      if (response.linkException != null) {
+        throw 'Link Exception: ${response.linkException?.originalStackTrace}';
+      }
+      return;
+    }
+
+    final token = response.data?.signIn.token;
+
+    if (token != null) {
+      await authBox.put('token', token);
+      debugPrint('Token saved successfully.');
+      return;
+    }
+    throw 'Error: Token is null.';
   }
 
   Future<void> logout() async {
-    await authBox.delete('token');
+    try {
+      await authBox.delete('token');
+      debugPrint('User logged out.');
+    } catch (e) {
+      debugPrint('Error during logout: $e');
+    }
   }
 
-  String? get token => authBox.get('token');
+  Future<bool> isLoggedIn() async {
+    final request = GisLoggedInReq((b) => b);
 
-  bool get isLoggedIn => token != null;
+    if (token == null || _isLoggedIn == false) {
+      return false;
+    }
+
+    final response = await client.request(request).first;
+
+    if (response.hasErrors) {
+      if (response.graphqlErrors != null) {
+        if (response.graphqlErrors
+                ?.any((e) => e.message.contains('Unauthorized')) ??
+            false) {
+          return false;
+        }
+        throw GraphQLException(
+          "Error checking if user is logged in",
+          errors: response.graphqlErrors?.map((e) => e.message).toList(),
+        );
+      }
+      if (response.linkException != null) {
+        throw 'Link Exception: ${response.linkException?.originalStackTrace}';
+      }
+      return false;
+    }
+
+    final result = response.data?.isLoggedIn;
+
+    if (result != null) {
+      if (result == true) {
+        this._isLoggedIn = true;
+        return true;
+      }
+      return false;
+    }
+    throw 'Error: Result is null.';
+  }
 }

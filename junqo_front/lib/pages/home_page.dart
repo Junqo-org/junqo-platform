@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/core/auth_service.dart';
 import '../shared/widgets/navbar.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,6 +11,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final authService = GetIt.instance<AuthService>();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => authService.isLoggedIn());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
