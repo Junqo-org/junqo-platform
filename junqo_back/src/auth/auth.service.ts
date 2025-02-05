@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthPayload, UserType } from './../graphql.schema';
 import { UsersRepository } from './../users/repository/users.repository';
@@ -6,6 +6,7 @@ import { SignUpDTO } from './dto/sign-up.dto';
 import { UserMapper } from './../users/mapper/user-mapper';
 import * as bcrypt from 'bcrypt';
 import { bcryptConstants } from './constants';
+import { UserModel } from '../users/repository/models/user.model';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +40,16 @@ export class AuthService {
   }
 
   public async signIn(email: string, password: string): Promise<AuthPayload> {
-    const userModel = await this.usersRepository.findOneByEmail(email);
+    let userModel: UserModel = null;
+
+    try {
+      userModel = await this.usersRepository.findOneByEmail(email);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new UnauthorizedException('Invalid email or password');
+      }
+      throw error;
+    }
 
     if (userModel == null) {
       throw new UnauthorizedException('Invalid email or password');

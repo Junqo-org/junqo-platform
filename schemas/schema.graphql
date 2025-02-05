@@ -24,6 +24,11 @@ type Query {
   Returns null if the user is not found.
   """
   user(id: ID!): User
+
+  """
+  Returns true if the user is logged in, false otherwise.
+  """
+  isLoggedIn: Boolean!
 }
 
 """
