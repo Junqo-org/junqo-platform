@@ -8,17 +8,14 @@ import 'package:junqo_front/shared/errors/graphql_exception.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
 class Register extends StatefulWidget {
-  const Register({
-    super.key,
-  });
+  final String userType;
+  const Register({super.key, required this.userType});
 
   @override
   State<Register> createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> with TickerProviderStateMixin {
-  late String userType = 'student';
-
   // Animation controllers
   late final AnimationController _blob1Controller;
   late final AnimationController _blob2Controller;
@@ -41,6 +38,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
   String? _emailError;
   String? _nameError;
   bool _isSubmitHovered = false;
+  String userType = 'undefined';
 
   // Authentication
   final authService = GetIt.instance<AuthService>();
@@ -109,17 +107,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args != null) {
-      userType = args as String;
-    }
-  }
-
-  @override
   void initState() {
     super.initState();
+    userType = widget.userType;
     _blob1Controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 15),

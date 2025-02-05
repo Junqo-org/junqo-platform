@@ -43,7 +43,11 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: const ProfilePage()));
       case '/register':
-        return MaterialPageRoute(builder: (_) => const Register());
+        final userType = settings.arguments as String;
+        return MaterialPageRoute(
+            builder: (_) => Register(
+                  userType: userType,
+                ));
       case '/terms-of-use':
         return MaterialPageRoute(builder: (_) => const Terms());
       case '/user-type-selection':
