@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
 import 'dart:math' as math;
@@ -59,7 +60,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
       debugPrint("Unexpected error: $e");
       return;
     }
-    Navigator.pushNamed(context, '/home');
+    context.go('/app');
   }
 
   bool _validateFields() {
@@ -261,7 +262,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                       children: [
                         IconButton(
                           icon: Icon(Icons.arrow_back, color: mainColor),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => context.pop(),
                         ),
                         const SizedBox(width: 16),
                         SizedBox(
@@ -438,8 +439,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                     cursor: SystemMouseCursors.click,
                                     child: GestureDetector(
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                          context,
+                                        context.go(
                                           '/login',
                                         );
                                       },
@@ -485,8 +485,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () {
-                                          Navigator.pushNamed(
-                                            context,
+                                          context.go(
                                             '/terms-of-use',
                                           );
                                         },
@@ -500,8 +499,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () {
-                                          Navigator.pushNamed(
-                                            context,
+                                          context.go(
                                             '/privacy-policy',
                                           );
                                         },

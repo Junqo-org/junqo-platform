@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
@@ -40,7 +41,7 @@ class _PrivatePageState extends State<PrivatePage> {
         if (snapshot.hasError || snapshot.data == false) {
           // Navigate if not logged in
           Future.microtask(() {
-            Navigator.pushReplacementNamed(context, '/login');
+            context.go('/login');
           });
           return SizedBox(); // Avoid UI flickering before navigation
         }

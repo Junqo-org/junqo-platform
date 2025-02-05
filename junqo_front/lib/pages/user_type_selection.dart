@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import 'package:go_router/go_router.dart';
+
 class UserTypeSelection extends StatefulWidget {
   const UserTypeSelection({super.key});
 
@@ -104,7 +106,7 @@ class _UserTypeSelectionState extends State<UserTypeSelection>
                       IconButton(
                         icon:
                             Icon(Icons.arrow_back, color: Colors.blue.shade400),
-                        onPressed: () => Navigator.pushNamed(context, '/'),
+                        onPressed: () => context.go('/'),
                       ),
                       const SizedBox(width: 16),
                       SizedBox(
@@ -217,8 +219,7 @@ class _UserTypeSelectionState extends State<UserTypeSelection>
                   child: Center(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(
-                          context,
+                        context.go(
                           '/login',
                         );
                       },
@@ -298,10 +299,8 @@ class _UserTypeSelectionState extends State<UserTypeSelection>
                   userType = 'student';
                   break;
               }
-              Navigator.pushNamed(
-                context,
-                '/register',
-                arguments: userType,
+              context.go(
+                '/user-type-selection/register/$userType',
               );
             },
             borderRadius: BorderRadius.circular(24),

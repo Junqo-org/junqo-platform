@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 void showErrorDialog(String errorMessage, BuildContext context) {
   showDialog(
@@ -14,7 +15,7 @@ void showErrorDialog(String errorMessage, BuildContext context) {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
           child: Text("OK"),
         ),
       ],

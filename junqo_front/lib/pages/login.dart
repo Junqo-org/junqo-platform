@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/shared/errors/graphql_exception.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
@@ -49,7 +50,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
       debugPrint("Unexpected error: $e");
       return;
     }
-    Navigator.pushNamed(context, '/home');
+    context.go('/app');
   }
 
   bool _validateFields() {
@@ -195,8 +196,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                               IconButton(
                                 icon: Icon(Icons.arrow_back,
                                     color: Colors.blue.shade400),
-                                onPressed: () =>
-                                    Navigator.pushNamed(context, '/'),
+                                onPressed: () => context.go('/'),
                               ),
                               const SizedBox(width: 16),
                               SizedBox(
@@ -373,8 +373,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                           cursor: SystemMouseCursors.click,
                                           child: GestureDetector(
                                             onTap: () {
-                                              Navigator.pushNamed(
-                                                context,
+                                              context.go(
                                                 '/user-type-selection',
                                               );
                                             },
@@ -420,8 +419,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                             ),
                                             recognizer: TapGestureRecognizer()
                                               ..onTap = () {
-                                                Navigator.pushNamed(
-                                                  context,
+                                                context.go(
                                                   '/terms-of-use',
                                                 );
                                               },
@@ -437,8 +435,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                             ),
                                             recognizer: TapGestureRecognizer()
                                               ..onTap = () {
-                                                Navigator.pushNamed(
-                                                  context,
+                                                context.go(
                                                   '/privacy-policy',
                                                 );
                                               },

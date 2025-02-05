@@ -13,6 +13,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   smooth_page_indicator: ^1.2.0+3
   # Dependencies from https://ferrygraphql.com/docs/flutter and https://ferrygraphql.com/docs/setup
   ferry: ^0.16.1+2
@@ -22,6 +24,8 @@ dependencies:
   ferry_hive_store: ^0.6.0
   hive_flutter: ^1.1.0
   get_it: ^8.0.0
+  go_router: ^13.0.0
+
 
 
   # The following adds the Cupertino Icons font to your application.

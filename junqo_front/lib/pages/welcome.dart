@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:math' as math;
 
+import 'package:go_router/go_router.dart';
+
 const studentsCount = '10K+';
 const companiesCount = '500+';
 const satisfactionRate = '95%';
@@ -153,8 +155,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                     transform: Matrix4.identity()
                                       ..scale(_isHovered ? 1.02 : 1.0),
                                     child: _buildWelcomeButton(
-                                      onPressed: () => Navigator.pushNamed(
-                                        context,
+                                      onPressed: () => context.go(
                                         '/user-type-selection',
                                       ),
                                       icon: Icon(Icons.mail_outline,
@@ -182,8 +183,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                         cursor: SystemMouseCursors.click,
                                         child: GestureDetector(
                                           onTap: () {
-                                            Navigator.pushNamed(
-                                              context,
+                                            context.go(
                                               '/login',
                                             );
                                           },
@@ -251,8 +251,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                           ),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              Navigator.pushNamed(
-                                                context,
+                                              context.go(
                                                 '/terms-of-use',
                                               );
                                             },
@@ -267,8 +266,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                           ),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              Navigator.pushNamed(
-                                                context,
+                                              context.go(
                                                 '/privacy-policy',
                                               );
                                             },
