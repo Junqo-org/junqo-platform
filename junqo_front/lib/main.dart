@@ -50,7 +50,7 @@ class _JunqoAppState extends State<JunqoApp> {
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const NotFoundPage());
       },
-      home: Welcome(),
+      home: const Welcome(),
     );
   }
 }

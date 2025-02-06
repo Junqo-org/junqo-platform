@@ -80,7 +80,7 @@ class _IAPageState extends State<IAPage> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (_) => Interview()),
+                                      builder: (_) => const Interview()),
                                 );
                               },
                             ),
@@ -93,7 +93,7 @@ class _IAPageState extends State<IAPage> {
                               color: Colors.green,
                               onTap: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => CV()),
+                                  MaterialPageRoute(builder: (_) => const CV()),
                                 );
                               },
                             ),
@@ -111,7 +111,7 @@ class _IAPageState extends State<IAPage> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (_) => Motivation()),
+                                      builder: (_) => const Motivation()),
                                 );
                               },
                             ),

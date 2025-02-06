@@ -22,26 +22,26 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const Welcome());
       case '/home':
         return MaterialPageRoute(
-            builder: (_) => const PrivatePage(child: const HomePage()));
+            builder: (_) => const PrivatePage(child: HomePage()));
       case '/cv':
         return MaterialPageRoute(
-            builder: (_) => const PrivatePage(child: const CV()));
+            builder: (_) => const PrivatePage(child: CV()));
       case '/ia':
         return MaterialPageRoute(
-            builder: (_) => const PrivatePage(child: const IAPage()));
+            builder: (_) => const PrivatePage(child: IAPage()));
       case '/interview':
         return MaterialPageRoute(
-            builder: (_) => const PrivatePage(child: const Interview()));
+            builder: (_) => const PrivatePage(child: Interview()));
       case '/login':
         return MaterialPageRoute(builder: (_) => const Login());
       case '/messaging':
         return MaterialPageRoute(
-            builder: (_) => const PrivatePage(child: const MessagingPage()));
+            builder: (_) => const PrivatePage(child: MessagingPage()));
       case '/privacy-policy':
         return MaterialPageRoute(builder: (_) => const PrivacyPolicy());
       case '/profile':
         return MaterialPageRoute(
-            builder: (_) => const PrivatePage(child: const ProfilePage()));
+            builder: (_) => const PrivatePage(child: ProfilePage()));
       case '/register':
         final userType = settings.arguments as String;
         return MaterialPageRoute(

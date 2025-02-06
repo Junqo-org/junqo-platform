@@ -12,10 +12,10 @@ class NotFoundPage extends StatelessWidget {
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
-            Icon(Icons.error, size: 80, color: Colors.red),
-            SizedBox(height: 20),
-            Text(
+          children: <Widget>[
+            const Icon(Icons.error, size: 80, color: Colors.red),
+            const SizedBox(height: 20),
+            const Text(
               '404 - Page Not Found',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),

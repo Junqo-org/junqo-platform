@@ -15,7 +15,7 @@ void showErrorDialog(String errorMessage, BuildContext context) {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text("OK"),
+          child: const Text("OK"),
         ),
       ],
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

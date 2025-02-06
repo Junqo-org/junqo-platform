@@ -42,7 +42,7 @@ class _PrivatePageState extends State<PrivatePage> {
           Future.microtask(() {
             Navigator.pushReplacementNamed(context, '/login');
           });
-          return SizedBox(); // Avoid UI flickering before navigation
+          return const SizedBox(); // Avoid UI flickering before navigation
         }
 
         return widget.child; // Render the actual page if logged in

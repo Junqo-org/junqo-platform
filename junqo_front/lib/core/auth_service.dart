@@ -134,7 +134,7 @@ class AuthService {
 
     if (result != null) {
       if (result == true) {
-        this._isLoggedIn = true;
+        _isLoggedIn = true;
         return true;
       }
       return false;
