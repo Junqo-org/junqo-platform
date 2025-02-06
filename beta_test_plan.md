@@ -26,7 +26,6 @@ Below are the essential features that must be available for beta testing, along 
 | **Candidate Management Dashboard** | Centralized dashboard to track candidates who have applied, are under review, or have been contacted. | Medium                         | -                       |
 | **Internal Messaging System**      | Enables companies to contact students directly when a match is made.                                  | Medium                         | -                       |
 | **Feedback and Rating System**     | Allows companies to provide feedback to candidates.                                                   | Low                            | -                       |
-| **Job Posting System**             | Allows companies to post internships with specified requirements, skills, and benefits.               | Low                            | -                       |
 
 ### For Schools
 
