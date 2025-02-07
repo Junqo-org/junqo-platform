@@ -31,11 +31,6 @@ type Query {
   isLoggedIn: Boolean!
 
   """
-  Returns true if the user is logged in, false otherwise.
-  """
-  isLoggedIn: Boolean!
-
-  """
   Messages
   """
   messages(

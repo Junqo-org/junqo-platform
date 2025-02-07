@@ -8,7 +8,7 @@ class GraphQLException implements Exception {
 
   @override
   String toString() {
-    if (errors != null && errors!.isNotEmpty) {
+    if (errors?.isNotEmpty ?? false) {
       return "$message: ${errors!.join("\n")}";
     }
     return message;

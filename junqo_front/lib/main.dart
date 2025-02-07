@@ -33,7 +33,7 @@ class _JunqoAppState extends State<JunqoApp> {
   void toggleTheme() {
     setState(() {
       _themeMode =
-          _themeMode == ThemeMode.dark ? ThemeMode.dark : ThemeMode.light;
+          _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     });
   }
 

@@ -9,15 +9,20 @@ class NotFoundPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Page Not Found'),
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Icon(Icons.error, size: 80, color: Colors.red),
-            const SizedBox(height: 20),
-            const Text(
+            Icon(Icons.error, size: 80, color: Colors.red),
+            SizedBox(height: 20),
+            Text(
               '404 - Page Not Found',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+              child: const Text('Return to Home'),
             ),
           ],
         ),
