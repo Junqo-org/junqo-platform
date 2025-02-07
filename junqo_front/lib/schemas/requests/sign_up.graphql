@@ -1,0 +1,20 @@
+mutation signUpGetUser(
+  $type: UserType!
+  $email: Email!
+  $name: String!
+  $password: String!
+) {
+  signUp(type: $type, email: $email, name: $name, password: $password) {
+    token
+    user {
+      ...userData
+    }
+  }
+}
+
+fragment userData on User {
+  id
+  type
+  name
+  email
+}
