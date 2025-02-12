@@ -178,11 +178,9 @@ Below are the essential features that must be available for beta testing, along 
   - The system has candidate profiles available.
   - The system has internship offers available.
 - **Test Steps:**
-- **Test Steps:**
   1. Navigate to the candidate view section.
   2. Apply filters based on skills, location, availability, etc.
   3. Click on a candidate profile to view details.
-- **Expected Outcome:**
 - **Expected Outcome:**
   - Candidate profiles are displayed accurately.
   - Filters refine the search results correctly.
