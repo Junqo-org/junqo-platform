@@ -9,12 +9,26 @@ type Query {
   """
   Users
   """
+
+  """
+  Get all users in the system.
+  """
   users(
     first: Int,
     after: String,
     filter: UserFilterInput
   ): UserConnection!
-  user(id: ID!): User!
+
+  """
+  Get a user by their ID.
+  Returns null if the user is not found.
+  """
+  user(id: ID!): User
+
+  """
+  Returns true if the user is logged in, false otherwise.
+  """
+  isLoggedIn: Boolean!
 
   """
   Messages

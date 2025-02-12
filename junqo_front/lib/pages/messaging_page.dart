@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/navbar.dart';
+import '../shared/widgets/navbar.dart';
 
 class MessagingPage extends StatefulWidget {
-  const MessagingPage({Key? key}) : super(key: key);
+  const MessagingPage({super.key});
 
   @override
   State<MessagingPage> createState() => _MessagingPageState();

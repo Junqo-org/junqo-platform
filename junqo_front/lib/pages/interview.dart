@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../widgets/navbar.dart';
+import '../shared/widgets/navbar.dart';
 
 class Interview extends StatefulWidget {
+  const Interview({super.key});
+
   @override
   _InterviewState createState() => _InterviewState();
 }
@@ -17,7 +19,8 @@ class _InterviewState extends State<Interview> {
       _isInterviewStarted = true;
       _messages.add({
         "sender": "ai",
-        "text": "Bonjour ! Je suis ravi de vous accompagner dans cet entretien simulé. N'hésitez pas à me poser des questions, je ferai de mon mieux pour vous aider à vous préparer. C'est parti !"
+        "text":
+            "Bonjour ! Je suis ravi de vous accompagner dans cet entretien simulé. N'hésitez pas à me poser des questions, je ferai de mon mieux pour vous aider à vous préparer. C'est parti !"
       });
     });
   }
@@ -148,9 +151,9 @@ class _InterviewState extends State<Interview> {
                           : MainAxisAlignment.start,
                       children: [
                         if (!isUserMessage)
-                          CircleAvatar(
+                          const CircleAvatar(
                             backgroundImage:
-                                AssetImage("images/ai_avatar.png"),
+                                AssetImage("assets/images/ai_avatar.png"),
                             radius: 24,
                           ),
                         const SizedBox(width: 8),
@@ -167,18 +170,17 @@ class _InterviewState extends State<Interview> {
                               message["text"]!,
                               style: TextStyle(
                                 fontSize: 16,
-                                color: isUserMessage
-                                    ? Colors.white
-                                    : Colors.black,
+                                color:
+                                    isUserMessage ? Colors.white : Colors.black,
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         if (isUserMessage)
-                          CircleAvatar(
-                            backgroundImage:
-                                AssetImage("images/profile_placeholder.jpg"),
+                          const CircleAvatar(
+                            backgroundImage: AssetImage(
+                                "assets/images/profile_placeholder.jpg"),
                             radius: 24,
                           ),
                       ],
@@ -222,10 +224,10 @@ class _InterviewState extends State<Interview> {
                   child: TextField(
                     controller: _messageController,
                     focusNode: _focusNode, // Ajout du FocusNode
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Tapez votre message...",
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
+                      contentPadding: EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
                       ),

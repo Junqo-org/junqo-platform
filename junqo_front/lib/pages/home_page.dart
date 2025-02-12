@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
-import '../widgets/navbar.dart';
-
-
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/core/auth_service.dart';
+import '../shared/widgets/navbar.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  final authService = GetIt.instance<AuthService>();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => authService.isLoggedIn());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +26,6 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           const Navbar(currentIndex: 0),
-
           Expanded(
             child: SingleChildScrollView(
               child: Center(

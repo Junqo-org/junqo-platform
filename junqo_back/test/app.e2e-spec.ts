@@ -7,6 +7,9 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
+import { UsersService } from '../src/users/users.service';
+import { UserType } from '../src/users/user-type.enum';
+import { Sequelize } from 'sequelize-typescript';
 
 const SignUpQuery = {
   query: `mutation signup(
@@ -33,6 +36,28 @@ const SignUpQuery = {
     type: 'SCHOOL',
     email: 'email@email.com',
     name: 'testUser',
+    password: 'password',
+  },
+};
+
+const SignInQuery = {
+  query: `mutation signin($email: Email!, $password: String!) {
+      signIn(email: $email, password: $password) {
+        token
+        user {
+          ...data
+        }
+      }
+    }
+
+    fragment data on User {
+      id
+      name
+      email
+      type
+    }`,
+  variables: {
+    email: 'email@email.com',
     password: 'password',
   },
 };
@@ -79,6 +104,11 @@ describe('end to end testing', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
   }, 60000);
+
+  afterEach(async () => {
+    const sequelize = app.get(Sequelize);
+    await sequelize.sync({ force: true });
+  });
 
   afterAll(async () => {
     await app.close();
@@ -177,6 +207,118 @@ describe('end to end testing', () => {
         .expect(200);
 
       expect(response.body.errors[0].message).toContain('invalid value');
+    });
+  });
+
+  describe('Sign In', () => {
+    it('SignIn User', async () => {
+      await app
+        .get(UsersService)
+        .create(
+          UserType.SCHOOL,
+          'testUser',
+          SignInQuery.variables.email,
+          SignInQuery.variables.password,
+        );
+
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(SignInQuery)
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        data: {
+          signIn: {
+            token: expect.anything(),
+            user: {
+              email: SignInQuery.variables.email,
+              id: expect.anything(),
+              name: 'testUser',
+              type: 'SCHOOL',
+            },
+          },
+        },
+      });
+    });
+
+    it('SignIn with invalid email', async () => {
+      await app
+        .get(UsersService)
+        .create(
+          UserType.SCHOOL,
+          'testUser',
+          SignInQuery.variables.email,
+          SignInQuery.variables.password,
+        );
+
+      const invalidEmailQuery = {
+        ...SignInQuery,
+        variables: { ...SignInQuery.variables, email: 'invalidEmail' },
+      };
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(invalidEmailQuery)
+        .expect(200);
+
+      expect(response.body.errors[0].message).toContain(
+        'Invalid email or password',
+      );
+    });
+
+    it('SignIn with invalid password', async () => {
+      await app
+        .get(UsersService)
+        .create(
+          UserType.SCHOOL,
+          'testUser',
+          SignInQuery.variables.email,
+          SignInQuery.variables.password,
+        );
+
+      const invalidPasswordQuery = {
+        ...SignInQuery,
+        variables: { ...SignInQuery.variables, password: '' },
+      };
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(invalidPasswordQuery)
+        .expect(200);
+
+      expect(response.body.errors[0].message).toContain(
+        'Invalid email or password',
+      );
+    });
+  });
+
+  describe('IsLoggedIn', () => {
+    it('IsLoggedIn without token', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({ query: 'query{isLoggedIn}' })
+        .expect(200);
+
+      expect(response.body.errors[0].message).toContain('Unauthorized');
+    });
+
+    it('IsLoggedIn with token', async () => {
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .send(SignUpQuery)
+        .expect(200);
+
+      const token = signUpResponse.body.data.signUp.token;
+
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ query: 'query{isLoggedIn}' })
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        data: {
+          isLoggedIn: true,
+        },
+      });
     });
   });
 });

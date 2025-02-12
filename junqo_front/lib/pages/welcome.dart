@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'type_selection.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:math' as math;
-import 'login.dart';
-import 'terms_of_use.dart';
-import 'privacy_policy.dart';
 
 const studentsCount = '10K+';
 const companiesCount = '500+';
 const satisfactionRate = '95%';
 
 class Welcome extends StatefulWidget {
-  const Welcome({Key? key,}) : super(key: key);
+  const Welcome({
+    super.key,
+  });
 
   @override
   State<Welcome> createState() => _WelcomeState();
@@ -79,15 +77,15 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
             Padding(
               padding: const EdgeInsets.fromLTRB(40, 24, 40, 0),
               child: SizedBox(
-                height: 35,
+                height: 60,
                 child: Image.asset(
-                  'assets/images/template_logo.png',
+                  'assets/images/junqo_logo.png',
                   fit: BoxFit.contain,
                   alignment: Alignment.centerLeft,
                 ),
               ),
             ),
-            
+
             // Main content
             Expanded(
               child: LayoutBuilder(
@@ -146,21 +144,23 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
 
                                 // Email Sign In Button
                                 MouseRegion(
-                                  onEnter: (_) => setState(() => _isHovered = true),
-                                  onExit: (_) => setState(() => _isHovered = false),
+                                  onEnter: (_) =>
+                                      setState(() => _isHovered = true),
+                                  onExit: (_) =>
+                                      setState(() => _isHovered = false),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     transform: Matrix4.identity()
                                       ..scale(_isHovered ? 1.02 : 1.0),
                                     child: _buildWelcomeButton(
-                                      onPressed: () => Navigator.push(
+                                      onPressed: () => Navigator.pushNamed(
                                         context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const Selection(),
-                                        ),
+                                        '/user-type-selection',
                                       ),
-                                      icon: Icon(Icons.mail_outline, color: Colors.grey.shade700),
-                                      label: 'S\'inscrire avec une adresse e-mail',
+                                      icon: Icon(Icons.mail_outline,
+                                          color: Colors.grey.shade700),
+                                      label:
+                                          'S\'inscrire avec une adresse e-mail',
                                     ),
                                   ),
                                 ),
@@ -182,9 +182,9 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                         cursor: SystemMouseCursors.click,
                                         child: GestureDetector(
                                           onTap: () {
-                                            Navigator.push(
+                                            Navigator.pushNamed(
                                               context,
-                                              MaterialPageRoute(builder: (context) => const Login()),
+                                              '/login',
                                             );
                                           },
                                           child: Text(
@@ -204,13 +204,16 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
 
                                 // Stats row
                                 Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 20),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 20),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
                                     children: [
                                       _buildStat(studentsCount, 'Étudiants'),
                                       _buildStat(companiesCount, 'Entreprises'),
-                                      _buildStat(satisfactionRate, 'Satisfaction'),
+                                      _buildStat(
+                                          satisfactionRate, 'Satisfaction'),
                                     ],
                                   ),
                                 ),
@@ -236,18 +239,21 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                         height: 1.5,
                                       ),
                                       children: [
-                                        const TextSpan(text: 'En créant un compte ou vous identifiant, vous acceptez nos '),
+                                        const TextSpan(
+                                            text:
+                                                'En créant un compte ou vous identifiant, vous acceptez nos '),
                                         TextSpan(
                                           text: 'conditions d\'utilisation',
                                           style: TextStyle(
                                             color: Colors.blue.shade600,
-                                            decoration: TextDecoration.underline,
+                                            decoration:
+                                                TextDecoration.underline,
                                           ),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              Navigator.push(
+                                              Navigator.pushNamed(
                                                 context,
-                                                MaterialPageRoute(builder: (context) => Terms()),
+                                                '/terms-of-use',
                                               );
                                             },
                                         ),
@@ -256,13 +262,14 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                           text: 'politique de confidentialité',
                                           style: TextStyle(
                                             color: Colors.blue.shade600,
-                                            decoration: TextDecoration.underline,
+                                            decoration:
+                                                TextDecoration.underline,
                                           ),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              Navigator.push(
+                                              Navigator.pushNamed(
                                                 context,
-                                                MaterialPageRoute(builder: (context) => PrivacyPolicy()),
+                                                '/privacy-policy',
                                               );
                                             },
                                         ),
@@ -342,7 +349,6 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
       ),
     );
   }
-
 
   Widget _buildStat(String value, String label) {
     return Column(
@@ -435,8 +441,10 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
         final scaleValue = 0.9 + (scaleAnimation.value * 0.2);
         return Transform.translate(
           offset: Offset(
-            initialOffset.dx + floatRadius * math.cos(animation.value * 2 * math.pi),
-            initialOffset.dy + floatRadius * math.sin(animation.value * 2 * math.pi),
+            initialOffset.dx +
+                floatRadius * math.cos(animation.value * 2 * math.pi),
+            initialOffset.dy +
+                floatRadius * math.sin(animation.value * 2 * math.pi),
           ),
           child: Transform.scale(
             scale: scaleValue,
