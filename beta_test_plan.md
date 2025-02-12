@@ -307,7 +307,7 @@ The following known issues and limitations have been identified during the devel
 | **Issue**       | **Description**                                               | **Impact** | **Planned Fix? (Yes/No)**      |
 | --------------- | ------------------------------------------------------------- | ---------- | ------------------------------ |
 | Web App Weight  | The weight of app is heavy and may take some time to download | Low        | No (Planned for post-beta fix) |
-| External AI API | Dependant on external API that could change                   | Medium     | No (Monitoring for changes)    |
+| External AI API | Dependent on external API that could change                   | Medium     | No (Monitoring for changes)    |
 
 ---
 
