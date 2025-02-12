@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'register.dart';
-import 'welcome.dart';
-import 'login.dart';
 
-class Selection extends StatefulWidget {
-  const Selection({Key? key}) : super(key: key);
+class UserTypeSelection extends StatefulWidget {
+  const UserTypeSelection({super.key});
 
   @override
-  State<Selection> createState() => _SelectionState();
+  State<UserTypeSelection> createState() => _UserTypeSelectionState();
 }
 
-class _SelectionState extends State<Selection> with TickerProviderStateMixin {
+class _UserTypeSelectionState extends State<UserTypeSelection>
+    with TickerProviderStateMixin {
   late final AnimationController _blob1Controller;
   late final AnimationController _blob2Controller;
   late final AnimationController _blob3Controller;
@@ -104,17 +102,15 @@ class _SelectionState extends State<Selection> with TickerProviderStateMixin {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.blue.shade400),
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Welcome()),
-                        ),
+                        icon:
+                            Icon(Icons.arrow_back, color: Colors.blue.shade400),
+                        onPressed: () => Navigator.pushNamed(context, '/'),
                       ),
                       const SizedBox(width: 16),
                       SizedBox(
-                        height: 35,
+                        height: 60,
                         child: Image.asset(
-                          'assets/images/template_logo.png',
+                          'assets/images/junqo_logo.png',
                           fit: BoxFit.contain,
                           alignment: Alignment.centerLeft,
                         ),
@@ -134,7 +130,9 @@ class _SelectionState extends State<Selection> with TickerProviderStateMixin {
                           Text(
                             'Je souhaite m\'inscrire en tant que',
                             style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.width < 600 ? 24 : 34,
+                              fontSize: MediaQuery.of(context).size.width < 600
+                                  ? 24
+                                  : 34,
                               fontWeight: FontWeight.w300,
                               color: const Color(0xFF1A1A1A),
                               height: 1.2,
@@ -219,9 +217,9 @@ class _SelectionState extends State<Selection> with TickerProviderStateMixin {
                   child: Center(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(builder: (context) => const Login()),
+                          '/login',
                         );
                       },
                       child: Text.rich(
@@ -300,11 +298,10 @@ class _SelectionState extends State<Selection> with TickerProviderStateMixin {
                   userType = 'student';
                   break;
               }
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => Register(userType: userType),
-                ),
+                '/register',
+                arguments: userType,
               );
             },
             borderRadius: BorderRadius.circular(24),
@@ -370,8 +367,10 @@ class _SelectionState extends State<Selection> with TickerProviderStateMixin {
             child: Transform.scale(
               scale: scaleValue,
               child: Container(
-                width: MediaQuery.of(context).size.width < 600 ? size / 2 : size,
-                height: MediaQuery.of(context).size.width < 600 ? size / 2 : size,
+                width:
+                    MediaQuery.of(context).size.width < 600 ? size / 2 : size,
+                height:
+                    MediaQuery.of(context).size.width < 600 ? size / 2 : size,
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(size / 2),

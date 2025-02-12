@@ -1,4 +1,4 @@
-import { Mutation, Resolver, Args } from '@nestjs/graphql';
+import { Mutation, Resolver, Args, Query } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { Public } from './../auth/is_public.decorator';
 import { Logger } from '@nestjs/common';
@@ -45,5 +45,10 @@ export class AuthResolver {
       return null;
     }
     return authPayload;
+  }
+
+  @Query(() => Boolean)
+  public async isLoggedIn(): Promise<boolean> {
+    return true;
   }
 }

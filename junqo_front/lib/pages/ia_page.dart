@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../widgets/navbar.dart';
+import '../shared/widgets/navbar.dart';
 import 'cv.dart';
 import 'interview.dart';
 import 'motivation.dart';
 
 class IAPage extends StatefulWidget {
-  const IAPage({Key? key}) : super(key: key);
+  const IAPage({super.key});
 
   @override
   State<IAPage> createState() => _IAPageState();
@@ -36,7 +36,8 @@ class _IAPageState extends State<IAPage> {
                         height: 220,
                         decoration: const BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage('images/ai_background.png'),
+                            image:
+                                AssetImage('assets/images/ai_background.png'),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -50,7 +51,7 @@ class _IAPageState extends State<IAPage> {
                         child: Center(
                           child: Text(
                             "Boostez votre carrière grâce à l'IA",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -78,7 +79,8 @@ class _IAPageState extends State<IAPage> {
                               color: Colors.blue,
                               onTap: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => Interview()),
+                                  MaterialPageRoute(
+                                      builder: (_) => const Interview()),
                                 );
                               },
                             ),
@@ -91,7 +93,7 @@ class _IAPageState extends State<IAPage> {
                               color: Colors.green,
                               onTap: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => CV()),
+                                  MaterialPageRoute(builder: (_) => const CV()),
                                 );
                               },
                             ),
@@ -108,7 +110,8 @@ class _IAPageState extends State<IAPage> {
                               color: Colors.orange,
                               onTap: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => Motivation()),
+                                  MaterialPageRoute(
+                                      builder: (_) => const Motivation()),
                                 );
                               },
                             ),

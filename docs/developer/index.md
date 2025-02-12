@@ -26,6 +26,10 @@ If you need some precise information, see the following sections :
   - [Operation](#operation)
   - [Networking](#networking)
   - [API](#api)
+  - [Sequence Diagram](#sequence-diagram)
+    - [User SignUp](#user-signup)
+    - [User SignIn](#user-signin)
+    - [User login status check](#user-login-status-check)
   - [CI/CD](#cicd)
   - [Technologies](#technologies)
 
@@ -176,6 +180,79 @@ The **adminer** is accessible on the World Wide Web at port **3000**.
 The **backend** API uses **GraphQL** to communicate with the **frontend**.  
 A schema is available at [/schemas/schema.graphql](../../schemas/schema.graphql).
 Yous can find the API documentation at [http://doc.junqo.fr/api/index.html](../api/index.html).
+
+### Sequence Diagram
+
+The following diagram shows the sequence of the project:
+
+#### User SignUp
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant LS as Register Screen
+  participant FAS as Frontend AuthService
+  participant GC as GraphQL Client
+  participant AR as AuthResolver (Backend)
+  participant BAS as Backend AuthService
+  participant DB as Database
+
+  U->>LS: Enter credentials
+  LS->>FAS: Call signUp(type, name, email, password)
+  FAS->>GC: Send signUp mutation
+  GC->>AR: Relay signUp request
+  AR->>BAS: Invoke signUp method
+  BAS->>DB: Create user record
+  DB-->>BAS: Return user data/error
+  BAS-->>AR: Return AuthPayload or error
+  AR-->>GC: Return response
+  GC-->>FAS: Deliver auth result
+  FAS-->>LS: Return token and user details
+```
+
+#### User SignIn
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant LS as Login Screen
+  participant FAS as Frontend AuthService
+  participant GC as GraphQL Client
+  participant AR as AuthResolver (Backend)
+  participant BAS as Backend AuthService
+  participant DB as Database
+
+  U->>LS: Enter credentials
+  LS->>FAS: Call signIn(email, password)
+  FAS->>GC: Send signIn mutation
+  GC->>AR: Relay signIn request
+  AR->>BAS: Invoke signIn method
+  BAS->>DB: Query user record by email
+  DB-->>BAS: Return user data/error
+  BAS-->>AR: Return AuthPayload or error
+  AR-->>GC: Return response
+  GC-->>FAS: Deliver auth result
+  FAS-->>LS: Return token and user details
+```
+
+#### User login status check
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant FE as Frontend Component
+  participant FAS as Frontend AuthService
+  participant GC as GraphQL Client
+  participant AR as AuthResolver (Backend)
+
+  U->>FE: Request login status check
+  FE->>FAS: Call isLoggedIn()
+  FAS->>GC: Send isLoggedIn query
+  GC->>AR: Request login status
+  AR-->>GC: Return true
+  GC-->>FAS: Deliver status
+  FAS-->>FE: Confirm logged in state
+```
 
 ### CI/CD
 

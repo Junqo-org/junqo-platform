@@ -67,10 +67,10 @@ COPY --chown=app --from=builder /build/dist/ ./dist/
 COPY --chown=app --from=builder /build/node_modules/ ./node_modules/
 
 HEALTHCHECK --interval=5s --timeout=5s --start-period=20s --retries=5 \
-    CMD curl -X POST -H "Content-Type: application/json" -d '{"query":"query{__typename}"}' http://localhost:3000/graphql || exit 1
+    CMD curl -X POST -H "Content-Type: application/json" -d '{"query":"query{__typename}"}' http://localhost:4200/graphql || exit 1
 
 # Expose the application port
-EXPOSE 3000
+EXPOSE 4200
 
 # Start the application
 CMD ["node", "dist/src/main"]
