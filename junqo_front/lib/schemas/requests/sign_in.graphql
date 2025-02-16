@@ -1,0 +1,18 @@
+mutation signInGetUser(
+  $email: Email!
+  $password: String!
+) {
+  signIn(email: $email, password: $password) {
+    token
+    user {
+      ...userData
+    }
+  }
+}
+
+fragment userData on User {
+  id
+  type
+  name
+  email
+}

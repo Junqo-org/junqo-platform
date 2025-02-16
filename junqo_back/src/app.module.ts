@@ -4,8 +4,13 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UsersModule } from './users/users.module';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { AuthModule } from './auth/auth.module';
+import { CaslModule } from './casl/casl.module';
+import { Logger } from '@nestjs/common';
+import { UsersRepositoryModule } from './users/repository/users.repository.module';
 import * as path from 'path';
 import * as fs from 'fs';
+import 'dotenv/config';
 
 function validatePassword(password: string): string {
   if (!password) {
@@ -19,22 +24,27 @@ function validatePassword(password: string): string {
 }
 
 function getDbPassword(): string {
+  let passwordFile: string = undefined;
+  const logger = new Logger('DatabasePassword');
+
   if (process.env.DATABASE_PASSWORD) {
     if (process.env.NODE_ENV !== 'production') {
-      console.log('Database password loaded from environment variable');
+      logger.log('Database password loaded from environment variable');
     }
     return validatePassword(process.env.DATABASE_PASSWORD);
   }
-  const passwordFile: string =
-    process.env.DATABASE_PASSWORD_FILE ??
-    path.join(__dirname, '..', 'db_password.conf');
 
+  if (process.env.DATABASE_PASSWORD_FILE) {
+    passwordFile = path.resolve(process.env.DATABASE_PASSWORD_FILE);
+  } else {
+    passwordFile = path.join(process.cwd(), '..', 'db_password.conf');
+  }
   if (passwordFile && fs.existsSync(passwordFile)) {
     let password = fs.readFileSync(passwordFile, 'utf8');
 
     password = validatePassword(password);
     if (process.env.NODE_ENV !== 'production') {
-      console.log('Database password loaded from file');
+      logger.log('Database password loaded from file');
     }
     return password;
   }
@@ -82,7 +92,7 @@ function getDbPassword(): string {
         (() => {
           const schemaPath = path.resolve(
             process.env.GRAPHQL_SCHEMAS_PATH ||
-              path.join(__dirname, '..', 'schemas'),
+              path.join(process.cwd(), '..', 'schemas'),
           );
           if (!fs.existsSync(schemaPath)) {
             throw new Error(`GraphQL schema path not found: ${schemaPath}`);
@@ -98,6 +108,9 @@ function getDbPassword(): string {
       playground: process.env.NODE_ENV === 'production' ? false : true,
       debug: process.env.NODE_ENV === 'production' ? false : true,
     }),
+    AuthModule,
+    CaslModule,
+    UsersRepositoryModule,
   ],
 })
 export class AppModule {}

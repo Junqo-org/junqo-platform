@@ -27,11 +27,13 @@ services:
         - DATABASE_USER=${DATABASE_USER:-junqo}
         - DATABASE_HOST=db
         - DATABASE_PORT=${DATABASE_PORT:-5432}
+    env_file:
+      - ${BACK_ENV_FILE:-./junqo_back/.env}
     restart: always
     networks:
       - back-net
     ports:
-      - "${BACK_PORT:-4200}:3000"
+      - "${BACK_PORT:-4200}:4200"
     depends_on:
       db:
         condition: service_healthy
