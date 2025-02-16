@@ -11,6 +11,7 @@ class CardData {
   final List<String> benefits;
   final List<String> technicalSkills;
   final bool showDetails;
+  final String details;
 
   CardData({
     required this.companyName,
@@ -22,6 +23,7 @@ class CardData {
     required this.salary,
     required this.benefits,
     required this.technicalSkills,
+    required this.details,
     this.showDetails = false,
   });
 }
@@ -34,24 +36,13 @@ class JobCard_ extends StatefulWidget {
 }
 
 class _Debug1State extends State<JobCard_> {
-  final cardData = CardData(
-    companyName: 'Airbus',
-    companyLogo: 'assets/images/airbus_logo.png', //Didn't test that actually
-    jobTitle: 'Alternance DevOps (H/F)',
-    contractType: 'Alternance',
-    duration: '3 ans',
-    location: 'Blagnac',
-    salary: '1400 €',
-    benefits: ['Présentiel', 'Grande équipe', 'Installations de Fitness'],
-    technicalSkills: [
-      'bac+3 informatique',
-      'Docker',
-      'GitHub',
-      'Jira',
-      'Bash',
-      'Linux'
-    ],
-  );
+  late CardData cardData;
+
+  @override
+  void initState() {
+    super.initState();
+    cardData = CardData_set(0); // Initialise avec le premier CardData
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,19 +58,27 @@ class _Debug1State extends State<JobCard_> {
           ),
           // Accept/Reject Buttons
           Positioned(
-            left: 16,
+            left: MediaQuery.of(context).size.width / 3 - 30,
             top: MediaQuery.of(context).size.height / 2 - 30,
             child: _buildActionButton(
-              onTap: () {},
+              onTap: () {
+                setState(() {
+                  cardData = CardData_set((cardData.hashCode + 1) % 3);
+                });
+              },
               color: Colors.red,
               icon: Icons.close,
             ),
           ),
           Positioned(
-            right: 16,
+            left: 2 * MediaQuery.of(context).size.width / 3 - 30,
             top: MediaQuery.of(context).size.height / 2 - 30,
             child: _buildActionButton(
-              onTap: () {},
+              onTap: () {
+                setState(() {
+                  cardData = CardData_set((cardData.hashCode + 1) % 3);
+                });
+              },
               color: Colors.green,
               icon: Icons.check,
             ),
@@ -118,6 +117,78 @@ class _Debug1State extends State<JobCard_> {
         ),
       ),
     );
+  }
+
+  CardData CardData_set(int index) {
+    List<CardData> cardDataList = [
+      CardData(
+          companyName: 'Airbus',
+          companyLogo: 'assets/images/airbus_logo.png',
+          jobTitle: 'Alternance DevOps (H/F)',
+          contractType: 'Alternance',
+          duration: '3 ans',
+          location: 'Blagnac',
+          salary: '1400/m € brut',
+          benefits: ['Présentiel', 'Grande équipe', 'Installations de Fitness'],
+          technicalSkills: [
+            'bac+3 informatique',
+            'Docker',
+            'GitHub',
+            'Jira',
+            'Bash',
+            'Linux'
+          ],
+          details:
+              'Rejoignez Airbus à Blagnac en tant qu\'alternant DevOps pour une durée de 3 ans. Vous travaillerez sur des projets dans l\'aéronautique avec une grande équipe. Utilisez Docker, GitHub, Jira, et Bash sur Linux pour automatiser les processus et améliorer les infrastructures. Vous aurez accès à des installations modernes, incluant une salle de fitness. C\'est une opportunité unique de développer vos compétences techniques dans un environnement international et stimulant.'),
+      CardData(
+          companyName: 'Google',
+          companyLogo: 'assets/images/google_logo.png',
+          jobTitle: 'Software Engineer (H/F)',
+          contractType: 'Internship',
+          duration: '4 mois',
+          location: 'Paris',
+          salary: '6000 € net total',
+          benefits: [
+            'Télétravail flexible',
+            'Cantine gratuite',
+            'Équipe internationale'
+          ],
+          technicalSkills: [
+            'bac+5 en informatique',
+            'Python',
+            'Java',
+            'Kubernetes',
+            'Google Cloud Platform',
+            'Agile'
+          ],
+          details:
+              'Intégrez Google à Paris en tant qu\'ingénieur logiciel pour travailler sur des projets innovants à l\'échelle mondiale. Vous collaborerez avec des équipes internationales et utiliserez des technologies comme Python, Java, Kubernetes, et Google Cloud Platform. Télétravail flexible, repas gratuits et un environnement agile sont quelques-uns des avantages. Rejoignez une entreprise qui façonne l\'avenir de la technologie tout en favorisant l\'innovation et l\'épanouissement personnel.'),
+      CardData(
+          companyName: 'Devvmaxing',
+          companyLogo: 'assets/images/devvmaxing_logo.png',
+          jobTitle: 'Développeur Full Stack (H/F)',
+          contractType: 'Internship part-time',
+          duration: '8 mois 2j/s',
+          location: 'Lyon',
+          salary: '8000 € net total',
+          benefits: [
+            'Horaires flexibles',
+            'Télétravail partiel',
+            'Équipe dynamique'
+          ],
+          technicalSkills: [
+            'bac+4 en développement',
+            'Node.js',
+            'React',
+            'SQL',
+            'Docker',
+            'Git'
+          ],
+          details:
+              'Rejoignez Devvmaxing, une startup en pleine croissance à Lyon, spécialisée dans les solutions SaaS. En tant que développeur full stack, vous travaillerez avec Node.js, React, SQL, Docker et Git pour concevoir et développer des produits modernes. Nous offrons des horaires flexibles, du télétravail partiel et un environnement dynamique. C\'est l\'occasion de contribuer à des projets passionnants dans une équipe soudée, tout en bénéficiant d\'opportunités de développement personnel.'),
+    ];
+
+    return cardDataList[index % cardDataList.length];
   }
 }
 
@@ -311,7 +382,9 @@ class JobCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                _showDetailsDialog(context, data.details);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue.shade100,
                 foregroundColor: Colors.blue.shade900,
@@ -325,6 +398,26 @@ class JobCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showDetailsDialog(BuildContext context, String details) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Détails'),
+          content: Text(details),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Fermer'),
+            ),
+          ],
+        );
+      },
     );
   }
 
