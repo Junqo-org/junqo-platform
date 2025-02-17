@@ -34,22 +34,22 @@ Before you begin, ensure you have the following software installed:
 
 1. Clone the repository:
 
-  ```bash
-  git clone https://github.com/Junqo-org/junqo-platform.git
-  cd junqo-platform
-  ```
+    ```bash
+    git clone https://github.com/Junqo-org/junqo-platform.git
+    cd junqo-platform
+    ```
 
 2. Navigate to the backend directory:
 
-  ```bash
-  cd junqo_back
-  ```
+    ```bash
+    cd junqo_back
+    ```
 
 3. Install the dependencies:
 
-  ```bash
-  npm install
-  ```
+    ```bash
+    npm install
+    ```
 
 ### Configuration
 
@@ -71,21 +71,22 @@ Here is the list of environment variables used by the **backend**:
 
 1. Create a `.env` file in the backend directory and add the following environment variables:
 
-  ```env
-  # Database Configuration
-  DATABASE_HOST=localhost
-  DATABASE_PORT=5432
-  DATABASE_USER=your_db_user
-  DATABASE_PASSWORD=your_db_password
-  DATABASE_NAME=your_db_name
-  DATABASE_NAME=your_db_name
+    ```env
+    # Database Configuration
+    # DATABASE_HOST=localhost
+    # DATABASE_PORT=5432
+    # DATABASE_NAME=your_db_name
+    # DATABASE_USER=your_db_user
+    # DATABASE_PASSWORD=your_db_password
+    DATABASE_PASSWORD_FILE=/run/secrets/db_password
 
-  # Security Configuration
-  JWT_SECRET=your_jwt_secret  # Use a strong, unique value in production
-  # Minimum 32 characters, randomly generated
-  # Example: openssl rand -base64 32
-  FRONT_URL=*
-  ```
+    # Security Configuration
+    JWT_SECRET=not_for_production  # Use a strong, unique value in production
+    # Minimum 32 characters, randomly generated
+    # Example: openssl rand -base64 32
+    # CORS Configuration (authorized source url). Default value is `http://localhost:80`.
+    FRONT_URL=*
+    ```
 
 2. Ensure PostgreSQL is running and the database is set up with the provided credentials.
 

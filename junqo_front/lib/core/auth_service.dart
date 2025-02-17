@@ -33,7 +33,7 @@ class AuthService {
           throw Exception(
               'Failed to initialize auth storage after multiple attempts: $e');
         }
-        await Future.delayed(Duration(seconds: 1));
+        await Future.delayed(const Duration(seconds: 1));
       }
     }
   }

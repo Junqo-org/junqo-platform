@@ -10,6 +10,7 @@ services:
       dockerfile: ./junqo_front/dockerfile.prod
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
+        - API_URL=${API_URL}
     restart: always
     ports:
       - "80:80"
