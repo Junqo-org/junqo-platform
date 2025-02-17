@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import 'dotenv/config';
-import { log } from 'console';
 
 const PORT_MIN = 1;
 const PORT_MAX = 65535;
@@ -42,7 +41,6 @@ async function bootstrap() {
       },
     }),
   );
-  log('CORS_ORIGINS ', CORS_ORIGINS);
   app.enableCors({
     origin: CORS_ORIGINS,
     methods: ['GET', 'POST', 'OPTIONS'],
