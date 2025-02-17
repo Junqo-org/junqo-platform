@@ -6,7 +6,7 @@ import 'dotenv/config';
 
 const PORT_MIN = 1;
 const PORT_MAX = 65535;
-const CORS_ORIGINS_STRING = process.env.CORS_ORIGINS || 'http://localhost:80';
+const CORS_ORIGINS_STRING = process.env.CORS_ORIGINS || '*';
 const CORS_ORIGINS_ARRAY = CORS_ORIGINS_STRING?.split(',') || [];
 
 async function bootstrap() {
@@ -43,7 +43,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: CORS_ORIGINS_ARRAY,
+    origin: CORS_ORIGINS_ARRAY || '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
