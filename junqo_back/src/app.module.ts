@@ -10,7 +10,6 @@ import { Logger } from '@nestjs/common';
 import { UsersRepositoryModule } from './users/repository/users.repository.module';
 import * as path from 'path';
 import * as fs from 'fs';
-import 'dotenv/config';
 
 function validatePassword(password: string): string {
   if (!password) {

@@ -2,11 +2,11 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
-import { env } from 'process';
+import 'dotenv/config';
 
 const PORT_MIN = 1;
 const PORT_MAX = 65535;
-const CORS_ORIGINS_STRING = env.CORS_ORIGINS || 'http://localhost:80';
+const CORS_ORIGINS_STRING = process.env.CORS_ORIGINS || 'http://localhost:80';
 const CORS_ORIGINS_ARRAY = CORS_ORIGINS_STRING?.split(',') || [];
 
 async function bootstrap() {
