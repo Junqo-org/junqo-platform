@@ -5,6 +5,7 @@
 FROM debian:bullseye AS build-env
 
 ARG FLUTTER_VERSION=3.22.2
+ARG API_URL
 
 ENV GRAPHQL_SCHEMAS_PATH=/home/app/schemas/**/*.graphql
 
@@ -44,7 +45,11 @@ COPY ./schemas ./lib/schemas/
 RUN dart run build_runner build --delete-conflicting-outputs
 
 # Build the app
-RUN flutter build web
+RUN if [ -n "$API_URL" ]; then \
+    flutter build web --dart-define=API_URL=$API_URL; \
+    else \
+    flutter build web; \
+    fi
 RUN test -d build/web || (echo "Error when building the web app, web build not found" && exit 1)
 
 # Clean up unnecessary files to reduce image size

@@ -8,10 +8,12 @@ import 'package:junqo_front/router.dart';
 import 'pages/welcome.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/shared/theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  await dotenv.load(fileName: ".env");
 
   final client = await initClient();
 
