@@ -6,7 +6,8 @@ import { env } from 'process';
 
 const PORT_MIN = 1;
 const PORT_MAX = 65535;
-const FRONT_URL = env.FRONT_URL || 'http://localhost:80';
+const CORS_ORIGINS_STRING = env.CORS_ORIGINS || 'http://localhost:80';
+const CORS_ORIGINS_ARRAY = CORS_ORIGINS_STRING?.split(',') || [];
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -42,7 +43,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: FRONT_URL,
+    origin: CORS_ORIGINS_ARRAY,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });

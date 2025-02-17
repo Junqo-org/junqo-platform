@@ -66,7 +66,7 @@ Here is the list of environment variables used by the **backend**:
 - `DATABASE_PASSWORD`: The password of the database. Optional, if set, used in priority to `DATABASE_PASSWORD_FILE`.
 - `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./../db_password.conf`.
 - `JWT_SECRET`: The secret used to sign the JWT tokens. **Required**.
-- `FRONT_URL`: The URL of the frontend used for CORS, `*` can be used to accept requests from every origin. Default value is `http://localhost:80`.
+- `CORS_ORIGINS`: The URL of the frontend used for CORS, `*` can be used to accept requests from every origin. Default value is `http://localhost:80`.
 - `NODE_ENV`: The environment of the backend. Either `development` or `production`.
 
 1. Create a `.env` file in the backend directory and add the following environment variables:
@@ -85,7 +85,7 @@ Here is the list of environment variables used by the **backend**:
     # Minimum 32 characters, randomly generated
     # Example: openssl rand -base64 32
     # CORS Configuration (authorized source url). Default value is `http://localhost:80`.
-    FRONT_URL=*
+    CORS_ORIGINS=*
     ```
 
 2. Ensure PostgreSQL is running and the database is set up with the provided credentials.
