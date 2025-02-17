@@ -3,10 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import 'dotenv/config';
+import { log } from 'console';
 
 const PORT_MIN = 1;
 const PORT_MAX = 65535;
-const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') || '*';
+const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') || RegExp('.*');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -41,6 +42,7 @@ async function bootstrap() {
       },
     }),
   );
+  log('CORS_ORIGINS ', CORS_ORIGINS);
   app.enableCors({
     origin: CORS_ORIGINS,
     methods: ['GET', 'POST', 'OPTIONS'],
