@@ -13,7 +13,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "config/.env", isOptional: true);
 
   final client = await initClient();
 

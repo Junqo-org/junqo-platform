@@ -51,13 +51,13 @@ Once you have installed these tools, you can proceed to the deployment of the **
 
     For more informations, see the [backend configuration documentation](./backend.md#configuration).
 
-5. Then, you need to create the `junqo_front/.env` file to configure the frontend.
-    You can use the `junqo_front/exemple.env` file to create the new one.
+5. Then, you need to create the `junqo_front/config/.env` file to configure the frontend.
+    You can use the `junqo_front/config/exemple.env` file to create the new one.
     Don't forget to change the values as they are not safe for production use.
 
     For more informations, see the [frontend configuration documentation](./frontend.md#configuration).
 
-6. After creating the `db_password.conf`, the `junqo_back/.env` and the `junqo_front/.env` files, you can proceed to deploy the **Junqo-platform** using Docker Compose.
+6. After creating the `db_password.conf`, the `junqo_back/.env` and the `junqo_front/config/.env` files, you can proceed to deploy the **Junqo-platform** using Docker Compose.
 
     ```bash
     docker-compose up -d

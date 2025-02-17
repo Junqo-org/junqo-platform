@@ -67,14 +67,14 @@ Its main goal is to provide a user interface to interact with the backend.
 
 ### Configuration
 
-To configure the frontend, you can use flutter build environment variables when building the app or `.env` files in the `junqo_front` directory.
+To configure the frontend, you can use flutter build environment variables when building the app or `.env` files in the `junqo_front/config/` directory.
 If an environment variable is not found, the default value will be used.
 
 Here is the list of environment variables used by the **frontend**:
 
 - `API_URL`: The URL of the backend API. Default: `http://localhost:4200/graphql`
 
-Create a `.env` file in the frontend directory and add the following environment variables:
+Create a `.env` file in the `junqo_front/config/` directory and add the following environment variables:
 
 ```env
 # Url of the junqo-platform backend
