@@ -41,3 +41,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Graphql schema files
+/lib/schemas/**/*.graphql
+!/lib/schemas/requests/*.graphql
+# Graphql types files
+/lib/schemas/**/*.g.dart
+# Generated files
+__generated__
