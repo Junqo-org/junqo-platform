@@ -6,8 +6,7 @@ import 'dotenv/config';
 
 const PORT_MIN = 1;
 const PORT_MAX = 65535;
-const CORS_ORIGINS_STRING = process.env.CORS_ORIGINS || '*';
-const CORS_ORIGINS_ARRAY = CORS_ORIGINS_STRING?.split(',') || [];
+const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') || '*';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -43,7 +42,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: CORS_ORIGINS_ARRAY || '*',
+    origin: CORS_ORIGINS,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
