@@ -39,10 +39,11 @@ The deployment of the **Junqo-platform** is done using [Docker](https://www.dock
 
 To deploy the **Junqo-platform**, you need to have the following tools installed on your machine:
 
+- [Git](https://git-scm.com/)
 - [Docker](https://www.docker.com/) (v20.10.7 or higher)
 - [Docker Compose](https://docs.docker.com/compose/) (v1.29.2 or higher)
 
-If you don't have these tools installed, you can follow the installation instructions on the official websites of [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
+If you don't have these tools installed, you can follow the installation instructions on the official websites of [Git](https://git-scm.com/), [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
 
 Once you have installed these tools, you can proceed to the deployment of the **Junqo-platform**.
 
@@ -104,7 +105,7 @@ To deploy the **Junqo-platform** in production mode, you can use the following c
 
 ```bash
 # Deploy using Docker Compose
-docker-compose up
+docker-compose up -d
 ```
 
 The production deployment has several differences from the development deployment:

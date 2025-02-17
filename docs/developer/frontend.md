@@ -12,6 +12,7 @@ nav_order: 2
 - [Getting started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+  - [Configuration](#configuration)
   - [Local Development Setup](#local-development-setup)
   - [Running the Application](#running-the-application)
   - [Development Environment Configuration](#development-environment-configuration)
@@ -30,26 +31,61 @@ Its main goal is to provide a user interface to interact with the backend.
 - **Flutter**: Version 3.22.2 or higher. [Install Flutter](https://docs.flutter.dev/get-started/install)
 - **Dart**: Comes with Flutter, but ensure it's up to date.
 - **GraphQL CLI**: For managing GraphQL documents. [Install GraphQL CLI](https://www.npmjs.com/package/graphql-cli)
+- **Python 3**: For updating the GraphQL schemas. [Install Python 3](https://www.python.org/downloads/)
 
 ### Installation
 
 1. Clone the repository:
 
-  ```sh
-  git clone https://github.com/Junqo-org/junqo-platform.git
-  ```
+    ```sh
+    git clone https://github.com/Junqo-org/junqo-platform.git
+    ```
 
-2. Navigate to the frontend directory:
+2. Navigate to the project directory:
 
-  ```sh
-  cd junqo-platform/junqo_front
-  ```
+    ```sh
+    cd junqo-platform
+    ```
 
-3. Get the Flutter dependencies:
+3. Update the schemas:
 
-  ```sh
-  flutter pub get
-  ```
+    ```sh
+    python3 tools/update_schemas.py
+    ```
+
+4. Navigate to the frontend directory:
+
+    ```sh
+    cd junqo_front
+    ```
+
+5. Get the Flutter dependencies:
+
+    ```sh
+    flutter pub get
+    ```
+
+### Configuration
+
+To configure the frontend, you can use flutter build environment variables when building the app or `.env` files in the `junqo_front` directory.
+If an environment variable is not found, the default value will be used.
+
+Here is the list of environment variables used by the **frontend**:
+
+- `API_URL`: The URL of the backend API. Default: `http://localhost:4200/graphql`
+
+Create a `.env` file in the frontend directory and add the following environment variables:
+
+```env
+# Url of the junqo-platform backend
+API_URL=http://localhost:4200/graphql
+```
+
+If you want to use the flutter build environment variables, you can use the following command:
+
+```sh
+flutter run --dart-define=API_URL=http://localhost:4200/graphql
+```
 
 ### Local Development Setup
 
