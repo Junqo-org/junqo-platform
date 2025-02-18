@@ -4,6 +4,7 @@ import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/user_service.dart';
 import 'package:junqo_front/pages/profile_recruter.dart';
 import 'package:junqo_front/shared/dto/user_type.dart';
+import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 import '../shared/widgets/navbar.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -41,19 +42,23 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> getUserType() async {
     String? userId = authService.userId;
+
     if (userId == null) {
       return;
     }
-    await userService.fetchUserData(userId);
-    setState(() {
-      userType = userService.userData?.type;
-    });
+    try {
+      await userService.fetchUserData(userId);
+      setState(() {
+        userType = userService.userData?.type;
+      });
+    } catch (e) {
+      debugPrint('Error fetching user type: $e');
+      showErrorDialog(e.toString(), context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    getUserType();
-
     if (userType == null) {
       return const Scaffold(
         body: Center(

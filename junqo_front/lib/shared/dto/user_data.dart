@@ -14,10 +14,15 @@ class UserData {
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) {
+    final id = json['id'];
+
+    if (id == null || id is! String) {
+      throw const FormatException('Invalid or missing id in UserData JSON');
+    }
     return UserData(
-        id: json['id'],
-        name: json['name'],
-        email: json['email'],
+        id: id,
+        name: json['name'] as String?,
+        email: json['email'] as String?,
         type: stringToUserType(json['type']));
   }
 }

@@ -8,19 +8,61 @@ class RecruiterDashboard extends StatefulWidget {
   _RecruiterDashboardState createState() => _RecruiterDashboardState();
 }
 
+class Activity {
+  final DateTime date;
+  final int applications;
+  final int interviews;
+
+  Activity({
+    required this.date,
+    required this.applications,
+    required this.interviews,
+  });
+
+  factory Activity.fromJson(Map<String, dynamic> json) {
+    return Activity(
+      date: DateTime.parse(json['date']),
+      applications: json['applications'],
+      interviews: json['interviews'],
+    );
+  }
+}
+
+class DateFormat {
+  String format(DateTime date) {
+    return date.toIso8601String().split('T').first;
+  }
+}
+
 class _RecruiterDashboardState extends State<RecruiterDashboard> {
-  final List<Map<String, dynamic>> _activities = [
-    {"date": "2024-02-01", "applications": 15, "interviews": 5},
-    {"date": "2024-02-02", "applications": 20, "interviews": 7},
-    {"date": "2024-02-03", "applications": 12, "interviews": 4},
-    {"date": "2024-02-04", "applications": 25, "interviews": 9},
-    {"date": "2024-02-05", "applications": 18, "interviews": 6},
-  ];
+  List<Activity> _activities = [];
 
   List<Color> gradientColors = [
     const Color(0xff23b6e6),
     const Color(0xff02d39a),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchActivities();
+  }
+
+  Future<void> _fetchActivities() async {
+    // TODO: Implement API call
+    _activities = [
+      Activity(
+          date: DateTime.parse("2024-02-01"), applications: 15, interviews: 5),
+      Activity(
+          date: DateTime.parse("2024-02-02"), applications: 20, interviews: 7),
+      Activity(
+          date: DateTime.parse("2024-02-03"), applications: 12, interviews: 4),
+      Activity(
+          date: DateTime.parse("2024-02-04"), applications: 25, interviews: 9),
+      Activity(
+          date: DateTime.parse("2024-02-05"), applications: 18, interviews: 6),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +100,10 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
   }
 
   Widget _buildStatsCard() {
-    int totalApplications = _activities.fold(
-        0, (sum, activity) => sum + (activity["applications"] as int));
-    int totalInterviews = _activities.fold(
-        0, (sum, activity) => sum + (activity["interviews"] as int));
+    int totalApplications =
+        _activities.fold(0, (sum, activity) => sum + activity.applications);
+    int totalInterviews =
+        _activities.fold(0, (sum, activity) => sum + activity.interviews);
 
     return Card(
       elevation: 4,
@@ -96,21 +138,35 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
   }
 
   Widget _buildActivityChart() {
+    final _dateFormatter = DateFormat();
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: const Padding(
-        padding: EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            const Text(
               "Activité quotidienne",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SizedBox(
               height: 250,
+              child: ListView.builder(
+                itemCount: _activities.length,
+                itemBuilder: (context, index) {
+                  final activity = _activities[index];
+                  return ListTile(
+                    title: Text(_dateFormatter.format(activity.date)),
+                    subtitle: Text(
+                      'Candidatures: ${activity.applications}, Entretiens: ${activity.interviews}',
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -140,9 +196,10 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
               ],
               rows: _activities.map((activity) {
                 return DataRow(cells: [
-                  DataCell(Text(activity["date"])),
-                  DataCell(Text(activity["applications"].toString())),
-                  DataCell(Text(activity["interviews"].toString())),
+                  DataCell(
+                      Text(activity.date.toIso8601String().split('T').first)),
+                  DataCell(Text(activity.applications.toString())),
+                  DataCell(Text(activity.interviews.toString())),
                 ]);
               }).toList(),
             ),

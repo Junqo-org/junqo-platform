@@ -9,37 +9,42 @@ class CompanyProfile extends StatefulWidget {
 }
 
 class _CompanyProfileState extends State<CompanyProfile> {
-  final TextEditingController _nameController =
-      TextEditingController(text: "Tech Innovators Inc.");
-  final TextEditingController _industryController =
-      TextEditingController(text: "Technologie");
-  final TextEditingController _locationController =
-      TextEditingController(text: "Paris, France");
-  final TextEditingController _descriptionController = TextEditingController(
-      text:
-          "Leader dans l'innovation technologique, spécialisé dans le développement de logiciels et solutions numériques.");
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _industryController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   void _saveProfile() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Profil mis à jour"),
-          content: const Text(
-            "Le profil de l'entreprise a été mis à jour avec succès !",
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Fermer"),
+    try {
+      // Add API call to save profile data
+      // await companyService.updateProfile(companyData);
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Profil mis à jour"),
+            content: const Text(
+              "Le profil de l'entreprise a été mis à jour avec succès !",
+              style: TextStyle(fontSize: 16),
             ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Fermer"),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Erreur lors de la mise à jour: ${e.toString()}')),
+      );
+    }
   }
 
   @override
@@ -137,7 +142,14 @@ class _CompanyProfileState extends State<CompanyProfile> {
             bottom: 0,
             right: 0,
             child: IconButton(
-              onPressed: () {},
+              onPressed: () async {
+                // Add image picker and upload functionality
+                // final ImagePicker picker = ImagePicker();
+                // final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                // if (image != null) {
+                //   await companyService.uploadLogo(image);
+                // }
+              },
               icon: const Icon(Icons.camera_alt, color: Colors.blue),
             ),
           ),
