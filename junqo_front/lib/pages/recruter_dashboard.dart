@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../shared/widgets/navbar.dart';
 
 class RecruiterDashboard extends StatefulWidget {
@@ -60,9 +59,9 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
 
   Widget _buildStatsCard() {
     int totalApplications = _activities.fold(
-        0, (sum, activity) => sum + activity["applications"]);
+        0, (sum, activity) => sum + (activity["applications"] as int));
     int totalInterviews = _activities.fold(
-        0, (sum, activity) => sum + activity["interviews"]);
+        0, (sum, activity) => sum + (activity["interviews"] as int));
 
     return Card(
       elevation: 4,
@@ -100,47 +99,18 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      child: const Padding(
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               "Activité quotidienne",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             SizedBox(
               height: 250,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: false),
-                  titlesData: FlTitlesData(show: false),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: _activities.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        return FlSpot(
-                          index.toDouble(),
-                          entry.value["applications"].toDouble(),
-                        );
-                      }).toList(),
-                      isCurved: true,
-                      colors: gradientColors,
-                      barWidth: 4,
-                      isStrokeCapRound: true,
-                      dotData: FlDotData(show: false),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        colors: gradientColors
-                            .map((color) => color.withOpacity(0.3))
-                            .toList(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),

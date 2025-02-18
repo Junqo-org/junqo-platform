@@ -53,8 +53,7 @@ export class UsersService {
     }
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const authUser = new AuthUserDTO();
-    authUser.id = id;
+    const authUser = new UserIdDTO(id);
 
     if (ability.cannot(Action.READ, authUser)) {
       throw new ForbiddenException('You do not have permission to read users');

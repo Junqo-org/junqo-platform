@@ -16,7 +16,8 @@ class _CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController _locationController =
       TextEditingController(text: "Paris, France");
   final TextEditingController _descriptionController = TextEditingController(
-      text: "Leader dans l'innovation technologique, spécialisé dans le développement de logiciels et solutions numériques.");
+      text:
+          "Leader dans l'innovation technologique, spécialisé dans le développement de logiciels et solutions numériques.");
 
   void _saveProfile() {
     showDialog(
@@ -128,16 +129,15 @@ class _CompanyProfileState extends State<CompanyProfile> {
       child: Stack(
         children: [
           const CircleAvatar(
-            backgroundImage: AssetImage("assets/images/company_logo.png"),
+            backgroundImage:
+                AssetImage("assets/images/profile_placeholder.jpg"),
             radius: 60,
           ),
           Positioned(
             bottom: 0,
             right: 0,
             child: IconButton(
-              onPressed: () {
-                // Logique pour changer le logo de l'entreprise (encore plus bancal que ma santé mentale)
-              },
+              onPressed: () {},
               icon: const Icon(Icons.camera_alt, color: Colors.blue),
             ),
           ),

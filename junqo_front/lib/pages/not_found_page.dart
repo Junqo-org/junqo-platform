@@ -13,13 +13,13 @@ class NotFoundPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(Icons.error, size: 80, color: Colors.red),
-            SizedBox(height: 20),
-            Text(
+            const Icon(Icons.error, size: 80, color: Colors.red),
+            const SizedBox(height: 20),
+            const Text(
               '404 - Page Not Found',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
               child: const Text('Return to Home'),

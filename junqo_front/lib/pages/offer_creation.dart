@@ -13,7 +13,6 @@ class _JobOfferFormState extends State<JobOfferForm> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _companyController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
 
   void _submitJobOffer() {
     if (_titleController.text.isNotEmpty &&
