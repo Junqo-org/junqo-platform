@@ -65,7 +65,7 @@ function getDbPassword(): string {
       password: getDbPassword(),
       database: process.env.DATABASE_NAME || 'junqo',
       autoLoadModels: true,
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: true,
       retry: {
         max: 10,
         match: [
