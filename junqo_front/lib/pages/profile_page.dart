@@ -33,6 +33,12 @@ class _ProfilePageState extends State<ProfilePage> {
   final UserService userService = GetIt.instance<UserService>();
   UserType? userType;
 
+  @override
+  void initState() {
+    super.initState();
+    getUserType();
+  }
+
   Future<void> getUserType() async {
     String? userId = authService.userId;
     if (userId == null) {
