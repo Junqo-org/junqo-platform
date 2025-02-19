@@ -38,6 +38,7 @@ class JobCard_ extends StatefulWidget {
 
 class _Debug1State extends State<JobCard_> {
   late CardData cardData;
+  int currentIndex = 0;
 
   @override
   void initState() {
@@ -59,7 +60,8 @@ class _Debug1State extends State<JobCard_> {
                 _buildActionButton(
                   onTap: () {
                     setState(() {
-                      cardData = CardData_set((cardData.hashCode + 1) % 3);
+                      currentIndex = (currentIndex + 1) % 3;
+                      cardData = CardData_set(currentIndex);
                     });
                   },
                   color: Colors.red,
@@ -74,7 +76,8 @@ class _Debug1State extends State<JobCard_> {
                 _buildActionButton(
                   onTap: () {
                     setState(() {
-                      cardData = CardData_set((cardData.hashCode + 1) % 3);
+                      currentIndex = (currentIndex + 1) % 3;
+                      cardData = CardData_set(currentIndex);
                     });
                   },
                   color: Colors.green,

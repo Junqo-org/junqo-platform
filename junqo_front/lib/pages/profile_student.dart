@@ -118,10 +118,15 @@ class StudentProfile extends StatelessWidget {
                         Row(
                           children: [
                             CircleAvatar(
-                              radius: 40,
-                              backgroundImage:
-                                  NetworkImage(profileData.profileImageUrl),
-                            ),
+                                radius: 40,
+                                backgroundImage:
+                                    NetworkImage(profileData.profileImageUrl),
+                                onBackgroundImageError:
+                                    (exception, stackTrace) {
+                                  print('Error loading image: $exception');
+                                  Image.asset(
+                                      'assets/images/profile_placeholder.jpg');
+                                }),
                             const SizedBox(width: 16),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
