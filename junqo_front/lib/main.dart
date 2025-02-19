@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:ferry/ferry.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/core/user_service.dart';
 import 'package:junqo_front/pages/not_found_page.dart';
 import 'package:junqo_front/router.dart';
 import 'pages/welcome.dart';
@@ -19,6 +20,7 @@ void main() async {
 
   GetIt.instance.registerLazySingleton<Client>(() => client);
   GetIt.instance.registerLazySingleton<AuthService>(() => AuthService(client));
+  GetIt.instance.registerLazySingleton<UserService>(() => UserService(client));
   runApp(const JunqoApp());
 }
 
