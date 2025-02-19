@@ -49,7 +49,7 @@ class _InterviewState extends State<Interview> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
               child: const Text("Fermer"),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/user_service.dart';
+import 'package:junqo_front/pages/jobcard.dart';
 import 'package:junqo_front/pages/recruter_dashboard.dart';
 import 'package:junqo_front/shared/dto/user_type.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
@@ -52,6 +53,8 @@ class _HomePageState extends State<HomePage> {
       );
     } else if (userType == UserType.COMPANY) {
       return const RecruiterDashboard();
+    } else if (userType == UserType.STUDENT) {
+      return const JobCard_();
     }
     return Scaffold(
       backgroundColor: Colors.white,
