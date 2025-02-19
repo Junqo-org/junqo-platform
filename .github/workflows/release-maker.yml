@@ -1,0 +1,56 @@
+name: Release Maker
+# Automatically creates and pushes a tag, and publishes a release when a pull request is merged into the 'main' branch
+# if the commit message matches a version pattern.
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  create-tag-and-release:
+    runs-on: ubuntu-latest
+    env:
+      REGEX_PATTERN: '([0-9]+\.[0-9]+(\.[0-9]+)?)$'
+    steps:
+      - name: Set Commit Message as Env Variable
+        id: set_commit_message
+        run: echo "COMMIT_MESSAGE=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+
+      - name: Check Commit Message with Regex
+        id: check_commit_message
+        run: |
+          if [[ "$COMMIT_MESSAGE" =~ $REGEX_PATTERN ]]; then
+            echo "match=true" >> $GITHUB_ENV
+          else
+            echo "match=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create Tag
+        if: env.match == 'true'
+        id: create_tag
+        run: |
+          tag=$(echo $COMMIT_MESSAGE | grep -oP "$REGEX_PATTERN")
+          echo "tag=$tag" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+
+      - name: Push Tag
+        if: env.match == 'true'
+        run: |
+          git tag ${{ env.tag }}
+          git push origin ${{ env.tag }}
+
+      - name: Create Release
+        if: env.match == 'true'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag }}
+          release_name: Release ${{ env.tag }}
+          body: |
+            Changes in this release:
+            - ${{ env.COMMIT_MESSAGE }}
+          draft: false
+          prerelease: false

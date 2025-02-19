@@ -19,6 +19,7 @@ jobs:
           filters: |
             any_changed:
               - 'junqo_back/**'
+              - 'schemas/**'
               - '.github/workflows/back-tests.yml'
 
   backend-tests:
@@ -54,10 +55,12 @@ jobs:
       working-directory: junqo_back
       run: npm run lint
 
-  mark-tests-passed-if-no-changes:
-    needs: changes-check
-    if: needs.changes-check.outputs.any_changed != 'true'
+  back-tests-ok:
+    needs: [changes-check, backend-tests]
+    if: |
+      (needs.changes-check.outputs.any_changed == 'false') ||
+      (needs.changes-check.outputs.any_changed == 'true' && needs.backend-tests.result == 'success')
     runs-on: ubuntu-latest
     steps:
-      - name: Mark tests as passed
-        run: echo "No relevant changes detected - marking as passed."
+    - name: Set backend tests status
+      run: echo "Backend tests passed"
