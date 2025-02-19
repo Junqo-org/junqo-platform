@@ -22,7 +22,11 @@ if (bcryptConstants.saltOrRounds === undefined) {
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1w' }, // TODO: change to needs
+      signOptions: {
+        expiresIn: '1w', // TODO: change to needs
+        issuer: 'junqo-auth',
+        algorithm: 'HS256',
+      },
     }),
   ],
   providers: [

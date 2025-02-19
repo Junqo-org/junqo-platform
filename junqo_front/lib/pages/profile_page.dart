@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/user_service.dart';
 import 'package:junqo_front/pages/profile_recruter.dart';
-import 'package:junqo_front/pages/profile_student.dart';
 import 'package:junqo_front/shared/dto/user_type.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 import '../shared/widgets/navbar.dart';
@@ -67,7 +66,18 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       );
     } else if (userType == UserType.COMPANY) {
-      return const CompanyProfile();
+      return Scaffold(
+        backgroundColor: Colors.grey[100],
+        body: Column(
+          children: [
+            const Navbar(currentIndex: 4),
+            const Expanded(
+              child: CompanyProfile(),
+            ),
+            LogoutButton(authService: authService),
+          ],
+        ),
+      );
     }
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -84,6 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     _buildProfileHeader(),
                     const SizedBox(height: 24),
                     _buildProfileForm(),
+                    LogoutButton(authService: authService),
                   ],
                 ),
               ),
@@ -350,6 +361,7 @@ class _ProfilePageState extends State<ProfilePage> {
       controller: controller,
       maxLines: maxLines,
       enabled: _isEditing,
+      textInputAction: TextInputAction.next,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
@@ -375,5 +387,40 @@ class _ProfilePageState extends State<ProfilePage> {
     _linkedinController.dispose();
     _githubController.dispose();
     super.dispose();
+  }
+}
+
+class LogoutButton extends StatelessWidget {
+  const LogoutButton({
+    super.key,
+    required this.authService,
+  });
+
+  final AuthService authService;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            await authService.logout();
+            Navigator.pushReplacementNamed(context, '/login');
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            "Logout",
+            style: TextStyle(fontSize: 18, color: Colors.white),
+          ),
+        ),
+      ),
+    );
   }
 }

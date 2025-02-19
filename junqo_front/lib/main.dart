@@ -17,10 +17,13 @@ void main() async {
   await dotenv.load(fileName: "config/.env", isOptional: true);
 
   final client = await initClient();
+  final authService = AuthService(client);
+  await authService.initialize();
+  final userService = UserService(client);
 
   GetIt.instance.registerLazySingleton<Client>(() => client);
-  GetIt.instance.registerLazySingleton<AuthService>(() => AuthService(client));
-  GetIt.instance.registerLazySingleton<UserService>(() => UserService(client));
+  GetIt.instance.registerLazySingleton<AuthService>(() => authService);
+  GetIt.instance.registerLazySingleton<UserService>(() => userService);
   runApp(const JunqoApp());
 }
 

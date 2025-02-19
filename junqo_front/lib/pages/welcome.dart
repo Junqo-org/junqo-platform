@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:get_it/get_it.dart';
 import 'dart:math' as math;
+
+import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/core/log_service.dart';
+import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
 const studentsCount = '10K+';
 const companiesCount = '500+';
@@ -23,9 +28,26 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
 
   bool _isHovered = false;
 
+  late final AuthService authService;
+
   @override
   void initState() {
     super.initState();
+
+    try {
+      authService = GetIt.instance<AuthService>();
+    } catch (e) {
+      LogService.error("Error: Failed to get AuthService - $e");
+      Future.microtask(() {
+        showErrorDialog("Service initialization failed", context);
+      });
+    }
+    _isLoggedIn().then((loggedIn) {
+      if (loggedIn) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    });
+
     _blob1Controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 15),
@@ -54,6 +76,17 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
     _blob3Controller.dispose();
     _scaleController.dispose();
     super.dispose();
+  }
+
+  Future<bool> _isLoggedIn() async {
+    try {
+      bool loggedIn = await authService.isLoggedIn();
+      return loggedIn;
+    } catch (e) {
+      debugPrint("Error: $e");
+      showErrorDialog(e.toString(), context);
+      return false;
+    }
   }
 
   @override

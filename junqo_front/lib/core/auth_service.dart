@@ -14,14 +14,12 @@ class AuthService {
   late final Box<String> _userBox;
   bool? _isLoggedIn;
 
-  AuthService(this.client) {
-    _initialize();
-  }
+  AuthService(this.client);
 
   String? get token => _authBox.get('token');
   String? get userId => _userBox.get('user');
 
-  Future<void> _initialize() async {
+  Future<void> initialize() async {
     int retries = 3;
 
     while (retries > 0) {
@@ -69,6 +67,7 @@ class AuthService {
       await _userBox.put('user', data!.signUp.user.id);
     }
     await _saveToken(data?.signUp.token);
+    _isLoggedIn = true;
   }
 
   Future<void> signIn(String email, String password) async {
@@ -91,10 +90,11 @@ class AuthService {
     final response = await client.request(request).first;
     final data =
         await ResponseHandler.handleGraphQLResponse(response, "SignIn");
-    if (data?.signIn.token != null) {
+    if (data?.signIn.user.id != null) {
       await _userBox.put('user', data!.signIn.user.id);
     }
     await _saveToken(data?.signIn.token);
+    _isLoggedIn = true;
   }
 
   Future<void> logout() async {

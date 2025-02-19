@@ -30,6 +30,13 @@ Future<Client> initClient({bool clearBox = false}) async {
       return forward!(modifiedRequest);
     });
 
+    final apiUrl = AppConfig.apiUrl;
+
+    bool isUriValid = Uri.tryParse(apiUrl)?.hasScheme ?? false;
+    if (isUriValid == false) {
+      throw HttpLinkError('Invalid API URL: $apiUrl');
+    }
+
     final link = authLink.concat(HttpLink(AppConfig.apiUrl));
 
     final client = Client(
@@ -37,7 +44,20 @@ Future<Client> initClient({bool clearBox = false}) async {
     );
 
     return client;
+  } on HiveError catch (e) {
+    throw Exception('Failed to initialize auth storage: $e');
+  } on HttpLinkError catch (e) {
+    throw Exception('Failed to initialize HTTP link: $e');
   } catch (e) {
     throw Exception('Failed to initialize GraphQL client: $e');
   }
+}
+
+class HttpLinkError extends Error {
+  final String message;
+
+  HttpLinkError(this.message);
+
+  @override
+  String toString() => 'HttpLinkError: $message';
 }
