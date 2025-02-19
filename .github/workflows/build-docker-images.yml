@@ -34,7 +34,7 @@ jobs:
         context: .
         file: ./junqo_back/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/junqo-back:latest
+        tags: ghcr.io/${{ github.repository_owner | format('{0:l}') }}/junqo-back:latest
 
     - name: Build and push frontend image
       uses: docker/build-push-action@v5
@@ -42,4 +42,4 @@ jobs:
         context: .
         file: ./junqo_front/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/junqo-front:latest
+        tags: ghcr.io/${{ github.repository_owner | format('{0:l}') }}/junqo-front:latest
