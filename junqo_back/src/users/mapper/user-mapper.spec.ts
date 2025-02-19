@@ -14,6 +14,22 @@ describe('UserMapper', () => {
       const result = UserMapper.toDomainUser(userModel as UserModel);
       expect(result).toMatchObject(userModel);
     });
+
+    it('should handle null or undefined input', () => {
+      expect(() => UserMapper.toDomainUser(null)).toThrow();
+      expect(() => UserMapper.toDomainUser(undefined)).toThrow();
+    });
+
+    it('should handle missing optional fields', () => {
+      const partialUserModel = {
+        id: '1',
+        name: 'Test User',
+        email: 'test@example.com',
+        type: UserType.STUDENT,
+      };
+      const result = UserMapper.toDomainUser(partialUserModel as UserModel);
+      expect(result).toMatchObject(partialUserModel);
+    });
   });
 
   describe('toDomainUsers', () => {
@@ -35,6 +51,17 @@ describe('UserMapper', () => {
       const result = UserMapper.toDomainUsers(userModels as UserModel[]);
       expect(result).toHaveLength(2);
       expect(result).toMatchObject(userModels);
+    });
+
+    it('should handle empty array', () => {
+      const result = UserMapper.toDomainUsers([]);
+      expect(result).toHaveLength(0);
+      expect(result).toEqual([]);
+    });
+
+    it('should handle null or undefined input', () => {
+      expect(() => UserMapper.toDomainUsers(null)).toThrow();
+      expect(() => UserMapper.toDomainUsers(undefined)).toThrow();
     });
   });
 });

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:junqo_front/core/log_service.dart';
 
 class GraphQLException implements Exception {
