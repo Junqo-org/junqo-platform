@@ -42,7 +42,7 @@ export class AuthResolver {
     const authPayload = await this.authService.signIn(email, password);
 
     if (!authPayload) {
-      this.logger.error(`Failed sign-in attempt for email: ${email}`);
+      this.logger.error('Failed sign-in attempt');
       throw new InternalServerErrorException('Failed to sign in');
     }
     return authPayload;

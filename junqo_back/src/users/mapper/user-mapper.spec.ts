@@ -3,16 +3,6 @@ import { UserType } from '../user-type.enum';
 import { UserMapper } from './user-mapper';
 
 describe('UserMapper', () => {
-  let mapper: UserMapper;
-
-  beforeEach(() => {
-    mapper = new UserMapper();
-  });
-
-  it('should be defined', () => {
-    expect(mapper).toBeDefined();
-  });
-
   describe('toDomainUser', () => {
     it('should correctly map UserModel to DomainUser', () => {
       const userModel = {

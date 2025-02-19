@@ -7,6 +7,7 @@ import {
 } from 'class-validator';
 import { UserType } from '../../users/user-type.enum';
 import {
+  MAX_MAIL_LENGTH,
   MAX_NAME_LENGTH,
   MAX_PASSWORD_LENGTH,
   MIN_MAIL_LENGTH,
@@ -22,7 +23,7 @@ export class SignUpDTO {
 
   @IsEmail()
   @MinLength(MIN_MAIL_LENGTH)
-  @MaxLength(MIN_MAIL_LENGTH)
+  @MaxLength(MAX_MAIL_LENGTH)
   email: string;
 
   @IsEnum(UserType)

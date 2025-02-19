@@ -83,7 +83,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
       bool loggedIn = await authService.isLoggedIn();
       return loggedIn;
     } catch (e) {
-      debugPrint("Error: $e");
+      LogService.error("Error: Failed to check login status - $e");
       showErrorDialog(e.toString(), context);
       return false;
     }
