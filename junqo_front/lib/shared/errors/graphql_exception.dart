@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:junqo_front/core/log_service.dart';
 
 class GraphQLException implements Exception {
   final String message;
@@ -15,6 +16,6 @@ class GraphQLException implements Exception {
   }
 
   void printError() {
-    debugPrint("[GRAPHQL ERROR] ${toString()}");
+    LogService.error("[GRAPHQL ERROR] ${toString()}");
   }
 }

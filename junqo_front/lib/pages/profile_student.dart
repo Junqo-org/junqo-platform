@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:junqo_front/core/log_service.dart';
 
 class ProfileData {
   final String name;
@@ -123,7 +124,8 @@ class StudentProfile extends StatelessWidget {
                                     NetworkImage(profileData.profileImageUrl),
                                 onBackgroundImageError:
                                     (exception, stackTrace) {
-                                  print('Error loading image: $exception');
+                                  LogService.warning(
+                                      'Error loading image: $exception');
                                   Image.asset(
                                       'assets/images/profile_placeholder.jpg');
                                 }),

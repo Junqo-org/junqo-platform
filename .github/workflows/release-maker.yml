@@ -15,7 +15,11 @@ jobs:
     steps:
       - name: Set Commit Message as Env Variable
         id: set_commit_message
-        run: echo "COMMIT_MESSAGE=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          sanitized=$(echo "$COMMIT_MESSAGE" | sed -e 's/\"/\\\"/g' -e 's/\$/\\\$/g' -e 's/`/\\`/g' -e 's/\\/\\\\/g')
+          echo "COMMIT_MESSAGE=$sanitized" >> $GITHUB_ENV
 
       - name: Check Commit Message with Regex
         id: check_commit_message
@@ -30,7 +34,7 @@ jobs:
         if: env.match == 'true'
         id: create_tag
         run: |
-          tag=$(echo $COMMIT_MESSAGE | grep -oP "$REGEX_PATTERN")
+          tag=$(echo "$COMMIT_MESSAGE" | grep -oP "$REGEX_PATTERN")
           echo "tag=$tag" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
@@ -51,6 +55,6 @@ jobs:
           release_name: Release ${{ env.tag }}
           body: |
             Changes in this release:
-            - ${{ env.COMMIT_MESSAGE }}
+            - COMMIT_MESSAGE
           draft: false
           prerelease: false

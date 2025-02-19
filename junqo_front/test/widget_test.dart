@@ -1,7 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/widgets.dart';
 
 void main() {
-  testWidgets('Always passing test', (WidgetTester tester) async {
-    expect(true, isTrue);
+  test('widgets binding initializes successfully', () {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    expect(WidgetsBinding.instance, isNotNull);
+    expect(WidgetsBinding.instance, isA<WidgetsFlutterBinding>());
   });
 }

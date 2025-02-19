@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/core/log_service.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
 class PrivatePage extends StatefulWidget {
@@ -13,7 +14,20 @@ class PrivatePage extends StatefulWidget {
 }
 
 class _PrivatePageState extends State<PrivatePage> {
-  final authService = GetIt.instance<AuthService>();
+  late final AuthService authService;
+
+  @override
+  void initState() {
+    super.initState();
+    try {
+      authService = GetIt.instance<AuthService>();
+    } catch (e) {
+      LogService.error("Error: Failed to get AuthService - $e");
+      Future.microtask(() {
+        showErrorDialog("Service initialization failed", context);
+      });
+    }
+  }
 
   Future<bool> _isLoggedIn() async {
     try {

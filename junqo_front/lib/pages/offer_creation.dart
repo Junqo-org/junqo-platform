@@ -18,12 +18,26 @@ class _JobOfferFormState extends State<JobOfferForm> {
   bool _isLoading = false;
 
   void _submitJobOffer() async {
+    if (_titleController.text.isEmpty ||
+        _descriptionController.text.isEmpty ||
+        _companyController.text.isEmpty ||
+        _locationController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tous les champs sont obligatoires')),
+      );
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
       try {
-        // TODO: Add API call to create job offer
-        await Future.delayed(
-            const Duration(seconds: 1)); // Remove after adding API call
+        // final jobOffer = {
+        //   'title': _titleController.text,
+        //   'description': _descriptionController.text,
+        //   'company': _companyController.text,
+        //   'location': _locationController.text,
+        // };
+        // TODO: Implement API call
+        // await jobOfferService.create(jobOffer);
         showDialog(
           context: context,
           builder: (BuildContext context) {
