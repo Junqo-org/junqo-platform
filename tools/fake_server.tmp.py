@@ -3,6 +3,19 @@ import logging
 import sys
 import json
 
+"""
+This is a simple test purpose server that logs and debugs HTTP requests.
+
+The server listens on a specified port (default is 4200) and handles GET and POST requests.
+For GET requests, it responds with a plain text message "Response from fake server".
+For POST requests, it expects the content type to be JSON and the body size to be less than 1MB.
+If the request is valid, it responds with "Received POST request".
+
+All requests are logged with details including the request method, path, headers, and body (for POST requests).
+The logs are output to the console for debugging purposes.
+"""
+
+
 class RequestLoggerHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         self.log_request()
@@ -42,6 +55,7 @@ class RequestLoggerHandler(http.server.BaseHTTPRequestHandler):
         logging.info(f"Headers:\n{self.headers}")
         if body:
             logging.info(f"Body: {body}")
+
 
 if __name__ == "__main__":
     args = sys.argv[1:]
