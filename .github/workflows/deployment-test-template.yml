@@ -13,20 +13,56 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Database configuration
-        run: |
-          echo "${{ secrets.DATABASE_PASSWORD }}" > db_password.conf
-
       - name: Start containers
+        shell: bash
+        env:
+          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+          BACK_ENV_FILE: "./junqo_back/exemple.env"
+          API_URL: "http://localhost:4200/graphql"
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
-      - name: Check if all services are up and running
+      - name: Check Container Status
+        if: always()
         run: |
-          if [ $(docker-compose -f ${{ inputs.compose_file }} ps | grep -c "Up") -ne $(docker-compose -f ${{ inputs.compose_file }} config --services | wc -l) ]; then
-            echo "Not all services are running"
+          docker ps --filter "health=unhealthy" --format "{{.Names}}" > unhealthy_containers.txt
+          if [ -s unhealthy_containers.txt ]; then
+            echo "Unhealthy containers found. Retrieving logs..."
+            while read -r container; do
+              echo "Logs for $container:"
+              timeout 30s docker logs "$container" || echo "Timeout getting logs for $container"
+            done < unhealthy_containers.txt
             exit 1
           fi
+        shell: bash
+      - name: Check if all services are up and running
+        env:
+          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+          BACK_ENV_FILE: "./junqo_back/exemple.env"
+          API_URL: "http://localhost:4200/graphql"
+        run: |
+            max_attempts=30
+            attempt=1
+            while [ $attempt -le $max_attempts ]; do
+            running_count="$(docker compose -f "${{ inputs.compose_file }}" ps --format json | jq -s '.[] | select(.State == "running" and .Health == "healthy") | .Name' | wc -l)"
+            total_count="$(docker compose -f "${{ inputs.compose_file }}" config --services | wc -l)"
+            if [ "$running_count" -eq "$total_count" ]; then
+              echo "All services are running"
+              exit 0
+            fi
+            echo "Attempt $attempt/$max_attempts: $running_count/$total_count services healthy"
+            sleep 2
+            attempt=$((attempt + 1))
+            done
+            echo "Timeout waiting for services to start"
+            echo "Current service status:"
+            docker compose -f "${{ inputs.compose_file }}" ps --format json | jq -r '.[] | "\(.Name): \(.State) (\(.Health))"'
+            docker compose -f "${{ inputs.compose_file }}" ps
+            exit 1
 
       - name: Stop containers
+        env:
+          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
+          BACK_ENV_FILE: "./junqo_back/exemple.env"
+          API_URL: "http://localhost:4200/graphql"
         if: always()
-        run: docker compose -f ${{ inputs.compose_file }} down
+        run: docker compose -f ${{ inputs.compose_file }} down --volumes

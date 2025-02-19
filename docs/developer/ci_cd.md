@@ -1,5 +1,5 @@
 ---
-title: Developer documentation
+title: CI/CD
 ---
 
 <!-- omit in toc -->
@@ -21,12 +21,15 @@ This documentation is intended for developers who want to contribute to the proj
     - [Configuration Files](#configuration-files)
     - [Secret Files](#secret-files)
 - [Automatic tests](#automatic-tests)
+  - [Run github action locally](#run-github-action-locally)
   - [Deployment tests](#deployment-tests)
-  - [Api tests](#api-tests)
   - [Front tests](#front-tests)
   - [Back tests](#back-tests)
 - [Documentation Generation](#documentation-generation)
   - [Automatic documentation deployment](#automatic-documentation-deployment)
+- [Mirroring](#mirroring)
+  - [Why is the project mirrored](#why-is-the-project-mirrored)
+  - [How is the project mirrored](#how-is-the-project-mirrored)
 
 ## Deployment
 
@@ -36,10 +39,11 @@ The deployment of the **Junqo-platform** is done using [Docker](https://www.dock
 
 To deploy the **Junqo-platform**, you need to have the following tools installed on your machine:
 
+- [Git](https://git-scm.com/)
 - [Docker](https://www.docker.com/) (v20.10.7 or higher)
 - [Docker Compose](https://docs.docker.com/compose/) (v1.29.2 or higher)
 
-If you don't have these tools installed, you can follow the installation instructions on the official websites of [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
+If you don't have these tools installed, you can follow the installation instructions on the official websites of [Git](https://git-scm.com/), [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
 
 Once you have installed these tools, you can proceed to the deployment of the **Junqo-platform**.
 
@@ -63,7 +67,13 @@ The content of the file should look like this:
 my_db_password
 ```
 
-After creating the `db_password.conf` file, you can proceed to deploy the **Junqo-platform** using Docker Compose.
+Then, you need to create the `junqo_back/.env` file to configure the backend.
+You can use the `junqo_back/exemple.env` file to create the new one.
+Don't forget to change the values as they are not safe for production use.
+
+For more informations, see the [backend configuration documentation](./backend.md#configuration).
+
+After creating the `db_password.conf` and the `junqo_back/.env` files, you can proceed to deploy the **Junqo-platform** using Docker Compose.
 
 #### Development deployment
 
@@ -86,6 +96,7 @@ The development deployment has several differences from the production deploymen
 - The back server is running in development mode. And the watch flag is enabled.
 - The front server is running in development mode. And the watch flag is enabled.
 - The database volume is set to the `./database-volume` folder, allowing you to interact with the database files.
+- The database is initialized from the `./db/test_data.sql` file.
 - The database adminer is deployed. Allowing you to access the database adminer at [http://localhost:3000](http://localhost:3000). (The port can be changed using the `ADMINER_PORT` environment variable)
 
 #### Production deployment
@@ -94,7 +105,7 @@ To deploy the **Junqo-platform** in production mode, you can use the following c
 
 ```bash
 # Deploy using Docker Compose
-docker-compose up
+docker-compose up -d
 ```
 
 The production deployment has several differences from the development deployment:
@@ -116,16 +127,18 @@ If an environment variable is not found, the default value will be used.
 Here is the list of environment variables used by the **Junqo-platform**:
 
 - `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.22.2`.
-- `BACK_PORT`: The port of the back server. Default value is `42000`.
+- `BACK_PORT`: The port of the back server. Default value is `4200`.
 - `DATABASE_SHM_SIZE`: The size of the shared memory for the database container. Default value is `256MB`.
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
 - `DATABASE_NAME`: The name of the database. Default value is `junqo`.
 - `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./db_password.conf`.
+- `API_URL`: The URL of the back server used in the frontend. Default value is `http://localhost:4200`.
 
 The following are only available in development mode:
 
 - `ADMINER_PORT`: The port of the database adminer. Default value is `3000`.
 - `ADMINER_DESIGN`: The design of the database adminer. Default value is `pepa-linha-dark`.
+- `TEST_DATA_FOLDER`: The folder containing the test data for the database. The test should be a file ending with `.sql`. Default value is `./db`.
 
 #### Configuration Files
 
@@ -146,7 +159,21 @@ The secret files are:
 ## Automatic tests
 
 Automatic tests are run using the Github Actions pipeline.  
-These are defined in the `.github/workflows` folder.
+These are defined in the `.github/workflows` folder.  
+
+### Run github action locally
+
+You can use the [nektosact](https://nektosact.com/introduction.html) to run the tests locally.  
+First, you need to install nektosact by following the [installation instructions](https://nektosact.com/installation/index.html).  
+Then run the following command to execute specific workflow tests:  
+Note: act requires root privileges to run Docker containers, hence the sudo requirement.  
+
+```bash
+# Run the tests specified in the <specific file>
+sudo act workflow_dispatch -W '.github/workflows/<specific_file>'
+# Example
+sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml'
+```
 
 ### Deployment tests
 
@@ -170,24 +197,6 @@ The workflow runs the following steps:
 1. Checkout the repository.
 2. Start the docker compose services.
 3. Check if the services are up and running.
-4. Stop the docker compose services.
-
-### Api tests
-
-These tests are used to test the API of the **Junqo-platform** in an operational environment.
-
-The API tests are run using the `api-tests.yml` workflow.  
-The workflow is triggered when the following conditions are met:
-
-- A pull request is opened.
-- The pull request merges into the `main` or `dev` branch.
-- The files inside the `junqo_back` folder are modified.
-
-The workflow runs the following steps:
-
-1. Checkout the repository.
-2. Start the docker compose services.
-3. Run API tests using [shemathesis](https://schemathesis.readthedocs.io/).
 4. Stop the docker compose services.
 
 ### Front tests
@@ -298,3 +307,25 @@ Finally in a different job:
 
 1. Fetch the final documentation artifacts.
 2. Deploy the documentation to Github Pages.
+
+## Mirroring
+
+As the project is evaluated by the [EPITECH](https://www.epitech.eu/) school, the project is mirrored to a private evaluation repository.
+
+### Why is the project mirrored
+
+The project is mirrored to allow the EPITECH school to evaluate the project.  
+It is developed on the [Junqo-org](https://github.com/Junqo-org) as an open-source project.  
+We chose to create an open-source project to allow the community to contribute to the project.  
+Furthermore it allows the project to be more transparent and to be evaluated by the community.  
+We can also take advantage of the many advantageous plans offered by some organizations to open-source projects.  
+These organizations includes:
+
+- [Github](https://github.com/)
+- [CodeRabbit](https://www.coderabbit.ai/)
+
+### How is the project mirrored
+
+The mirroring is done using the Github Actions pipeline.  
+The workflow is triggered when a **push** or **delete** event is triggered.  
+The workflow configuration can be found in the `.github/workflows/eip-mirroring.yml` file.  

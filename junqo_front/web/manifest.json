@@ -1,11 +1,11 @@
 {
-    "name": "junqo_front",
-    "short_name": "junqo_front",
+    "name": "junqo",
+    "short_name": "junqo",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "junqo platform",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
