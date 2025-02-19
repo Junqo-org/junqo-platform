@@ -22,29 +22,29 @@ class _NavbarState extends State<Navbar> {
   }
 
   void _navigateToPage(BuildContext context, int index) {
-    Widget page;
+    String page;
     switch (index) {
       case 0:
-        page = const HomePage();
+        page = '/home';
         break;
       case 1:
-        page = const IAPage();
+        page = '/ia';
         break;
       case 2:
         // Page notifications à implémenter
         return;
       case 3:
-        page = const MessagingPage();
+        page = '/messaging';
         break;
       case 4:
-        page = const ProfilePage();
+        page = '/profile';
         break;
       default:
         return;
     }
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => page),
-      (route) => false,
+    Navigator.pushNamed(
+      context,
+      page,
     );
   }
 
@@ -69,11 +69,18 @@ class _NavbarState extends State<Navbar> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Logo visible en mode mobile
-                Image.asset(
-                  'assets/images/junqo_logo.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
+                IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedIndex = 0;
+                      });
+                      _navigateToPage(context, 0);
+                    },
+                    icon: Image.asset(
+                      'assets/images/junqo_logo.png',
+                      height: 60,
+                      fit: BoxFit.contain,
+                    )),
                 Row(
                   children: [
                     _buildNavItem(context, 0, Icons.home_outlined),
@@ -92,11 +99,18 @@ class _NavbarState extends State<Navbar> {
           : Row(
               children: [
                 // Logo à gauche
-                Image.asset(
-                  'assets/images/junqo_logo.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
+                IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedIndex = 0;
+                      });
+                      _navigateToPage(context, 0);
+                    },
+                    icon: Image.asset(
+                      'assets/images/junqo_logo.png',
+                      height: 60,
+                      fit: BoxFit.contain,
+                    )),
                 const Spacer(),
                 // Espacement entre les items
                 Row(

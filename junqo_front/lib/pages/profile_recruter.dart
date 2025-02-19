@@ -31,7 +31,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.pop(context);
                 },
                 child: const Text("Fermer"),
               ),
