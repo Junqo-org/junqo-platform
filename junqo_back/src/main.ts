@@ -2,11 +2,11 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
-import { env } from 'process';
+import 'dotenv/config';
 
 const PORT_MIN = 1;
 const PORT_MAX = 65535;
-const FRONT_URL = env.FRONT_URL || 'http://localhost:80';
+const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') || RegExp('.*');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -42,7 +42,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: FRONT_URL,
+    origin: CORS_ORIGINS,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });

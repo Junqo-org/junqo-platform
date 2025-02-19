@@ -10,7 +10,6 @@ import { Logger } from '@nestjs/common';
 import { UsersRepositoryModule } from './users/repository/users.repository.module';
 import * as path from 'path';
 import * as fs from 'fs';
-import 'dotenv/config';
 
 function validatePassword(password: string): string {
   if (!password) {
@@ -66,7 +65,7 @@ function getDbPassword(): string {
       password: getDbPassword(),
       database: process.env.DATABASE_NAME || 'junqo',
       autoLoadModels: true,
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: true, // TODO: use migration instead, set to false on production
       retry: {
         max: 10,
         match: [
