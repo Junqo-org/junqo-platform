@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:junqo_front/shared/widgets/navbar.dart';
 
 class CardData {
   final String companyName;
@@ -48,39 +49,38 @@ class _Debug1State extends State<JobCard_> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: Stack(
+      body: Column(
         children: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: JobCard(data: cardData),
-            ),
-          ),
-          // Accept/Reject Buttons
-          Positioned(
-            left: MediaQuery.of(context).size.width / 3 - 30,
-            top: MediaQuery.of(context).size.height / 2 - 30,
-            child: _buildActionButton(
-              onTap: () {
-                setState(() {
-                  cardData = CardData_set((cardData.hashCode + 1) % 3);
-                });
-              },
-              color: Colors.red,
-              icon: Icons.close,
-            ),
-          ),
-          Positioned(
-            left: 2 * MediaQuery.of(context).size.width / 3 - 30,
-            top: MediaQuery.of(context).size.height / 2 - 30,
-            child: _buildActionButton(
-              onTap: () {
-                setState(() {
-                  cardData = CardData_set((cardData.hashCode + 1) % 3);
-                });
-              },
-              color: Colors.green,
-              icon: Icons.check,
+          const Navbar(currentIndex: 0),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildActionButton(
+                  onTap: () {
+                    setState(() {
+                      cardData = CardData_set((cardData.hashCode + 1) % 3);
+                    });
+                  },
+                  color: Colors.red,
+                  icon: Icons.close,
+                ),
+                const SizedBox(width: 16),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: JobCard(data: cardData),
+                ),
+                const SizedBox(width: 16),
+                _buildActionButton(
+                  onTap: () {
+                    setState(() {
+                      cardData = CardData_set((cardData.hashCode + 1) % 3);
+                    });
+                  },
+                  color: Colors.green,
+                  icon: Icons.check,
+                ),
+              ],
             ),
           ),
         ],
@@ -123,7 +123,7 @@ class _Debug1State extends State<JobCard_> {
     List<CardData> cardDataList = [
       CardData(
           companyName: 'Airbus',
-          companyLogo: 'assets/images/airbus_logo.png',
+          companyLogo: 'assets/images/junqo_logo.png',
           jobTitle: 'Alternance DevOps (H/F)',
           contractType: 'Alternance',
           duration: '3 ans',
@@ -142,7 +142,7 @@ class _Debug1State extends State<JobCard_> {
               'Rejoignez Airbus à Blagnac en tant qu\'alternant DevOps pour une durée de 3 ans. Vous travaillerez sur des projets dans l\'aéronautique avec une grande équipe. Utilisez Docker, GitHub, Jira, et Bash sur Linux pour automatiser les processus et améliorer les infrastructures. Vous aurez accès à des installations modernes, incluant une salle de fitness. C\'est une opportunité unique de développer vos compétences techniques dans un environnement international et stimulant.'),
       CardData(
           companyName: 'Google',
-          companyLogo: 'assets/images/google_logo.png',
+          companyLogo: 'assets/images/junqo_logo.png',
           jobTitle: 'Software Engineer (H/F)',
           contractType: 'Internship',
           duration: '4 mois',
@@ -165,7 +165,7 @@ class _Debug1State extends State<JobCard_> {
               'Intégrez Google à Paris en tant qu\'ingénieur logiciel pour travailler sur des projets innovants à l\'échelle mondiale. Vous collaborerez avec des équipes internationales et utiliserez des technologies comme Python, Java, Kubernetes, et Google Cloud Platform. Télétravail flexible, repas gratuits et un environnement agile sont quelques-uns des avantages. Rejoignez une entreprise qui façonne l\'avenir de la technologie tout en favorisant l\'innovation et l\'épanouissement personnel.'),
       CardData(
           companyName: 'Devvmaxing',
-          companyLogo: 'assets/images/devvmaxing_logo.png',
+          companyLogo: 'assets/images/junqo_logo.png',
           jobTitle: 'Développeur Full Stack (H/F)',
           contractType: 'Internship part-time',
           duration: '8 mois 2j/s',
@@ -411,7 +411,7 @@ class JobCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
               child: const Text('Fermer'),
             ),

@@ -47,8 +47,8 @@ class Education {
       required this.programme});
 }
 
-class ProfilePage extends StatelessWidget {
-  ProfilePage({Key? key}) : super(key: key);
+class StudentProfile extends StatelessWidget {
+  StudentProfile({super.key});
 
   final ProfileData profileData = ProfileData(
       name: 'Laura',

@@ -36,7 +36,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.pop(context);
                     // Consider navigating back or clearing form
                   },
                   child: const Text("Fermer"),
