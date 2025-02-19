@@ -47,7 +47,11 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: ProfilePage()));
       case '/register':
-        final userType = settings.arguments as String;
+        final userType = settings.arguments;
+
+        if (userType is! String) {
+          throw ArgumentError('userType must be a String');
+        }
         return MaterialPageRoute(
             builder: (_) => Register(
                   userType: userType,

@@ -15,8 +15,23 @@ class _CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController _descriptionController = TextEditingController();
 
   void _saveProfile() {
+    if (_nameController.text.isEmpty ||
+        _industryController.text.isEmpty ||
+        _locationController.text.isEmpty ||
+        _descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tous les champs sont obligatoires')),
+      );
+      return;
+    }
     try {
-      // Add API call to save profile data
+      // final companyData = {
+      //   'name': _nameController.text,
+      //   'industry': _industryController.text,
+      //   'location': _locationController.text,
+      //   'description': _descriptionController.text,
+      // };
+      // TODO: Implement API call
       // await companyService.updateProfile(companyData);
 
       showDialog(
