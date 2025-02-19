@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../pages/home_page.dart';
-import '../../pages/ia_page.dart';
-import '../../pages/messaging_page.dart';
-import '../../pages/profile_page.dart';
 
 class Navbar extends StatefulWidget {
   final int currentIndex;

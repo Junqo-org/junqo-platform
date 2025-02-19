@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import '../shared/widgets/navbar.dart';
-import 'cv.dart';
-import 'interview.dart';
-import 'motivation.dart';
 
 class IAPage extends StatefulWidget {
   const IAPage({super.key});

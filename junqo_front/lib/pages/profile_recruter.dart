@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../shared/widgets/navbar.dart';
 
 class CompanyProfile extends StatefulWidget {
   const CompanyProfile({super.key});

@@ -24,7 +24,7 @@ export class AuthResolver {
       password,
     });
     if (!authPayload) {
-      const error = new Error('Authentication failed');
+      const error = new InternalServerErrorException('Authentication failed');
       error.name = 'AuthenticationError';
       error.message = 'Failed to sign up';
       this.logger.error('Failed to sign up');

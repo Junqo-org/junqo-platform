@@ -72,7 +72,7 @@ class AuthService {
 
   Future<void> signIn(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      throw ArgumentError('Name, email, and password cannot be empty');
+      throw ArgumentError('Email, and password cannot be empty');
     }
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       throw ArgumentError('Invalid email format');
