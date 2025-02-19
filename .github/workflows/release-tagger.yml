@@ -1,0 +1,37 @@
+name: Release Tagger
+description: Automatically creates and pushes a tag when a pull request is opened or edited on the 'dev' branch if the branch name matches a version pattern.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+    branches:
+      - 'dev'
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    env:
+      REGEX_PATTERN: '([0-9]+\.[0-9]+(\.[0-9]+)?)$'
+    steps:
+      - name: Check PR title with regex
+        id: check_pr_title
+        run: |
+          if [[ "${{ github.event.pull_request.title }}" =~ $REGEX_PATTERN ]]; then
+            echo "match=true" >> $GITHUB_ENV
+          else
+            echo "match=false" >> $GITHUB_ENV
+          fi
+      - name: Create tag
+        if: env.match == 'true'
+        id: create_tag
+        run: |
+          tag=$(echo ${{ github.event.pull_request.title }} | grep -oP "$REGEX_PATTERN")
+          echo "tag=$tag" >> $GITHUB_ENV
+      - uses: actions/checkout@v2
+      - name: Push tag
+        if: env.match == 'true'
+        run: |
+          git tag ${{ env.tag }}
+          git push origin ${{ env.tag }}
