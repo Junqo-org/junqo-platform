@@ -15,9 +15,10 @@ jobs:
     steps:
       - name: Set Commit Message as Env Variable
         id: set_commit_message
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          message="${{ github.event.head_commit.message }}"
-          sanitized=$(echo "$message" | sed -e 's/\"/\\\"/g' -e 's/\$/\\\$/g' -e 's/`/\\`/g' -e 's/\\/\\\\/g')
+          sanitized=$(echo "$COMMIT_MESSAGE" | sed -e 's/\"/\\\"/g' -e 's/\$/\\\$/g' -e 's/`/\\`/g' -e 's/\\/\\\\/g')
           echo "COMMIT_MESSAGE=$sanitized" >> $GITHUB_ENV
 
       - name: Check Commit Message with Regex
