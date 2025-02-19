@@ -33,7 +33,7 @@ jobs:
           tag=$(echo $COMMIT_MESSAGE | grep -oP "$REGEX_PATTERN")
           echo "tag=$tag" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Push Tag
         if: env.match == 'true'
