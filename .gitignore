@@ -4,7 +4,17 @@ docs/api
 
 # Secrets and environment variables
 *.env
+!exemple.env
 db_password.conf
 
 # Development
 database-volume
+
+# IDE files
+.vscode
+settings.json
+
+# Temporary files
+*.log
+*.tmp
+*.tmp.*
