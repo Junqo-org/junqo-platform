@@ -1,6 +1,7 @@
 import 'package:ferry/ferry.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/foundation.dart';
+import 'package:junqo_front/core/response_handler.dart';
 import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
 import 'package:junqo_front/schemas/requests/__generated__/is_logged_in.req.gql.dart';
 import 'package:junqo_front/schemas/requests/__generated__/sign_in.req.gql.dart';
@@ -9,21 +10,24 @@ import 'package:junqo_front/shared/errors/graphql_exception.dart';
 
 class AuthService {
   final Client client;
-  late final Box<String> authBox;
+  late final Box<String> _authBox;
+  late final Box<String> _userBox;
   bool? _isLoggedIn;
 
   AuthService(this.client) {
     _initialize();
   }
 
-  String? get token => authBox.get('token');
+  String? get token => _authBox.get('token');
+  String? get userId => _userBox.get('user');
 
   Future<void> _initialize() async {
     int retries = 3;
 
     while (retries > 0) {
       try {
-        authBox = await Hive.openBox<String>('auth');
+        _authBox = await Hive.openBox<String>('auth');
+        _userBox = await Hive.openBox<String>('user');
         return;
       } catch (e, stack) {
         debugPrint('Error initializing Hive box: $e');
@@ -59,7 +63,11 @@ class AuthService {
     );
 
     final response = await client.request(request).first;
-    final data = await _handleGraphQLResponse(response, "SignUp");
+    final data =
+        await ResponseHandler.handleGraphQLResponse(response, "SignUp");
+    if (data?.signUp.user.id != null) {
+      await _userBox.put('user', data!.signUp.user.id);
+    }
     await _saveToken(data?.signUp.token);
   }
 
@@ -81,13 +89,18 @@ class AuthService {
     );
 
     final response = await client.request(request).first;
-    final data = await _handleGraphQLResponse(response, "SignIn");
+    final data =
+        await ResponseHandler.handleGraphQLResponse(response, "SignIn");
+    if (data?.signIn.token != null) {
+      await _userBox.put('user', data!.signIn.user.id);
+    }
     await _saveToken(data?.signIn.token);
   }
 
   Future<void> logout() async {
     try {
-      await authBox.delete('token');
+      await _authBox.delete('token');
+      await _userBox.delete('user');
       _isLoggedIn = false;
       debugPrint('User logged out.');
     } catch (e) {
@@ -111,7 +124,8 @@ class AuthService {
     final response = await client.request(request).first;
 
     try {
-      final data = await _handleGraphQLResponse(response, "Login status check");
+      final data = await ResponseHandler.handleGraphQLResponse(
+          response, "Login status check");
       final result = data?.isLoggedIn;
       _isLoggedIn = result ?? false;
       return _isLoggedIn as bool;
@@ -119,32 +133,17 @@ class AuthService {
       if (e is GraphQLException &&
           e.errors?.any((error) => error.contains('Unauthorized')) == true) {
         _isLoggedIn = false;
+        _userBox.delete('user');
+        _authBox.delete('token');
         return false;
       }
       rethrow;
     }
   }
 
-  Future<Data?> _handleGraphQLResponse<Data, Vars>(
-      OperationResponse<Data, Vars> response, String operation) async {
-    if (response.hasErrors) {
-      if (response.graphqlErrors != null) {
-        throw GraphQLException(
-          "$operation failed",
-          errors: response.graphqlErrors?.map((e) => e.message).toList(),
-        );
-      }
-      if (response.linkException != null) {
-        throw 'Link Exception: ${response.linkException?.originalStackTrace}';
-      }
-      return null;
-    }
-    return response.data;
-  }
-
   Future<void> _saveToken(String? token) async {
     if (token != null) {
-      await authBox.put('token', token);
+      await _authBox.put('token', token);
       debugPrint('Token saved successfully.');
       return;
     }

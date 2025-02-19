@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/core/user_service.dart';
+import 'package:junqo_front/pages/profile_recruter.dart';
+import 'package:junqo_front/shared/dto/user_type.dart';
+import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 import '../shared/widgets/navbar.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -24,8 +30,44 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _linkedinController = TextEditingController();
   final TextEditingController _githubController = TextEditingController();
 
+  final AuthService authService = GetIt.instance<AuthService>();
+  final UserService userService = GetIt.instance<UserService>();
+  UserType? userType;
+
+  @override
+  void initState() {
+    super.initState();
+    getUserType();
+  }
+
+  Future<void> getUserType() async {
+    String? userId = authService.userId;
+
+    if (userId == null) {
+      return;
+    }
+    try {
+      await userService.fetchUserData(userId);
+      setState(() {
+        userType = userService.userData?.type;
+      });
+    } catch (e) {
+      debugPrint('Error fetching user type: $e');
+      showErrorDialog(e.toString(), context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (userType == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else if (userType == UserType.COMPANY) {
+      return const CompanyProfile();
+    }
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: Column(

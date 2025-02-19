@@ -132,6 +132,7 @@ Here is the list of environment variables used by the **Junqo-platform**:
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
 - `DATABASE_NAME`: The name of the database. Default value is `junqo`.
 - `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./db_password.conf`.
+- `API_URL`: The URL of the back server used in the frontend. Default value is `http://localhost:4200`.
 
 The following are only available in development mode:
 
