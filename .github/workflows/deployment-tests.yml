@@ -19,7 +19,11 @@ jobs:
             any_changed:
               - 'junqo_back/**'
               - 'junqo_front/**'
+              - 'schemas/**'
               - '.github/workflows/deployment-tests.yml'
+              - docker-compose.dev.yaml
+              - docker-compose.yaml
+              - .dockerignore
 
   deployment-dev-tests:
     needs: changes-check
@@ -37,10 +41,12 @@ jobs:
     with:
       compose_file: docker-compose.yaml
 
-  mark-tests-passed-if-no-changes:
-    needs: changes-check
-    if: needs.changes-check.outputs.any_changed != 'true'
+  deployment-tests-ok:
+    needs: [changes-check, deployment-dev-tests, deployment-prod-tests]
+    if: |
+      (needs.changes-check.outputs.any_changed == 'false') ||
+      (needs.changes-check.outputs.any_changed == 'true' && needs.deployment-dev-tests.result == 'success' && needs.deployment-prod-tests.result == 'success')
     runs-on: ubuntu-latest
     steps:
-      - name: Mark tests as passed
-        run: echo "No relevant changes detected - marking as passed."
+      - name: Set deployment tests status
+        run: echo "Deployment tests passed"
