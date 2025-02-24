@@ -90,7 +90,7 @@ type Mutation {
   """
   Update the current student user profile.
   """
-  updateStudentProfile(StudentProfileInput: StudentProfileInput!): StudentProfile!
+  updateStudentProfile(studentProfileInput: StudentProfileInput!): StudentProfile!
 
   """
   Messages
