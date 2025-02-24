@@ -456,12 +456,6 @@ type OfferApplication {
   applying: StudentProfile!
 }
 
-enum OfferStatus {
-  OPEN
-  CLOSED
-  PENDING
-}
-
 enum ResumeFormat {
   PDF
   HTML
