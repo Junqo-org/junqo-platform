@@ -41,14 +41,33 @@ type Query {
   message(id: ID!): Message!
 
   """
-  Offers
+  Get the profile of a student by their user ID.
+  """
+  studentProfile(userId: ID!): StudentProfile
+
+  """
+  Get every offers in the system.
   """
   offers(
     first: Int,
     after: String,
     filter: OfferFilterInput
   ): OfferConnection!
-  offer(id: ID!): Offer!
+
+  """
+  Get an offer by its ID.
+  """
+  offer(offerId: ID!): Offer
+
+  """
+  Get every applications to a user's offers.
+  """
+  userOfferApplications(userId: ID!): [OfferApplication!]
+
+  """
+  Get every applications to a specific offer.
+  """
+  offerApplications(offerId: ID!): [OfferApplication!]
 
   """
   AI
@@ -68,6 +87,10 @@ type Mutation {
   ): MutationResponse!
   updateUser(id: ID!, input: UpdateUserInput!): MutationResponse!
   deleteUser(id: ID!): MutationResponse!
+  """
+  Update the current student user profile.
+  """
+  updateStudentProfile(studentProfileInput: StudentProfileInput!): StudentProfile!
 
   """
   Messages
@@ -79,9 +102,25 @@ type Mutation {
   """
   Offers
   """
-  createOffer(title: String!, description: String!, userId: ID!): MutationResponse!
-  updateOffer(id: ID!, title: String, description: String): MutationResponse!
-  deleteOffer(id: ID!): MutationResponse!
+  """
+  Create a new offer.
+  """
+  createOffer(offerInput: CreateOfferInput): MutationResponse!
+
+  """
+  Update an existing offer.
+  """
+  updateOffer(offerId: ID!, offerInput: UpdateOfferInput!): MutationResponse!
+
+  """
+  Delete an existing offer.
+  """
+  deleteOffer(offerId: ID!) : MutationResponse!
+
+  """
+  Apply to an offer.
+  """
+  applyToOffer(offerId: ID!): OfferApplication!
 }
 
 type Subscription {
@@ -318,13 +357,34 @@ enum UserType {
   COMPANY
 }
 
+"""
+The `OfferStatus` enum represents the status of an offer.
+"""
+enum OfferStatus {
+  "The offer is active."
+  ACTIVE
+  "The offer is inactive."
+  INACTIVE
+  "The offer is deleted."
+  DELETED
+}
+
+"""
+The `Experience` type represents an experience in a company done by a student.
+"""
 type Experience {
+  "The title of the experience."
   title: String!
+  "The company where the experience was done."
   company: String!
+  "The start date of the experience."
   startDate: DateTime!
+  "The end date of the experience if it's finished."
   endDate: DateTime
-  description: String!
-  skills: [String!]!
+  "The description of the experience."
+  description: String
+  "The skills obtained during the experience."
+  skills: [String!]
 }
 
 type Message implements Stored {
@@ -336,28 +396,137 @@ type Message implements Stored {
   user: User!
 }
 
+"""
+The `StudentProfile` type represents the profile of a student.
+"""
+type StudentProfile {
+  "The unique identifier of the user that own the profile."
+  userId: ID!
+  "The name of the student."
+  name: String!
+  "The avatar picture url of the student."
+  avatar: String
+  "The skills of the student."
+  skills: [String!]
+  "The experience of the student."
+  experience: [Experience!]
+}
+
+"""
+The `Offer` type represents an offer in the system.
+"""
 type Offer implements Stored {
+  "The unique identifier of the offer."
   id: ID!
+  "The user that created the offer."
+  userId: ID!
+  "The date when the offer was created."
   createdAt: DateTime!
+  "The date when the offer was last updated."
   updatedAt: DateTime!
+  "The date when the offer was deleted."
   deletedAt: DateTime
+  "The title of the offer."
   title: String!
+  "The description of the offer."
   description: String!
-  user: User!
+  "The status of the offer."
   status: OfferStatus!
+  "The date when the offer expires."
   expiresAt: DateTime
+  "The category of the offer."
   category: String!
+  "The tags of the offer."
   tags: [String!]
+  "The number of views of the offer."
   viewCount: Int!
 }
 
-enum OfferStatus {
-  OPEN
-  CLOSED
-  PENDING
+"""
+The `OfferApplication` type represents an application to an offer.
+"""
+type OfferApplication {
+  "The unique identifier of the application."
+  id: ID!
+  "The date when the application was created."
+  createdAt: DateTime!
+  "The offer that the application is for."
+  offer: Offer!
+  "The student that applied to the offer."
+  applying: StudentProfile!
 }
 
 enum ResumeFormat {
   PDF
   HTML
+}
+
+# Inputs
+
+"""
+The `CreateOfferInput` input type is used to create an offer.
+"""
+input CreateOfferInput {
+  "The title of the offer."
+  title: String!
+  "The description of the offer."
+  description: String!
+  "The status of the offer."
+  status: OfferStatus
+  "The date when the offer expires."
+  expiresAt: DateTime
+  "The category of the offer."
+  category: String
+  "The tags of the offer."
+  tags: [String!]
+  "The user that created the offer."
+  userId: ID!
+}
+
+"""
+The `UpdateOfferInput` input type is used to update an offer.
+"""
+input UpdateOfferInput {
+  "The title of the offer."
+  title: String
+  "The description of the offer."
+  description: String
+  "The status of the offer."
+  status: OfferStatus
+  "The date when the offer expires."
+  expiresAt: DateTime
+  "The category of the offer."
+  category: String
+  "The tags of the offer."
+  tags: [String!]
+}
+
+"""
+The `StudentProfileInput` input type is used to update a student profile.
+"""
+input StudentProfileInput {
+  "The avatar picture url of the student."
+  avatar: String
+  "The skills of the student."
+  skills: [String!]
+  "The experiences of the student."
+  experience: [ExperienceInput!]
+}
+
+"""
+The `ExperienceInput` input type is used to create or update an experience.
+"""
+input ExperienceInput {
+  "The title of the experience."
+  title: String!
+  "The company where the experience was done."
+  company: String!
+  "The start date of the experience."
+  startDate: DateTime!
+  "The end date of the experience if it's finished."
+  endDate: DateTime
+  "The description of the experience."
+  description: String
+  "The skills obtained during the experience."
+  skills: [String!]
 }

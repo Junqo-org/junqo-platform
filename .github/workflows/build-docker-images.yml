@@ -10,6 +10,10 @@ on:
       - completed
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -28,18 +32,22 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and push backend image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./junqo_back/Dockerfile
-        push: true
-        tags: ghcr.io/${{ github.repository_owner }}/junqo-back:latest
+    - name: Get lowercase repository owner
+      id: get_owner
+      run: echo "owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-    - name: Build and push frontend image
+    - name: Build and push production backend image
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./junqo_front/Dockerfile
+        file: ./junqo_back/dockerfile.prod
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/junqo-front:latest
+        tags: ghcr.io/${{ env.owner }}/junqo-back-prod:latest
+
+    - name: Build and push production frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./junqo_front/dockerfile.prod
+        push: true
+        tags: ghcr.io/${{ env.owner }}/junqo-front-prod:latest
