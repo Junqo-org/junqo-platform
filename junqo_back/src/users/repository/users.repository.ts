@@ -21,7 +21,7 @@ export class UsersRepository {
     try {
       const users = await this.userModel.findAll();
 
-      if (!users) {
+      if (!users || users.length === 0) {
         throw new NotFoundException('Users not found');
       }
       return users;

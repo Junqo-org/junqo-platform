@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import '../shared/widgets/navbar.dart';
-import 'cv.dart';
-import 'interview.dart';
-import 'motivation.dart';
 
 class IAPage extends StatefulWidget {
   const IAPage({super.key});
@@ -78,9 +75,9 @@ class _IAPageState extends State<IAPage> {
                               icon: Icons.person,
                               color: Colors.blue,
                               onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const Interview()),
+                                Navigator.pushNamed(
+                                  context,
+                                  '/interview',
                                 );
                               },
                             ),
@@ -92,8 +89,9 @@ class _IAPageState extends State<IAPage> {
                               icon: Icons.description,
                               color: Colors.green,
                               onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => const CV()),
+                                Navigator.pushNamed(
+                                  context,
+                                  '/cv',
                                 );
                               },
                             ),
@@ -109,9 +107,9 @@ class _IAPageState extends State<IAPage> {
                               icon: Icons.mail,
                               color: Colors.orange,
                               onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const Motivation()),
+                                Navigator.pushNamed(
+                                  context,
+                                  '/motivation',
                                 );
                               },
                             ),

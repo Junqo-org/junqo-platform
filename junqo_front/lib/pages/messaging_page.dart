@@ -17,7 +17,7 @@ class _MessagingPageState extends State<MessagingPage> {
         children: [
           // Navbar en haut avec l'index 3 pour Messaging
           const Navbar(currentIndex: 3),
-          
+
           // Contenu principal
           Expanded(
             child: SingleChildScrollView(

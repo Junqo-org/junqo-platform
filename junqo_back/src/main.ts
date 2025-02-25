@@ -6,7 +6,7 @@ import 'dotenv/config';
 
 const PORT_MIN = 1;
 const PORT_MAX = 65535;
-const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') || RegExp('.*');
+const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') || /.*/;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

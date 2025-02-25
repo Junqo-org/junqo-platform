@@ -12,7 +12,7 @@ class Motivation extends StatelessWidget {
         children: [
           // Navbar en haut avec l'index 1 pour IA
           Navbar(currentIndex: 1),
-          
+
           // Contenu principal
           Expanded(
             child: Center(

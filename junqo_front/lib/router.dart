@@ -5,6 +5,7 @@ import 'package:junqo_front/pages/ia_page.dart';
 import 'package:junqo_front/pages/interview.dart';
 import 'package:junqo_front/pages/login.dart';
 import 'package:junqo_front/pages/messaging_page.dart';
+import 'package:junqo_front/pages/motivation.dart';
 import 'package:junqo_front/pages/not_found_page.dart';
 import 'package:junqo_front/pages/privacy_policy.dart';
 import 'package:junqo_front/pages/profile_page.dart';
@@ -37,13 +38,20 @@ class AppRouter {
       case '/messaging':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: MessagingPage()));
+      case '/motivation':
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: Motivation()));
       case '/privacy-policy':
         return MaterialPageRoute(builder: (_) => const PrivacyPolicy());
       case '/profile':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: ProfilePage()));
       case '/register':
-        final userType = settings.arguments as String;
+        final userType = settings.arguments;
+
+        if (userType is! String) {
+          throw ArgumentError('userType must be a String');
+        }
         return MaterialPageRoute(
             builder: (_) => Register(
                   userType: userType,

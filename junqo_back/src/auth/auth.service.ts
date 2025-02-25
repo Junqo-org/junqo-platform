@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthPayload, UserType } from './../graphql.schema';
 import { UsersRepository } from './../users/repository/users.repository';

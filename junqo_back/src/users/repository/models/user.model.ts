@@ -8,6 +8,14 @@ import {
 } from 'sequelize-typescript';
 import { ObjectType } from '@nestjs/graphql';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  MAX_MAIL_LENGTH,
+  MAX_NAME_LENGTH,
+  MAX_PASSWORD_LENGTH,
+  MIN_MAIL_LENGTH,
+  MIN_NAME_LENGTH,
+  MIN_PASSWORD_LENGTH,
+} from '../../../shared/user-validation-constants';
 
 enum UserType {
   STUDENT = 'STUDENT',
@@ -46,6 +54,7 @@ export class UserModel extends Model {
     allowNull: false,
     validate: {
       notEmpty: true,
+      len: [MIN_NAME_LENGTH, MAX_NAME_LENGTH],
     },
   })
   name: string;
@@ -57,6 +66,8 @@ export class UserModel extends Model {
     validate: {
       isEmail: true,
       notEmpty: true,
+      len: [MIN_MAIL_LENGTH, MAX_MAIL_LENGTH],
+      isLowercase: true,
     },
   })
   email: string;
@@ -66,6 +77,7 @@ export class UserModel extends Model {
     allowNull: false,
     validate: {
       notEmpty: true,
+      len: [MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH],
     },
   })
   password: string;

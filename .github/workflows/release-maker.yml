@@ -1,0 +1,71 @@
+name: Create Release on Merge
+# Automatically creates and pushes a tag, and publishes a release when a pull request is merged into the 'main' branch
+# if the commit message matches a version pattern.
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    env:
+      REGEX_PATTERN: '([0-9]+\.[0-9]+(\.[0-9]+)?)$'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Get Pull Request Details
+      id: get_pr
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        PR_NUMBER=$(gh pr view --json number -q .number)
+        PR_TITLE=$(gh pr view $PR_NUMBER --json title -q .title)
+        PR_BODY=$(gh pr view $PR_NUMBER --json body -q .body)
+        sanitized_title=$(echo "$PR_TITLE" | sed -e 's/\"/\\\"/g' -e 's/\$/\\\$/g' -e 's/`/\\`/g' -e 's/\\/\\\\/g')
+        sanitized_body=$(echo "$PR_BODY" | sed -e 's/\"/\\\"/g' -e 's/\$/\\\$/g' -e 's/`/\\`/g' -e 's/\\/\\\\/g')
+        echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+        echo "PR_TITLE=$sanitized_title" >> $GITHUB_ENV
+        echo "PR_BODY=$sanitized_body" >> $GITHUB_ENV
+
+    - name: Check Pull Request Title with Regex
+      id: check_pr_title
+      run: |
+        if [[ "$PR_TITLE" =~ $REGEX_PATTERN ]]; then
+          echo "match=true" >> $GITHUB_ENV
+        else
+          echo "match=false" >> $GITHUB_ENV
+        fi
+
+    - name: Create Tag
+      if: env.match == 'true'
+      id: create_tag
+      run: |
+        tag=$(echo "$PR_TITLE" | grep -oP "$REGEX_PATTERN")
+        echo "tag=$tag" >> $GITHUB_ENV
+
+    - name: Push Tag
+      if: env.match == 'true'
+      run: |
+        git tag ${{ env.tag }}
+        git push origin ${{ env.tag }}
+
+    - name: Create Release
+      if: env.match == 'true'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.tag }}
+        release_name: Release ${{ env.tag }}
+        body: |
+          ${{ env.PR_BODY }}
+        draft: false
+        prerelease: false

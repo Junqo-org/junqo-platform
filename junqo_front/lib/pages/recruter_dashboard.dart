@@ -70,7 +70,7 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          const Navbar(currentIndex: 1),
+          const Navbar(currentIndex: 0),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),

@@ -1,4 +1,7 @@
-import { createParamDecorator } from '@nestjs/common';
+import {
+  createParamDecorator,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Logger } from '@nestjs/common';
 import { User } from './../graphql.schema';
@@ -11,7 +14,7 @@ export const CurrentUser = createParamDecorator((data, context) => {
 
   if (!req.user) {
     logger.error('No user found in request');
-    return null;
+    throw new InternalServerErrorException('No user found in request');
   }
   const user: User = new User();
 

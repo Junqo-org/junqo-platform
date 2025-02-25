@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/core/log_service.dart';
 import 'package:junqo_front/shared/errors/graphql_exception.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
@@ -46,10 +47,13 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
       showErrorDialog(e.toString(), context);
       return;
     } catch (e) {
-      debugPrint("Unexpected error: $e");
+      LogService.error(e.toString());
+      showErrorDialog(
+          'Une erreur inattendue s\'est produite. Veuillez réessayer.',
+          context);
       return;
     }
-    Navigator.pushNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   bool _validateFields() {
