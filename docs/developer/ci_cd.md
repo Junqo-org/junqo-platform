@@ -170,10 +170,14 @@ Note: act requires root privileges to run Docker containers, hence the sudo requ
 
 ```bash
 # Run the tests specified in the <specific file>
-sudo act workflow_dispatch -W '.github/workflows/<specific_file>'
+sudo act workflow_dispatch -W '.github/workflows/<specific_file>' -e tools/act-event-file.json -q
 # Example
-sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml'
+sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml' -e tools/act-event-file.json -q
 ```
+
+The `tools/act-event-file.json` file contains the event payload for the workflow.
+You can modify this file to change the event payload.
+The `q` flag is used to run the workflow in quiet mode. Remove it to see the logs.
 
 ### Deployment tests
 
