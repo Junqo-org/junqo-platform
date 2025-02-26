@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../pages/home_page.dart';
-import '../../pages/ia_page.dart';
-import '../../pages/messaging_page.dart';
-import '../../pages/profile_page.dart';
 import 'notification.dart';
 
 class Navbar extends StatefulWidget {
@@ -40,33 +36,27 @@ class _NavbarState extends State<Navbar> {
       _selectedIndex = index;
     });
 
-    Widget page;
+    String routeName;
     switch (index) {
       case 0:
-        page = const HomePage();
+        routeName = '/home';
         break;
       case 1:
-        page = const IAPage();
+        routeName = '/ia';
         break;
       case 3:
-        page = const MessagingPage();
+        routeName = '/messaging';
         break;
       case 4:
-        page = const ProfilePage();
+        routeName = '/profile';
         break;
       default:
         return;
     }
 
-    Navigator.pushReplacement(
+    Navigator.pushReplacementNamed(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 150),
-      ),
+      routeName,
     );
   }
 
