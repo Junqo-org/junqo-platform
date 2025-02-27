@@ -69,7 +69,10 @@ class _NavbarState extends State<Navbar> {
   }
 
   void _showNotificationPopup(BuildContext context, GlobalKey buttonKey) {
-    final RenderBox button = buttonKey.currentContext!.findRenderObject() as RenderBox;
+    final buttonContext = buttonKey.currentContext;
+    if (buttonContext == null) return;
+    
+    final RenderBox button = buttonContext.findRenderObject() as RenderBox;
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     final buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
 
