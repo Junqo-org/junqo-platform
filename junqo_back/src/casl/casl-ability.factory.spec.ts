@@ -1,4 +1,4 @@
-import { UserType } from '../users/user-type.enum';
+import { UserType } from '../users/dto/user-type.enum';
 import { DomainUser } from '../users/users';
 import { Action, CaslAbilityFactory } from './casl-ability.factory';
 

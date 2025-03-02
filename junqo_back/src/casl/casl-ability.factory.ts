@@ -8,9 +8,10 @@ import {
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 import { AuthUserDTO } from './../shared/dto/auth-user.dto';
-import { UserType } from './../users/user-type.enum';
+import { UserType } from '../users/dto/user-type.enum';
 import { DomainUser } from './../users/users';
 import { UserIdDTO } from './dto/user-id.dto';
+import { StudentProfileIdDTO } from './dto/profile-id.dto';
 
 // Describes what user can actually do in the application
 export enum Action {
@@ -23,7 +24,12 @@ export enum Action {
 
 // Describes what resources user can interact with
 type Subject =
-  | InferSubjects<typeof DomainUser | typeof AuthUserDTO | typeof UserIdDTO>
+  | InferSubjects<
+      | typeof DomainUser
+      | typeof AuthUserDTO
+      | typeof UserIdDTO
+      | typeof StudentProfileIdDTO
+    >
   | 'all'; // `all` is a special keyword in CASL which represents "any" resource
 
 export type AppAbility = MongoAbility<[Action, Subject]>;
@@ -45,6 +51,8 @@ export class CaslAbilityFactory {
     can(Action.MANAGE, DomainUser, { id: user.id });
     can(Action.MANAGE, UserIdDTO, { id: user.id });
     can(Action.CREATE, DomainUser, { type: { $ne: UserType.ADMIN } });
+    can(Action.MANAGE, StudentProfileIdDTO, { id: user.id });
+    can(Action.READ, StudentProfileIdDTO, 'all');
 
     return build({
       // Read https://casl.js.org/v6/en/guide/subject-type-detection#use-classes-as-subject-types for details

@@ -1,6 +1,6 @@
 // The User model used in the domain layer
 
-import { UserType } from './user-type.enum';
+import { UserType } from './dto/user-type.enum';
 import * as bcrypt from 'bcrypt';
 
 export class DomainUser {

@@ -10,11 +10,11 @@ import { CaslAbilityFactory, Action } from './../casl/casl-ability.factory';
 import { UsersRepository } from './repository/users.repository';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { DomainUser } from './users';
-import { UserType } from './user-type.enum';
+import { UserType } from './dto/user-type.enum';
 import { UserMapper } from './mapper/user-mapper';
 import * as bcrypt from 'bcrypt';
 import { bcryptConstants } from './../auth/constants';
-import { UpdateUserDTO } from './dto/update-user.dto';
+import { UpdateUserDTO } from './dto/user.dto';
 import { UserIdDTO } from './../casl/dto/user-id.dto';
 
 @Injectable()

@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserModel } from './models/user.model';
-import { CreateUserDTO } from './../dto/create-user.dto';
-import { UpdateUserDTO } from './../dto/update-user.dto';
+import { CreateUserDTO } from './../dto/user.dto';
+import { UpdateUserDTO } from './../dto/user.dto';
 
 @Injectable()
 export class UsersRepository {

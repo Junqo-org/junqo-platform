@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { UsersRepository } from './../users/repository/users.repository';
 import { UserModel } from './../users/repository/models/user.model';
-import { UserType } from './../users/user-type.enum';
+import { UserType } from '../users/dto/user-type.enum';
 import { AuthPayloadDTO } from './dto/auth-payload.dto';
 import { UserMapper } from './../users/mapper/user-mapper';
 

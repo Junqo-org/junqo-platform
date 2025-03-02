@@ -1,5 +1,5 @@
 import { bcryptConstants } from './../auth/constants';
-import { UserType } from './user-type.enum';
+import { UserType } from './dto/user-type.enum';
 import { DomainUser } from './users';
 import * as bcrypt from 'bcrypt';
 

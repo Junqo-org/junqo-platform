@@ -8,7 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
 import { UsersService } from '../src/users/users.service';
-import { UserType } from '../src/users/user-type.enum';
+import { UserType } from '../src/users/dto/user-type.enum';
 import { Sequelize } from 'sequelize-typescript';
 
 const SignUpQuery = {
