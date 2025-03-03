@@ -11,6 +11,7 @@ import { bcryptConstants } from './constants';
 import { ProfilesService } from '../profiles/profiles.service';
 import { UsersService } from '../users/users.service';
 import { UserDTO } from '../users/dto/user.dto';
+import { CreateStudentProfileDTO } from '../profiles/dto/student-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +34,17 @@ export class AuthService {
       bcryptConstants.saltOrRounds,
     );
     const user: UserDTO = await this.usersService.create(signUpInput);
+    if (signUpInput.type === UserType.STUDENT) {
+      const createStudentProfileDto: CreateStudentProfileDTO =
+        new CreateStudentProfileDTO({
+          userId: user.id,
+          name: user.name,
+        });
+      await this.profilesService.createStudentProfile(
+        user,
+        createStudentProfileDto,
+      );
+    }
     const payload = {
       sub: user.id,
       username: user.name,
