@@ -4,7 +4,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AuthPayload, UserType } from './../graphql.schema';
 import { SignUpDTO } from './dto/sign-up.dto';
 import * as bcrypt from 'bcrypt';
 import { bcryptConstants } from './constants';
@@ -12,6 +11,8 @@ import { ProfilesService } from '../profiles/profiles.service';
 import { UsersService } from '../users/users.service';
 import { UserDTO } from '../users/dto/user.dto';
 import { CreateStudentProfileDTO } from '../profiles/dto/student-profile.dto';
+import { AuthPayloadDTO } from './dto/auth-payload.dto';
+import { UserType } from '../users/dto/user-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  public async signUp(signUpInput: SignUpDTO): Promise<AuthPayload> {
+  public async signUp(signUpInput: SignUpDTO): Promise<AuthPayloadDTO> {
     if (signUpInput.type === UserType.ADMIN) {
       throw new UnauthorizedException('You cannot create an admin user');
     }
@@ -56,7 +57,10 @@ export class AuthService {
     return { token, user: user };
   }
 
-  public async signIn(email: string, password: string): Promise<AuthPayload> {
+  public async signIn(
+    email: string,
+    password: string,
+  ): Promise<AuthPayloadDTO> {
     let user: UserDTO = null;
 
     try {

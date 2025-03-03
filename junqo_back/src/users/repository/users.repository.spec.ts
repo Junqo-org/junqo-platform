@@ -54,7 +54,7 @@ describe('UsersRepository', () => {
         name: 'Test User',
         email: 'test@example.com',
         hashedPassword:
-          '9f40fc5e51daeef6ef4e4343b8946536c5a267b30c1ea4d314f67e9f2b6d9704',
+          '2b$10$PFgL/kAsRbv.OPxQLtMoxu4vcMP0MqvCj2Zoney7so00Jw8VRK/7e',
       };
       const createdUser: UserModel = {
         ...expectedUser,
@@ -67,7 +67,11 @@ describe('UsersRepository', () => {
       const result = await repository.create(createUserDto);
       expect(result).toEqual(expectedUser);
       expect(createdUser.toUserDTO).toHaveBeenCalled();
-      expect(mockUserModel.create).toHaveBeenCalledWith(createUserDto);
+      delete createUserDto.password;
+      expect(mockUserModel.create).toHaveBeenCalledWith({
+        ...createUserDto,
+        hashedPassword: expect.stringMatching(/^\$2b\$/),
+      });
     });
   });
 });

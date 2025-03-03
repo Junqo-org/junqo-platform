@@ -26,13 +26,14 @@ export class ProfilesRepository {
     try {
       const studentProfilesModels: StudentProfileModel[] =
         await this.studentProfileModel.findAll();
-      const studentProfiles: StudentProfileDTO[] = studentProfilesModels?.map(
-        (studentProfile) => studentProfile?.toStudentProfileDTO(),
-      );
 
-      if (!studentProfiles || studentProfiles.length === 0) {
+      if (!studentProfilesModels || studentProfilesModels.length === 0) {
         throw new NotFoundException('Student profile not found');
       }
+      const studentProfiles: StudentProfileDTO[] = studentProfilesModels.map(
+        (studentProfile) => studentProfile.toStudentProfileDTO(),
+      );
+
       return studentProfiles;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -47,12 +48,13 @@ export class ProfilesRepository {
     }
     const studentProfileModel: StudentProfileModel =
       await this.studentProfileModel.findByPk(id);
-    const studentProfile: StudentProfileDTO =
-      studentProfileModel?.toStudentProfileDTO();
 
-    if (!studentProfile) {
+    if (!studentProfileModel) {
       throw new NotFoundException(`Student profile #${id} not found`);
     }
+    const studentProfile: StudentProfileDTO =
+      studentProfileModel.toStudentProfileDTO();
+
     return studentProfile;
   }
 
@@ -73,7 +75,8 @@ export class ProfilesRepository {
         throw new InternalServerErrorException('Student Profile not created');
       }
       const newStudentProfile: StudentProfileDTO =
-        newStudentProfileModel?.toStudentProfileDTO();
+        newStudentProfileModel.toStudentProfileDTO();
+
       return newStudentProfile;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -112,8 +115,15 @@ export class ProfilesRepository {
             return updatedStudentProfile;
           },
         );
+
+      if (!updatedStudentProfileModel) {
+        throw new InternalServerErrorException(
+          'Fetched student profile is null',
+        );
+      }
       const updatedStudentProfile: StudentProfileDTO =
-        updatedStudentProfileModel?.toStudentProfileDTO();
+        updatedStudentProfileModel.toStudentProfileDTO();
+
       return updatedStudentProfile;
     } catch (error) {
       throw new InternalServerErrorException(

@@ -8,6 +8,8 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { UserModel } from './models/user.model';
 import { CreateUserDTO, UpdateUserDTO, UserDTO } from './../dto/user.dto';
+import * as bcrypt from 'bcrypt';
+import { bcryptConstants } from './../../auth/constants';
 
 @Injectable()
 export class UsersRepository {
@@ -19,13 +21,14 @@ export class UsersRepository {
   public async findAll(): Promise<UserDTO[]> {
     try {
       const userModels: UserModel[] = await this.userModel.findAll();
-      const users: UserDTO[] = userModels?.map((userModel) =>
-        userModel?.toUserDTO(),
-      );
 
-      if (!users || users.length === 0) {
+      if (!userModels || userModels.length === 0) {
         throw new NotFoundException('Users not found');
       }
+      const users: UserDTO[] = userModels.map((userModel) =>
+        userModel.toUserDTO(),
+      );
+
       return users;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -39,11 +42,12 @@ export class UsersRepository {
       throw new BadRequestException('Invalid user ID');
     }
     const userModel: UserModel = await this.userModel.findByPk(id);
-    const user: UserDTO = userModel?.toUserDTO();
 
-    if (!user) {
+    if (!userModel) {
       throw new NotFoundException(`User #${id} not found`);
     }
+    const user: UserDTO = userModel.toUserDTO();
+
     return user;
   }
 
@@ -54,11 +58,12 @@ export class UsersRepository {
     const userModel: UserModel = await this.userModel.findOne({
       where: { email },
     });
-    const user: UserDTO = userModel?.toUserDTO();
 
-    if (!user) {
+    if (!userModel) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
+    const user: UserDTO = userModel.toUserDTO();
+
     return user;
   }
 
@@ -70,17 +75,22 @@ export class UsersRepository {
       if (existingUser) {
         throw new ConflictException('Email already exists');
       }
+      const hashedPassword = await bcrypt.hash(
+        createUserDto.password,
+        bcryptConstants.saltOrRounds,
+      );
       const newUserModel: UserModel = await this.userModel.create({
         type: createUserDto.type,
         name: createUserDto.name,
         email: createUserDto.email,
-        hashedPassword: createUserDto.password,
+        hashedPassword: hashedPassword,
       });
 
       if (!newUserModel) {
         throw new InternalServerErrorException('User not created');
       }
-      const newUser: UserDTO = newUserModel?.toUserDTO();
+      const newUser: UserDTO = newUserModel.toUserDTO();
+
       return newUser;
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -103,12 +113,16 @@ export class UsersRepository {
           if (!user) {
             throw new NotFoundException(`User #${updateUserDto.id} not found`);
           }
+          const hashedPassword = await bcrypt.hash(
+            updateUserDto.password,
+            bcryptConstants.saltOrRounds,
+          );
           const updatedUser = await user.update(
             {
               type: updateUserDto.type,
               name: updateUserDto.name,
               email: updateUserDto.email,
-              hashedPassword: updateUserDto.password,
+              hashedPassword: hashedPassword,
             },
             {
               transaction,
@@ -116,7 +130,12 @@ export class UsersRepository {
           );
           return updatedUser;
         });
-      const updatedUser: UserDTO = updatedUserModel?.toUserDTO();
+
+      if (!updatedUserModel) {
+        throw new InternalServerErrorException('Fetched user is null');
+      }
+      const updatedUser: UserDTO = updatedUserModel.toUserDTO();
+
       return updatedUser;
     } catch (error) {
       throw new InternalServerErrorException(

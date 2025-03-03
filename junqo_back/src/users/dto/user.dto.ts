@@ -5,7 +5,6 @@ import {
   IsEnum,
   MaxLength,
   IsUUID,
-  IsOptional,
   IsNotEmpty,
   IsHash,
 } from 'class-validator';
@@ -59,27 +58,27 @@ export class PublicUserDTO extends OmitType(UserDTO, ['hashedPassword']) {}
 
 // Expected values to create a User
 export class CreateUserDTO {
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @MinLength(MIN_NAME_LENGTH)
   @MaxLength(MAX_NAME_LENGTH)
-  name?: string;
+  name: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEmail()
   @MinLength(MIN_MAIL_LENGTH)
   @MaxLength(MAX_MAIL_LENGTH)
-  email?: string;
+  email: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(UserType)
-  type?: UserType;
+  type: UserType;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @MinLength(MIN_PASSWORD_LENGTH)
   @MaxLength(MAX_PASSWORD_LENGTH)
-  password?: string;
+  password: string;
 }
 
 // Expected values to update a User

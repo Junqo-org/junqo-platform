@@ -56,7 +56,7 @@ export class StudentProfileModel extends Model {
       name: this.name,
       avatar: this.avatar,
       skills: this.skills,
-      experiences: this.experiences.map((exp) => exp.toExperienceDTO()),
+      experiences: this.experiences?.map((exp) => exp.toExperienceDTO()) || [],
     });
   }
 }

@@ -10,10 +10,9 @@ import { CaslAbilityFactory, Actions } from './../casl/casl-ability.factory';
 import { UsersRepository } from './repository/users.repository';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { UserType } from './dto/user-type.enum';
-import * as bcrypt from 'bcrypt';
-import { bcryptConstants } from './../auth/constants';
 import { CreateUserDTO, UpdateUserDTO, UserDTO } from './dto/user.dto';
 import { UserIdDTO } from './../casl/dto/user-id.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -79,16 +78,7 @@ export class UsersService {
 
   public async create(createUserDto: CreateUserDTO): Promise<UserDTO> {
     try {
-      const hashed_password = await bcrypt.hash(
-        createUserDto.password,
-        bcryptConstants.saltOrRounds,
-      );
-      const newUser = await this.usersRepository.create({
-        type: createUserDto.type,
-        name: createUserDto.name,
-        email: createUserDto.email,
-        password: hashed_password,
-      });
+      const newUser = await this.usersRepository.create(createUserDto);
 
       if (!newUser) {
         throw new InternalServerErrorException('User not created');
@@ -121,18 +111,13 @@ export class UsersService {
     if (updateData.type === UserType.ADMIN) {
       throw new ForbiddenException('You cannot update user type to admin');
     }
-
-    const hashedPassword = await bcrypt.hash(
-      updateData.password,
-      bcryptConstants.saltOrRounds,
-    );
     try {
       const updatedUser = await this.usersRepository.update({
         id: currentUser.id,
         type: updateData.type,
         name: updateData.name,
         email: updateData.email,
-        password: hashedPassword,
+        password: updateData.password,
       });
       return updatedUser;
     } catch (error) {
