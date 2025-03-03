@@ -5,8 +5,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDTO } from './dto/sign-up.dto';
-import * as bcrypt from 'bcrypt';
-import { bcryptConstants } from './constants';
 import { ProfilesService } from '../profiles/profiles.service';
 import { UsersService } from '../users/users.service';
 import { UserDTO } from '../users/dto/user.dto';
@@ -26,14 +24,10 @@ export class AuthService {
     if (signUpInput.type === UserType.ADMIN) {
       throw new UnauthorizedException('You cannot create an admin user');
     }
-
     if (signUpInput.password.length < 8) {
       throw new UnauthorizedException('Password must be at least 8 characters');
     }
-    signUpInput.password = await bcrypt.hash(
-      signUpInput.password,
-      bcryptConstants.saltOrRounds,
-    );
+
     const user: UserDTO = await this.usersService.create(signUpInput);
     if (signUpInput.type === UserType.STUDENT) {
       const createStudentProfileDto: CreateStudentProfileDTO =
@@ -46,6 +40,7 @@ export class AuthService {
         createStudentProfileDto,
       );
     }
+
     const payload = {
       sub: user.id,
       username: user.name,
@@ -76,7 +71,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const isPasswordValid = await this.usersService.comparePassword(
+    const isPasswordValid: boolean = await this.usersService.comparePassword(
       password,
       user,
     );

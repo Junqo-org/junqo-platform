@@ -158,6 +158,7 @@ export class UsersService {
     userDto: UserDTO,
   ): Promise<boolean> {
     const result = await bcrypt.compare(password, userDto.hashedPassword);
+
     return result;
   }
 }
