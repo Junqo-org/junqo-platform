@@ -23,7 +23,7 @@ export class ProfilesResolver {
   @Mutation(() => StudentProfile)
   public async updateStudentProfile(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Args('StudentProfileInput') studentProfileInput: StudentProfileInput,
+    @Args('studentProfileInput') studentProfileInput: StudentProfileInput,
   ) {
     const studentProfile = await this.profilesService.updateStudentProfile(
       currentUser,
