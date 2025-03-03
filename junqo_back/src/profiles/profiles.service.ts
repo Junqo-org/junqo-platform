@@ -11,7 +11,7 @@ import {
   StudentProfileDTO,
   UpdateStudentProfileDTO,
 } from './dto/student-profile.dto';
-import { Action, CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { UserType } from '../users/dto/user-type.enum';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { StudentProfileIdDTO } from '../casl/dto/profile-id.dto';
@@ -51,7 +51,7 @@ export class ProfilesService {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
     const authProfile = new StudentProfileIdDTO(userId);
 
-    if (ability.cannot(Action.CREATE, authProfile)) {
+    if (ability.cannot(Actions.CREATE, authProfile)) {
       throw new ForbiddenException(
         'You do not have permission to create this profile',
       );
@@ -83,7 +83,7 @@ export class ProfilesService {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
     const authProfile = new StudentProfileIdDTO(userId);
 
-    if (ability.cannot(Action.UPDATE, authProfile)) {
+    if (ability.cannot(Actions.UPDATE, authProfile)) {
       throw new ForbiddenException(
         'You do not have permission to update this profile',
       );
@@ -115,7 +115,7 @@ export class ProfilesService {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
     const authProfile = new StudentProfileIdDTO(userId);
 
-    if (ability.cannot(Action.DELETE, authProfile)) {
+    if (ability.cannot(Actions.DELETE, authProfile)) {
       throw new ForbiddenException(
         'You do not have permission to delete this profile',
       );

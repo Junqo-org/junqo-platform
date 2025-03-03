@@ -24,8 +24,11 @@ export class ProfilesRepository {
 
   public async findAll(): Promise<StudentProfileDTO[]> {
     try {
-      const studentProfiles: StudentProfileDTO[] =
+      const studentProfilesModels: StudentProfileModel[] =
         await this.studentProfileModel.findAll();
+      const studentProfiles: StudentProfileDTO[] = studentProfilesModels.map(
+        (studentProfile) => studentProfile.toStudentProfileDTO(),
+      );
 
       if (!studentProfiles || studentProfiles.length === 0) {
         throw new NotFoundException('Student profile not found');
@@ -42,8 +45,10 @@ export class ProfilesRepository {
     if (!id || typeof id !== 'string') {
       throw new BadRequestException('Invalid student profile ID');
     }
-    const studentProfile: StudentProfileDTO =
+    const studentProfileModel: StudentProfileModel =
       await this.studentProfileModel.findByPk(id);
+    const studentProfile: StudentProfileDTO =
+      studentProfileModel.toStudentProfileDTO();
 
     if (!studentProfile) {
       throw new NotFoundException(`Student profile #${id} not found`);
@@ -55,7 +60,7 @@ export class ProfilesRepository {
     createStudentProfileDto: CreateStudentProfileDTO,
   ): Promise<StudentProfileDTO> {
     try {
-      const newStudentProfile: StudentProfileDTO =
+      const newStudentProfileModel: StudentProfileModel =
         await this.studentProfileModel.create({
           userId: createStudentProfileDto.userId,
           name: createStudentProfileDto.name,
@@ -64,9 +69,11 @@ export class ProfilesRepository {
           experiences: createStudentProfileDto.experiences,
         });
 
-      if (!newStudentProfile) {
+      if (!newStudentProfileModel) {
         throw new InternalServerErrorException('Student Profile not created');
       }
+      const newStudentProfile: StudentProfileDTO =
+        newStudentProfileModel.toStudentProfileDTO();
       return newStudentProfile;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -80,7 +87,7 @@ export class ProfilesRepository {
     updateStudentProfileDto: UpdateStudentProfileDTO,
   ): Promise<StudentProfileDTO> {
     try {
-      const updatedStudentProfile: StudentProfileDTO =
+      const updatedStudentProfileModel: StudentProfileModel =
         await this.studentProfileModel.sequelize.transaction(
           async (transaction) => {
             const studentProfile = await this.studentProfileModel.findByPk(id, {
@@ -105,6 +112,8 @@ export class ProfilesRepository {
             return updatedStudentProfile;
           },
         );
+      const updatedStudentProfile: StudentProfileDTO =
+        updatedStudentProfileModel.toStudentProfileDTO();
       return updatedStudentProfile;
     } catch (error) {
       throw new InternalServerErrorException(

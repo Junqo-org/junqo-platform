@@ -7,6 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { StudentProfileModel } from './student-profile.model';
+import { ExperienceDTO } from '../../dto/experience.dto';
 
 @Table
 export class ExperienceModel extends Model {
@@ -75,4 +76,17 @@ export class ExperienceModel extends Model {
     type: DataType.ARRAY(DataType.STRING),
   })
   skills: string[];
+
+  public toExperienceDTO(): ExperienceDTO {
+    return {
+      id: this.id,
+      studentProfileId: this.studentProfileId,
+      title: this.title,
+      company: this.company,
+      startDate: this.startDate,
+      endDate: this.endDate,
+      description: this.description,
+      skills: this.skills,
+    };
+  }
 }

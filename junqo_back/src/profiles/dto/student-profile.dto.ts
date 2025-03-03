@@ -37,6 +37,11 @@ export class StudentProfileDTO {
   @IsOptional()
   @IsArray()
   experiences?: ExperienceDTO[];
+
+  // Obligatory for use with casl ability
+  constructor(data: Partial<StudentProfileDTO>) {
+    Object.assign(this, data);
+  }
 }
 
 // Expected values to create a Student Profile

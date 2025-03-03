@@ -4,7 +4,7 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Logger } from '@nestjs/common';
-import { User } from './../graphql.schema';
+import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 
 export const CurrentUser = createParamDecorator((data, context) => {
   const ctx = GqlExecutionContext.create(context);
@@ -16,11 +16,11 @@ export const CurrentUser = createParamDecorator((data, context) => {
     logger.error('No user found in request');
     throw new InternalServerErrorException('No user found in request');
   }
-  const user: User = new User();
-
-  user.id = req.user.sub;
-  user.name = req.user.username;
-  user.type = req.user.userType;
-  user.email = req.user.email;
-  return user;
+  const authUser: AuthUserDTO = new AuthUserDTO({
+    id: req.user.sub,
+    name: req.user.username,
+    type: req.user.userType,
+    email: req.user.email,
+  });
+  return authUser;
 });

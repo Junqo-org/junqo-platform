@@ -11,6 +11,7 @@ import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../../shared/user-validation-constants';
+import { StudentProfileDTO } from '../../dto/student-profile.dto';
 
 @Table
 export class StudentProfileModel extends Model {
@@ -48,4 +49,14 @@ export class StudentProfileModel extends Model {
 
   @HasMany(() => ExperienceModel)
   experiences: ExperienceModel[];
+
+  public toStudentProfileDTO(): StudentProfileDTO {
+    return new StudentProfileDTO({
+      userId: this.userId,
+      name: this.name,
+      avatar: this.avatar,
+      skills: this.skills,
+      experiences: this.experiences.map((exp) => exp.toExperienceDTO()),
+    });
+  }
 }

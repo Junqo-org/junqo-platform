@@ -1,9 +1,10 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { StudentProfileInput, User as UserGraphql } from './../graphql.schema';
+import { StudentProfileInput } from './../graphql.schema';
 import { StudentProfile } from '../graphql.schema';
 import { ProfilesService } from './profiles.service';
 import { NotFoundException } from '@nestjs/common';
 import { CurrentUser } from '../users/users.decorator';
+import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 
 @Resolver('Profiles')
 export class ProfilesResolver {
@@ -21,7 +22,7 @@ export class ProfilesResolver {
 
   @Mutation(() => StudentProfile)
   public async updateStudentProfile(
-    @CurrentUser() currentUser: UserGraphql,
+    @CurrentUser() currentUser: AuthUserDTO,
     @Args('StudentProfileInput') studentProfileInput: StudentProfileInput,
   ) {
     const studentProfile = await this.profilesService.updateStudentProfile(

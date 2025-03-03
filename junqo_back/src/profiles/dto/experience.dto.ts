@@ -1,6 +1,14 @@
-import { IsArray, IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsDate, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class ExperienceDTO {
+  @IsNotEmpty()
+  @IsUUID()
+  id: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  studentProfileId: string;
+
   @IsString()
   @IsNotEmpty()
   title: string;
@@ -22,19 +30,8 @@ export class ExperienceDTO {
   @IsArray()
   skills: string[];
 
-  constructor(
-    title: string,
-    company: string,
-    startDate: Date,
-    endDate: Date,
-    description: string,
-    skills: string[],
-  ) {
-    this.title = title;
-    this.company = company;
-    this.startDate = startDate;
-    this.endDate = endDate;
-    this.description = description;
-    this.skills = skills;
+  // Obligatory for use with casl ability
+  constructor(data: Partial<ExperienceDTO>) {
+    Object.assign(this, data);
   }
 }

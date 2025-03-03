@@ -6,15 +6,13 @@ import {
   InternalServerErrorException,
   ForbiddenException,
 } from '@nestjs/common';
-import { CaslAbilityFactory, Action } from './../casl/casl-ability.factory';
+import { CaslAbilityFactory, Actions } from './../casl/casl-ability.factory';
 import { UsersRepository } from './repository/users.repository';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
-import { DomainUser } from './users';
 import { UserType } from './dto/user-type.enum';
-import { UserMapper } from './mapper/user-mapper';
 import * as bcrypt from 'bcrypt';
 import { bcryptConstants } from './../auth/constants';
-import { UpdateUserDTO } from './dto/user.dto';
+import { CreateUserDTO, UpdateUserDTO, UserDTO } from './dto/user.dto';
 import { UserIdDTO } from './../casl/dto/user-id.dto';
 
 @Injectable()
@@ -24,19 +22,19 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  public async findAll(currentUser: AuthUserDTO): Promise<DomainUser[]> {
+  public async findAll(currentUser: AuthUserDTO): Promise<UserDTO[]> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    if (ability.cannot(Action.READ, AuthUserDTO)) {
+    if (ability.cannot(Actions.READ, AuthUserDTO)) {
       throw new ForbiddenException('You do not have permission to read users');
     }
     try {
-      const users = await this.usersRepository.findAll();
+      const users: UserDTO[] = await this.usersRepository.findAll();
 
       if (!users || users.length === 0) {
         throw new NotFoundException('Users not found');
       }
-      return UserMapper.toDomainUsers(users);
+      return users;
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to fetch users: ${error.message}`,
@@ -47,7 +45,7 @@ export class UsersService {
   public async findOneById(
     currentUser: AuthUserDTO,
     id: string,
-  ): Promise<DomainUser> {
+  ): Promise<UserDTO> {
     if (!id || typeof id !== 'string') {
       throw new BadRequestException('Invalid user ID');
     }
@@ -55,54 +53,40 @@ export class UsersService {
 
     const authUser = new UserIdDTO(id);
 
-    if (ability.cannot(Action.READ, authUser)) {
+    if (ability.cannot(Actions.READ, authUser)) {
       throw new ForbiddenException('You do not have permission to read users');
     }
-    const userModel = await this.usersRepository.findOneById(id);
-    const domainUser = UserMapper.toDomainUser(userModel);
+    const user = await this.usersRepository.findOneById(id);
 
-    if (!domainUser) {
+    if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    return domainUser;
+    return user;
   }
 
-  public async findOneByEmail(
-    currentUser: AuthUserDTO,
-    email: string,
-  ): Promise<DomainUser> {
+  public async findOneByEmail(email: string): Promise<UserDTO> {
     if (!email || typeof email !== 'string') {
       throw new BadRequestException('Invalid email');
     }
-    const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const userModel = await this.usersRepository.findOneByEmail(email);
-    const userDomain = UserMapper.toDomainUser(userModel);
+    const user: UserDTO = await this.usersRepository.findOneByEmail(email);
 
-    if (ability.cannot(Action.READ, userDomain)) {
-      throw new ForbiddenException('You do not have permission to read users');
-    }
-    if (!userDomain) {
+    if (!user) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
-    return userDomain;
+    return user;
   }
 
-  public async create(
-    type: UserType,
-    name: string,
-    email: string,
-    password: string,
-  ): Promise<DomainUser> {
+  public async create(createUserDto: CreateUserDTO): Promise<UserDTO> {
     try {
       const hashed_password = await bcrypt.hash(
-        password,
+        createUserDto.password,
         bcryptConstants.saltOrRounds,
       );
       const newUser = await this.usersRepository.create({
-        type: type,
-        name: name,
-        email: email,
+        type: createUserDto.type,
+        name: createUserDto.name,
+        email: createUserDto.email,
         password: hashed_password,
       });
 
@@ -110,7 +94,7 @@ export class UsersService {
         throw new InternalServerErrorException('User not created');
       }
 
-      return UserMapper.toDomainUser(newUser);
+      return newUser;
     } catch (error) {
       if (error instanceof ConflictException) {
         throw error;
@@ -124,12 +108,12 @@ export class UsersService {
   public async update(
     currentUser: AuthUserDTO,
     updateData: UpdateUserDTO,
-  ): Promise<DomainUser> {
+  ): Promise<UserDTO> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
     const authUser = new UserIdDTO(currentUser.id);
 
-    if (ability.cannot(Action.UPDATE, authUser)) {
+    if (ability.cannot(Actions.UPDATE, authUser)) {
       throw new ForbiddenException(
         'You do not have permission to update users',
       );
@@ -150,7 +134,7 @@ export class UsersService {
         email: updateData.email,
         password: hashedPassword,
       });
-      return UserMapper.toDomainUser(updatedUser);
+      return updatedUser;
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to update user: ${error.message}`,
@@ -163,7 +147,7 @@ export class UsersService {
 
     const authUser = new UserIdDTO(currentUser.id);
 
-    if (ability.cannot(Action.DELETE, authUser)) {
+    if (ability.cannot(Actions.DELETE, authUser)) {
       throw new ForbiddenException(
         'You do not have permission to delete users',
       );
@@ -182,5 +166,13 @@ export class UsersService {
         `Failed to delete user: ${error.message}`,
       );
     }
+  }
+
+  public async comparePassword(
+    password: string,
+    userDto: UserDTO,
+  ): Promise<boolean> {
+    const result = await bcrypt.compare(password, userDto.hashedPassword);
+    return result;
   }
 }

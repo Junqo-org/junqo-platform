@@ -1,5 +1,5 @@
 import { Field } from '@nestjs/graphql';
-import { DomainUser } from './../../users/users';
+import { UserDTO } from './../../users/users';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class AuthPayloadDTO {
@@ -8,7 +8,7 @@ export class AuthPayloadDTO {
   @IsNotEmpty()
   readonly token: string;
 
-  @Field(() => DomainUser)
+  @Field(() => UserDTO)
   @IsNotEmpty()
-  readonly user: DomainUser;
+  readonly user: UserDTO;
 }

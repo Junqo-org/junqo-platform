@@ -1,7 +1,9 @@
 import {
   IsEmail,
   IsEnum,
+  IsNotEmpty,
   IsString,
+  IsUUID,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -14,19 +16,27 @@ import {
 } from '../user-validation-constants';
 
 export class AuthUserDTO {
-  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
   id: string;
 
+  @IsNotEmpty()
   @IsString()
   @MinLength(MIN_NAME_LENGTH)
   @MaxLength(MAX_NAME_LENGTH)
   name: string;
 
+  @IsNotEmpty()
   @IsEmail()
   @MinLength(MIN_MAIL_LENGTH)
   @MaxLength(MAX_MAIL_LENGTH)
   email: string;
 
+  @IsNotEmpty()
   @IsEnum(UserType)
   type: UserType;
+
+  constructor(data: Partial<AuthUserDTO>) {
+    Object.assign(this, data);
+  }
 }

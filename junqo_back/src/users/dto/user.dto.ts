@@ -7,6 +7,7 @@ import {
   IsUUID,
   IsOptional,
   IsNotEmpty,
+  IsHash,
 } from 'class-validator';
 import { UserType } from './user-type.enum';
 import {
@@ -17,7 +18,8 @@ import {
   MIN_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '../../shared/user-validation-constants';
-import { PartialType } from '@nestjs/graphql';
+import { Config } from '../../shared/config';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 
 // User retrieved from database
 export class UserDTO {
@@ -43,10 +45,17 @@ export class UserDTO {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(MIN_PASSWORD_LENGTH)
-  @MaxLength(MAX_PASSWORD_LENGTH)
-  password: string;
+  @IsHash(Config.HASH_ALGORITHM)
+  hashedPassword: string;
+
+  // Obligatory for use with casl ability
+  constructor(data: Partial<UserDTO>) {
+    Object.assign(this, data);
+  }
 }
+
+// User without sensitive data
+export class PublicUserDTO extends OmitType(UserDTO, ['hashedPassword']) {}
 
 // Expected values to create a User
 export class CreateUserDTO {
