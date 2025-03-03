@@ -24,4 +24,4 @@ services:
 
 secrets:
   db_password:
-    file: ${DATABASE_PASSWORD_FILE:-./db_password.conf}
+    file: ${DATABASE_PASSWORD_FILE:-./db_password_test.conf}

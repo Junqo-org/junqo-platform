@@ -212,14 +212,12 @@ describe('end to end testing', () => {
 
   describe('Sign In', () => {
     it('SignIn User', async () => {
-      await app
-        .get(UsersService)
-        .create(
-          UserType.SCHOOL,
-          'testUser',
-          SignInQuery.variables.email,
-          SignInQuery.variables.password,
-        );
+      await app.get(UsersService).create({
+        type: UserType.SCHOOL,
+        name: 'testUser',
+        email: SignInQuery.variables.email,
+        password: SignInQuery.variables.password,
+      });
 
       const response = await request(app.getHttpServer())
         .post('/graphql')
@@ -242,14 +240,12 @@ describe('end to end testing', () => {
     });
 
     it('SignIn with invalid email', async () => {
-      await app
-        .get(UsersService)
-        .create(
-          UserType.SCHOOL,
-          'testUser',
-          SignInQuery.variables.email,
-          SignInQuery.variables.password,
-        );
+      await app.get(UsersService).create({
+        type: UserType.SCHOOL,
+        name: 'testUser',
+        email: SignInQuery.variables.email,
+        password: SignInQuery.variables.password,
+      });
 
       const invalidEmailQuery = {
         ...SignInQuery,
@@ -266,14 +262,12 @@ describe('end to end testing', () => {
     });
 
     it('SignIn with invalid password', async () => {
-      await app
-        .get(UsersService)
-        .create(
-          UserType.SCHOOL,
-          'testUser',
-          SignInQuery.variables.email,
-          SignInQuery.variables.password,
-        );
+      await app.get(UsersService).create({
+        type: UserType.SCHOOL,
+        name: 'testUser',
+        email: SignInQuery.variables.email,
+        password: SignInQuery.variables.password,
+      });
 
       const invalidPasswordQuery = {
         ...SignInQuery,

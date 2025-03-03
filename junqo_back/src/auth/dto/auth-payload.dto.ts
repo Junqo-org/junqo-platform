@@ -1,6 +1,6 @@
 import { Field } from '@nestjs/graphql';
-import { UserDTO } from './../../users/users';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { UserDTO } from '../../users/dto/user.dto';
 
 export class AuthPayloadDTO {
   @Field(() => String)

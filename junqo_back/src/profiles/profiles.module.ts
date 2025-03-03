@@ -7,6 +7,6 @@ import { CaslModule } from '../casl/casl.module';
 @Module({
   providers: [ProfilesResolver, ProfilesService],
   imports: [ProfilesRepositoryModule, CaslModule],
-  exports: [],
+  exports: [ProfilesService],
 })
 export class ProfilesModule {}
