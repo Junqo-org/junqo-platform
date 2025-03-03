@@ -19,8 +19,8 @@ export class UsersRepository {
   public async findAll(): Promise<UserDTO[]> {
     try {
       const userModels: UserModel[] = await this.userModel.findAll();
-      const users: UserDTO[] = userModels.map((userModel) =>
-        userModel.toUserDTO(),
+      const users: UserDTO[] = userModels?.map((userModel) =>
+        userModel?.toUserDTO(),
       );
 
       if (!users || users.length === 0) {
@@ -39,7 +39,7 @@ export class UsersRepository {
       throw new BadRequestException('Invalid user ID');
     }
     const userModel: UserModel = await this.userModel.findByPk(id);
-    const user: UserDTO = userModel.toUserDTO();
+    const user: UserDTO = userModel?.toUserDTO();
 
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
@@ -54,7 +54,7 @@ export class UsersRepository {
     const userModel: UserModel = await this.userModel.findOne({
       where: { email },
     });
-    const user: UserDTO = userModel.toUserDTO();
+    const user: UserDTO = userModel?.toUserDTO();
 
     if (!user) {
       throw new NotFoundException(`User with email ${email} not found`);
@@ -74,13 +74,13 @@ export class UsersRepository {
         type: createUserDto.type,
         name: createUserDto.name,
         email: createUserDto.email,
-        password: createUserDto.password,
+        hashedPassword: createUserDto.password,
       });
 
       if (!newUserModel) {
         throw new InternalServerErrorException('User not created');
       }
-      const newUser: UserDTO = newUserModel.toUserDTO();
+      const newUser: UserDTO = newUserModel?.toUserDTO();
       return newUser;
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -108,7 +108,7 @@ export class UsersRepository {
               type: updateUserDto.type,
               name: updateUserDto.name,
               email: updateUserDto.email,
-              password: updateUserDto.password,
+              hashedPassword: updateUserDto.password,
             },
             {
               transaction,
@@ -116,7 +116,7 @@ export class UsersRepository {
           );
           return updatedUser;
         });
-      const updatedUser: UserDTO = updatedUserModel.toUserDTO();
+      const updatedUser: UserDTO = updatedUserModel?.toUserDTO();
       return updatedUser;
     } catch (error) {
       throw new InternalServerErrorException(

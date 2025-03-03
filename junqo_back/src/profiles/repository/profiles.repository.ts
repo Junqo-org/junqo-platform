@@ -26,8 +26,8 @@ export class ProfilesRepository {
     try {
       const studentProfilesModels: StudentProfileModel[] =
         await this.studentProfileModel.findAll();
-      const studentProfiles: StudentProfileDTO[] = studentProfilesModels.map(
-        (studentProfile) => studentProfile.toStudentProfileDTO(),
+      const studentProfiles: StudentProfileDTO[] = studentProfilesModels?.map(
+        (studentProfile) => studentProfile?.toStudentProfileDTO(),
       );
 
       if (!studentProfiles || studentProfiles.length === 0) {
@@ -48,7 +48,7 @@ export class ProfilesRepository {
     const studentProfileModel: StudentProfileModel =
       await this.studentProfileModel.findByPk(id);
     const studentProfile: StudentProfileDTO =
-      studentProfileModel.toStudentProfileDTO();
+      studentProfileModel?.toStudentProfileDTO();
 
     if (!studentProfile) {
       throw new NotFoundException(`Student profile #${id} not found`);
@@ -73,7 +73,7 @@ export class ProfilesRepository {
         throw new InternalServerErrorException('Student Profile not created');
       }
       const newStudentProfile: StudentProfileDTO =
-        newStudentProfileModel.toStudentProfileDTO();
+        newStudentProfileModel?.toStudentProfileDTO();
       return newStudentProfile;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -113,7 +113,7 @@ export class ProfilesRepository {
           },
         );
       const updatedStudentProfile: StudentProfileDTO =
-        updatedStudentProfileModel.toStudentProfileDTO();
+        updatedStudentProfileModel?.toStudentProfileDTO();
       return updatedStudentProfile;
     } catch (error) {
       throw new InternalServerErrorException(
