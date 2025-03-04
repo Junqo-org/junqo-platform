@@ -3,6 +3,8 @@ import { UsersService } from './users.service';
 import { User as UserGraphql, UserType } from './../graphql.schema';
 import { NotFoundException } from '@nestjs/common';
 import { CurrentUser } from './users.decorator';
+import { UserDTO } from './dto/user.dto';
+import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 
 @Resolver('User')
 export class UsersResolver {
@@ -10,15 +12,19 @@ export class UsersResolver {
 
   @Query(() => [UserGraphql])
   public async users(
-    @CurrentUser() currentUser: UserGraphql,
+    @CurrentUser() currentUser: AuthUserDTO,
   ): Promise<UserGraphql[]> {
-    const users = await this.usersService.findAll(currentUser);
-    return users.map((u) => u.toJSON());
+    const users: UserDTO[] = await this.usersService.findAll(currentUser);
+    const safeUsers: UserGraphql[] = users.map((user) => {
+      delete user.hashedPassword;
+      return user;
+    });
+    return safeUsers;
   }
 
   @Query(() => UserGraphql)
   public async user(
-    @CurrentUser() currentUser: UserGraphql,
+    @CurrentUser() currentUser: AuthUserDTO,
     @Args('id') id: string,
   ): Promise<UserGraphql> {
     const user = await this.usersService.findOneById(currentUser, id);
@@ -26,12 +32,13 @@ export class UsersResolver {
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    return user.toJSON();
+    delete user.hashedPassword;
+    return user;
   }
 
   @Mutation(() => UserGraphql)
   public async updateUser(
-    @CurrentUser() currentUser: UserGraphql,
+    @CurrentUser() currentUser: AuthUserDTO,
     @Args('id') id: string,
     @Args('type') type: UserType,
     @Args('name') name: string,
@@ -45,12 +52,13 @@ export class UsersResolver {
       email,
       password,
     });
-    return user.toJSON();
+    delete user.hashedPassword;
+    return user;
   }
 
   @Mutation(() => Boolean)
   public async deleteUser(
-    @CurrentUser() currentUser: UserGraphql,
+    @CurrentUser() currentUser: AuthUserDTO,
     @Args('id') id: string,
   ): Promise<boolean> {
     const isSuccess = await this.usersService.delete(currentUser, id);

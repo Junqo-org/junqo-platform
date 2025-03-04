@@ -17,7 +17,7 @@ export class AuthResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<AuthPayload> {
-    const authPayload = await this.authService.signUp({
+    const authPayload: AuthPayload = await this.authService.signUp({
       type,
       name,
       email,
@@ -39,7 +39,10 @@ export class AuthResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<AuthPayload> {
-    const authPayload = await this.authService.signIn(email, password);
+    const authPayload: AuthPayload = await this.authService.signIn(
+      email,
+      password,
+    );
 
     if (!authPayload) {
       this.logger.error('Failed sign-in attempt');

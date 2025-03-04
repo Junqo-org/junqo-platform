@@ -5,7 +5,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { UserType } from '../../users/user-type.enum';
+import { UserType } from '../../users/dto/user-type.enum';
 import {
   MAX_MAIL_LENGTH,
   MAX_NAME_LENGTH,
