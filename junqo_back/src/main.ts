@@ -2,11 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
-import 'dotenv/config';
-
-const PORT_MIN = 1;
-const PORT_MAX = 65535;
-const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') || /.*/;
+import { config } from './shared/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -35,24 +31,19 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
-      enableDebugMessages: process.env.NODE_ENV !== 'production',
+      enableDebugMessages: config.NODE_ENV !== 'production',
       transformOptions: {
         enableImplicitConversion: true,
       },
     }),
   );
   app.enableCors({
-    origin: CORS_ORIGINS,
+    origin: config.CORS_ORIGINS,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  const port = Number(process.env.BACK_PORT ?? 4200);
-
-  if (Number.isNaN(port) || port < PORT_MIN || port > PORT_MAX) {
-    throw new Error(`Invalid port number: ${port}`);
-  }
-  await app.listen(port);
+  await app.listen(config.BACK_PORT);
 }
 
 bootstrap();

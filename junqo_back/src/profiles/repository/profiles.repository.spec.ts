@@ -174,6 +174,13 @@ describe('ProfilesRepository', () => {
         StudentProfileDtoExample.userId,
         { transaction: undefined },
       );
+      expect(studentProfileModel.update).toHaveBeenCalledWith(
+        {
+          userId: StudentProfileDtoExample.userId,
+          ...updateData,
+        },
+        { transaction: undefined },
+      );
     });
   });
 

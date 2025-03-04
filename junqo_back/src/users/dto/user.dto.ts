@@ -17,7 +17,7 @@ import {
   MIN_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '../../shared/user-validation-constants';
-import { Config } from '../../shared/config';
+import { config } from '../../shared/config';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
 
 // User retrieved from database
@@ -44,7 +44,7 @@ export class UserDTO {
 
   @IsNotEmpty()
   @IsString()
-  @IsHash(Config.HASH_ALGORITHM)
+  @IsHash(config.HASH_ALGORITHM)
   hashedPassword: string;
 
   // Obligatory for use with casl ability

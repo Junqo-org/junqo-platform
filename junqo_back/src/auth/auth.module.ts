@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { AuthResolver } from './auth.resolver';
-import { Config } from '../shared/config';
+import { config } from '../shared/config';
 import { ProfilesModule } from '../profiles/profiles.module';
 import { UsersModule } from '../users/users.module';
 
@@ -26,9 +26,9 @@ if (bcryptConstants.saltOrRounds === undefined) {
       global: true,
       secret: jwtConstants.secret,
       signOptions: {
-        expiresIn: '1w', // TODO: change to needs
-        issuer: 'junqo-auth',
-        algorithm: Config.HASH_ALGORITHM,
+        expiresIn: config.JWT_EXPIRE_DELAY,
+        issuer: config.JWT_ISSUER,
+        algorithm: config.HASH_ALGORITHM,
       },
     }),
   ],

@@ -103,10 +103,18 @@ export class ProfilesRepository {
             const updatedStudentProfile = await studentProfile.update(
               {
                 userId: id,
-                name: updateStudentProfileDto.name,
-                avatar: updateStudentProfileDto.avatar,
-                skills: updateStudentProfileDto.skills,
-                experiences: updateStudentProfileDto.experiences,
+                ...(updateStudentProfileDto.name !== undefined && {
+                  name: updateStudentProfileDto.name,
+                }),
+                ...(updateStudentProfileDto.avatar !== undefined && {
+                  avatar: updateStudentProfileDto.avatar,
+                }),
+                ...(updateStudentProfileDto.skills !== undefined && {
+                  skills: updateStudentProfileDto.skills,
+                }),
+                ...(updateStudentProfileDto.experiences !== undefined && {
+                  experiences: updateStudentProfileDto.experiences,
+                }),
               },
               {
                 transaction,
