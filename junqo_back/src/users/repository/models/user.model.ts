@@ -6,7 +6,6 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import { ObjectType } from '@nestjs/graphql';
 import { v4 as uuidv4 } from 'uuid';
 import {
   MAX_MAIL_LENGTH,
@@ -16,15 +15,9 @@ import {
   MIN_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '../../../shared/user-validation-constants';
+import { UserType } from '../../dto/user-type.enum';
+import { UserDTO } from '../../dto/user.dto';
 
-enum UserType {
-  STUDENT = 'STUDENT',
-  SCHOOL = 'SCHOOL',
-  COMPANY = 'COMPANY',
-  ADMIN = 'ADMIN',
-}
-
-@ObjectType()
 @Table
 export class UserModel extends Model {
   @PrimaryKey
@@ -80,5 +73,15 @@ export class UserModel extends Model {
       len: [MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH],
     },
   })
-  password: string;
+  hashedPassword: string;
+
+  public toUserDTO(): UserDTO {
+    return new UserDTO({
+      id: this.id,
+      name: this.name,
+      email: this.email,
+      type: UserType[this.type as keyof typeof UserType],
+      hashedPassword: this.hashedPassword,
+    });
+  }
 }

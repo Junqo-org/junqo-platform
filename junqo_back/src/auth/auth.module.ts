@@ -5,7 +5,9 @@ import { AuthService } from './auth.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { AuthResolver } from './auth.resolver';
-import { UsersRepositoryModule } from './../users/repository/users.repository.module';
+import { config } from '../shared/config';
+import { ProfilesModule } from '../profiles/profiles.module';
+import { UsersModule } from '../users/users.module';
 
 if (jwtConstants.secret === undefined) {
   throw new Error('JWT_SECRET is not defined, please set it in .env file');
@@ -18,14 +20,15 @@ if (bcryptConstants.saltOrRounds === undefined) {
 
 @Module({
   imports: [
-    UsersRepositoryModule,
+    UsersModule,
+    ProfilesModule,
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
       signOptions: {
-        expiresIn: '1w', // TODO: change to needs
-        issuer: 'junqo-auth',
-        algorithm: 'HS256',
+        expiresIn: config.JWT_EXPIRE_DELAY,
+        issuer: config.JWT_ISSUER,
+        algorithm: config.HASH_ALGORITHM,
       },
     }),
   ],
