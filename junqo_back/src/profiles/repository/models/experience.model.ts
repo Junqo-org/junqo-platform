@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -26,14 +27,15 @@ export class ExperienceModel extends Model {
   @ForeignKey(() => StudentProfileModel)
   @Column({
     type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
-    unique: true,
     allowNull: false,
     validate: {
       notEmpty: true,
     },
   })
   studentProfileId: string;
+
+  @BelongsTo(() => StudentProfileModel)
+  studentProfile: StudentProfileModel;
 
   @Column({
     type: DataType.STRING,
