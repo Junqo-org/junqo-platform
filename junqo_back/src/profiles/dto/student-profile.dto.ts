@@ -7,12 +7,14 @@ import {
   IsUUID,
   IsNotEmpty,
   IsOptional,
+  ValidateNested,
 } from 'class-validator';
 import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
 import { ExperienceDTO } from './experience.dto';
+import { Type } from 'class-transformer';
 
 // Student Profile retrieved from database
 export class StudentProfileDTO {
@@ -34,8 +36,10 @@ export class StudentProfileDTO {
   @IsArray()
   skills?: string[];
 
+  @Type(() => ExperienceDTO)
   @IsOptional()
   @IsArray()
+  @ValidateNested({ each: true })
   experiences?: ExperienceDTO[];
 
   // Obligatory for use with casl ability
@@ -65,5 +69,6 @@ export class UpdateStudentProfileDTO {
 
   @IsOptional()
   @IsArray()
+  @ValidateNested({ each: true })
   experiences?: ExperienceDTO[];
 }

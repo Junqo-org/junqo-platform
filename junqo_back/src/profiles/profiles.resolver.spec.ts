@@ -7,6 +7,7 @@ import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { StudentProfileInput } from './../graphql.schema';
 import { StudentProfileDTO } from './dto/student-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
+import { plainToInstance } from 'class-transformer';
 
 describe('ProfilesResolver', () => {
   let resolver: ProfilesResolver;
@@ -36,7 +37,7 @@ describe('ProfilesResolver', () => {
   });
 
   it('should find a student profile by ID', async () => {
-    const mockProfile: StudentProfileDTO = new StudentProfileDTO({
+    const mockProfile: StudentProfileDTO = plainToInstance(StudentProfileDTO, {
       userId: 'test-id',
       name: 'John Doe',
     });
@@ -64,7 +65,7 @@ describe('ProfilesResolver', () => {
     const studentProfileInput: StudentProfileInput = {
       avatar: 'https://picsum.photos/200/300',
     };
-    const mockProfile: StudentProfileDTO = new StudentProfileDTO({
+    const mockProfile: StudentProfileDTO = plainToInstance(StudentProfileDTO, {
       userId: 'test-id',
       name: 'John Doe',
     });

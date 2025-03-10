@@ -12,6 +12,7 @@ import {
   MIN_NAME_LENGTH,
 } from '../../../shared/user-validation-constants';
 import { StudentProfileDTO } from '../../dto/student-profile.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Table
 export class StudentProfileModel extends Model {
@@ -51,7 +52,7 @@ export class StudentProfileModel extends Model {
   experiences: ExperienceModel[];
 
   public toStudentProfileDTO(): StudentProfileDTO {
-    return new StudentProfileDTO({
+    return plainToInstance(StudentProfileDTO, {
       userId: this.userId,
       name: this.name,
       avatar: this.avatar,

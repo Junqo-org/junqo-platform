@@ -67,10 +67,10 @@ describe('AuthResolver', () => {
       const result = await authResolver.signIn('test@test.com', 'password123');
 
       // then
-      expect(mockAuthService.signIn).toHaveBeenCalledWith(
-        'test@test.com',
-        'password123',
-      );
+      expect(mockAuthService.signIn).toHaveBeenCalledWith({
+        email: 'test@test.com',
+        password: 'password123',
+      });
       expect(result).toEqual(mockAuthPayload);
     });
   });

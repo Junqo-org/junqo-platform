@@ -1,10 +1,12 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User as UserGraphql, UserType } from './../graphql.schema';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CurrentUser } from './users.decorator';
-import { UserDTO } from './dto/user.dto';
+import { UpdateUserDTO, UserDTO } from './dto/user.dto';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
 
 @Resolver('User')
 export class UsersResolver {
@@ -45,13 +47,21 @@ export class UsersResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<UserGraphql> {
-    const user = await this.usersService.update(currentUser, {
+    const updateUserDto: UpdateUserDTO = plainToInstance(UpdateUserDTO, {
       id,
       type,
       name,
       email,
       password,
     });
+
+    try {
+      await validateOrReject(updateUserDto);
+    } catch (errors) {
+      throw new BadRequestException(errors);
+    }
+
+    const user = await this.usersService.update(currentUser, updateUserDto);
     delete user.hashedPassword;
     return user;
   }

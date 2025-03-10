@@ -1,8 +1,16 @@
 import { Mutation, Resolver, Args, Query } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { Public } from './../auth/is_public.decorator';
-import { InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { AuthPayload, UserType } from './../graphql.schema';
+import { SignUpDTO } from './dto/sign-up.dto';
+import { validateOrReject } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
+import { SignInDTO } from './dto/sign-in.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -17,12 +25,20 @@ export class AuthResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<AuthPayload> {
-    const authPayload: AuthPayload = await this.authService.signUp({
+    const signUpDto: SignUpDTO = plainToInstance(SignUpDTO, {
       type,
       name,
       email,
       password,
     });
+
+    try {
+      await validateOrReject(signUpDto);
+    } catch (errors) {
+      throw new BadRequestException(errors);
+    }
+
+    const authPayload: AuthPayload = await this.authService.signUp(signUpDto);
     if (!authPayload) {
       const error = new InternalServerErrorException('Authentication failed');
       error.name = 'AuthenticationError';
@@ -39,10 +55,17 @@ export class AuthResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<AuthPayload> {
-    const authPayload: AuthPayload = await this.authService.signIn(
+    const signInDto: SignInDTO = plainToInstance(SignInDTO, {
       email,
       password,
-    );
+    });
+
+    try {
+      await validateOrReject(signInDto);
+    } catch (errors) {
+      throw new BadRequestException(errors);
+    }
+    const authPayload: AuthPayload = await this.authService.signIn(signInDto);
 
     if (!authPayload) {
       this.logger.error('Failed sign-in attempt');

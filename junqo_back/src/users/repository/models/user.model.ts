@@ -6,7 +6,6 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import { v4 as uuidv4 } from 'uuid';
 import {
   MAX_MAIL_LENGTH,
   MAX_NAME_LENGTH,
@@ -21,7 +20,7 @@ import { UserDTO } from '../../dto/user.dto';
 @Table
 export class UserModel extends Model {
   @PrimaryKey
-  @Default(uuidv4)
+  @Default(DataType.UUIDV4)
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,

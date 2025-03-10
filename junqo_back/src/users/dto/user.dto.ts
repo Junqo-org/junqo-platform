@@ -19,29 +19,35 @@ import {
 } from '../../shared/user-validation-constants';
 import { config } from '../../shared/config';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { Expose } from 'class-transformer';
 
 // User retrieved from database
 export class UserDTO {
+  @Expose()
   @IsNotEmpty()
   @IsUUID()
   id: string;
 
+  @Expose()
   @IsNotEmpty()
   @IsString()
   @MinLength(MIN_NAME_LENGTH)
   @MaxLength(MAX_NAME_LENGTH)
   name: string;
 
+  @Expose()
   @IsNotEmpty()
   @IsEmail()
   @MinLength(MIN_MAIL_LENGTH)
   @MaxLength(MAX_MAIL_LENGTH)
   email: string;
 
+  @Expose()
   @IsNotEmpty()
   @IsEnum(UserType)
   type: UserType;
 
+  @Expose()
   @IsNotEmpty()
   @IsString()
   @IsHash(config.HASH_ALGORITHM)

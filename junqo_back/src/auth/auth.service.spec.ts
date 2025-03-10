@@ -3,10 +3,12 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserType } from '../users/dto/user-type.enum';
 import { AuthPayloadDTO } from './dto/auth-payload.dto';
-import { UserDTO } from '../users/dto/user.dto';
+import { PublicUserDTO, UserDTO } from '../users/dto/user.dto';
 import { UsersService } from '../users/users.service';
 import { ProfilesService } from '../profiles/profiles.service';
 import { SignUpDTO } from './dto/sign-up.dto';
+import { plainToInstance } from 'class-transformer';
+import { StudentProfileDTO } from '../profiles/dto/student-profile.dto';
 
 jest.mock('./../users/repository/models/user.model');
 
@@ -29,34 +31,36 @@ describe('AuthService', () => {
     // Successfully creates new user and returns AuthPayload with token and user data
     it('should create new user and return AuthPayload when valid data provided', async () => {
       // given
-      const userData = {
+      const userData: PublicUserDTO = plainToInstance(PublicUserDTO, {
         id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
         type: UserType.STUDENT,
         name: 'Test User',
         email: 'mail@mail.com',
-      };
-      const signUpInput: SignUpDTO = {
+      });
+      const signUpInput: SignUpDTO = plainToInstance(SignUpDTO, {
         name: userData.name,
         email: userData.email,
         type: userData.type,
         password: 'password123',
-      };
-      const createdUser: UserDTO = {
+      });
+      const createdUser: UserDTO = plainToInstance(UserDTO, {
         ...userData,
         hashedPassword:
           'EF92B778BAFE771E89245B89ECBC08A44A4E166C06659911881F383D4473E94F',
-      };
+      });
 
-      const mockAuthPayload: AuthPayloadDTO = {
+      const mockAuthPayload: AuthPayloadDTO = plainToInstance(AuthPayloadDTO, {
         token: 'test-token',
         user: userData,
-      };
+      });
 
       mockUsersService.create.mockResolvedValue(createdUser);
-      mockProfileService.createStudentProfile.mockResolvedValue({
-        userId: userData.id,
-        name: userData.name,
-      });
+      mockProfileService.createStudentProfile.mockResolvedValue(
+        plainToInstance(StudentProfileDTO, {
+          userId: userData.id,
+          name: userData.name,
+        }),
+      );
       mockJwtService.signAsync.mockResolvedValue('test-token');
 
       // when

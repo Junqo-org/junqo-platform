@@ -1,3 +1,4 @@
+import { plainToInstance } from 'class-transformer';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { UserDTO } from '../users/dto/user.dto';
@@ -12,7 +13,7 @@ describe('CaslAbilityFactory', () => {
 
     beforeEach(() => {
       caslAbilityFactory = new CaslAbilityFactory();
-      user = new UserDTO({
+      user = plainToInstance(UserDTO, {
         id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
         type: UserType.STUDENT,
         name: 'Test User',
@@ -20,13 +21,13 @@ describe('CaslAbilityFactory', () => {
         hashedPassword:
           '9f40fc5e51daeef6ef4e4343b8946536c5a267b30c1ea4d314f67e9f2b6d9704',
       });
-      otherUser = new AuthUserDTO({
+      otherUser = plainToInstance(AuthUserDTO, {
         id: 'e69cc25b-0cc4-4032-83c2-0d34c84318bb',
         type: UserType.STUDENT,
         name: 'Other User',
         email: 'other.user@mail.com',
       });
-      admin = new UserDTO({
+      admin = plainToInstance(UserDTO, {
         id: 'e69cc25b-0cc4-4032-83c2-0d34c84318bc',
         type: UserType.ADMIN,
         name: 'Admin User',

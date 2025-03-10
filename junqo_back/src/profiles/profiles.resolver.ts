@@ -2,9 +2,11 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { StudentProfileInput } from './../graphql.schema';
 import { StudentProfile } from '../graphql.schema';
 import { ProfilesService } from './profiles.service';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CurrentUser } from '../users/users.decorator';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
+import { validateOrReject } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 
 @Resolver('Profiles')
 export class ProfilesResolver {
@@ -25,9 +27,19 @@ export class ProfilesResolver {
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('studentProfileInput') studentProfileInput: StudentProfileInput,
   ) {
+    const studentProfileDto: StudentProfileInput = plainToInstance(
+      StudentProfileInput,
+      studentProfileInput,
+    );
+
+    try {
+      await validateOrReject(studentProfileDto);
+    } catch (errors) {
+      throw new BadRequestException(errors);
+    }
     const studentProfile = await this.profilesService.updateStudentProfile(
       currentUser,
-      studentProfileInput,
+      studentProfileDto,
     );
 
     if (!studentProfile) {

@@ -7,10 +7,12 @@ import { JwtService } from '@nestjs/jwt';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { ProfilesService } from '../profiles/profiles.service';
 import { UsersService } from '../users/users.service';
-import { UserDTO } from '../users/dto/user.dto';
+import { PublicUserDTO, UserDTO } from '../users/dto/user.dto';
 import { CreateStudentProfileDTO } from '../profiles/dto/student-profile.dto';
 import { AuthPayloadDTO } from './dto/auth-payload.dto';
 import { UserType } from '../users/dto/user-type.enum';
+import { SignInDTO } from './dto/sign-in.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -30,36 +32,38 @@ export class AuthService {
 
     const user: UserDTO = await this.usersService.create(signUpInput);
     if (signUpInput.type === UserType.STUDENT) {
-      const createStudentProfileDto: CreateStudentProfileDTO =
-        new CreateStudentProfileDTO({
+      const createStudentProfileDto: CreateStudentProfileDTO = plainToInstance(
+        CreateStudentProfileDTO,
+        {
           userId: user.id,
           name: user.name,
-        });
+        },
+      );
+
       await this.profilesService.createStudentProfile(
         user,
         createStudentProfileDto,
       );
     }
+    const publicUser: PublicUserDTO = plainToInstance(PublicUserDTO, user, {
+      excludeExtraneousValues: true,
+    });
 
     const payload = {
-      sub: user.id,
-      username: user.name,
-      userType: user.type,
-      email: user.email,
+      sub: publicUser.id,
+      username: publicUser.name,
+      userType: publicUser.type,
+      email: publicUser.email,
     };
     const token = await this.jwtService.signAsync(payload);
-    delete user.hashedPassword;
-    return { token, user: user };
+    return plainToInstance(AuthPayloadDTO, { token, user: publicUser });
   }
 
-  public async signIn(
-    email: string,
-    password: string,
-  ): Promise<AuthPayloadDTO> {
+  public async signIn(signInInput: SignInDTO): Promise<AuthPayloadDTO> {
     let user: UserDTO = null;
 
     try {
-      user = await this.usersService.findOneByEmail(email);
+      user = await this.usersService.findOneByEmail(signInInput.email);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new UnauthorizedException('Invalid email or password');
@@ -72,7 +76,7 @@ export class AuthService {
     }
 
     const isPasswordValid: boolean = await this.usersService.comparePassword(
-      password,
+      signInInput.password,
       user,
     );
 
@@ -80,14 +84,17 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
+    const publicUser: PublicUserDTO = plainToInstance(PublicUserDTO, user, {
+      excludeExtraneousValues: true,
+    });
+
     const payload = {
-      sub: user.id,
-      username: user.name,
-      userType: user.type,
-      email: user.email,
+      sub: publicUser.id,
+      username: publicUser.name,
+      userType: publicUser.type,
+      email: publicUser.email,
     };
     const token = await this.jwtService.signAsync(payload);
-    delete user.hashedPassword;
-    return { token, user: user };
+    return plainToInstance(AuthPayloadDTO, { token, user: publicUser });
   }
 }
