@@ -187,22 +187,28 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final mainColor = getTypeColor();
+    final screenSize = MediaQuery.of(context).size;
+    final bool isSmallScreen = screenSize.width < 600;
 
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        // Rétablir le gradient mais avec une intensité plus forte
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              mainColor.withOpacity(0.1),
+              mainColor.withOpacity(0.15), // Légèrement plus prononcé que 0.1
               Colors.white,
             ],
           ),
         ),
         child: Stack(
+          fit: StackFit.expand,
           children: [
-            // Animated blobs with adjusted colors
+            // Blobs animés avec opacité plus visible
             Positioned(
               left: -100,
               top: -50,
@@ -213,6 +219,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                 size: 400,
                 initialOffset: const Offset(50, 100),
                 floatRadius: 60,
+                opacity: 0.35, // Opacité augmentée
               ),
             ),
             Positioned(
@@ -225,6 +232,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                 size: 380,
                 initialOffset: const Offset(250, 150),
                 floatRadius: 70,
+                opacity: 0.35, // Opacité augmentée
               ),
             ),
             Positioned(
@@ -237,285 +245,297 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                 size: 400,
                 initialOffset: const Offset(150, 300),
                 floatRadius: 65,
+                opacity: 0.35, // Opacité augmentée
               ),
             ),
 
-            // Main content
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Logo and back button with glass effect
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 40, 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.grey.shade200,
-                          width: 1,
-                        ),
+            // Contenu principal avec SafeArea pour éviter la bande noire
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // En-tête avec logo et bouton retour
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 40, 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9), // Légère transparence
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade200,
+                            blurRadius: 2,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_back, color: mainColor),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(width: 16),
+                          SizedBox(
+                            height: 60,
+                            child: Image.asset(
+                              'assets/images/junqo_logo.png',
+                              fit: BoxFit.contain,
+                              alignment: Alignment.centerLeft,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.arrow_back, color: mainColor),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        const SizedBox(width: 16),
-                        SizedBox(
-                          height: 60,
-                          child: Image.asset(
-                            'assets/images/junqo_logo.png',
-                            fit: BoxFit.contain,
-                            alignment: Alignment.centerLeft,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
 
-                  // Form content
-                  Center(
-                    child: Container(
-                      constraints: const BoxConstraints(maxWidth: 450),
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 32, horizontal: 24),
-                      child: Container(
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: mainColor.withOpacity(0.08),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
-                              spreadRadius: 0,
+                    // Formulaire avec design responsive
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Center(
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: isSmallScreen ? screenSize.width * 0.9 : 450,
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Title with accent
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 32),
+                            margin: EdgeInsets.symmetric(
+                              vertical: 32,
+                              horizontal: isSmallScreen ? 16 : 24,
+                            ),
+                            child: Container(
+                              padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.95), // Légère transparence
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: mainColor.withOpacity(0.1),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 8),
+                                    spreadRadius: 0,
+                                  ),
+                                ],
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 4,
-                                        height: 24,
-                                        margin:
-                                            const EdgeInsets.only(right: 12),
-                                        decoration: BoxDecoration(
-                                          color: mainColor,
-                                          borderRadius:
-                                              BorderRadius.circular(2),
+                                  // Titre avec accent
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 32),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 4,
+                                              height: 24,
+                                              margin:
+                                                  const EdgeInsets.only(right: 12),
+                                              decoration: BoxDecoration(
+                                                color: mainColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                              ),
+                                            ),
+                                            const Text(
+                                              'Inscription',
+                                              style: TextStyle(
+                                                fontSize: 32,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF1A1A1A),
+                                                height: 1.2,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      const Text(
-                                        'Inscription',
+                                        const SizedBox(height: 8),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 16),
+                                          child: Text(
+                                            'en tant qu\'${getUserTypeText()}',
+                                            style: const TextStyle(
+                                              fontSize: 26,
+                                              fontWeight: FontWeight.w300,
+                                              color: Color(0xFF1A1A1A),
+                                              height: 1.2,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 16),
+                                          child: Text(
+                                            'Remplissez le formulaire pour créer votre compte',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.grey.shade600,
+                                              height: 1.5,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Champs du formulaire
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 32),
+                                    child: Column(
+                                      children: [
+                                        _buildTextField(
+                                          label: userType == 'student'
+                                              ? 'Nom complet'
+                                              : userType == 'school'
+                                                  ? 'Nom de l\'école'
+                                                  : 'Nom de l\'entreprise',
+                                          controller: _nameController,
+                                          prefix: Icons.account_circle_outlined,
+                                          mainColor: mainColor,
+                                          isError: _nameError != null,
+                                          errorText: _nameError,
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _buildTextField(
+                                          label: 'Adresse e-mail',
+                                          controller: _emailController,
+                                          prefix: Icons.email_outlined,
+                                          keyboardType: TextInputType.emailAddress,
+                                          mainColor: mainColor,
+                                          isError: _emailError != null,
+                                          errorText: _emailError,
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _buildTextField(
+                                          label: 'Mot de passe',
+                                          controller: _passwordController,
+                                          prefix: Icons.lock_outline,
+                                          isPassword: true,
+                                          isPasswordVisible: _isPasswordVisible,
+                                          onVisibilityChanged: (value) => setState(
+                                              () => _isPasswordVisible = value),
+                                          mainColor: mainColor,
+                                          isError: _passwordError != null,
+                                          errorText: _passwordError,
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _buildTextField(
+                                          label: 'Confirmer le mot de passe',
+                                          controller: _confirmPasswordController,
+                                          prefix: Icons.lock_outline,
+                                          isPassword: true,
+                                          isPasswordVisible:
+                                              _isConfirmPasswordVisible,
+                                          onVisibilityChanged: (value) => setState(
+                                              () =>
+                                                  _isConfirmPasswordVisible = value),
+                                          isError: !_passwordsMatch ||
+                                              _passwordError != null,
+                                          errorText: _passwordError,
+                                          mainColor: mainColor,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Bouton d'inscription
+                                  _buildSubmitButton(mainColor, _register),
+                                  const SizedBox(height: 24),
+
+                                  // Lien de connexion
+                                  Center(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Vous avez déjà un compte ? ',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        MouseRegion(
+                                          cursor: SystemMouseCursors.click,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.pushNamed(
+                                                context,
+                                                '/login',
+                                              );
+                                            },
+                                            child: Text(
+                                              'Connectez-vous',
+                                              style: TextStyle(
+                                                color: mainColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+
+                                  // Conditions d'utilisation
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: mainColor.withOpacity(0.05),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: RichText(
+                                      textAlign: TextAlign.center,
+                                      text: TextSpan(
                                         style: TextStyle(
-                                          fontSize: 32,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF1A1A1A),
-                                          height: 1.2,
+                                          fontSize: 13,
+                                          color: Colors.grey.shade600,
+                                          height: 1.5,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 16),
-                                    child: Text(
-                                      'en tant qu\'${getUserTypeText()}',
-                                      style: const TextStyle(
-                                        fontSize: 26,
-                                        fontWeight: FontWeight.w300,
-                                        color: Color(0xFF1A1A1A),
-                                        height: 1.2,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 16),
-                                    child: Text(
-                                      'Remplissez le formulaire pour créer votre compte',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.grey.shade600,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Form fields
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 32),
-                              child: Column(
-                                children: [
-                                  _buildTextField(
-                                    label: userType == 'student'
-                                        ? 'Nom complet'
-                                        : userType == 'school'
-                                            ? 'Nom de l\'école'
-                                            : 'Nom de l\'entreprise',
-                                    controller: _nameController,
-                                    prefix: Icons.account_circle_outlined,
-                                    mainColor: mainColor,
-                                    isError: _nameError != null,
-                                    errorText: _nameError,
-                                  ),
-                                  const SizedBox(height: 24),
-                                  _buildTextField(
-                                    label: 'Adresse e-mail',
-                                    controller: _emailController,
-                                    prefix: Icons.email_outlined,
-                                    keyboardType: TextInputType.emailAddress,
-                                    mainColor: mainColor,
-                                    isError: _emailError != null,
-                                    errorText: _emailError,
-                                  ),
-                                  const SizedBox(height: 24),
-                                  _buildTextField(
-                                    label: 'Mot de passe',
-                                    controller: _passwordController,
-                                    prefix: Icons.lock_outline,
-                                    isPassword: true,
-                                    isPasswordVisible: _isPasswordVisible,
-                                    onVisibilityChanged: (value) => setState(
-                                        () => _isPasswordVisible = value),
-                                    mainColor: mainColor,
-                                    isError: _passwordError != null,
-                                    errorText: _passwordError,
-                                  ),
-                                  const SizedBox(height: 24),
-                                  _buildTextField(
-                                    label: 'Confirmer le mot de passe',
-                                    controller: _confirmPasswordController,
-                                    prefix: Icons.lock_outline,
-                                    isPassword: true,
-                                    isPasswordVisible:
-                                        _isConfirmPasswordVisible,
-                                    onVisibilityChanged: (value) => setState(
-                                        () =>
-                                            _isConfirmPasswordVisible = value),
-                                    isError: !_passwordsMatch ||
-                                        _passwordError != null,
-                                    errorText: _passwordError,
-                                    mainColor: mainColor,
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Submit button
-                            _buildSubmitButton(mainColor, _register),
-                            const SizedBox(height: 24),
-
-                            // Login link
-                            Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Vous avez déjà un compte ? ',
-                                    style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushNamed(
-                                          context,
-                                          '/login',
-                                        );
-                                      },
-                                      child: Text(
-                                        'Connectez-vous',
-                                        style: TextStyle(
-                                          color: mainColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        children: [
+                                          const TextSpan(
+                                              text:
+                                                  'En créant un compte ou vous identifiant, vous acceptez nos '),
+                                          TextSpan(
+                                            text: 'conditions d\'utilisation',
+                                            style: TextStyle(
+                                              color: mainColor,
+                                              decoration: TextDecoration.underline,
+                                            ),
+                                            recognizer: TapGestureRecognizer()
+                                              ..onTap = () {
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  '/terms-of-use',
+                                                );
+                                              },
+                                          ),
+                                          const TextSpan(text: ' et notre '),
+                                          TextSpan(
+                                            text: 'politique de confidentialité',
+                                            style: TextStyle(
+                                              color: mainColor,
+                                              decoration: TextDecoration.underline,
+                                            ),
+                                            recognizer: TapGestureRecognizer()
+                                              ..onTap = () {
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  '/privacy-policy',
+                                                );
+                                              },
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 24),
-
-                            // Terms
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: mainColor.withOpacity(0.05),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: RichText(
-                                textAlign: TextAlign.center,
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade600,
-                                    height: 1.5,
-                                  ),
-                                  children: [
-                                    const TextSpan(
-                                        text:
-                                            'En créant un compte ou vous identifiant, vous acceptez nos '),
-                                    TextSpan(
-                                      text: 'conditions d\'utilisation',
-                                      style: TextStyle(
-                                        color: mainColor,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          Navigator.pushNamed(
-                                            context,
-                                            '/terms-of-use',
-                                          );
-                                        },
-                                    ),
-                                    const TextSpan(text: ' et notre '),
-                                    TextSpan(
-                                      text: 'politique de confidentialité',
-                                      style: TextStyle(
-                                        color: mainColor,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          Navigator.pushNamed(
-                                            context,
-                                            '/privacy-policy',
-                                          );
-                                        },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -703,6 +723,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
     required double size,
     required Offset initialOffset,
     required double floatRadius,
+    double opacity = 0.35, // Paramètre d'opacité ajouté avec valeur par défaut plus élevée
   }) {
     return AnimatedBuilder(
       animation: Listenable.merge([animation, scaleAnimation]),
@@ -721,12 +742,12 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
               width: size,
               height: size,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.3),
+                color: color.withOpacity(opacity),
                 borderRadius: BorderRadius.circular(size / 2),
                 gradient: RadialGradient(
                   colors: [
-                    color.withOpacity(0.3),
-                    color.withOpacity(0.1),
+                    color.withOpacity(opacity + 0.05), // Plus intense au centre
+                    color.withOpacity(opacity * 0.5), // Dégradé plus visible
                   ],
                 ),
               ),

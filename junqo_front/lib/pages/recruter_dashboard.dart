@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../shared/widgets/navbar.dart';
+import '../shared/widgets/navbar_company.dart';
 
 class RecruiterDashboard extends StatefulWidget {
   const RecruiterDashboard({super.key});
@@ -70,7 +70,7 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          const Navbar(currentIndex: 0),
+          const NavbarCompany(currentIndex: 0),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),

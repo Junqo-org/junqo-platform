@@ -14,6 +14,7 @@ import 'package:junqo_front/pages/terms_of_use.dart';
 import 'package:junqo_front/pages/user_type_selection.dart';
 import 'package:junqo_front/pages/welcome.dart';
 import 'package:junqo_front/shared/widgets/private_page.dart';
+import 'package:junqo_front/pages/offer_creation.dart';
 
 class AppRouter {
   // Fonction pour générer les routes de l'application
@@ -46,6 +47,9 @@ class AppRouter {
       case '/profile':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: ProfilePage()));
+      case '/offer-creation':
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: JobOfferForm()));
       case '/register':
         final userType = settings.arguments;
 
