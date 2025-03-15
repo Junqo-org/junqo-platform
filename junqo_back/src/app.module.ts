@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { CaslModule } from './casl/casl.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { config } from './shared/config';
+import { OffersModule } from './offers/offers.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { config } from './shared/config';
     AuthModule,
     CaslModule,
     ProfilesModule,
+    OffersModule,
   ],
 })
 export class AppModule {}

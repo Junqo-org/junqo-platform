@@ -14,28 +14,33 @@ import {
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
 import { ExperienceDTO } from './experience.dto';
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
 // Student Profile retrieved from database
 export class StudentProfileDTO {
+  @Expose()
   @IsNotEmpty()
   @IsUUID()
   userId: string;
 
+  @Expose()
   @IsNotEmpty()
   @IsString()
   @MinLength(MIN_NAME_LENGTH)
   @MaxLength(MAX_NAME_LENGTH)
   name: string;
 
+  @Expose()
   @IsOptional()
   @IsDataURI()
   avatar?: string;
 
+  @Expose()
   @IsOptional()
   @IsArray()
   skills?: string[];
 
+  @Expose()
   @Type(() => ExperienceDTO)
   @IsOptional()
   @IsArray()
@@ -53,20 +58,24 @@ export class CreateStudentProfileDTO extends StudentProfileDTO {}
 
 // Expected values to update a Student Profile
 export class UpdateStudentProfileDTO {
+  @Expose()
   @IsOptional()
   @IsString()
   @MinLength(MIN_NAME_LENGTH)
   @MaxLength(MAX_NAME_LENGTH)
   name?: string;
 
+  @Expose()
   @IsOptional()
   @IsDataURI()
   avatar?: string;
 
+  @Expose()
   @IsOptional()
   @IsArray()
   skills?: string[];
 
+  @Expose()
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

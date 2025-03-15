@@ -13,6 +13,7 @@ import { AuthPayloadDTO } from './dto/auth-payload.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { SignInDTO } from './dto/sign-in.dto';
 import { plainToInstance } from 'class-transformer';
+import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,11 @@ export class AuthService {
       throw new UnauthorizedException('Password must be at least 8 characters');
     }
 
-    const user: UserDTO = await this.usersService.create(signUpInput);
+    const authUser: AuthUserDTO = plainToInstance(AuthUserDTO, signUpInput, {
+      excludeExtraneousValues: true,
+    });
+    const user: UserDTO = await this.usersService.create(authUser, signUpInput);
+
     if (signUpInput.type === UserType.STUDENT) {
       const createStudentProfileDto: CreateStudentProfileDTO = plainToInstance(
         CreateStudentProfileDTO,

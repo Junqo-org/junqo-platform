@@ -13,8 +13,14 @@ export class ProfilesResolver {
   constructor(private readonly profilesService: ProfilesService) {}
 
   @Query(() => StudentProfile)
-  public async studentProfile(@Args('id') id: string): Promise<StudentProfile> {
-    const studentProfile = await this.profilesService.findOneByID(id);
+  public async studentProfile(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Args('id') id: string,
+  ): Promise<StudentProfile> {
+    const studentProfile = await this.profilesService.findOneById(
+      currentUser,
+      id,
+    );
 
     if (!studentProfile) {
       throw new NotFoundException(`Student profile #${id} not found`);

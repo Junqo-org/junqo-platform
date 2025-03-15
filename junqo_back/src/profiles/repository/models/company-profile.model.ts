@@ -10,7 +10,7 @@ import {
   MIN_NAME_LENGTH,
 } from '../../../shared/user-validation-constants';
 
-@Table
+@Table({ tableName: 'CompanyProfiles', timestamps: true, paranoid: true })
 export class CompanyProfileModel extends Model {
   @PrimaryKey
   @Column({

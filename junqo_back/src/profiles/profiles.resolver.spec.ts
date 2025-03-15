@@ -9,6 +9,13 @@ import { StudentProfileDTO } from './dto/student-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
 
+const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
+  id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
+  type: UserType.STUDENT,
+  name: 'test user',
+  email: 'test@mail.com',
+});
+
 describe('ProfilesResolver', () => {
   let resolver: ProfilesResolver;
   let profilesService: ProfilesService;
@@ -20,7 +27,7 @@ describe('ProfilesResolver', () => {
         {
           provide: ProfilesService,
           useValue: {
-            findOneByID: jest.fn(),
+            findOneById: jest.fn(),
             updateStudentProfile: jest.fn(),
           },
         },
@@ -41,18 +48,23 @@ describe('ProfilesResolver', () => {
       userId: 'test-id',
       name: 'John Doe',
     });
-    jest.spyOn(profilesService, 'findOneByID').mockResolvedValue(mockProfile);
+    jest.spyOn(profilesService, 'findOneById').mockResolvedValue(mockProfile);
 
-    expect(await resolver.studentProfile('test-id')).toEqual(mockProfile);
-    expect(profilesService.findOneByID).toHaveBeenCalledWith('test-id');
+    expect(await resolver.studentProfile(currentUser, 'test-id')).toEqual(
+      mockProfile,
+    );
+    expect(profilesService.findOneById).toHaveBeenCalledWith(
+      currentUser,
+      'test-id',
+    );
   });
 
   it('should throw NotFoundException if student profile not found', async () => {
-    jest.spyOn(profilesService, 'findOneByID').mockResolvedValue(null);
+    jest.spyOn(profilesService, 'findOneById').mockResolvedValue(null);
 
-    await expect(resolver.studentProfile('test-id')).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      resolver.studentProfile(currentUser, 'test-id'),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('should update a student profile', async () => {

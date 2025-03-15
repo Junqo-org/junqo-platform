@@ -10,7 +10,7 @@ import {
 import { StudentProfileModel } from './student-profile.model';
 import { ExperienceDTO } from '../../dto/experience.dto';
 
-@Table
+@Table({ tableName: 'Experiences', timestamps: true, paranoid: true })
 export class ExperienceModel extends Model {
   @PrimaryKey
   @Column({

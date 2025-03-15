@@ -11,14 +11,17 @@ import {
   MIN_MAIL_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '../../shared/user-validation-constants';
+import { Expose } from 'class-transformer';
 
 export class SignInDTO {
+  @Expose()
   @IsNotEmpty()
   @IsEmail()
   @MinLength(MIN_MAIL_LENGTH)
   @MaxLength(MAX_MAIL_LENGTH)
   email: string;
 
+  @Expose()
   @IsNotEmpty()
   @IsString()
   @MinLength(MIN_PASSWORD_LENGTH)

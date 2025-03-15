@@ -17,7 +17,7 @@ import {
 import { UserType } from '../../dto/user-type.enum';
 import { UserDTO } from '../../dto/user.dto';
 
-@Table
+@Table({ tableName: 'Users', timestamps: true, paranoid: true })
 export class UserModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)

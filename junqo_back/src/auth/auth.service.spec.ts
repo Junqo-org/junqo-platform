@@ -9,6 +9,7 @@ import { ProfilesService } from '../profiles/profiles.service';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { plainToInstance } from 'class-transformer';
 import { StudentProfileDTO } from '../profiles/dto/student-profile.dto';
+import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 
 jest.mock('./../users/repository/models/user.model');
 
@@ -48,6 +49,9 @@ describe('AuthService', () => {
         hashedPassword:
           'EF92B778BAFE771E89245B89ECBC08A44A4E166C06659911881F383D4473E94F',
       });
+      const authUser: AuthUserDTO = plainToInstance(AuthUserDTO, signUpInput, {
+        excludeExtraneousValues: true,
+      });
 
       const mockAuthPayload: AuthPayloadDTO = plainToInstance(AuthPayloadDTO, {
         token: 'test-token',
@@ -67,7 +71,10 @@ describe('AuthService', () => {
       const result = await authService.signUp(signUpInput);
 
       // then
-      expect(mockUsersService.create).toHaveBeenCalledWith(signUpInput);
+      expect(mockUsersService.create).toHaveBeenCalledWith(
+        authUser,
+        signUpInput,
+      );
       expect(mockProfileService.createStudentProfile).toHaveBeenCalledWith(
         createdUser,
         {

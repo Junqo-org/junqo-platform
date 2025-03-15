@@ -14,7 +14,7 @@ import {
 import { StudentProfileDTO } from '../../dto/student-profile.dto';
 import { plainToInstance } from 'class-transformer';
 
-@Table
+@Table({ tableName: 'StudentProfiles', timestamps: true, paranoid: true })
 export class StudentProfileModel extends Model {
   @PrimaryKey
   @Column({

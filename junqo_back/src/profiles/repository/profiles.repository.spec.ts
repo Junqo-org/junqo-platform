@@ -10,6 +10,7 @@ import { StudentProfileModel } from './models/student-profile.model';
 import { ExperienceModel } from './models/experience.model';
 import { CompanyProfileModel } from './models/company-profile.model';
 import { ExperienceDTO } from '../dto/experience.dto';
+import { plainToInstance } from 'class-transformer';
 
 const StudentProfileDtoExample: StudentProfileDTO = new StudentProfileDTO({
   userId: '8aec0948-58dd-40b2-b085-5a47244036c2',
@@ -17,7 +18,7 @@ const StudentProfileDtoExample: StudentProfileDTO = new StudentProfileDTO({
   avatar: 'https://picsum.photos/200/300',
   skills: ['nestjs', 'flutter', 'work in team'],
   experiences: [
-    new ExperienceDTO({
+    plainToInstance(ExperienceDTO, {
       title: 'title',
       company: 'company',
       startDate: new Date('01/02/2020'),

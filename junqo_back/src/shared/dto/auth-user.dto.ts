@@ -14,24 +14,29 @@ import {
   MIN_MAIL_LENGTH,
   MIN_NAME_LENGTH,
 } from '../user-validation-constants';
+import { Expose } from 'class-transformer';
 
 export class AuthUserDTO {
+  @Expose()
   @IsNotEmpty()
   @IsUUID()
   id: string;
 
+  @Expose()
   @IsNotEmpty()
   @IsString()
   @MinLength(MIN_NAME_LENGTH)
   @MaxLength(MAX_NAME_LENGTH)
   name: string;
 
+  @Expose()
   @IsNotEmpty()
   @IsEmail()
   @MinLength(MIN_MAIL_LENGTH)
   @MaxLength(MAX_MAIL_LENGTH)
   email: string;
 
+  @Expose()
   @IsNotEmpty()
   @IsEnum(UserType)
   type: UserType;

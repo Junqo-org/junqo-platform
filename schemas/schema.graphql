@@ -241,7 +241,7 @@ type Offer {
   "The date when the offer expires."
   expiresAt: DateTime
   "The category of the offer."
-  category: String!
+  category: String
   "The tags of the offer."
   tags: [String!]
   "The number of views of the offer."
