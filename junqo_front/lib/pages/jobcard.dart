@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:junqo_front/core/config.dart';
 import 'package:junqo_front/shared/widgets/navbar.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CardData {
   final String companyName;
@@ -43,7 +46,7 @@ class _Debug1State extends State<JobCard_> {
   @override
   void initState() {
     super.initState();
-    cardData = CardData_set(0); // Initialise avec le premier CardData
+    cardData = setCardData(0); // Initialise avec le premier CardData
   }
 
   @override
@@ -61,7 +64,7 @@ class _Debug1State extends State<JobCard_> {
                   onTap: () {
                     setState(() {
                       currentIndex = (currentIndex + 1) % 3;
-                      cardData = CardData_set(currentIndex);
+                      cardData = setCardData(currentIndex);
                     });
                   },
                   color: Colors.red,
@@ -77,7 +80,7 @@ class _Debug1State extends State<JobCard_> {
                   onTap: () {
                     setState(() {
                       currentIndex = (currentIndex + 1) % 3;
-                      cardData = CardData_set(currentIndex);
+                      cardData = setCardData(currentIndex);
                     });
                   },
                   color: Colors.green,
@@ -122,15 +125,15 @@ class _Debug1State extends State<JobCard_> {
     );
   }
 
-  CardData CardData_set(int index) {
+  CardData getCardDataPlaceholder(int index) {
     List<CardData> cardDataList = [
       CardData(
-          companyName: 'Airbus',
+          companyName: 'PlaceHolder',
           companyLogo: 'assets/images/junqo_logo.png',
-          jobTitle: 'Alternance DevOps (H/F)',
+          jobTitle: 'Alternance PlaceHolding (H/F)',
           contractType: 'Alternance',
-          duration: '3 ans',
-          location: 'Blagnac',
+          duration: 'Temporaire',
+          location: 'PlaceHolder',
           salary: '1400/m € brut',
           benefits: ['Présentiel', 'Grande équipe', 'Installations de Fitness'],
           technicalSkills: [
@@ -142,56 +145,65 @@ class _Debug1State extends State<JobCard_> {
             'Linux'
           ],
           details:
-              'Rejoignez Airbus à Blagnac en tant qu\'alternant DevOps pour une durée de 3 ans. Vous travaillerez sur des projets dans l\'aéronautique avec une grande équipe. Utilisez Docker, GitHub, Jira, et Bash sur Linux pour automatiser les processus et améliorer les infrastructures. Vous aurez accès à des installations modernes, incluant une salle de fitness. C\'est une opportunité unique de développer vos compétences techniques dans un environnement international et stimulant.'),
+              'Rejoignez Airbus Placeholder à Blagnac en tant qu\'alternant DevOps pour une durée de 3 ans. Vous travaillerez sur des projets dans l\'aéronautique avec une grande équipe. Utilisez Docker, GitHub, Jira, et Bash sur Linux pour automatiser les processus et améliorer les infrastructures. Vous aurez accès à des installations modernes, incluant une salle de fitness. C\'est une opportunité unique de développer vos compétences techniques dans un environnement international et stimulant.'),
       CardData(
-          companyName: 'Google',
+          companyName: 'PlaceHolder2',
           companyLogo: 'assets/images/junqo_logo.png',
-          jobTitle: 'Software Engineer (H/F)',
-          contractType: 'Internship',
-          duration: '4 mois',
-          location: 'Paris',
-          salary: '6000 € net total',
-          benefits: [
-            'Télétravail flexible',
-            'Cantine gratuite',
-            'Équipe internationale'
-          ],
+          jobTitle: 'Alternance PlaceHolding (H/F)',
+          contractType: 'Alternance',
+          duration: 'Temporaire',
+          location: 'PlaceHolder',
+          salary: '1400/m € brut',
+          benefits: ['Présentiel', 'Petite équipe', 'Installations de Fitness'],
           technicalSkills: [
-            'bac+5 en informatique',
-            'Python',
-            'Java',
-            'Kubernetes',
-            'Google Cloud Platform',
-            'Agile'
-          ],
-          details:
-              'Intégrez Google à Paris en tant qu\'ingénieur logiciel pour travailler sur des projets innovants à l\'échelle mondiale. Vous collaborerez avec des équipes internationales et utiliserez des technologies comme Python, Java, Kubernetes, et Google Cloud Platform. Télétravail flexible, repas gratuits et un environnement agile sont quelques-uns des avantages. Rejoignez une entreprise qui façonne l\'avenir de la technologie tout en favorisant l\'innovation et l\'épanouissement personnel.'),
-      CardData(
-          companyName: 'Devvmaxing',
-          companyLogo: 'assets/images/junqo_logo.png',
-          jobTitle: 'Développeur Full Stack (H/F)',
-          contractType: 'Internship part-time',
-          duration: '8 mois 2j/s',
-          location: 'Lyon',
-          salary: '8000 € net total',
-          benefits: [
-            'Horaires flexibles',
-            'Télétravail partiel',
-            'Équipe dynamique'
-          ],
-          technicalSkills: [
-            'bac+4 en développement',
-            'Node.js',
-            'React',
-            'SQL',
+            'bac+3 informatique',
             'Docker',
-            'Git'
+            'GitHub',
+            'Jira',
+            'Bash',
+            'Linux'
           ],
           details:
-              'Rejoignez Devvmaxing, une startup en pleine croissance à Lyon, spécialisée dans les solutions SaaS. En tant que développeur full stack, vous travaillerez avec Node.js, React, SQL, Docker et Git pour concevoir et développer des produits modernes. Nous offrons des horaires flexibles, du télétravail partiel et un environnement dynamique. C\'est l\'occasion de contribuer à des projets passionnants dans une équipe soudée, tout en bénéficiant d\'opportunités de développement personnel.'),
+              'Rejoignez Placeholder Airbus à Blagnac en tant qu\'alternant DevOps pour une durée de 3 ans. Vous travaillerez sur des projets dans l\'aéronautique avec une grande équipe. Utilisez Docker, GitHub, Jira, et Bash sur Linux pour automatiser les processus et améliorer les infrastructures. Vous aurez accès à des installations modernes, incluant une salle de fitness. C\'est une opportunité unique de développer vos compétences techniques dans un environnement international et stimulant.')
     ];
 
     return cardDataList[index % cardDataList.length];
+  }
+
+  Future<CardData> fetchCardData(int index) async {
+    final response = await http.get(Uri.parse('${AppConfig.apiUrl}/'));
+
+    if (response.statusCode == 200) {
+      //Will be modified once the API is implemented
+      final data = jsonDecode(response.body);
+      return CardData(
+        companyName: data['companyName'],
+        companyLogo: data['companyLogo'],
+        jobTitle: data['jobTitle'],
+        contractType: data['contractType'],
+        duration: data['duration'],
+        location: data['location'],
+        salary: data['salary'],
+        benefits: List<String>.from(data['benefits']),
+        technicalSkills: List<String>.from(data['technicalSkills']),
+        details: data['details'],
+      );
+    } else {
+      print(
+          "Failed to load job card data response status code: ${response.statusCode}");
+      index = index + 1;
+      return getCardDataPlaceholder(index);
+    }
+  }
+
+  CardData setCardData(int index) {
+    CardData cardData = getCardDataPlaceholder(index);
+
+    fetchCardData(index).then((fetchedData) {
+      cardData = fetchedData;
+    });
+
+    return cardData;
   }
 }
 
