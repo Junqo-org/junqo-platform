@@ -22,7 +22,7 @@ export class ProfilesRepository {
     private readonly companyProfileModel: typeof CompanyProfileModel,
   ) {}
 
-  public async findAll(): Promise<StudentProfileDTO[]> {
+  public async findAllStudentProfiles(): Promise<StudentProfileDTO[]> {
     try {
       const studentProfilesModels: StudentProfileModel[] =
         await this.studentProfileModel.findAll();

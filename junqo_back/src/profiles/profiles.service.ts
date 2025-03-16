@@ -43,7 +43,7 @@ export class ProfilesService {
     }
     try {
       const studentsProfiles: StudentProfileDTO[] =
-        await this.profilesRepository.findAll();
+        await this.profilesRepository.findAllStudentProfiles();
 
       if (!studentsProfiles || studentsProfiles.length === 0) {
         throw new NotFoundException(`Student profiles not found`);

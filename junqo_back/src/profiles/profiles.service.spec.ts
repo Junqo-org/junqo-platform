@@ -1,6 +1,6 @@
 import { ProfilesService } from './profiles.service';
 import { ProfilesRepository } from './repository/profiles.repository';
-import { CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import {
   ForbiddenException,
   InternalServerErrorException,
@@ -17,6 +17,7 @@ import { plainToInstance } from 'class-transformer';
 import { ExperienceDTO } from './dto/experience.dto';
 import { Mocked } from '@suites/doubles.jest';
 import { TestBed } from '@suites/unit';
+import { StudentProfileResource } from '../casl/dto/profile-resource.dto';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -25,7 +26,7 @@ const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   email: 'test@mail.com',
 });
 
-const profiles: StudentProfileDTO[] = [
+const studentProfiles: StudentProfileDTO[] = [
   plainToInstance(StudentProfileDTO, {
     userId: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
     name: 'test user',
@@ -64,16 +65,25 @@ describe('ProfilesService', () => {
   let profilesService: ProfilesService;
   let profilesRepository: Mocked<ProfilesRepository>;
   let caslAbilityFactory: Mocked<CaslAbilityFactory>;
+  let canMockFn: jest.Mock;
+  let cannotMockFn: jest.Mock;
+  let canMockFnRev: jest.Mock;
+  let cannotMockFnRev: jest.Mock;
 
   beforeEach(async () => {
-    const mockCaslAbilityFactory = (stubFn) => ({
-      createForUser: () => {
+    canMockFn = jest.fn().mockReturnValue(true);
+    cannotMockFn = jest.fn().mockReturnValue(false);
+    canMockFnRev = jest.fn().mockReturnValue(false);
+    cannotMockFnRev = jest.fn().mockReturnValue(true);
+
+    const mockCaslAbilityFactory = () => ({
+      createForUser: jest.fn(() => {
         const ability = {
-          can: stubFn().mockReturnValue(true),
-          cannot: stubFn().mockReturnValue(false),
+          can: canMockFn,
+          cannot: cannotMockFn,
         };
         return ability;
-      },
+      }),
     });
 
     const { unit, unitRef } = await TestBed.solitary(ProfilesService)
@@ -90,231 +100,372 @@ describe('ProfilesService', () => {
     expect(profilesService).toBeDefined();
   });
 
-  describe('findAll', () => {
-    it('should return all profiles', async () => {
-      profilesRepository.findAll.mockResolvedValue(profiles);
+  describe('findAllStudentProfiles', () => {
+    it('should return all student profiles', async () => {
+      profilesRepository.findAllStudentProfiles.mockResolvedValue(
+        studentProfiles,
+      );
 
       const result = await profilesService.findAllStudentProfiles(currentUser);
-      expect(result).toBe(profiles);
-      expect(profilesRepository.findAll).toHaveBeenCalled();
+      expect(result).toBe(studentProfiles);
+      expect(profilesRepository.findAllStudentProfiles).toHaveBeenCalled();
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFn).toHaveBeenLastCalledWith(
+        Actions.READ,
+        StudentProfileResource,
+      );
     });
 
-    it('should throw NotFoundException if there is no profile', async () => {
-      profilesRepository.findAll.mockResolvedValue([]);
+    it('should throw NotFoundException if there is no offer', async () => {
+      profilesRepository.findAllStudentProfiles.mockResolvedValue([]);
 
       await expect(
         profilesService.findAllStudentProfiles(currentUser),
       ).rejects.toThrow(NotFoundException);
-      expect(profilesRepository.findAll).toHaveBeenCalled();
+      expect(profilesRepository.findAllStudentProfiles).toHaveBeenCalled();
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFn).toHaveBeenLastCalledWith(
+        Actions.READ,
+        StudentProfileResource,
+      );
     });
 
-    it('should throw ForbiddenException if user cannot read profile', async () => {
-      caslAbilityFactory.createForUser = jest.fn().mockReturnValue({
-        can: jest.fn().mockReturnValue(false),
-        cannot: jest.fn().mockReturnValue(true),
-      });
+    it('should throw ForbiddenException if user cannot read offer', async () => {
+      profilesRepository.findAllStudentProfiles.mockResolvedValue(
+        studentProfiles,
+      );
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        caslAbilityFactory.createForUser,
+      );
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        jest.fn().mockReturnValue({
+          can: canMockFnRev,
+          cannot: cannotMockFnRev,
+        }),
+      );
 
       await expect(
         profilesService.findAllStudentProfiles(currentUser),
       ).rejects.toThrow(ForbiddenException);
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFnRev).toHaveBeenLastCalledWith(
+        Actions.READ,
+        StudentProfileResource,
+      );
     });
   });
 
   describe('findOneById', () => {
-    it('should return an profile by ID', async () => {
-      profilesRepository.findOneById.mockResolvedValue(profiles[0]);
+    it('should return an offer by ID', async () => {
+      profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
 
       const result = await profilesService.findOneById(
         currentUser,
-        profiles[0].userId,
+        studentProfiles[0].userId,
       );
-      expect(result).toBe(profiles[0]);
+      expect(result).toBe(studentProfiles[0]);
       expect(profilesRepository.findOneById).toHaveBeenCalledWith(
-        profiles[0].userId,
+        studentProfiles[0].userId,
+      );
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFn).toHaveBeenLastCalledWith(
+        Actions.READ,
+        plainToInstance(StudentProfileResource, studentProfiles[0], {
+          excludeExtraneousValues: true,
+        }),
       );
     });
 
-    it("should throw NotFoundException if the profile don't exists", async () => {
-      profilesRepository.findOneById.mockResolvedValue(null);
+    it("should throw NotFoundException if the offer don't exists", async () => {
+      profilesRepository.findOneById.mockRejectedValueOnce(
+        new NotFoundException(),
+      );
 
       await expect(
-        profilesService.findOneById(currentUser, profiles[0].userId),
+        profilesService.findOneById(currentUser, studentProfiles[0].userId),
       ).rejects.toThrow(NotFoundException);
       expect(profilesRepository.findOneById).toHaveBeenCalled();
     });
 
-    it('should throw ForbiddenException if user cannot read profile', async () => {
-      caslAbilityFactory.createForUser = jest.fn().mockReturnValue({
-        can: jest.fn().mockReturnValue(false),
-        cannot: jest.fn().mockReturnValue(true),
-      });
+    it('should throw ForbiddenException if user cannot read offer', async () => {
+      profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        caslAbilityFactory.createForUser,
+      );
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        jest.fn().mockReturnValue({
+          can: canMockFnRev,
+          cannot: cannotMockFnRev,
+        }),
+      );
 
       await expect(
-        profilesService.findOneById(currentUser, profiles[0].userId),
+        profilesService.findOneById(currentUser, studentProfiles[0].userId),
       ).rejects.toThrow(ForbiddenException);
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFnRev).toHaveBeenLastCalledWith(
+        Actions.READ,
+        plainToInstance(StudentProfileResource, studentProfiles[0], {
+          excludeExtraneousValues: true,
+        }),
+      );
     });
   });
 
   describe('createStudentProfile', () => {
-    it('should create an profile', async () => {
-      const createProfileInput: CreateStudentProfileDTO = plainToInstance(
-        CreateStudentProfileDTO,
-        profiles[0],
-        { excludeExtraneousValues: true },
-      );
+    it('should create an offer', async () => {
+      const createStudentProfileInput: CreateStudentProfileDTO =
+        plainToInstance(CreateStudentProfileDTO, studentProfiles[0], {
+          excludeExtraneousValues: true,
+        });
 
-      profilesRepository.createStudentProfile.mockResolvedValue(profiles[0]);
+      profilesRepository.createStudentProfile.mockResolvedValue(
+        studentProfiles[0],
+      );
 
       const result = await profilesService.createStudentProfile(
         currentUser,
-        createProfileInput,
+        createStudentProfileInput,
       );
-      expect(result).toBe(profiles[0]);
+      expect(result).toBe(studentProfiles[0]);
       expect(profilesRepository.createStudentProfile).toHaveBeenCalledWith(
-        createProfileInput,
+        createStudentProfileInput,
+      );
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFn).toHaveBeenLastCalledWith(
+        Actions.CREATE,
+        plainToInstance(StudentProfileResource, createStudentProfileInput, {
+          excludeExtraneousValues: true,
+        }),
       );
     });
 
-    it('should throw ForbiddenException if user cannot create profile', async () => {
-      const createProfileInput: CreateStudentProfileDTO = plainToInstance(
-        CreateStudentProfileDTO,
-        profiles[0],
-        { excludeExtraneousValues: true },
+    it('should throw ForbiddenException if user cannot create offer', async () => {
+      const createStudentProfileInput: CreateStudentProfileDTO =
+        plainToInstance(CreateStudentProfileDTO, studentProfiles[0], {
+          excludeExtraneousValues: true,
+        });
+
+      profilesRepository.createStudentProfile.mockResolvedValue(
+        studentProfiles[0],
+      );
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        caslAbilityFactory.createForUser,
+      );
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        jest.fn().mockReturnValue({
+          can: canMockFnRev,
+          cannot: cannotMockFnRev,
+        }),
       );
 
-      caslAbilityFactory.createForUser = jest.fn().mockReturnValue({
-        can: jest.fn().mockReturnValue(false),
-        cannot: jest.fn().mockReturnValue(true),
-      });
-
       await expect(
-        profilesService.createStudentProfile(currentUser, createProfileInput),
+        profilesService.createStudentProfile(
+          currentUser,
+          createStudentProfileInput,
+        ),
       ).rejects.toThrow(ForbiddenException);
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFnRev).toHaveBeenLastCalledWith(
+        Actions.CREATE,
+        plainToInstance(
+          StudentProfileResource,
+          { userId: createStudentProfileInput.userId },
+          {
+            excludeExtraneousValues: true,
+          },
+        ),
+      );
     });
   });
 
   it('should throw InternalServerErrorException if create fails', async () => {
-    const createProfileInput: CreateStudentProfileDTO = plainToInstance(
+    const createStudentProfileInput: CreateStudentProfileDTO = plainToInstance(
       CreateStudentProfileDTO,
-      profiles[0],
+      studentProfiles[0],
       { excludeExtraneousValues: true },
     );
 
     profilesRepository.createStudentProfile.mockRejectedValue(new Error());
 
     await expect(
-      profilesService.createStudentProfile(currentUser, createProfileInput),
+      profilesService.createStudentProfile(
+        currentUser,
+        createStudentProfileInput,
+      ),
     ).rejects.toThrow(InternalServerErrorException);
   });
 
   describe('updateStudentProfile', () => {
-    it('should update an profile', async () => {
+    it('should update an offer', async () => {
       const newData = {
-        userId: profiles[0].userId,
         title: 'new title',
       };
-      const updateProfileInput: UpdateStudentProfileDTO = plainToInstance(
-        UpdateStudentProfileDTO,
-        newData,
-      );
-      const expectedProfile: StudentProfileDTO = plainToInstance(
+      const updateStudentProfileInput: UpdateStudentProfileDTO =
+        plainToInstance(UpdateStudentProfileDTO, newData, {
+          excludeExtraneousValues: true,
+        });
+      const expectedOffer: StudentProfileDTO = plainToInstance(
         StudentProfileDTO,
         {
-          ...profiles[0],
+          ...studentProfiles[0],
           ...newData,
         },
       );
 
-      profilesRepository.findOneById.mockResolvedValue(profiles[0]);
-      profilesRepository.updateStudentProfile.mockResolvedValue(
-        expectedProfile,
-      );
+      profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
+      profilesRepository.updateStudentProfile.mockResolvedValue(expectedOffer);
 
       const result = await profilesService.updateStudentProfile(
         currentUser,
-        updateProfileInput,
+        updateStudentProfileInput,
       );
-      expect(result).toBe(expectedProfile);
+      expect(result).toBe(expectedOffer);
       expect(profilesRepository.updateStudentProfile).toHaveBeenCalledWith(
-        profiles[0].userId,
-        updateProfileInput,
+        studentProfiles[0].userId,
+        updateStudentProfileInput,
+      );
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFn).toHaveBeenLastCalledWith(
+        'update',
+        plainToInstance(StudentProfileResource, studentProfiles[0], {
+          excludeExtraneousValues: true,
+        }),
       );
     });
 
-    it('should throw ForbiddenException if user cannot update profile', async () => {
+    it('should throw ForbiddenException if user cannot update offer', async () => {
       const invalidCurrentUser = plainToInstance(AuthUserDTO, {
         ...currentUser,
         id: 'other user',
       });
-      const updateProfileInput: UpdateStudentProfileDTO = plainToInstance(
-        UpdateStudentProfileDTO,
+      const newData = {
+        title: 'new title',
+      };
+      const updateStudentProfileInput: UpdateStudentProfileDTO =
+        plainToInstance(UpdateStudentProfileDTO, newData);
+      const expectedOffer: StudentProfileDTO = plainToInstance(
+        StudentProfileDTO,
         {
-          userId: profiles[0].userId,
-          title: 'New Title',
+          ...studentProfiles[0],
+          ...newData,
         },
       );
 
-      profilesRepository.findOneById.mockResolvedValue(profiles[0]);
-      caslAbilityFactory.createForUser = jest.fn().mockReturnValue({
-        can: jest.fn().mockReturnValue(false),
-        cannot: jest.fn().mockReturnValue(true),
-      });
+      profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
+      profilesRepository.updateStudentProfile.mockResolvedValue(expectedOffer);
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        caslAbilityFactory.createForUser,
+      );
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        jest.fn().mockReturnValue({
+          can: canMockFnRev,
+          cannot: cannotMockFnRev,
+        }),
+      );
 
       await expect(
         profilesService.updateStudentProfile(
           invalidCurrentUser,
-          updateProfileInput,
+          updateStudentProfileInput,
         ),
       ).rejects.toThrow(ForbiddenException);
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        invalidCurrentUser,
+      );
+      expect(cannotMockFnRev).toHaveBeenLastCalledWith(
+        'update',
+        plainToInstance(StudentProfileResource, studentProfiles[0], {
+          excludeExtraneousValues: true,
+        }),
+      );
     });
 
     it('should throw InternalServerErrorException if update fails', async () => {
       const newData = {
-        userId: profiles[0].userId,
         title: 'new title',
       };
-      const updateProfileInput: UpdateStudentProfileDTO = plainToInstance(
-        UpdateStudentProfileDTO,
-        newData,
-      );
+      const updateStudentProfileInput: UpdateStudentProfileDTO =
+        plainToInstance(UpdateStudentProfileDTO, newData);
 
-      profilesRepository.findOneById.mockResolvedValue(profiles[0]);
+      profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
       profilesRepository.updateStudentProfile.mockRejectedValue(new Error());
 
       await expect(
-        profilesService.updateStudentProfile(currentUser, updateProfileInput),
+        profilesService.updateStudentProfile(
+          currentUser,
+          updateStudentProfileInput,
+        ),
       ).rejects.toThrow(InternalServerErrorException);
     });
   });
 
   describe('deleteStudentProfile', () => {
-    it('should delete an profile', async () => {
-      profilesRepository.findOneById.mockResolvedValue(profiles[0]);
+    it('should delete an offer', async () => {
+      profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
       profilesRepository.deleteStudentProfile.mockResolvedValue(true);
 
       const result = await profilesService.deleteStudentProfile(currentUser);
       expect(result).toBe(true);
       expect(profilesRepository.deleteStudentProfile).toHaveBeenCalledWith(
-        profiles[0].userId,
+        studentProfiles[0].userId,
+      );
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFn).toHaveBeenLastCalledWith(
+        Actions.DELETE,
+        plainToInstance(StudentProfileResource, studentProfiles[0], {
+          excludeExtraneousValues: true,
+        }),
       );
     });
 
-    it('should throw ForbiddenException if user cannot read profile', async () => {
-      profilesRepository.findOneById.mockResolvedValue(profiles[0]);
+    it('should throw ForbiddenException if user cannot read offer', async () => {
+      profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
       profilesRepository.deleteStudentProfile.mockResolvedValue(true);
-
-      caslAbilityFactory.createForUser = jest.fn().mockReturnValue({
-        can: jest.fn().mockReturnValue(false),
-        cannot: jest.fn().mockReturnValue(true),
-      });
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        caslAbilityFactory.createForUser,
+      );
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        jest.fn().mockReturnValue({
+          can: canMockFnRev,
+          cannot: cannotMockFnRev,
+        }),
+      );
 
       await expect(
         profilesService.deleteStudentProfile(currentUser),
       ).rejects.toThrow(ForbiddenException);
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        currentUser,
+      );
+      expect(cannotMockFnRev).toHaveBeenLastCalledWith(
+        Actions.DELETE,
+        plainToInstance(StudentProfileResource, studentProfiles[0], {
+          excludeExtraneousValues: true,
+        }),
+      );
     });
 
     it('should throw InternalServerErrorException if delete fails', async () => {
-      profilesRepository.findOneById.mockResolvedValue(profiles[0]);
+      profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
       profilesRepository.deleteStudentProfile.mockRejectedValue(new Error());
 
       await expect(
