@@ -117,13 +117,11 @@ class _JobOfferFormState extends State<JobOfferForm> {
   void _submitJobOffer() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
-      
-      // Sauvegarde du contexte actuel pour utilisation sécurisée plus tard
+
       final scaffoldContext = ScaffoldMessenger.of(context);
       final navigatorContext = Navigator.of(context);
       
       try {
-        // Construction de l'objet pour l'API
         final Map<String, dynamic> jobOffer = {
           'title': _titleController.text,
           'description': _descriptionController.text,
@@ -134,7 +132,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
           'profile': _profileController.text,
           'educationLevel': _educationLevel,
           'salary': _salaryController.text,
-          'skills': List<String>.from(_selectedSkills), // Création d'une copie de la liste
+          'skills': List<String>.from(_selectedSkills),
           'benefits': _benefitsController.text,
           'remoteWork': _remoteWork,
           'startDate': _startDate?.toString(),
@@ -142,8 +140,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         };
 
         print(jobOffer);
-        
-        // Sauvegarde des valeurs nécessaires pour le dialogue de confirmation
+
         final String offerTypeValue = _offerType;
         final String titleValue = _titleController.text;
         
