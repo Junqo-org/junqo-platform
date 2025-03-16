@@ -118,7 +118,7 @@ describe('OffersResolver', () => {
     it('should update and return an offer', async () => {
       service.updateOffer.mockResolvedValue(mockOffer);
       expect(
-        await resolver.UpdateOffer(
+        await resolver.updateOffer(
           mockCurrentUser,
           '8aec0948-58dd-40b2-b085-5a47244036c2',
           mockUpdateOffer,
@@ -135,7 +135,7 @@ describe('OffersResolver', () => {
 
       service.updateOffer.mockResolvedValue(mockOffer);
       await expect(
-        resolver.UpdateOffer(
+        resolver.updateOffer(
           mockCurrentUser,
           '8aec0948-58dd-40b2-b085-5a47244036c2',
           invalidUpdate,
