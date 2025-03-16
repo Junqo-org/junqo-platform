@@ -63,7 +63,7 @@ export class OffersResolver {
   }
 
   @Mutation(() => Offer)
-  public async UpdateOffer(
+  public async updateOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('offerId') offerId: string,
     @Args('offerInput') offerInput: UpdateOfferInput,
