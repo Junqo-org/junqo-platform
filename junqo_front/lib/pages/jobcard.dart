@@ -29,21 +29,21 @@ class CardData {
   });
 }
 
-class JobCard_ extends StatefulWidget {
-  const JobCard_({Key? key}) : super(key: key);
+class JobCardSwipe extends StatefulWidget {
+  const JobCardSwipe({super.key});
 
   @override
-  State<JobCard_> createState() => _Debug1State();
+  State<JobCardSwipe> createState() => _JobCardSwipeState();
 }
 
-class _Debug1State extends State<JobCard_> {
+class _JobCardSwipeState extends State<JobCardSwipe> {
   late CardData cardData;
   int currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    cardData = CardData_set(0); // Initialise avec le premier CardData
+    cardData = setCardData(0); // Initialise avec le premier CardData
   }
 
   @override
@@ -61,7 +61,7 @@ class _Debug1State extends State<JobCard_> {
                   onTap: () {
                     setState(() {
                       currentIndex = (currentIndex + 1) % 3;
-                      cardData = CardData_set(currentIndex);
+                      cardData = setCardData(currentIndex);
                     });
                   },
                   color: Colors.red,
@@ -77,7 +77,7 @@ class _Debug1State extends State<JobCard_> {
                   onTap: () {
                     setState(() {
                       currentIndex = (currentIndex + 1) % 3;
-                      cardData = CardData_set(currentIndex);
+                      cardData = setCardData(currentIndex);
                     });
                   },
                   color: Colors.green,
@@ -122,7 +122,7 @@ class _Debug1State extends State<JobCard_> {
     );
   }
 
-  CardData CardData_set(int index) {
+  CardData setCardData(int index) {
     List<CardData> cardDataList = [
       CardData(
           companyName: 'Airbus',
@@ -198,7 +198,7 @@ class _Debug1State extends State<JobCard_> {
 class JobCard extends StatelessWidget {
   final CardData data;
 
-  const JobCard({Key? key, required this.data}) : super(key: key);
+  const JobCard({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {

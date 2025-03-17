@@ -275,7 +275,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
       case 0:
         return Icons.home_outlined;
       case 1:
-        return Icons.smart_toy_outlined;
+        return Icons.work_outline;
       case 2:
         return Icons.notifications_outlined;
       case 3:
@@ -292,7 +292,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
       case 0:
         return 'Accueil';
       case 1:
-        return 'IA';
+        return 'Offres';
       case 2:
         return 'Notifications';
       case 3:

@@ -44,15 +44,18 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
       await authService.signIn(email, password);
     } on GraphQLException catch (e) {
       e.printError();
+      if (!mounted) return;
       showErrorDialog(e.toString(), context);
       return;
     } catch (e) {
       LogService.error(e.toString());
+      if (!mounted) return;
       showErrorDialog(
           'Une erreur inattendue s\'est produite. Veuillez réessayer.',
           context);
       return;
     }
+    if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/home');
   }
 

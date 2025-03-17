@@ -5,7 +5,7 @@ class RecruiterDashboard extends StatefulWidget {
   const RecruiterDashboard({super.key});
 
   @override
-  _RecruiterDashboardState createState() => _RecruiterDashboardState();
+  RecruiterDashboardState createState() => RecruiterDashboardState();
 }
 
 class Activity {
@@ -34,7 +34,7 @@ class DateFormat {
   }
 }
 
-class _RecruiterDashboardState extends State<RecruiterDashboard> {
+class RecruiterDashboardState extends State<RecruiterDashboard> {
   List<Activity> _activities = [];
 
   List<Color> gradientColors = [
@@ -138,7 +138,7 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
   }
 
   Widget _buildActivityChart() {
-    final _dateFormatter = DateFormat();
+    final dateFormatter = DateFormat();
 
     return Card(
       elevation: 4,
@@ -160,7 +160,7 @@ class _RecruiterDashboardState extends State<RecruiterDashboard> {
                 itemBuilder: (context, index) {
                   final activity = _activities[index];
                   return ListTile(
-                    title: Text(_dateFormatter.format(activity.date)),
+                    title: Text(dateFormatter.format(activity.date)),
                     subtitle: Text(
                       'Candidatures: ${activity.applications}, Entretiens: ${activity.interviews}',
                     ),

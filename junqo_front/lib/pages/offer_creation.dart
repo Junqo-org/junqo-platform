@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../shared/widgets/navbar_company.dart';
+import 'package:ferry/ferry.dart';
+import '../core/log_service.dart';
 
 class JobOfferForm extends StatefulWidget {
-  const JobOfferForm({super.key});
+  final Client client;
+  
+  const JobOfferForm({
+    super.key,
+    required this.client,
+  });
 
   @override
-  _JobOfferFormState createState() => _JobOfferFormState();
+  State<JobOfferForm> createState() => _JobOfferFormState();
 }
 
 class _JobOfferFormState extends State<JobOfferForm> {
@@ -96,6 +103,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
     );
     
     if (picked != null) {
+      if (!mounted) return;
       setState(() {
         if (isStartDate) {
           _startDate = picked;
@@ -139,7 +147,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
           'endDate': _endDate?.toString(),
         };
 
-        print(jobOffer);
+        LogService.error(jobOffer.toString());
 
         final String offerTypeValue = _offerType;
         final String titleValue = _titleController.text;
@@ -152,6 +160,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         
         // Utiliser un Future.microtask pour s'assurer que l'opération est effectuée après la fin du cycle de rendu actuel
         Future.microtask(() {
+          if (!mounted) return;
           showDialog(
             context: context,
             barrierDismissible: false, // Empêche la fermeture en cliquant à l'extérieur
@@ -206,7 +215,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              "Votre offre « ${titleValue} » a été créée avec succès !",
+                              "Votre offre « $titleValue » a été créée avec succès !",
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 16,
@@ -333,12 +342,12 @@ class _JobOfferFormState extends State<JobOfferForm> {
       
       // Afficher un message si le formulaire n'est pas valide
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Veuillez remplir tous les champs obligatoires'),
-          backgroundColor: Color(0xFFEF4444), // Red 500
+          backgroundColor: Color(0xFFEF4444),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
         ),
       );
@@ -703,8 +712,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFFE2E8F0), // Slate 200
+                  borderSide: const BorderSide(
+                    color: Color(0xFFE2E8F0), // Slate 200
                     width: 1.5,
                   ),
                 ),
@@ -748,8 +757,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFFE2E8F0), // Slate 200
+                  borderSide: const BorderSide(
+                    color: Color(0xFFE2E8F0), // Slate 200
                     width: 1.5,
                   ),
                 ),
@@ -796,8 +805,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: const Color(0xFFE2E8F0), // Slate 200
+                        borderSide: const BorderSide(
+                          color: Color(0xFFE2E8F0), // Slate 200
                           width: 1.5,
                         ),
                       ),
@@ -843,8 +852,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: const Color(0xFFE2E8F0), // Slate 200
+                        borderSide: const BorderSide(
+                          color: Color(0xFFE2E8F0), // Slate 200
                           width: 1.5,
                         ),
                       ),
@@ -914,7 +923,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                     color: Color(0xFF64748B), // Slate 500
                                   ),
                                 ),
-                                SizedBox(height: 3),
+                                const SizedBox(height: 3),
                                 Text(
                                   _startDate == null 
                                     ? "Sélectionner une date" 
@@ -923,8 +932,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: _startDate == null 
-                                      ? Color(0xFF94A3B8) // Slate 400
-                                      : Color(0xFF334155), // Slate 700
+                                      ? const Color(0xFF94A3B8) // Slate 400
+                                      : const Color(0xFF334155), // Slate 700
                                   ),
                                 ),
                               ],
@@ -975,7 +984,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                     color: Color(0xFF64748B), // Slate 500
                                   ),
                                 ),
-                                SizedBox(height: 3),
+                                const SizedBox(height: 3),
                                 Text(
                                   _endDate == null 
                                     ? "Sélectionner une date" 
@@ -984,8 +993,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: _endDate == null 
-                                      ? Color(0xFF94A3B8) // Slate 400
-                                      : Color(0xFF334155), // Slate 700
+                                      ? const Color(0xFF94A3B8) // Slate 400
+                                      : const Color(0xFF334155), // Slate 700
                                   ),
                                 ),
                               ],
@@ -1019,28 +1028,28 @@ class _JobOfferFormState extends State<JobOfferForm> {
                               width: 1.5,
                             ),
                           ),
-                          child: Row(
+                          child: const Row(
                             children: [
-                              const SizedBox(width: 12),
-                              const Icon(
+                              SizedBox(width: 12),
+                              Icon(
                                 Icons.wifi_rounded,
                                 color: Color(0xFF94A3B8), // Slate 400
                                 size: 18,
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Lieu",
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Color(0xFF64748B), // Slate 500
                                       ),
                                     ),
-                                    const SizedBox(height: 3),
-                                    const Text(
+                                    SizedBox(height: 3),
+                                    Text(
                                       "Télétravail",
                                       style: TextStyle(
                                         fontSize: 14,
@@ -1071,8 +1080,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: const Color(0xFFE2E8F0), // Slate 200
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE2E8F0), // Slate 200
                                 width: 1.5,
                               ),
                             ),
@@ -1207,8 +1216,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFFE2E8F0), // Slate 200
+                  borderSide: const BorderSide(
+                    color: Color(0xFFE2E8F0), // Slate 200
                     width: 1.5,
                   ),
                 ),
@@ -1252,8 +1261,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFFE2E8F0), // Slate 200
+                  borderSide: const BorderSide(
+                    color: Color(0xFFE2E8F0), // Slate 200
                     width: 1.5,
                   ),
                 ),
@@ -1342,8 +1351,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFFE2E8F0), // Slate 200
+                  borderSide: const BorderSide(
+                    color: Color(0xFFE2E8F0), // Slate 200
                     width: 1.5,
                   ),
                 ),
@@ -1443,8 +1452,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: const Color(0xFFE2E8F0), // Slate 200
+                        borderSide: const BorderSide(
+                          color: Color(0xFFE2E8F0), // Slate 200
                           width: 1.5,
                         ),
                       ),
@@ -1494,8 +1503,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFFE2E8F0), // Slate 200
+                  borderSide: const BorderSide(
+                    color: Color(0xFFE2E8F0), // Slate 200
                     width: 1.5,
                   ),
                 ),
@@ -1572,11 +1581,11 @@ class _JobOfferFormState extends State<JobOfferForm> {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
             colors: [
-              const Color(0xFFEEF2FF), // Indigo 50
+              Color(0xFFEEF2FF), // Indigo 50
               Colors.white,
             ],
           ),

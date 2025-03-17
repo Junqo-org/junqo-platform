@@ -51,15 +51,17 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
 
     try {
       await authService.signUp(name, email, password, gUserType);
+      if (!mounted) return;
+      Navigator.pushNamed(context, '/home');
     } on GraphQLException catch (e) {
       e.printError();
+      if (!mounted) return;
       showErrorDialog(e.toString(), context);
       return;
     } catch (e) {
       debugPrint("Unexpected error: $e");
       return;
     }
-    Navigator.pushNamed(context, '/home');
   }
 
   bool _validateFields() {
@@ -142,20 +144,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
     _blob3Controller.dispose();
     _scaleController.dispose();
     super.dispose();
-  }
-
-  void _validatePasswords() {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _passwordsMatch = false;
-        _passwordError = 'Les mots de passe ne correspondent pas';
-      });
-    } else {
-      setState(() {
-        _passwordsMatch = true;
-        _passwordError = null;
-      });
-    }
   }
 
   String getUserTypeText() {

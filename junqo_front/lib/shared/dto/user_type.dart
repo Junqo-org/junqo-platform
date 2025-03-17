@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
 
 enum UserType {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:ferry/ferry.dart';
 import 'package:junqo_front/pages/cv.dart';
 import 'package:junqo_front/pages/home_page.dart';
 import 'package:junqo_front/pages/ia_page.dart';
@@ -49,7 +51,8 @@ class AppRouter {
             builder: (_) => const PrivatePage(child: ProfilePage()));
       case '/offer-creation':
         return MaterialPageRoute(
-            builder: (_) => const PrivatePage(child: JobOfferForm()));
+            builder: (_) => PrivatePage(
+                child: JobOfferForm(client: GetIt.instance<Client>())));
       case '/register':
         final userType = settings.arguments;
 

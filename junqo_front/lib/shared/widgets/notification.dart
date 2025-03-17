@@ -4,9 +4,9 @@ class NotificationPopup extends StatelessWidget {
   final VoidCallback onClose;
 
   const NotificationPopup({
-    Key? key,
+    super.key,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,19 +63,19 @@ class NotificationPopup extends StatelessWidget {
 
   Widget _buildNotificationList() {
     final notifications = [
-      _NotificationItem(
+      const _NotificationItem(
         title: 'Lorem ipsum dolor',
         message: 'Sit amet consectetur adipiscing elit.',
         time: 'Il y a 5 min',
         isNew: true,
       ),
-      _NotificationItem(
+      const _NotificationItem(
         title: 'Sed do eiusmod tempor',
         message: 'Incididunt ut labore et dolore magna aliqua.',
         time: 'Il y a 15 min',
         isNew: true,
       ),
-      _NotificationItem(
+      const _NotificationItem(
         title: 'Ut enim ad minim',
         message: 'Veniam, quis nostrud exercitation ullamco laboris.',
         time: 'Il y a 1h',
