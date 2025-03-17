@@ -27,26 +27,34 @@ jobs:
 
   deployment-dev-tests:
     needs: changes-check
-    if: github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
-        (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
+    if:
+      github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
+      (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.dev.yaml
 
   deployment-prod-tests:
-    needs: [changes-check, deployment-dev-tests]
-    if: github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
-        (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
+    needs: changes-check
+    if:
+      github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
+      (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.yaml
 
   deployment-tests-ok:
     needs: [changes-check, deployment-dev-tests, deployment-prod-tests]
-    if: |
-      (needs.changes-check.outputs.any_changed == 'false') ||
-      (needs.changes-check.outputs.any_changed == 'true' && needs.deployment-dev-tests.result == 'success' && needs.deployment-prod-tests.result == 'success')
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Set deployment tests status
-        run: echo "Deployment tests passed"
+        run: |
+          if [[ "${{ needs.changes-check.outputs.any_changed }}" == "false" ]] ||
+            [[ "${{ needs.changes-check.outputs.any_changed }}" == "true" && "${{ needs.deployment-dev-tests.result }}" == "success" && "${{ needs.deployment-prod-tests.result }}" == "success" ]]; then
+            echo "✅ Deployment tests condition met."
+            exit 0
+          else
+            echo "❌ Deployment tests failed or were required but skipped."
+            exit 1
+          fi
