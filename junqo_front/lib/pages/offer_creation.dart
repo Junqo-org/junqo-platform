@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../shared/widgets/navbar_company.dart';
 import 'package:ferry/ferry.dart';
-import '../core/log_service.dart';
 
 class JobOfferForm extends StatefulWidget {
   final Client client;
@@ -147,7 +146,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
           'endDate': _endDate?.toString(),
         };
 
-        LogService.debug(jobOffer.toString());
+        print(jobOffer); // dont use print in production
+
         final String offerTypeValue = _offerType;
         final String titleValue = _titleController.text;
         
