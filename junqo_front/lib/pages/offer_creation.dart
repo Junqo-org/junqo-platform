@@ -147,8 +147,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
           'endDate': _endDate?.toString(),
         };
 
-        LogService.error(jobOffer.toString());
-
+        LogService.debug(jobOffer.toString());
         final String offerTypeValue = _offerType;
         final String titleValue = _titleController.text;
         
