@@ -4,10 +4,10 @@ class CompanyProfile extends StatefulWidget {
   const CompanyProfile({super.key});
 
   @override
-  _CompanyProfileState createState() => _CompanyProfileState();
+  CompanyProfileState createState() => CompanyProfileState();
 }
 
-class _CompanyProfileState extends State<CompanyProfile> {
+class CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _industryController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();

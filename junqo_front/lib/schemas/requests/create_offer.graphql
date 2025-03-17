@@ -1,0 +1,13 @@
+mutation createOffer($input: CreateOfferInput!) {
+  createOffer(offerInput: $input) {
+    id
+    title
+    description
+    status
+    category
+    tags
+    createdAt
+    updatedAt
+    expiresAt
+  }
+} 

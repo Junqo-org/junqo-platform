@@ -27,51 +27,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: stable
-        flutter-version-file: junqo_front/pubspec.yaml
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: junqo_front/pubspec.yaml
 
-    - run: flutter --version
+      - run: flutter --version
 
-    - name: Restore pub cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.pub-cache
-        key: ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_front/pubspec.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_front/pubspec.yaml') }}
-          ${{ runner.os }}-pub-cache
+      - name: Restore pub cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_front/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_front/pubspec.yaml') }}
+            ${{ runner.os }}-pub-cache
 
-    - name: Install dependencies
-      run: flutter pub get
-      working-directory: junqo_front
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: junqo_front
 
-    - name: Generate graphql types
-      run: |
-        mkdir -p ./lib/schemas
-        if [ ! -d "../schemas" ] || [ -z "$(ls -A ../schemas/*.graphql 2>/dev/null)" ]; then
-          echo "Error: GraphQL schema files not found in ../schemas/"
-          exit 1
-        fi
-        cp ../schemas/*.graphql ./lib/schemas/
-        dart run build_runner build
-      working-directory: junqo_front
+      - name: Generate graphql types
+        run: |
+          mkdir -p ./lib/schemas
+          if [ ! -d "../schemas" ] || [ -z "$(ls -A ../schemas/*.graphql 2>/dev/null)" ]; then
+            echo "Error: GraphQL schema files not found in ../schemas/"
+            exit 1
+          fi
+          cp ../schemas/*.graphql ./lib/schemas/
+          dart run build_runner build
+        working-directory: junqo_front
 
-    - name: Run Flutter tests
-      run: flutter test
-      working-directory: junqo_front
+      - name: Run Flutter tests
+        run: flutter test
+        working-directory: junqo_front
 
   front-tests-ok:
     needs: [changes-check, front-tests]
-    if: |
-      (needs.changes-check.outputs.any_changed == 'false') ||
-      (needs.changes-check.outputs.any_changed == 'true' && needs.front-tests.result == 'success')
+    if: always()
     runs-on: ubuntu-latest
     steps:
-    - name: Set frontend tests status
-      run: echo "Frontend tests passed"
+      - name: Set Frontend tests status
+        run: |
+          if [[ "${{ needs.changes-check.outputs.any_changed }}" == "false" ]] ||
+            [[ "${{ needs.changes-check.outputs.any_changed }}" == "true" && "${{ needs.front-tests.result }}" == "success" ]]; then
+            echo "✅ Frontend tests condition met."
+            exit 0
+          else
+            echo "❌ Frontend tests failed or were required but skipped."
+            exit 1
+          fi
