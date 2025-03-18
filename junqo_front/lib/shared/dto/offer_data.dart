@@ -1,28 +1,46 @@
 class OfferData {
+  final String userid;
   final String title;
   final String description;
-  final String category;
-  final List<String> tags;
-  final DateTime? expiresAt;
-  final String userId;
+  final String offerType;  // 'Stage' ou 'Alternance'
+  final String duration;
+  final String salary;
+  final String workLocationType;  // 'Sur place' ou 'Distanciel'
+  final DateTime expiresAt;
+  final List<String> skills;
+  final List<String> benefits;
+  final String educationLevel;
+  final String status;
 
   OfferData({
+    this.userid = '',
     required this.title,
     required this.description,
-    required this.category,
-    required this.tags,
-    this.expiresAt,
-    required this.userId,
+    required this.offerType,
+    this.duration = '',
+    this.salary = '',
+    this.workLocationType = '',
+    required this.expiresAt,
+    required this.skills,
+    required this.benefits,
+    this.educationLevel = '',
+    this.status = '',
   });
 
   Map<String, dynamic> toJson() {
     return {
+      'userid': userid,
       'title': title,
       'description': description,
-      'category': category,
-      'tags': tags,
-      'expiresAt': expiresAt?.toIso8601String(),
-      'userId': userId,
+      'offerType': offerType,
+      'duration': duration,
+      'salary': salary,
+      'workLocationType': workLocationType,
+      'expiresAt': expiresAt.toIso8601String(),
+      'skills': skills,
+      'benefits': benefits,
+      'educationLevel': educationLevel,
+      'status': status,
     };
   }
-} 
+}

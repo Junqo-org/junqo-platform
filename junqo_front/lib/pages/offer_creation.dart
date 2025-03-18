@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../shared/widgets/navbar_company.dart';
 import 'package:ferry/ferry.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/services/offer_service.dart';
+import 'package:junqo_front/core/auth_service.dart';
+import 'package:junqo_front/shared/dto/offer_data.dart';
 
 class JobOfferForm extends StatefulWidget {
   final Client client;
@@ -16,14 +19,18 @@ class JobOfferForm extends StatefulWidget {
 }
 
 class _JobOfferFormState extends State<JobOfferForm> {
+  final OfferService offerService = GetIt.instance<OfferService>();
+  final AuthService authService = GetIt.instance<AuthService>();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  bool _remoteWork = false;
-  DateTime? _startDate;
-  DateTime? _endDate;
+  String _workLocationType = 'Sur place'; // Valeurs possibles: 'Sur place', 'Distanciel'
+  DateTime? _expirationDate;
   
   // Type d'offre
   String _offerType = 'Stage';
+  
+  // Durée d'expiration
+  String _expiresIn = '1 mois';
   
   // Contrôleurs pour les champs de texte
   final TextEditingController _titleController = TextEditingController();
@@ -53,12 +60,21 @@ class _JobOfferFormState extends State<JobOfferForm> {
     'Bac+8',
   ];
 
+  // Ajouter ces variables avec les autres variables d'état
+  List<String> _selectedBenefits = [];
+  final FocusNode _benefitsFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
     _skillsFocusNode.addListener(() {
       if (!_skillsFocusNode.hasFocus) {
         _addSkillFromController();
+      }
+    });
+    _benefitsFocusNode.addListener(() {
+      if (!_benefitsFocusNode.hasFocus) {
+        _addBenefitFromController();
       }
     });
   }
@@ -78,12 +94,27 @@ class _JobOfferFormState extends State<JobOfferForm> {
     });
   }
 
+  void _addBenefitFromController() {
+    if (_benefitsController.text.isNotEmpty) {
+      setState(() {
+        _selectedBenefits.add(_benefitsController.text.trim());
+        _benefitsController.clear();
+      });
+    }
+  }
+  
+  void _removeBenefit(String benefit) {
+    setState(() {
+      _selectedBenefits.remove(benefit);
+    });
+  }
+
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isStartDate 
-        ? _startDate ?? DateTime.now().add(const Duration(days: 14)) 
-        : _endDate ?? (_startDate?.add(const Duration(days: 90)) ?? DateTime.now().add(const Duration(days: 104))),
+        ? _expirationDate ?? DateTime.now().add(const Duration(days: 14)) 
+        : _expirationDate ?? (_expirationDate?.add(const Duration(days: 90)) ?? DateTime.now().add(const Duration(days: 104))),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 730)),
       builder: (context, child) {
@@ -105,13 +136,13 @@ class _JobOfferFormState extends State<JobOfferForm> {
       if (!mounted) return;
       setState(() {
         if (isStartDate) {
-          _startDate = picked;
+          _expirationDate = picked;
           // Si la date de fin est avant la nouvelle date de début, on l'ajuste
-          if (_endDate != null && _endDate!.isBefore(_startDate!)) {
-            _endDate = _startDate!.add(const Duration(days: 90));
+          if (_expirationDate != null && _expirationDate!.isBefore(picked)) {
+            _expirationDate = picked.add(const Duration(days: 90));
           }
         } else {
-          _endDate = picked;
+          _expirationDate = picked;
         }
       });
     }
@@ -129,30 +160,27 @@ class _JobOfferFormState extends State<JobOfferForm> {
       final navigatorContext = Navigator.of(context);
       
       try {
-        final Map<String, dynamic> jobOffer = {
-          'title': _titleController.text,
-          'description': _descriptionController.text,
-          'company': _companyController.text,
-          'location': _remoteWork ? 'Télétravail' : _locationController.text,
-          'offerType': _offerType,
-          'duration': _durationController.text,
-          'profile': _profileController.text,
-          'educationLevel': _educationLevel,
-          'salary': _salaryController.text,
-          'skills': List<String>.from(_selectedSkills),
-          'benefits': _benefitsController.text,
-          'remoteWork': _remoteWork,
-          'startDate': _startDate?.toString(),
-          'endDate': _endDate?.toString(),
-        };
-
-        print(jobOffer); // dont use print in production
-
-        final String offerTypeValue = _offerType;
         final String titleValue = _titleController.text;
-        
-        // TODO: Remplacer par l'appel API réel
-        await Future.delayed(const Duration(seconds: 2)); // Simulation d'appel API
+
+        final OfferData jobOffer = OfferData(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          offerType: _offerType,
+          duration: _durationController.text,
+          salary: _salaryController.text,
+          workLocationType: _workLocationType,
+          expiresAt: _expirationDate!,
+          skills: _selectedSkills,
+          benefits: _selectedBenefits,
+          educationLevel: _educationLevel,
+          userid: authService.userId ?? '',
+          status: 'active', 
+        );
+
+        print(jobOffer);
+
+        await Future.delayed(const Duration(seconds: 2));
+        //await offerService.createOffer(jobOffer);
         
         // Vérification si le widget est toujours monté
         if (!mounted) return;
@@ -197,7 +225,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                "Offre de ${offerTypeValue.toLowerCase()} créée !",
+                                "Offre de ${_offerType.toLowerCase()} créée !",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -255,9 +283,10 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                       _benefitsController.clear();
                                       setState(() {
                                         _selectedSkills = [];
-                                        _startDate = null;
-                                        _endDate = null;
-                                        _remoteWork = false;
+                                        _selectedBenefits = [];
+                                        _expirationDate = null;
+                                        _workLocationType = 'Sur place';
+                                        _expiresIn = '1 mois';
                                         _isLoading = false;
                                       });
                                     }
@@ -739,62 +768,17 @@ class _JobOfferFormState extends State<JobOfferForm> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _companyController,
-              style: const TextStyle(
-    color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
-    fontSize: 14,
-  ),
-              decoration: InputDecoration(
-                labelText: "Nom de l'entreprise *",
-                hintText: "Ex: JUNQO",
-                filled: true,
-                fillColor: const Color(0xFFF8FAFC), // Slate 50
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFE2E8F0), // Slate 200
-                    width: 1.5,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF6366F1), // Indigo
-                    width: 1.5,
-                  ),
-                ),
-                floatingLabelStyle: const TextStyle(
-                  color: Color(0xFF6366F1), // Indigo
-                ),
-                prefixIcon: const Icon(
-                  Icons.business_rounded,
-                  color: Color(0xFF94A3B8), // Slate 400
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Le nom de l'entreprise est obligatoire";
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: TextFormField(
                     controller: _durationController,
                     style: const TextStyle(
-    color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
-    fontSize: 14,
-  ),
+                      color: Color(0xFF1E293B),
+                      fontSize: 14,
+                    ),
                     decoration: InputDecoration(
-                      labelText: "Durée *",
+                      labelText: "Durée",
                       hintText: _offerType == 'Stage' ? "Ex: 6 mois" : "Ex: 12 mois",
                       filled: true,
                       fillColor: const Color(0xFFF8FAFC), // Slate 50
@@ -824,12 +808,6 @@ class _JobOfferFormState extends State<JobOfferForm> {
                         color: Color(0xFF94A3B8), // Slate 400
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "La durée est obligatoire";
-                      }
-                      return null;
-                    },
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -837,11 +815,11 @@ class _JobOfferFormState extends State<JobOfferForm> {
                   child: TextFormField(
                     controller: _salaryController,
                     style: const TextStyle(
-    color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
-    fontSize: 14,
-  ),
+                      color: Color(0xFF1E293B),
+                      fontSize: 14,
+                    ),
                     decoration: InputDecoration(
-                      labelText: "Rémunération *",
+                      labelText: "Rémunération",
                       hintText: "Ex: 800€/mois",
                       filled: true,
                       fillColor: const Color(0xFFF8FAFC), // Slate 50
@@ -871,16 +849,6 @@ class _JobOfferFormState extends State<JobOfferForm> {
                         color: Color(0xFF94A3B8), // Slate 400
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "La rémunération est obligatoire";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,€/\s]')),
-                    ],
                   ),
                 ),
               ],
@@ -889,125 +857,75 @@ class _JobOfferFormState extends State<JobOfferForm> {
             Row(
               children: [
                 Expanded(
-                  child: InkWell(
-                    onTap: () => _selectDate(context, true),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC), // Slate 50
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFE2E8F0), // Slate 200
-                          width: 1.5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Expire dans",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF334155),
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 12),
-                          const Icon(
-                            Icons.calendar_today_rounded,
-                            color: Color(0xFF94A3B8), // Slate 400
-                            size: 18,
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC), // Slate 50
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFFE2E8F0), // Slate 200
+                            width: 1.5,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Date de début *",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFF64748B), // Slate 500
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  _startDate == null 
-                                    ? "Sélectionner une date" 
-                                    : _formatDate(_startDate!),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: _startDate == null 
-                                      ? const Color(0xFF94A3B8) // Slate 400
-                                      : const Color(0xFF334155), // Slate 700
-                                  ),
-                                ),
-                              ],
-                            ),
+                        ),
+                        child: DropdownButtonFormField<String>(
+                          value: _expiresIn,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                           ),
-                          const Icon(
+                          icon: const Icon(
                             Icons.arrow_drop_down,
                             color: Color(0xFF94A3B8), // Slate 400
                           ),
-                          const SizedBox(width: 12),
-                        ],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF334155), // Slate 700
+                          ),
+                          dropdownColor: Colors.white,
+                          items: const [
+                            DropdownMenuItem<String>(
+                              value: '1 mois',
+                              child: Text('1 mois'),
+                            ),
+                            DropdownMenuItem<String>(
+                              value: '3 mois',
+                              child: Text('3 mois'),
+                            ),
+                            DropdownMenuItem<String>(
+                              value: '6 mois',
+                              child: Text('6 mois'),
+                            ),
+                            DropdownMenuItem<String>(
+                              value: '12 mois',
+                              child: Text('12 mois'),
+                            ),
+                          ],
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _expiresIn = newValue;
+                              });
+                            }
+                          },
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: InkWell(
-                    onTap: () => _selectDate(context, false),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC), // Slate 50
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFE2E8F0), // Slate 200
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 12),
-                          const Icon(
-                            Icons.event_rounded,
-                            color: Color(0xFF94A3B8), // Slate 400
-                            size: 18,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Date de fin estimée",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFF64748B), // Slate 500
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  _endDate == null 
-                                    ? "Sélectionner une date" 
-                                    : _formatDate(_endDate!),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: _endDate == null 
-                                      ? const Color(0xFF94A3B8) // Slate 400
-                                      : const Color(0xFF334155), // Slate 700
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(
-                            Icons.arrow_drop_down,
-                            color: Color(0xFF94A3B8), // Slate 400
-                          ),
-                          const SizedBox(width: 12),
-                        ],
-                      ),
-                    ),
-                  ),
+                  child: Container(),
                 ),
               ],
             ),
@@ -1016,130 +934,93 @@ class _JobOfferFormState extends State<JobOfferForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _remoteWork
-                      ? Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8FAFC), // Slate 50
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFFE2E8F0), // Slate 200
-                              width: 1.5,
-                            ),
-                          ),
-                          child: const Row(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC), // Slate 50
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFE2E8F0), // Slate 200
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 12),
+                        Icon(
+                          _workLocationType == 'Distanciel'
+                              ? Icons.wifi_rounded
+                              : Icons.location_on_rounded,
+                          color: const Color(0xFF94A3B8), // Slate 400
+                          size: 18,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(width: 12),
-                              Icon(
-                                Icons.wifi_rounded,
-                                color: Color(0xFF94A3B8), // Slate 400
-                                size: 18,
+                              const Text(
+                                "Lieu",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF64748B), // Slate 500
+                                ),
                               ),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Lieu",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFF64748B), // Slate 500
-                                      ),
-                                    ),
-                                    SizedBox(height: 3),
-                                    Text(
-                                      "Télétravail",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF334155), // Slate 700
-                                      ),
-                                    ),
-                                  ],
+                              const SizedBox(height: 3),
+                              Text(
+                                _workLocationType == 'Distanciel' 
+                                    ? "Distanciel" 
+                                    : "Sur place (adresse du profil)",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF334155), // Slate 700
                                 ),
                               ),
                             ],
                           ),
-                        )
-                      : TextFormField(
-                          controller: _locationController,
-                          style: const TextStyle(
-    color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
-    fontSize: 14,
-  ),
-                          decoration: InputDecoration(
-                            labelText: "Lieu *",
-                            hintText: "Ex: Paris, France",
-                            filled: true,
-                            fillColor: const Color(0xFFF8FAFC), // Slate 50
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE2E8F0), // Slate 200
-                                width: 1.5,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFF6366F1), // Indigo
-                                width: 1.5,
-                              ),
-                            ),
-                            floatingLabelStyle: const TextStyle(
-                              color: Color(0xFF6366F1), // Indigo
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.location_on_rounded,
-                              color: Color(0xFF94A3B8), // Slate 400
-                            ),
-                          ),
-                          validator: (value) {
-                            if (!_remoteWork && (value == null || value.isEmpty)) {
-                              return "Le lieu est obligatoire";
-                            }
-                            return null;
-                          },
                         ),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   decoration: BoxDecoration(
-                    color: _remoteWork ? const Color(0xFFEEF2FF) : Colors.white, // Indigo 50 if selected
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: _remoteWork ? const Color(0xFF6366F1) : const Color(0xFFE2E8F0), // Indigo or Slate 200
+                      color: const Color(0xFFE2E8F0), // Slate 200
                       width: 1.5,
                     ),
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Télétravail",
+                        "Type de lieu",
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: Color(0xFF334155), // Slate 700
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Switch(
-                        value: _remoteWork,
-                        onChanged: (value) {
-                          setState(() {
-                            _remoteWork = value;
-                          });
-                        },
-                        activeColor: Colors.white,
-                        activeTrackColor: const Color(0xFF6366F1), // Indigo
-                        inactiveThumbColor: Colors.white,
-                        inactiveTrackColor: const Color(0xFFCBD5E1), // Slate 300
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          _buildLocationTypeOption(
+                            label: "Sur place",
+                            isSelected: _workLocationType == "Sur place",
+                            onTap: () => setState(() => _workLocationType = "Sur place"),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildLocationTypeOption(
+                            label: "Distanciel",
+                            isSelected: _workLocationType == "Distanciel",
+                            onTap: () => setState(() => _workLocationType = "Distanciel"),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -1147,6 +1028,31 @@ class _JobOfferFormState extends State<JobOfferForm> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocationTypeOption({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF6366F1) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : const Color(0xFF64748B),
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+          ),
         ),
       ),
     );
@@ -1201,9 +1107,9 @@ class _JobOfferFormState extends State<JobOfferForm> {
               controller: _descriptionController,
               maxLines: 8,
               style: const TextStyle(
-    color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
-    fontSize: 14,
-  ),
+                color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
+                fontSize: 14,
+              ),
               decoration: InputDecoration(
                 labelText: "Description détaillée *",
                 hintText: "Détaillez les missions, le contexte, les objectifs et les technologies utilisées...",
@@ -1245,15 +1151,16 @@ class _JobOfferFormState extends State<JobOfferForm> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _benefitsController,
+              focusNode: _benefitsFocusNode,
               style: const TextStyle(
-    color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
-    fontSize: 14,
-  ),
+                color: Color(0xFF1E293B),
+                fontSize: 14,
+              ),
               decoration: InputDecoration(
                 labelText: "Avantages proposés",
-                hintText: "Tickets restaurant, RTT, télétravail partiel...",
+                hintText: "Ajouter un avantage et appuyer sur Entrée",
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC), // Slate 50
+                fillColor: const Color(0xFFF8FAFC),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -1261,25 +1168,59 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(
-                    color: Color(0xFFE2E8F0), // Slate 200
+                    color: Color(0xFFE2E8F0),
                     width: 1.5,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(
-                    color: Color(0xFF6366F1), // Indigo
+                    color: Color(0xFF6366F1),
                     width: 1.5,
                   ),
                 ),
-                floatingLabelStyle: const TextStyle(
-                  color: Color(0xFF6366F1), // Indigo
-                ),
                 prefixIcon: const Icon(
-                  Icons.card_giftcard_rounded,
-                  color: Color(0xFF94A3B8), // Slate 400
+                  Icons.add_circle_outline_rounded,
+                  color: Color(0xFF94A3B8),
+                ),
+                suffixIcon: IconButton(
+                  icon: const Icon(
+                    Icons.add_circle_rounded,
+                    color: Color(0xFF6366F1),
+                  ),
+                  onPressed: _addBenefitFromController,
                 ),
               ),
+              onEditingComplete: _addBenefitFromController,
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 10,
+              children: _selectedBenefits.map((benefit) {
+                return Chip(
+                  label: Text(benefit),
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                  backgroundColor: const Color(0xFF6366F1),
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  deleteIcon: const Icon(
+                    Icons.cancel_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  onDeleted: () => _removeBenefit(benefit),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  visualDensity: VisualDensity.compact,
+                  elevation: 0,
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -1331,49 +1272,6 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 color: Color(0xFF64748B), // Slate 500
               ),
             ),
-            const SizedBox(height: 24),
-            TextFormField(
-              style: const TextStyle(
-    color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
-    fontSize: 14,
-  ),
-              controller: _profileController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                labelText: "Profil du candidat idéal *",
-                hintText: "Qualités, personnalité, motivation...",
-                filled: true,
-                fillColor: const Color(0xFFF8FAFC), // Slate 50
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFE2E8F0), // Slate 200
-                    width: 1.5,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF6366F1), // Indigo
-                    width: 1.5,
-                  ),
-                ),
-                floatingLabelStyle: const TextStyle(
-                  color: Color(0xFF6366F1), // Indigo
-                ),
-                alignLabelWithHint: true,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Le profil recherché est obligatoire";
-                }
-                return null;
-              },
-            ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -1403,7 +1301,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           value: _educationLevel,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                           ),
                           icon: const Icon(
                             Icons.arrow_drop_down,
@@ -1434,43 +1332,57 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: TextFormField(
-                    controller: _educationController,
-                    style: const TextStyle(
-    color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
-    fontSize: 14,
-  ),
-                    decoration: InputDecoration(
-                      labelText: "Formation / Spécialisation",
-                      hintText: "Ex: Informatique, Développement Web",
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC), // Slate 50
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFE2E8F0), // Slate 200
-                          width: 1.5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Formation / Spécialisation",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF334155), // Slate 700
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF6366F1), // Indigo
-                          width: 1.5,
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _educationController,
+                        style: const TextStyle(
+                          color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "Ex: Informatique, Développement Web",
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC), // Slate 50
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFE2E8F0), // Slate 200
+                              width: 1.5,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6366F1), // Indigo
+                              width: 1.5,
+                            ),
+                          ),
+                          floatingLabelStyle: const TextStyle(
+                            color: Color(0xFF6366F1), // Indigo
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.school_rounded,
+                            color: Color(0xFF94A3B8), // Slate 400
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
                         ),
                       ),
-                      floatingLabelStyle: const TextStyle(
-                        color: Color(0xFF6366F1), // Indigo
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.school_rounded,
-                        color: Color(0xFF94A3B8), // Slate 400
-                      ),
-                    ),
+                    ],
                   ),
                 ),
               ],
@@ -1533,27 +1445,27 @@ class _JobOfferFormState extends State<JobOfferForm> {
               spacing: 8,
               runSpacing: 10,
               children: _selectedSkills.map((skill) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEEF2FF), // Indigo 50
+                return Chip(
+                  label: Text(skill),
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                  backgroundColor: const Color(0xFF6366F1), // Indigo
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Chip(
-                    label: Text(skill),
-                    labelStyle: const TextStyle(
-                      color: Color(0xFF4F46E5), // Indigo 600
-                      fontWeight: FontWeight.w500,
-                    ),
-                    backgroundColor: Colors.transparent,
-                    visualDensity: VisualDensity.compact,
-                    deleteIcon: const Icon(
-                      Icons.cancel_rounded,
-                      size: 18,
-                      color: Color(0xFF4F46E5), // Indigo 600
-                    ),
-                    onDeleted: () => _removeSkill(skill),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  deleteIcon: const Icon(
+                    Icons.cancel_rounded,
+                    size: 18,
+                    color: Colors.white,
                   ),
+                  onDeleted: () => _removeSkill(skill),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  visualDensity: VisualDensity.compact,
+                  elevation: 0,
                 );
               }).toList(),
             ),
@@ -1774,6 +1686,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
     _educationController.dispose();
     _benefitsController.dispose();
     _skillsFocusNode.dispose();
+    _benefitsFocusNode.dispose();
     super.dispose();
   }
 }

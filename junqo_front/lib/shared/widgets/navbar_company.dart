@@ -54,7 +54,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         routeName = '/home';
         break;
       case 1:
-        routeName = '/offer-creation';
+        routeName = '/offer-list';
         break;
       case 3:
         routeName = '/messaging';
