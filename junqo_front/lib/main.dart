@@ -10,6 +10,7 @@ import 'package:junqo_front/router.dart';
 import 'pages/welcome.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/shared/theme.dart';
+import 'package:junqo_front/services/offer_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
@@ -22,11 +23,13 @@ void main() async {
     final authService = AuthService(client);
     await authService.initialize();
     final userService = UserService(client);
+    final offerService = OfferService(client);
 
     GetIt.instance.registerLazySingleton<Client>(() => client);
     GetIt.instance.registerLazySingleton<AuthService>(() => authService);
     GetIt.instance.registerLazySingleton<UserService>(() => userService);
-    runApp(const JunqoApp());
+    GetIt.instance.registerLazySingleton<OfferService>(() => offerService);
+      runApp(const JunqoApp());
   } catch (e) {
     LogService.error('Failed to initialize application: $e');
     runApp(ErrorApp(error: e.toString()));
