@@ -27,3 +27,4 @@ class OfferService {
     return await ResponseHandler.handleGraphQLResponse(response, "CreateOffer");
   }
 }
+
