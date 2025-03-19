@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsEnum, IsUUID } from 'class-validator';
 import { UserType } from '../../users/dto/user-type.enum';
 import { Expose } from 'class-transformer';
 
@@ -8,7 +8,6 @@ export class UserResource {
   public id?: string;
 
   @Expose()
-  @IsNotEmpty()
   @IsEnum(UserType)
   public type?: UserType;
 

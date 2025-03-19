@@ -118,7 +118,7 @@ describe('ProfilesService', () => {
       );
     });
 
-    it('should throw NotFoundException if there is no offer', async () => {
+    it('should throw NotFoundException if there is no student profile', async () => {
       profilesRepository.findAllStudentProfiles.mockResolvedValue([]);
 
       await expect(
@@ -134,7 +134,7 @@ describe('ProfilesService', () => {
       );
     });
 
-    it('should throw ForbiddenException if user cannot read offer', async () => {
+    it('should throw ForbiddenException if user cannot read student profile', async () => {
       profilesRepository.findAllStudentProfiles.mockResolvedValue(
         studentProfiles,
       );
@@ -162,7 +162,7 @@ describe('ProfilesService', () => {
   });
 
   describe('findOneById', () => {
-    it('should return an offer by ID', async () => {
+    it('should return an student profile by ID', async () => {
       profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
 
       const result = await profilesService.findOneById(
@@ -184,7 +184,7 @@ describe('ProfilesService', () => {
       );
     });
 
-    it("should throw NotFoundException if the offer don't exists", async () => {
+    it("should throw NotFoundException if the student profile don't exists", async () => {
       profilesRepository.findOneById.mockRejectedValueOnce(
         new NotFoundException(),
       );
@@ -195,7 +195,7 @@ describe('ProfilesService', () => {
       expect(profilesRepository.findOneById).toHaveBeenCalled();
     });
 
-    it('should throw ForbiddenException if user cannot read offer', async () => {
+    it('should throw ForbiddenException if user cannot read student profile', async () => {
       profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
@@ -223,7 +223,7 @@ describe('ProfilesService', () => {
   });
 
   describe('createStudentProfile', () => {
-    it('should create an offer', async () => {
+    it('should create an student profile', async () => {
       const createStudentProfileInput: CreateStudentProfileDTO =
         plainToInstance(CreateStudentProfileDTO, studentProfiles[0], {
           excludeExtraneousValues: true,
@@ -252,7 +252,7 @@ describe('ProfilesService', () => {
       );
     });
 
-    it('should throw ForbiddenException if user cannot create offer', async () => {
+    it('should throw ForbiddenException if user cannot create student profile', async () => {
       const createStudentProfileInput: CreateStudentProfileDTO =
         plainToInstance(CreateStudentProfileDTO, studentProfiles[0], {
           excludeExtraneousValues: true,
@@ -311,7 +311,7 @@ describe('ProfilesService', () => {
   });
 
   describe('updateStudentProfile', () => {
-    it('should update an offer', async () => {
+    it('should update an student profile', async () => {
       const newData = {
         title: 'new title',
       };
@@ -319,7 +319,7 @@ describe('ProfilesService', () => {
         plainToInstance(UpdateStudentProfileDTO, newData, {
           excludeExtraneousValues: true,
         });
-      const expectedOffer: StudentProfileDTO = plainToInstance(
+      const expectedStudentProfile: StudentProfileDTO = plainToInstance(
         StudentProfileDTO,
         {
           ...studentProfiles[0],
@@ -328,13 +328,15 @@ describe('ProfilesService', () => {
       );
 
       profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
-      profilesRepository.updateStudentProfile.mockResolvedValue(expectedOffer);
+      profilesRepository.updateStudentProfile.mockResolvedValue(
+        expectedStudentProfile,
+      );
 
       const result = await profilesService.updateStudentProfile(
         currentUser,
         updateStudentProfileInput,
       );
-      expect(result).toBe(expectedOffer);
+      expect(result).toBe(expectedStudentProfile);
       expect(profilesRepository.updateStudentProfile).toHaveBeenCalledWith(
         studentProfiles[0].userId,
         updateStudentProfileInput,
@@ -350,7 +352,7 @@ describe('ProfilesService', () => {
       );
     });
 
-    it('should throw ForbiddenException if user cannot update offer', async () => {
+    it('should throw ForbiddenException if user cannot update student profile', async () => {
       const invalidCurrentUser = plainToInstance(AuthUserDTO, {
         ...currentUser,
         id: 'other user',
@@ -360,7 +362,7 @@ describe('ProfilesService', () => {
       };
       const updateStudentProfileInput: UpdateStudentProfileDTO =
         plainToInstance(UpdateStudentProfileDTO, newData);
-      const expectedOffer: StudentProfileDTO = plainToInstance(
+      const expectedStudentProfile: StudentProfileDTO = plainToInstance(
         StudentProfileDTO,
         {
           ...studentProfiles[0],
@@ -369,7 +371,9 @@ describe('ProfilesService', () => {
       );
 
       profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
-      profilesRepository.updateStudentProfile.mockResolvedValue(expectedOffer);
+      profilesRepository.updateStudentProfile.mockResolvedValue(
+        expectedStudentProfile,
+      );
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
       );
@@ -417,7 +421,7 @@ describe('ProfilesService', () => {
   });
 
   describe('deleteStudentProfile', () => {
-    it('should delete an offer', async () => {
+    it('should delete an student profile', async () => {
       profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
       profilesRepository.deleteStudentProfile.mockResolvedValue(true);
 
@@ -437,7 +441,7 @@ describe('ProfilesService', () => {
       );
     });
 
-    it('should throw ForbiddenException if user cannot read offer', async () => {
+    it('should throw ForbiddenException if user cannot read student profile', async () => {
       profilesRepository.findOneById.mockResolvedValue(studentProfiles[0]);
       profilesRepository.deleteStudentProfile.mockResolvedValue(true);
       caslAbilityFactory.createForUser.mockImplementationOnce(

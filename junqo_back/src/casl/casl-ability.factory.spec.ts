@@ -1,7 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { UserType } from '../users/dto/user-type.enum';
-import { UserDTO } from '../users/dto/user.dto';
 import { Actions, CaslAbilityFactory } from './casl-ability.factory';
 import { UserResource } from './dto/user-resource.dto';
 import { StudentProfileResource } from './dto/profile-resource.dto';
@@ -206,7 +205,7 @@ describe('CaslAbilityFactory', () => {
       expect(ability.can(Actions.READ, studentProfileResource)).toBeTruthy();
     });
 
-    it('should not allow school user to read student profile resource', () => {
+    it('should allow school user to read student profile resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
       const studentProfileResource: StudentProfileResource = plainToInstance(
         StudentProfileResource,
@@ -299,7 +298,7 @@ describe('CaslAbilityFactory', () => {
       expect(ability.can(Actions.READ, offerResource)).toBeTruthy();
     });
 
-    it('should not allow school user to read offer resource', () => {
+    it('should allow school user to read offer resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
       const offerResource: OfferResource = plainToInstance(OfferResource, {
         userId: companyUser.id,

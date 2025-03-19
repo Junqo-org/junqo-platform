@@ -6,7 +6,7 @@ export class StudentProfileResource {
   @IsUUID()
   public userId?: string;
 
-  constructor(userId: string) {
+  constructor(userId?: string) {
     this.userId = userId;
   }
 }

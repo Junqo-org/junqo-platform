@@ -176,7 +176,7 @@ export class OffersService {
 
       if (updatedOffer === null) {
         throw new InternalServerErrorException(
-          `Failed to create offer: updatedOffer is null`,
+          `Failed to update offer: updatedOffer is null`,
         );
       }
 

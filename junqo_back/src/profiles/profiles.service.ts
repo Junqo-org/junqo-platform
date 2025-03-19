@@ -139,7 +139,7 @@ export class ProfilesService {
 
       if (createdStudentProfile === null) {
         throw new InternalServerErrorException(
-          `Failed to create offer: createdStudentProfile is null`,
+          `Failed to create student profile: createdStudentProfile is null`,
         );
       }
       return createdStudentProfile;
@@ -191,7 +191,7 @@ export class ProfilesService {
 
       if (updatedStudentProfile === null) {
         throw new InternalServerErrorException(
-          `Failed to create offer: updatedStudentProfile is null`,
+          `Failed to create student profile: updatedStudentProfile is null`,
         );
       }
       return updatedStudentProfile;

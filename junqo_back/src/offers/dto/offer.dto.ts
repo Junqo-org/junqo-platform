@@ -9,8 +9,8 @@ import {
   IsOptional,
 } from 'class-validator';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { OfferStatus } from '../../graphql.schema';
 import { Expose } from 'class-transformer';
+import { OfferStatus } from './offer-status.enum';
 
 // Offer retrieved from database
 export class OfferDTO {

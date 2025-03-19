@@ -86,7 +86,7 @@ describe('OffersRepository', () => {
 
   describe('findOneById', () => {
     it('should return an offer by ID', async () => {
-      const userId = offers[0].userId;
+      const offerId = offers[0].id;
       const expectedOffer: OfferDTO = offers[0];
       const offerModel: OfferModel = {
         ...offers[0],
@@ -96,20 +96,20 @@ describe('OffersRepository', () => {
 
       mockOfferModel.findByPk.mockResolvedValue(offerModel);
 
-      const result = await offersRepository.findOneById(userId);
+      const result = await offersRepository.findOneById(offerId);
       expect(result).toEqual(expectedOffer);
-      expect(mockOfferModel.findByPk).toHaveBeenCalledWith(userId);
+      expect(mockOfferModel.findByPk).toHaveBeenCalledWith(offerId);
     });
 
     it("should throw NotFoundException if the offer don't exists", async () => {
-      const userId = 'bad id';
+      const offerId = 'bad id';
 
       mockOfferModel.findByPk.mockResolvedValue(null);
 
-      await expect(offersRepository.findOneById(userId)).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
-      expect(mockOfferModel.findByPk).toHaveBeenCalledWith(userId);
+      await expect(
+        offersRepository.findOneById(offerId),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(mockOfferModel.findByPk).toHaveBeenCalledWith(offerId);
     });
   });
 
@@ -191,7 +191,7 @@ describe('OffersRepository', () => {
 
   describe('deleteOffer', () => {
     it('should delete an offer', async () => {
-      const userId = '8aec0948-58dd-40b2-b085-5a47244036c2';
+      const offerId = '8aec0948-58dd-40b2-b085-5a47244036c2';
       const expectedOffer: OfferDTO = new OfferDTO(offers[0]);
       const offerModel: OfferModel = {
         ...offers[0],
@@ -202,7 +202,7 @@ describe('OffersRepository', () => {
 
       mockOfferModel.findByPk.mockResolvedValue(offerModel);
 
-      const result = await offersRepository.deleteOffer(userId);
+      const result = await offersRepository.deleteOffer(offerId);
       expect(result).toEqual(true);
       expect(offerModel.destroy).toHaveBeenCalled();
     });
