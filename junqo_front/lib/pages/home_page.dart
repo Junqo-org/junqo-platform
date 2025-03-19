@@ -34,11 +34,13 @@ class _HomePageState extends State<HomePage> {
     }
     try {
       await userService.fetchUserData(userId);
+      if (!mounted) return;
       setState(() {
         userType = userService.userData?.type;
       });
     } catch (e) {
       debugPrint('Error fetching user type: $e');
+      if (!mounted) return;
       showErrorDialog(e.toString(), context);
     }
   }
@@ -54,7 +56,7 @@ class _HomePageState extends State<HomePage> {
     } else if (userType == UserType.COMPANY) {
       return const RecruiterDashboard();
     } else if (userType == UserType.STUDENT) {
-      return const JobCard_();
+      return const JobCardSwipe();
     }
     return Scaffold(
       backgroundColor: Colors.white,

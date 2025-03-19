@@ -10,10 +10,10 @@ class PrivatePage extends StatefulWidget {
   const PrivatePage({super.key, required this.child});
 
   @override
-  _PrivatePageState createState() => _PrivatePageState();
+  PrivatePageState createState() => PrivatePageState();
 }
 
-class _PrivatePageState extends State<PrivatePage> {
+class PrivatePageState extends State<PrivatePage> {
   late final AuthService authService;
 
   @override
@@ -24,6 +24,7 @@ class _PrivatePageState extends State<PrivatePage> {
     } catch (e) {
       LogService.error("Error: Failed to get AuthService - $e");
       Future.microtask(() {
+        if (!mounted) return;
         showErrorDialog("Service initialization failed", context);
       });
     }
@@ -35,6 +36,7 @@ class _PrivatePageState extends State<PrivatePage> {
       return loggedIn;
     } catch (e) {
       debugPrint("Error: $e");
+      if (!mounted) return false;
       showErrorDialog(e.toString(), context);
       return false;
     }
@@ -52,11 +54,12 @@ class _PrivatePageState extends State<PrivatePage> {
         }
 
         if (snapshot.hasError || snapshot.data == false) {
-          // Navigate if not logged in
+          if (!mounted) return const SizedBox();
           Future.microtask(() {
-            Navigator.pushReplacementNamed(context, '/login');
+            if (!mounted) return;
+            Navigator.pushReplacementNamed(context, '/login'); //Don't use 'BuildContext' across async gaps problem to resolve
           });
-          return const SizedBox(); // Avoid UI flickering before navigation
+          return const SizedBox();
         }
 
         return widget.child; // Render the actual page if logged in

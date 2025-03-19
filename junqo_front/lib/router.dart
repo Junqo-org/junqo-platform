@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:ferry/ferry.dart';
 import 'package:junqo_front/pages/cv.dart';
 import 'package:junqo_front/pages/home_page.dart';
 import 'package:junqo_front/pages/ia_page.dart';
@@ -14,6 +16,8 @@ import 'package:junqo_front/pages/terms_of_use.dart';
 import 'package:junqo_front/pages/user_type_selection.dart';
 import 'package:junqo_front/pages/welcome.dart';
 import 'package:junqo_front/shared/widgets/private_page.dart';
+import 'package:junqo_front/pages/offer_creation.dart';
+import 'package:junqo_front/pages/offer_list.dart';
 
 class AppRouter {
   // Fonction pour générer les routes de l'application
@@ -46,6 +50,13 @@ class AppRouter {
       case '/profile':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: ProfilePage()));
+      case '/offer-list':
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: OfferList()));
+      case '/offer-creation':
+        return MaterialPageRoute(
+            builder: (_) => PrivatePage(
+                child: JobOfferForm(client: GetIt.instance<Client>())));
       case '/register':
         final userType = settings.arguments;
 

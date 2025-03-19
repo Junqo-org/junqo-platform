@@ -27,40 +27,46 @@ jobs:
     if: needs.changes-check.outputs.any_changed == 'true'
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16' # Specify the Node.js version you are using
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16" # Specify the Node.js version you are using
 
-    - name: Install dependencies
-      working-directory: junqo_back
-      run: npm install
+      - name: Install dependencies
+        working-directory: junqo_back
+        run: npm install
 
-    - name: Run functional tests
-      env:
-        DOTENV_CONFIG_PATH: "./.env.ci"
-      working-directory: junqo_back
-      run: npm test
+      - name: Run functional tests
+        env:
+          DOTENV_CONFIG_PATH: "./.env.ci"
+        working-directory: junqo_back
+        run: npm test
 
-    - name: Run e2e tests
-      env:
-        DOTENV_CONFIG_PATH: "./.env.ci"
-      working-directory: junqo_back
-      run: npm run test:e2e
+      - name: Run e2e tests
+        env:
+          DOTENV_CONFIG_PATH: "./.env.ci"
+        working-directory: junqo_back
+        run: npm run test:e2e
 
-    - name: Lint code
-      working-directory: junqo_back
-      run: npm run lint
+      - name: Lint code
+        working-directory: junqo_back
+        run: npm run lint
 
   back-tests-ok:
     needs: [changes-check, backend-tests]
-    if: |
-      (needs.changes-check.outputs.any_changed == 'false') ||
-      (needs.changes-check.outputs.any_changed == 'true' && needs.backend-tests.result == 'success')
+    if: always()
     runs-on: ubuntu-latest
     steps:
-    - name: Set backend tests status
-      run: echo "Backend tests passed"
+      - name: Set backend tests status
+        run: |
+          if [[ "${{ needs.changes-check.outputs.any_changed }}" == "false" ]] ||
+            [[ "${{ needs.changes-check.outputs.any_changed }}" == "true" && "${{ needs.backend-tests.result }}" == "success" ]]; then
+            echo "✅ Backend tests condition met."
+            exit 0
+          else
+            echo "❌ Backend tests failed or were required but skipped."
+            exit 1
+          fi

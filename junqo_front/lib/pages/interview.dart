@@ -5,10 +5,10 @@ class Interview extends StatefulWidget {
   const Interview({super.key});
 
   @override
-  _InterviewState createState() => _InterviewState();
+  InterviewState createState() => InterviewState();
 }
 
-class _InterviewState extends State<Interview> {
+class InterviewState extends State<Interview> {
   final TextEditingController _messageController = TextEditingController();
   final List<Map<String, String>> _messages = [];
   final FocusNode _focusNode = FocusNode();

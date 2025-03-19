@@ -11,10 +11,10 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ProfilePageState createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class ProfilePageState extends State<ProfilePage> {
   bool _isEditing = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -48,11 +48,13 @@ class _ProfilePageState extends State<ProfilePage> {
     }
     try {
       await userService.fetchUserData(userId);
+      if (!mounted) return;
       setState(() {
         userType = userService.userData?.type;
       });
     } catch (e) {
       debugPrint('Error fetching user type: $e');
+      if (!mounted) return;
       showErrorDialog(e.toString(), context);
     }
   }
@@ -405,8 +407,9 @@ class LogoutButton extends StatelessWidget {
       child: Center(
         child: ElevatedButton(
           onPressed: () async {
+            final navigatorContext = context;
             await authService.logout();
-            Navigator.pushReplacementNamed(context, '/login');
+            Navigator.pushReplacementNamed(navigatorContext, '/login'); //Don't use 'BuildContext' across async gaps problem to resolve
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,

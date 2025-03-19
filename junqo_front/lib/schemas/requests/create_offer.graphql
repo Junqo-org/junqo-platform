@@ -1,0 +1,16 @@
+mutation createOffer($input: CreateOfferInput!) {
+  createOffer(offerInput: $input) {
+    title
+    description
+    status
+    offerType
+    duration
+    salary
+    workLocationType
+    expiresAt
+    skills
+    benefits
+    educationLevel
+    userId
+  }
+}

@@ -39,11 +39,12 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
     } catch (e) {
       LogService.error("Error: Failed to get AuthService - $e");
       Future.microtask(() {
+        if (!mounted) return;
         showErrorDialog("Service initialization failed", context);
       });
     }
     _isLoggedIn().then((loggedIn) {
-      if (loggedIn) {
+      if (loggedIn && mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     });
@@ -84,6 +85,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
       return loggedIn;
     } catch (e) {
       LogService.error("Error: Failed to check login status - $e");
+      if (!mounted) return false;
       showErrorDialog(e.toString(), context);
       return false;
     }
