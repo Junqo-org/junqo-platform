@@ -13,6 +13,8 @@ import { OfferStatus } from '../../dto/offer-status.enum';
 import { UserModel } from '../../../users/repository/models/user.model';
 import { OfferDTO } from '../../dto/offer.dto';
 import { plainToInstance } from 'class-transformer';
+import { OfferType } from '../../dto/offer-type.enum';
+import { WorkContext } from '../../dto/work-context.enum';
 
 @Table({ tableName: 'Offers', timestamps: true, paranoid: true })
 export class OfferModel extends Model {
@@ -66,16 +68,38 @@ export class OfferModel extends Model {
   @Column({ type: DataType.DATE })
   expiresAt?: Date;
 
-  @Column({ type: DataType.STRING })
-  category?: string;
-
-  @Column({ type: DataType.ARRAY(DataType.STRING) })
-  tags?: string[];
-
   @AllowNull(false)
   @Default(0)
   @Column({ type: DataType.INTEGER })
   viewCount: number;
+
+  @Column({
+    type: DataType.ARRAY(DataType.ENUM(...Object.values(OfferType))),
+  })
+  offerType?: OfferType[];
+
+  // Duration in months
+  @Column({ type: DataType.INTEGER })
+  duration?: number;
+
+  // Salary per month
+  @Column({ type: DataType.INTEGER })
+  salary?: number;
+
+  @Column({ type: DataType.ENUM(...Object.values(WorkContext)) })
+  workContext?: WorkContext;
+
+  city?: string;
+
+  @Column({ type: DataType.ARRAY(DataType.STRING) })
+  skills?: [string];
+
+  @Column({ type: DataType.ARRAY(DataType.STRING) })
+  benefits?: [string];
+
+  // Number of year distant to bac (0 correspond to BAC level)
+  @Column({ type: DataType.INTEGER })
+  expectedEducationLevel?: number;
 
   public toOfferDTO(): OfferDTO {
     return plainToInstance(OfferDTO, {
@@ -88,9 +112,14 @@ export class OfferModel extends Model {
       description: this.description,
       status: this.status,
       expiresAt: this.expiresAt,
-      category: this.category,
-      tags: this.tags,
       viewCount: this.viewCount,
+      offerType: this.offerType,
+      duration: this.duration,
+      salary: this.salary,
+      workContext: this.workContext,
+      skills: this.skills,
+      benefits: this.benefits,
+      expectedEducationLevel: this.expectedEducationLevel,
     });
   }
 }

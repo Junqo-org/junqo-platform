@@ -11,6 +11,8 @@ import {
 import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
 import { OfferStatus } from './offer-status.enum';
+import { WorkContext } from './work-context.enum';
+import { OfferType } from './offer-type.enum';
 
 // Offer retrieved from database
 export class OfferDTO {
@@ -60,20 +62,51 @@ export class OfferDTO {
   expiresAt?: Date;
 
   @Expose()
+  @IsNotEmpty()
+  @IsInt()
+  viewCount: number;
+
+  @Expose()
+  @IsNotEmpty()
+  @IsEnum(OfferType)
+  offerType: OfferType;
+
+  // Duration in months
+  @Expose()
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsInt()
+  duration?: number;
+
+  // Salary per month
+  @Expose()
+  @IsOptional()
+  @IsInt()
+  salary?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsEnum(WorkContext)
+  workContext?: WorkContext;
+
+  @Expose()
+  @IsOptional()
+  location?: string;
 
   @Expose()
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  tags?: string[];
+  skills?: string[];
 
   @Expose()
-  @IsNotEmpty()
+  @IsOptional()
+  @IsArray()
+  benefits?: string[];
+
+  // Number of year distant to bac (0 correspond to BAC level)
+  @Expose()
+  @IsOptional()
   @IsInt()
-  viewCount: number;
+  expectedEducationLevel?: number;
 
   // Obligatory for use with casl ability
   constructor(data: Partial<OfferDTO>) {
