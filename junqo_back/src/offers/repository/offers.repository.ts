@@ -93,11 +93,23 @@ export class OffersRepository {
               ...(updateOfferDto.expiresAt != undefined && {
                 expiresAt: updateOfferDto.expiresAt,
               }),
-              ...(updateOfferDto.category != undefined && {
-                category: updateOfferDto.category,
+              ...(updateOfferDto.duration != undefined && {
+                duration: updateOfferDto.duration,
               }),
-              ...(updateOfferDto.tags != undefined && {
-                tags: updateOfferDto.tags,
+              ...(updateOfferDto.salary != undefined && {
+                salary: updateOfferDto.salary,
+              }),
+              ...(updateOfferDto.workLocationType != undefined && {
+                workLocationType: updateOfferDto.workLocationType,
+              }),
+              ...(updateOfferDto.skills != undefined && {
+                skills: updateOfferDto.skills,
+              }),
+              ...(updateOfferDto.benefits != undefined && {
+                benefits: updateOfferDto.benefits,
+              }),
+              ...(updateOfferDto.educationLevel != undefined && {
+                educationLevel: updateOfferDto.educationLevel,
               }),
             },
             {

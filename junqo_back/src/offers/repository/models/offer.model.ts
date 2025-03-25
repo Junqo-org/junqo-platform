@@ -76,7 +76,7 @@ export class OfferModel extends Model {
   @Column({
     type: DataType.ARRAY(DataType.ENUM(...Object.values(OfferType))),
   })
-  offerType?: OfferType[];
+  offerType?: OfferType;
 
   // Duration in months
   @Column({ type: DataType.INTEGER })
@@ -87,9 +87,7 @@ export class OfferModel extends Model {
   salary?: number;
 
   @Column({ type: DataType.ENUM(...Object.values(WorkContext)) })
-  workContext?: WorkContext;
-
-  city?: string;
+  workLocationType: WorkContext;
 
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   skills?: [string];
@@ -99,7 +97,7 @@ export class OfferModel extends Model {
 
   // Number of year distant to bac (0 correspond to BAC level)
   @Column({ type: DataType.INTEGER })
-  expectedEducationLevel?: number;
+  educationLevel?: number;
 
   public toOfferDTO(): OfferDTO {
     return plainToInstance(OfferDTO, {
@@ -116,10 +114,10 @@ export class OfferModel extends Model {
       offerType: this.offerType,
       duration: this.duration,
       salary: this.salary,
-      workContext: this.workContext,
+      workLocationType: this.workLocationType,
       skills: this.skills,
       benefits: this.benefits,
-      expectedEducationLevel: this.expectedEducationLevel,
+      educationLevel: this.educationLevel,
     });
   }
 }

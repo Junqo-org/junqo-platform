@@ -245,9 +245,9 @@ type Offer {
   "The type of offer (Stage or Alternance)."
   offerType: String!
   "The duration of the offer."
-  duration: String!
+  duration: String
   "The salary offered."
-  salary: String!
+  salary: String
   "The location type (Sur place or Distanciel)."
   workLocationType: String!
   "The required skills for this position."
@@ -255,7 +255,7 @@ type Offer {
   "The benefits offered with the position."
   benefits: [String!]
   "The required education level."
-  educationLevel: String!
+  educationLevel: String
 }
 
 """
@@ -288,14 +288,12 @@ input CreateOfferInput {
   status: OfferStatus!
   "The date when the offer expires."
   expiresAt: DateTime
-  "The number of views of the offer."
-  viewCount: Int!
   "The type of offer (Stage or Alternance)."
   offerType: String!
   "The duration of the offer."
-  duration: String!
+  duration: String
   "The salary offered."
-  salary: String!
+  salary: String
   "The location type (Sur place or Distanciel)."
   workLocationType: String!
   "The required skills for this position."
@@ -303,7 +301,7 @@ input CreateOfferInput {
   "The benefits offered with the position."
   benefits: [String!]
   "The required education level."
-  educationLevel: String!
+  educationLevel: String
 }
 
 """

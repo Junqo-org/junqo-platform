@@ -11,6 +11,8 @@ import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { UserType } from '../users/dto/user-type.enum';
 import { OfferStatus } from './dto/offer-status.enum';
+import { OfferType } from './dto/offer-type.enum';
+import { WorkContext } from './dto/work-context.enum';
 
 describe('OffersResolver', () => {
   let resolver: OffersResolver;
@@ -33,8 +35,8 @@ describe('OffersResolver', () => {
     status: OfferStatus.ACTIVE,
     viewCount: 10,
     expiresAt: new Date('2024-12-31T23:59:59Z'),
-    category: 'Technology',
-    tags: ['nestjs', 'graphql'],
+    skills: ['nestjs', 'graphql'],
+    offerType: OfferType.INTERNSHIP,
   });
 
   const mockCreateOffer: CreateOfferDTO = {
@@ -43,16 +45,16 @@ describe('OffersResolver', () => {
     userId: '8aec0948-58dd-40b2-b085-5a47244036c2',
     status: OfferStatus.INACTIVE,
     expiresAt: new Date('2024-12-31T23:59:59Z'),
-    category: 'Tech',
-    tags: ['nestjs', 'typescript'],
+    skills: ['nestjs', 'typescript'],
+    offerType: OfferType.INTERNSHIP,
+    workLocationType: WorkContext.HYBRID,
   };
 
   const mockUpdateOffer: UpdateOfferDTO = {
     title: 'Updated Offer',
     description: 'This is an updated offer.',
     status: OfferStatus.ACTIVE,
-    category: 'Software',
-    tags: ['update', 'graphql'],
+    skills: ['update', 'graphql'],
   };
 
   beforeEach(async () => {

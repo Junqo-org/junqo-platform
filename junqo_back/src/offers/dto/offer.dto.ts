@@ -75,38 +75,36 @@ export class OfferDTO {
   @Expose()
   @IsOptional()
   @IsInt()
-  duration?: number;
+  duration?: string;
 
   // Salary per month
   @Expose()
   @IsOptional()
   @IsInt()
-  salary?: number;
+  salary?: string;
 
   @Expose()
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(WorkContext)
-  workContext?: WorkContext;
-
-  @Expose()
-  @IsOptional()
-  location?: string;
+  workLocationType: WorkContext;
 
   @Expose()
   @IsOptional()
   @IsArray()
+  @IsString({ each: true })
   skills?: string[];
 
   @Expose()
   @IsOptional()
   @IsArray()
+  @IsString({ each: true })
   benefits?: string[];
 
   // Number of year distant to bac (0 correspond to BAC level)
   @Expose()
   @IsOptional()
   @IsInt()
-  expectedEducationLevel?: number;
+  educationLevel?: string;
 
   // Obligatory for use with casl ability
   constructor(data: Partial<OfferDTO>) {
@@ -116,6 +114,11 @@ export class OfferDTO {
 
 // Expected values to create a Offer
 export class CreateOfferDTO {
+  @Expose()
+  @IsNotEmpty()
+  @IsUUID()
+  userId: string;
+
   @Expose()
   @IsNotEmpty()
   @IsString()
@@ -129,7 +132,7 @@ export class CreateOfferDTO {
   @Expose()
   @IsOptional()
   @IsEnum(OfferStatus)
-  status?: OfferStatus;
+  status: OfferStatus;
 
   @Expose()
   @IsOptional()
@@ -137,20 +140,44 @@ export class CreateOfferDTO {
   expiresAt?: Date;
 
   @Expose()
+  @IsNotEmpty()
+  @IsEnum(OfferType)
+  offerType: OfferType;
+
+  // Duration in months
+  @Expose()
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsInt()
+  duration?: string;
+
+  // Salary per month
+  @Expose()
+  @IsOptional()
+  @IsInt()
+  salary?: string;
+
+  @Expose()
+  @IsNotEmpty()
+  @IsEnum(WorkContext)
+  workLocationType: WorkContext;
 
   @Expose()
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  tags?: string[];
+  skills?: string[];
 
   @Expose()
-  @IsNotEmpty()
-  @IsUUID()
-  userId: string;
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  benefits?: string[];
+
+  // Number of year distant to bac (0 correspond to BAC level)
+  @Expose()
+  @IsOptional()
+  @IsInt()
+  educationLevel?: string;
 
   // Obligatory for use with casl ability
   constructor(data: Partial<CreateOfferDTO>) {
