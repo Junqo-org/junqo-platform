@@ -90,9 +90,6 @@ export class OffersRepository {
               ...(updateOfferDto.status != undefined && {
                 status: updateOfferDto.status,
               }),
-              ...(updateOfferDto.expiresAt != undefined && {
-                expiresAt: updateOfferDto.expiresAt,
-              }),
               ...(updateOfferDto.duration != undefined && {
                 duration: updateOfferDto.duration,
               }),

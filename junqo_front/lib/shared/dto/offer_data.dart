@@ -2,11 +2,10 @@ class OfferData {
   final String userid;
   final String title;
   final String description;
-  final String offerType;  // 'Stage' ou 'Alternance'
+  final String offerType; // 'Stage' ou 'Alternance'
   final String duration;
   final String salary;
-  final String workLocationType;  // 'Sur place' ou 'Distanciel'
-  final DateTime expiresAt;
+  final String workLocationType; // 'Sur place' ou 'Distanciel'
   final List<String> skills;
   final List<String> benefits;
   final String educationLevel;
@@ -20,7 +19,6 @@ class OfferData {
     this.duration = '',
     this.salary = '',
     this.workLocationType = '',
-    required this.expiresAt,
     required this.skills,
     required this.benefits,
     this.educationLevel = '',
@@ -36,7 +34,6 @@ class OfferData {
       'duration': duration,
       'salary': salary,
       'workLocationType': workLocationType,
-      'expiresAt': expiresAt.toIso8601String(),
       'skills': skills,
       'benefits': benefits,
       'educationLevel': educationLevel,

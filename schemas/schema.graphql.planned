@@ -432,8 +432,6 @@ type Offer implements Stored {
   description: String!
   "The status of the offer."
   status: OfferStatus!
-  "The date when the offer expires."
-  expiresAt: DateTime
   "The category of the offer."
   category: String!
   "The tags of the offer."
@@ -473,8 +471,6 @@ input CreateOfferInput {
   description: String!
   "The status of the offer."
   status: OfferStatus
-  "The date when the offer expires."
-  expiresAt: DateTime
   "The category of the offer."
   category: String
   "The tags of the offer."
@@ -493,8 +489,6 @@ input UpdateOfferInput {
   description: String
   "The status of the offer."
   status: OfferStatus
-  "The date when the offer expires."
-  expiresAt: DateTime
   "The category of the offer."
   category: String
   "The tags of the offer."

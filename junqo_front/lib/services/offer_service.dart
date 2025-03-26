@@ -17,7 +17,6 @@ class OfferService {
       ..vars.input.duration = offerData.duration
       ..vars.input.salary = offerData.salary
       ..vars.input.workLocationType = offerData.workLocationType
-      ..vars.input.expiresAt = offerData.expiresAt
       ..vars.input.skills = ListBuilder(offerData.skills)
       ..vars.input.benefits = ListBuilder(offerData.benefits)
       ..vars.input.educationLevel = offerData.educationLevel
@@ -27,4 +26,3 @@ class OfferService {
     return await ResponseHandler.handleGraphQLResponse(response, "CreateOffer");
   }
 }
-

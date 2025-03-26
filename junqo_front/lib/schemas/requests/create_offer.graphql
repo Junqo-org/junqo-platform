@@ -7,7 +7,6 @@ mutation createOffer($input: CreateOfferInput!) {
     duration
     salary
     workLocationType
-    expiresAt
     skills
     benefits
     educationLevel

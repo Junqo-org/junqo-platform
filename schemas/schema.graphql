@@ -238,8 +238,6 @@ type Offer {
   description: String!
   "The status of the offer."
   status: OfferStatus!
-  "The date when the offer expires."
-  expiresAt: DateTime
   "The number of views of the offer."
   viewCount: Int!
   "The type of offer (Stage or Alternance)."
@@ -286,8 +284,6 @@ input CreateOfferInput {
   description: String!
   "The status of the offer."
   status: OfferStatus!
-  "The date when the offer expires."
-  expiresAt: DateTime
   "The type of offer (Stage or Alternance)."
   offerType: String!
   "The duration of the offer."

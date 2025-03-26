@@ -65,9 +65,6 @@ export class OfferModel extends Model {
   @Column({ type: DataType.ENUM(...Object.values(OfferStatus)) })
   status?: OfferStatus;
 
-  @Column({ type: DataType.DATE })
-  expiresAt?: Date;
-
   @AllowNull(false)
   @Default(0)
   @Column({ type: DataType.INTEGER })
@@ -109,7 +106,6 @@ export class OfferModel extends Model {
       title: this.title,
       description: this.description,
       status: this.status,
-      expiresAt: this.expiresAt,
       viewCount: this.viewCount,
       offerType: this.offerType,
       duration: this.duration,

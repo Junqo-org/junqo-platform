@@ -59,11 +59,6 @@ export class OfferDTO {
   status: OfferStatus;
 
   @Expose()
-  @IsOptional()
-  @IsDate({ message: 'Expires at must be a valid date' })
-  expiresAt?: Date;
-
-  @Expose()
   @IsNotEmpty({ message: 'View count is required' })
   @IsInt({ message: 'View count must be an integer' })
   viewCount: number;
@@ -141,11 +136,6 @@ export class CreateOfferDTO {
     message: 'Status must be a valid OfferStatus enum value',
   })
   status: OfferStatus;
-
-  @Expose()
-  @IsOptional()
-  @IsDate({ message: 'Expires at must be a valid date' })
-  expiresAt?: Date;
 
   @Expose()
   @IsNotEmpty({ message: 'Offer type is required' })
