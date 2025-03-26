@@ -133,13 +133,13 @@ export class UsersService {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
     const userResource: UserResource = plainToInstance(
       UserResource,
-      CreateUserDTO,
+      createUserDto,
       { excludeExtraneousValues: true },
     );
 
-    if (ability.cannot(Actions.UPDATE, userResource)) {
+    if (ability.cannot(Actions.CREATE, userResource)) {
       throw new ForbiddenException(
-        'You do not have permission to update this user',
+        'You do not have permission to create this user',
       );
     }
 

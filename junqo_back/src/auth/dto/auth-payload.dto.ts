@@ -4,13 +4,13 @@ import { Expose, Type } from 'class-transformer';
 
 export class AuthPayloadDTO {
   @Expose()
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'Token must be a string' })
+  @IsNotEmpty({ message: 'Token is required' })
   readonly token: string;
 
   @Expose()
   @Type(() => PublicUserDTO)
-  @IsNotEmpty()
-  @ValidateNested()
+  @IsNotEmpty({ message: 'User information is required' })
+  @ValidateNested({ message: 'User information must be a valid PublicUserDTO' })
   readonly user: PublicUserDTO;
 }

@@ -4,11 +4,13 @@ import { Expose } from 'class-transformer';
 
 export class UserResource {
   @Expose()
-  @IsUUID()
+  @IsUUID('4', { message: 'User ID must be a valid UUID' })
   public id?: string;
 
   @Expose()
-  @IsEnum(UserType)
+  @IsEnum(UserType, {
+    message: 'User type must be a valid UserType enum value',
+  })
   public type?: UserType;
 
   constructor(data: UserResource) {

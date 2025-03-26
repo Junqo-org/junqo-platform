@@ -3,7 +3,7 @@ import {
   StartedDockerComposeEnvironment,
   Wait,
 } from 'testcontainers';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
@@ -12,6 +12,7 @@ import { UserType } from '../src/users/dto/user-type.enum';
 import { Sequelize } from 'sequelize-typescript';
 import { plainToInstance } from 'class-transformer';
 import { AuthUserDTO } from '../src/shared/dto/auth-user.dto';
+import { BadRequestExceptionFilter } from '../src/shared/global-filters/bad-request-exception.filter';
 
 const SignUpQuery = {
   query: `mutation signup(
@@ -83,13 +84,21 @@ describe('end to end testing', () => {
       }
     }
 
-    environment = await new DockerComposeEnvironment(
-      composeFilePath,
-      composeFile,
-    )
-      .withEnvironment({ ...requiredEnvVars })
-      .withWaitStrategy('junqo_db_test', Wait.forHealthCheck())
-      .up(['db']);
+    try {
+      environment = await new DockerComposeEnvironment(
+        composeFilePath,
+        composeFile,
+      )
+        .withEnvironment({ ...requiredEnvVars })
+        .withWaitStrategy('junqo_db_test', Wait.forHealthCheck())
+        .up(['db']);
+    } catch (error) {
+      console.error(
+        `Critical Test Setup Error: when communicating with Docker Engine, verify it is running properly.
+Error Message: ${error.message}`,
+      );
+      process.exit(1);
+    }
 
     // Wait for the environment to be fully ready
     const dbContainer = environment.getContainer('junqo_db_test');
@@ -104,6 +113,17 @@ describe('end to end testing', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    );
+    app.useGlobalFilters(new BadRequestExceptionFilter());
     await app.init();
   }, 60000);
 
@@ -157,7 +177,7 @@ describe('end to end testing', () => {
         .expect(200);
 
       expect(response.body.errors[0].message).toContain(
-        'Validation isEmail on email failed',
+        'Email must be a valid email address',
       );
     });
 
@@ -273,7 +293,7 @@ describe('end to end testing', () => {
         .expect(200);
 
       expect(response.body.errors[0].message).toContain(
-        'Invalid email or password',
+        'Email must be a valid email address',
       );
     });
 
@@ -301,9 +321,7 @@ describe('end to end testing', () => {
         .send(invalidPasswordQuery)
         .expect(200);
 
-      expect(response.body.errors[0].message).toContain(
-        'Invalid email or password',
-      );
+      expect(response.body.errors[0].message).toContain('Password is required');
     });
   });
 

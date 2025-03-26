@@ -3,7 +3,7 @@ import { IsUUID } from 'class-validator';
 
 export class OfferResource {
   @Expose()
-  @IsUUID()
+  @IsUUID('4', { message: 'User ID must be a valid UUID' })
   public userId?: string;
 
   constructor(userId?: string) {

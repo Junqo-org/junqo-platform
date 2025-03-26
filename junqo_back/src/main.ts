@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { config } from './shared/config';
+import { BadRequestExceptionFilter } from './shared/global-filters/bad-request-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -37,6 +38,7 @@ async function bootstrap() {
       },
     }),
   );
+  app.useGlobalFilters(new BadRequestExceptionFilter());
   app.enableCors({
     origin: config.CORS_ORIGINS,
     methods: ['GET', 'POST', 'OPTIONS'],

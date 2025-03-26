@@ -19,28 +19,42 @@ import { Expose } from 'class-transformer';
 
 export class SignUpDTO {
   @Expose()
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(MIN_NAME_LENGTH)
-  @MaxLength(MAX_NAME_LENGTH)
+  @IsNotEmpty({ message: 'Name is required' })
+  @IsString({ message: 'Name must be a string' })
+  @MinLength(MIN_NAME_LENGTH, {
+    message: `Name must be at least ${MIN_NAME_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_NAME_LENGTH, {
+    message: `Name must be at most ${MAX_NAME_LENGTH} characters long`,
+  })
   name: string;
 
   @Expose()
-  @IsNotEmpty()
-  @IsEmail()
-  @MinLength(MIN_MAIL_LENGTH)
-  @MaxLength(MAX_MAIL_LENGTH)
+  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  @MinLength(MIN_MAIL_LENGTH, {
+    message: `Email must be at least ${MIN_MAIL_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_MAIL_LENGTH, {
+    message: `Email must be at most ${MAX_MAIL_LENGTH} characters long`,
+  })
   email: string;
 
   @Expose()
-  @IsNotEmpty()
-  @IsEnum(UserType)
+  @IsNotEmpty({ message: 'User type is required' })
+  @IsEnum(UserType, {
+    message: 'User type must be a valid UserType enum value',
+  })
   type: UserType;
 
   @Expose()
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(MIN_PASSWORD_LENGTH)
-  @MaxLength(MAX_PASSWORD_LENGTH)
+  @IsNotEmpty({ message: 'Password is required' })
+  @IsString({ message: 'Password must be a string' })
+  @MinLength(MIN_PASSWORD_LENGTH, {
+    message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_PASSWORD_LENGTH, {
+    message: `Password must be at most ${MAX_PASSWORD_LENGTH} characters long`,
+  })
   password: string;
 }

@@ -24,33 +24,43 @@ import { Expose } from 'class-transformer';
 // User retrieved from database
 export class UserDTO {
   @Expose()
-  @IsNotEmpty()
-  @IsUUID()
+  @IsNotEmpty({ message: 'User ID is required' })
+  @IsUUID('4', { message: 'User ID must be a valid UUID' })
   id: string;
 
   @Expose()
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(MIN_NAME_LENGTH)
-  @MaxLength(MAX_NAME_LENGTH)
+  @IsNotEmpty({ message: 'Name is required' })
+  @IsString({ message: 'Name must be a string' })
+  @MinLength(MIN_NAME_LENGTH, {
+    message: `Name must be at least ${MIN_NAME_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_NAME_LENGTH, {
+    message: `Name must be at most ${MAX_NAME_LENGTH} characters long`,
+  })
   name: string;
 
   @Expose()
-  @IsNotEmpty()
-  @IsEmail()
-  @MinLength(MIN_MAIL_LENGTH)
-  @MaxLength(MAX_MAIL_LENGTH)
+  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  @MinLength(MIN_MAIL_LENGTH, {
+    message: `Email must be at least ${MIN_MAIL_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_MAIL_LENGTH, {
+    message: `Email must be at most ${MAX_MAIL_LENGTH} characters long`,
+  })
   email: string;
 
   @Expose()
-  @IsNotEmpty()
-  @IsEnum(UserType)
+  @IsNotEmpty({ message: 'User type is required' })
+  @IsEnum(UserType, { message: 'User type must be a valid enum value' })
   type: UserType;
 
   @Expose()
-  @IsNotEmpty()
-  @IsString()
-  @IsHash(config.HASH_ALGORITHM)
+  @IsNotEmpty({ message: 'Hashed password is required' })
+  @IsString({ message: 'Hashed password must be a string' })
+  @IsHash(config.HASH_ALGORITHM, {
+    message: `Hashed password must be a valid ${config.HASH_ALGORITHM} hash`,
+  })
   hashedPassword: string;
 
   // Obligatory for use with casl ability
@@ -64,31 +74,43 @@ export class PublicUserDTO extends OmitType(UserDTO, ['hashedPassword']) {}
 
 // Expected values to create a User
 export class CreateUserDTO {
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(MIN_NAME_LENGTH)
-  @MaxLength(MAX_NAME_LENGTH)
+  @IsNotEmpty({ message: 'Name is required' })
+  @IsString({ message: 'Name must be a string' })
+  @MinLength(MIN_NAME_LENGTH, {
+    message: `Name must be at least ${MIN_NAME_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_NAME_LENGTH, {
+    message: `Name must be at most ${MAX_NAME_LENGTH} characters long`,
+  })
   name: string;
 
-  @IsNotEmpty()
-  @IsEmail()
-  @MinLength(MIN_MAIL_LENGTH)
-  @MaxLength(MAX_MAIL_LENGTH)
+  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  @MinLength(MIN_MAIL_LENGTH, {
+    message: `Email must be at least ${MIN_MAIL_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_MAIL_LENGTH, {
+    message: `Email must be at most ${MAX_MAIL_LENGTH} characters long`,
+  })
   email: string;
 
-  @IsNotEmpty()
-  @IsEnum(UserType)
+  @IsNotEmpty({ message: 'User type is required' })
+  @IsEnum(UserType, { message: 'User type must be a valid enum value' })
   type: UserType;
 
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(MIN_PASSWORD_LENGTH)
-  @MaxLength(MAX_PASSWORD_LENGTH)
+  @IsNotEmpty({ message: 'Password is required' })
+  @IsString({ message: 'Password must be a string' })
+  @MinLength(MIN_PASSWORD_LENGTH, {
+    message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_PASSWORD_LENGTH, {
+    message: `Password must be at most ${MAX_PASSWORD_LENGTH} characters long`,
+  })
   password: string;
 }
 
 // Expected values to update a User
 export class UpdateUserDTO extends PartialType(CreateUserDTO) {
-  @IsUUID()
+  @IsUUID('4', { message: 'User ID must be a valid UUID' })
   id: string;
 }
