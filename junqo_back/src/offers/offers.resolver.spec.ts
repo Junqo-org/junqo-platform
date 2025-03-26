@@ -37,6 +37,7 @@ describe('OffersResolver', () => {
     expiresAt: new Date('2024-12-31T23:59:59Z'),
     skills: ['nestjs', 'graphql'],
     offerType: OfferType.INTERNSHIP,
+    workLocationType: WorkContext.HYBRID,
   });
 
   const mockCreateOffer: CreateOfferDTO = {
