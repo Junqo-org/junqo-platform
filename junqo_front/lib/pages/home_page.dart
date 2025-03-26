@@ -41,6 +41,14 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       debugPrint('Error fetching user type: $e');
       if (!mounted) return;
+
+      RegExpMatch? match = RegExp(r'GetUserById\s*failed:\s*User.*not\s*found')
+          .firstMatch(e.toString());
+
+      if (match != null) {
+        authService.logout();
+        return;
+      }
       showErrorDialog(e.toString(), context);
     }
   }
