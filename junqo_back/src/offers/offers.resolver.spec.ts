@@ -132,7 +132,7 @@ describe('OffersResolver', () => {
       const invalidUpdate: UpdateOfferDTO = plainToInstance(UpdateOfferDTO, {
         title: null,
         description: 123,
-        tags: 123,
+        skills: 123,
       });
 
       service.updateOffer.mockResolvedValue(mockOffer);

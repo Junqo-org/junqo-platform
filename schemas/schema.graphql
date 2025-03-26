@@ -314,12 +314,20 @@ input UpdateOfferInput {
   description: String
   "The status of the offer."
   status: OfferStatus
-  "The date when the offer expires."
-  expiresAt: DateTime
-  "The category of the offer."
-  category: String
-  "The tags of the offer."
-  tags: [String!]
+  "The type of offer (Stage or Alternance)."
+  offerType: String
+  "The duration of the offer."
+  duration: String
+  "The salary offered."
+  salary: String
+  "The location type (Sur place or Distanciel)."
+  workLocationType: String
+  "The required skills for this position."
+  skills: [String!]
+  "The benefits offered with the position."
+  benefits: [String!]
+  "The required education level."
+  educationLevel: String
 }
 
 """
