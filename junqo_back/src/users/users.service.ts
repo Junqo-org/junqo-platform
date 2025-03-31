@@ -33,7 +33,7 @@ export class UsersService {
   public async findAll(currentUser: AuthUserDTO): Promise<UserDTO[]> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    if (ability.cannot(Actions.READ, UserResource)) {
+    if (ability.cannot(Actions.READ, new UserResource({ id: null }))) {
       throw new ForbiddenException('You do not have permission to read users');
     }
     try {
@@ -176,7 +176,7 @@ export class UsersService {
   ): Promise<UserDTO> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const user: UserDTO = await this.findOneById(currentUser, currentUser.id);
+    const user: UserDTO = await this.findOneById(currentUser, updateData.id);
     const userResource: UserResource = plainToInstance(UserResource, user, {
       excludeExtraneousValues: true,
     });
@@ -216,17 +216,18 @@ export class UsersService {
   public async delete(currentUser: AuthUserDTO, id: string): Promise<boolean> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const user: UserDTO = await this.findOneById(currentUser, currentUser.id);
-    const userResource: UserResource = plainToInstance(UserResource, user, {
-      excludeExtraneousValues: true,
-    });
-
-    if (ability.cannot(Actions.DELETE, userResource)) {
-      throw new ForbiddenException(
-        'You do not have permission to delete this user',
-      );
-    }
     try {
+      const user: UserDTO = await this.findOneById(currentUser, id);
+      const userResource: UserResource = plainToInstance(UserResource, user, {
+        excludeExtraneousValues: true,
+      });
+
+      if (ability.cannot(Actions.DELETE, userResource)) {
+        throw new ForbiddenException(
+          'You do not have permission to delete this user',
+        );
+      }
+
       const isSuccess = await this.usersRepository.delete(id);
 
       if (!isSuccess) {

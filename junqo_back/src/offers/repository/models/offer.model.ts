@@ -65,15 +65,14 @@ export class OfferModel extends Model {
   @Column({ type: DataType.ENUM(...Object.values(OfferStatus)) })
   status?: OfferStatus;
 
-  @AllowNull(false)
   @Default(0)
   @Column({ type: DataType.INTEGER })
   viewCount: number;
 
   @Column({
-    type: DataType.ARRAY(DataType.ENUM(...Object.values(OfferType))),
+    type: DataType.ENUM(...Object.values(OfferType)),
   })
-  offerType?: OfferType;
+  offerType: OfferType;
 
   // Duration in months
   @Column({ type: DataType.INTEGER })
@@ -87,10 +86,10 @@ export class OfferModel extends Model {
   workLocationType: WorkContext;
 
   @Column({ type: DataType.ARRAY(DataType.STRING) })
-  skills?: [string];
+  skills?: string[];
 
   @Column({ type: DataType.ARRAY(DataType.STRING) })
-  benefits?: [string];
+  benefits?: string[];
 
   // Number of year distant to bac (0 correspond to BAC level)
   @Column({ type: DataType.INTEGER })

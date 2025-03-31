@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -25,7 +26,7 @@ export class AuthService {
 
   public async signUp(signUpInput: SignUpDTO): Promise<AuthPayloadDTO> {
     if (signUpInput.type === UserType.ADMIN) {
-      throw new UnauthorizedException('You cannot create an admin user');
+      throw new ForbiddenException('You cannot create an admin user');
     }
     if (signUpInput.password.length < 8) {
       throw new UnauthorizedException('Password must be at least 8 characters');

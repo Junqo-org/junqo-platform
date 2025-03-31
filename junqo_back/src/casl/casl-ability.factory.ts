@@ -46,6 +46,7 @@ export class CaslAbilityFactory {
       cannot(Actions.MANAGE, 'all'); // no access to anything by default
     }
 
+    cannot(Actions.READ, UserResource, { id: { $exists: false } });
     can(Actions.MANAGE, UserResource, { id: user.id });
     cannot(Actions.CREATE, UserResource, { type: { $exists: false } });
     can(Actions.CREATE, UserResource, { type: { $ne: UserType.ADMIN } });

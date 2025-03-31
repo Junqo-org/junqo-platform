@@ -1,5 +1,12 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { StudentProfileInput } from './../graphql.schema';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import { Experience, StudentProfileInput } from '../graphql.schema';
 import { StudentProfile } from '../graphql.schema';
 import { ProfilesService } from './profiles.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
@@ -7,34 +14,35 @@ import { CurrentUser } from '../users/users.decorator';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { validateOrReject } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+import { UpdateStudentProfileDTO } from './dto/student-profile.dto';
 
-@Resolver('Profiles')
-export class ProfilesResolver {
+@Resolver('StudentProfile')
+export class StudentProfilesResolver {
   constructor(private readonly profilesService: ProfilesService) {}
 
-  @Query(() => StudentProfile)
+  @Query()
   public async studentProfile(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Args('id') id: string,
+    @Args('userId') userId: string,
   ): Promise<StudentProfile> {
     const studentProfile = await this.profilesService.findOneById(
       currentUser,
-      id,
+      userId,
     );
 
     if (!studentProfile) {
-      throw new NotFoundException(`Student profile #${id} not found`);
+      throw new NotFoundException(`Student profile #${userId} not found`);
     }
     return studentProfile;
   }
 
-  @Mutation(() => StudentProfile)
+  @Mutation()
   public async updateStudentProfile(
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('studentProfileInput') studentProfileInput: StudentProfileInput,
   ) {
-    const studentProfileDto: StudentProfileInput = plainToInstance(
-      StudentProfileInput,
+    const studentProfileDto: UpdateStudentProfileDTO = plainToInstance(
+      UpdateStudentProfileDTO,
       studentProfileInput,
     );
 
@@ -55,4 +63,11 @@ export class ProfilesResolver {
     }
     return studentProfile;
   }
+
+  // @ResolveField('experiences')
+  // async getExperiences(@Parent() studentProfile): Promise<Experience[]> {
+  //   const { id } = studentProfile;
+  //   console.log('Experience called');
+  //   return [];
+  // }
 }

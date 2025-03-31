@@ -12,7 +12,7 @@ import { validateOrReject } from 'class-validator';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Query(() => [UserGraphql])
+  @Query()
   public async users(
     @CurrentUser() currentUser: AuthUserDTO,
   ): Promise<UserGraphql[]> {
@@ -24,7 +24,7 @@ export class UsersResolver {
     return safeUsers;
   }
 
-  @Query(() => UserGraphql)
+  @Query()
   public async user(
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('id') id: string,
@@ -38,7 +38,7 @@ export class UsersResolver {
     return user;
   }
 
-  @Mutation(() => UserGraphql)
+  @Mutation()
   public async updateUser(
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('id') id: string,
@@ -66,7 +66,7 @@ export class UsersResolver {
     return user;
   }
 
-  @Mutation(() => Boolean)
+  @Mutation()
   public async deleteUser(
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('id') id: string,

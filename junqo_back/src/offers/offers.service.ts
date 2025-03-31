@@ -30,7 +30,7 @@ export class OffersService {
   public async findAll(currentUser: AuthUserDTO): Promise<OfferDTO[]> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    if (ability.cannot(Actions.READ, OfferResource)) {
+    if (ability.cannot(Actions.READ, new OfferResource())) {
       throw new ForbiddenException('You do not have permission to read offers');
     }
     try {

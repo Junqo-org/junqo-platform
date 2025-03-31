@@ -36,7 +36,7 @@ export class ProfilesService {
   ): Promise<StudentProfileDTO[]> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    if (ability.cannot(Actions.READ, StudentProfileResource)) {
+    if (ability.cannot(Actions.READ, new StudentProfileResource())) {
       throw new ForbiddenException(
         'You do not have permission to read student profiles',
       );
@@ -170,7 +170,7 @@ export class ProfilesService {
 
     const studentProfileResource: StudentProfileResource = plainToInstance(
       StudentProfileResource,
-      await this.findOneById(currentUser, currentUser.id),
+      await this.findOneById(currentUser, userId),
       {
         excludeExtraneousValues: true,
       },

@@ -1,9 +1,7 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
-import { config } from './shared/config';
-import { BadRequestExceptionFilter } from './shared/global-filters/bad-request-exception.filter';
+import { AppSetup } from './app.setup';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -27,25 +25,7 @@ async function bootstrap() {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-      enableDebugMessages: config.NODE_ENV !== 'production',
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
-    }),
-  );
-  app.useGlobalFilters(new BadRequestExceptionFilter());
-  app.enableCors({
-    origin: config.CORS_ORIGINS,
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
-
-  await app.listen(config.BACK_PORT);
+  AppSetup(app);
 }
 
 bootstrap();

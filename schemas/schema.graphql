@@ -108,7 +108,7 @@ type Mutation {
   """
   Create a new offer.
   """
-  createOffer(offerInput: CreateOfferInput): Offer!
+  createOffer(offerInput: CreateOfferInput!): Offer!
 
   """
   Update an existing offer.
@@ -188,6 +188,7 @@ type User {
 The `Experience` type represents an experience in a company done by a student.
 """
 type Experience {
+  id: ID!
   "The title of the experience."
   title: String!
   "The company where the experience was done."
@@ -215,7 +216,7 @@ type StudentProfile {
   "The skills of the student."
   skills: [String!]
   "The experience of the student."
-  experience: [Experience!]
+  experiences: [Experience!]
 }
 
 """
@@ -335,7 +336,7 @@ input StudentProfileInput {
   "The skills of the student."
   skills: [String!]
   "The experiences of the student."
-  experience: [ExperienceInput!]
+  experiences: [ExperienceInput!]
 }
 
 """

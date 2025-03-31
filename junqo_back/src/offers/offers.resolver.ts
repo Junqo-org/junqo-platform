@@ -12,11 +12,11 @@ import { plainToInstance } from 'class-transformer';
 import { CurrentUser } from '../users/users.decorator';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 
-@Resolver('Offers')
+@Resolver('Offer')
 export class OffersResolver {
   constructor(private readonly offersService: OffersService) {}
 
-  @Query(() => [Offer])
+  @Query()
   public async offers(
     @CurrentUser() currentUser: AuthUserDTO,
   ): Promise<Offer[]> {
@@ -24,23 +24,23 @@ export class OffersResolver {
     return offers;
   }
 
-  @Query(() => Offer)
+  @Query()
   public async offer(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Args('id') id: string,
+    @Args('offerId') offerId: string,
   ): Promise<Offer> {
     const offer: OfferDTO = await this.offersService.findOneById(
       currentUser,
-      id,
+      offerId,
     );
 
     if (offer == null) {
-      throw new NotFoundException(`Offer #${id} not found`);
+      throw new NotFoundException(`Offer #${offerId} not found`);
     }
     return offer;
   }
 
-  @Mutation(() => Offer)
+  @Mutation('createOffer')
   public async createOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('offerInput') offerInput: CreateOfferInput,
@@ -49,6 +49,8 @@ export class OffersResolver {
       CreateOfferDTO,
       offerInput,
     );
+    console.log('offerInput is ' + JSON.stringify(offerInput));
+    console.log('offerInputDto is ' + JSON.stringify(offerInputDto));
 
     try {
       await validateOrReject(offerInputDto);
@@ -62,7 +64,7 @@ export class OffersResolver {
     return offer;
   }
 
-  @Mutation(() => Offer)
+  @Mutation('updateOffer')
   public async updateOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('offerId') offerId: string,
@@ -86,7 +88,7 @@ export class OffersResolver {
     return offer;
   }
 
-  @Mutation(() => Offer)
+  @Mutation()
   public async deleteOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Args('offerId') offerId: string,

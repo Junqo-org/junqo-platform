@@ -13,7 +13,7 @@ import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
-import { ExperienceDTO } from './experience.dto';
+import { ExperienceDTO, ExperienceInputDTO } from './experience.dto';
 import { Expose, Type } from 'class-transformer';
 
 // Student Profile retrieved from database
@@ -67,17 +67,6 @@ export class CreateStudentProfileDTO extends StudentProfileDTO {}
 export class UpdateStudentProfileDTO {
   @Expose()
   @IsOptional()
-  @IsString({ message: 'Name must be a string' })
-  @MinLength(MIN_NAME_LENGTH, {
-    message: `Name must be at least ${MIN_NAME_LENGTH} characters long`,
-  })
-  @MaxLength(MAX_NAME_LENGTH, {
-    message: `Name must be at most ${MAX_NAME_LENGTH} characters long`,
-  })
-  name?: string;
-
-  @Expose()
-  @IsOptional()
   @IsDataURI({ message: 'Avatar must be a valid Data URI' })
   avatar?: string;
 
@@ -93,5 +82,5 @@ export class UpdateStudentProfileDTO {
     each: true,
     message: 'Each experience must be a valid ExperienceDTO',
   })
-  experiences?: ExperienceDTO[];
+  experiences?: ExperienceInputDTO[];
 }

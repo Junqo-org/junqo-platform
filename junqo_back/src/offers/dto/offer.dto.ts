@@ -131,7 +131,7 @@ export class CreateOfferDTO {
   description: string;
 
   @Expose()
-  @IsOptional()
+  @IsNotEmpty({ message: 'Offer Status is required' })
   @IsEnum(OfferStatus, {
     message: 'Status must be a valid OfferStatus enum value',
   })
@@ -148,13 +148,13 @@ export class CreateOfferDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Duration must be an integer' })
-  duration?: string;
+  duration?: number;
 
   // Salary per month
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Salary must be an integer' })
-  salary?: string;
+  salary?: number;
 
   @Expose()
   @IsNotEmpty({ message: 'Work location type is required' })
@@ -179,7 +179,7 @@ export class CreateOfferDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Education level must be an integer' })
-  educationLevel?: string;
+  educationLevel?: number;
 
   // Obligatory for use with casl ability
   constructor(data: Partial<CreateOfferDTO>) {

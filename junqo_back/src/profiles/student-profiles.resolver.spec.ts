@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProfilesResolver } from './profiles.resolver';
+import { StudentProfilesResolver } from './student-profiles.resolver';
 import { ProfilesService } from './profiles.service';
 import { CaslModule } from '../casl/casl.module';
 import { NotFoundException } from '@nestjs/common';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
-import { StudentProfileInput } from './../graphql.schema';
+import { StudentProfileInput } from '../graphql.schema';
 import { StudentProfileDTO } from './dto/student-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
@@ -17,13 +17,13 @@ const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
 });
 
 describe('ProfilesResolver', () => {
-  let resolver: ProfilesResolver;
+  let resolver: StudentProfilesResolver;
   let profilesService: ProfilesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ProfilesResolver,
+        StudentProfilesResolver,
         {
           provide: ProfilesService,
           useValue: {
@@ -35,7 +35,7 @@ describe('ProfilesResolver', () => {
       imports: [CaslModule],
     }).compile();
 
-    resolver = module.get<ProfilesResolver>(ProfilesResolver);
+    resolver = module.get<StudentProfilesResolver>(StudentProfilesResolver);
     profilesService = module.get<ProfilesService>(ProfilesService);
   });
 

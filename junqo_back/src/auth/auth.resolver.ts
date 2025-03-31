@@ -18,7 +18,7 @@ export class AuthResolver {
   private readonly logger = new Logger(AuthResolver.name);
 
   @Public()
-  @Mutation(() => AuthPayload)
+  @Mutation()
   public async signUp(
     @Args('type') type: UserType,
     @Args('name') name: string,
@@ -50,7 +50,7 @@ export class AuthResolver {
   }
 
   @Public()
-  @Mutation(() => AuthPayload)
+  @Mutation()
   public async signIn(
     @Args('email') email: string,
     @Args('password') password: string,

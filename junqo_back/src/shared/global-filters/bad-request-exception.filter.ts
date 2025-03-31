@@ -8,7 +8,6 @@ import { GqlExceptionFilter } from '@nestjs/graphql';
 @Catch(BadRequestException)
 export class BadRequestExceptionFilter implements GqlExceptionFilter {
   catch(exception: BadRequestException) {
-    console.log(JSON.stringify(exception));
     let constraints: string[];
 
     try {

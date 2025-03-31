@@ -82,7 +82,6 @@ export class ExperienceModel extends Model {
   public toExperienceDTO(): ExperienceDTO {
     return {
       id: this.id,
-      studentProfileId: this.studentProfileId,
       title: this.title,
       company: this.company,
       startDate: this.startDate,

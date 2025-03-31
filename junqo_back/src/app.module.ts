@@ -7,51 +7,42 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from './auth/auth.module';
 import { CaslModule } from './casl/casl.module';
 import { ProfilesModule } from './profiles/profiles.module';
-import { config } from './shared/config';
+import { ConfigModule } from './config/config.module';
+import { ConfigService } from '@nestjs/config';
 import { OffersModule } from './offers/offers.module';
 
 @Module({
   imports: [
-    UsersModule,
-    SequelizeModule.forRoot({
-      dialect: config.DATABASE_DIALECT,
-      host: config.DATABASE_HOST,
-      port: config.DATABASE_PORT,
-      username: config.DATABASE_USER,
-      password: config.DB_PASSWORD,
-      database: config.DATABASE_NAME,
-      autoLoadModels: true,
-      synchronize: config.DATABASE_SYNCHRONIZE,
-      retry: {
-        max: 10,
-        match: [
-          /SequelizeConnectionError/,
-          /SequelizeConnectionRefusedError/,
-          /SequelizeHostNotFoundError/,
-          /SequelizeHostNotReachableError/,
-          /SequelizeInvalidConnectionError/,
-          /SequelizeConnectionTimedOutError/,
-        ],
-      },
-      pool: {
-        max: 20,
-        min: 0,
-        acquire: 30000,
-        idle: 10000,
-      },
-      logging: config.NODE_ENV === 'development',
+    ConfigModule,
+    SequelizeModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        dialect: configService.get('database.dialect'),
+        host: configService.get('database.host'),
+        port: configService.get('database.port'),
+        username: configService.get('database.username'),
+        password: configService.get('database.password'),
+        database: configService.get('database.database'),
+        autoLoadModels: true,
+        synchronize: configService.get('database.synchronize'),
+        logging: configService.get('database.logging'),
+      }),
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      typePaths: config.GRAPHQL_TYPE_PATHS,
-      // Generate typePaths
-      definitions: {
-        path: config.GRAPHQL_DEFINITIONS_PATH,
-        outputAs: 'class',
-      },
-      playground: config.NODE_ENV === 'development',
-      debug: config.NODE_ENV === 'development',
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        typePaths: configService.get('graphql.typePaths'),
+        definitions: {
+          path: configService.get('graphql.definitionsPath'),
+        },
+        playground: configService.get('graphql.playground'),
+        introspection: configService.get('graphql.introspection'),
+      }),
     }),
+
+    UsersModule,
     AuthModule,
     CaslModule,
     ProfilesModule,

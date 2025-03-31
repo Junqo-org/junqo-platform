@@ -9,7 +9,7 @@ import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { validateOrReject } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 
-export const CurrentUser = createParamDecorator((data, context) => {
+export const CurrentUser = createParamDecorator(async (data, context) => {
   const ctx = GqlExecutionContext.create(context);
   const req = ctx.getContext().req;
 
@@ -19,6 +19,7 @@ export const CurrentUser = createParamDecorator((data, context) => {
     logger.error('No user found in request');
     throw new InternalServerErrorException('No user found in request');
   }
+
   const authUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
     id: req.user.sub,
     name: req.user.username,
@@ -26,8 +27,12 @@ export const CurrentUser = createParamDecorator((data, context) => {
     email: req.user.email,
   });
 
-  validateOrReject(authUser).catch((errors) => {
-    throw new BadRequestException(errors);
-  });
-  return authUser;
+  try {
+    await validateOrReject(authUser);
+    return authUser;
+  } catch (errors) {
+    throw new BadRequestException(
+      [new Error('Authentication validation error')] + errors,
+    );
+  }
 });

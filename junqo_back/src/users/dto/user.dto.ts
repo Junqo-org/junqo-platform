@@ -17,7 +17,7 @@ import {
   MIN_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '../../shared/user-validation-constants';
-import { config } from '../../shared/config';
+import { JWT_CONSTANTS } from '../../config/config.service';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
 
@@ -58,8 +58,8 @@ export class UserDTO {
   @Expose()
   @IsNotEmpty({ message: 'Hashed password is required' })
   @IsString({ message: 'Hashed password must be a string' })
-  @IsHash(config.HASH_ALGORITHM, {
-    message: `Hashed password must be a valid ${config.HASH_ALGORITHM} hash`,
+  @IsHash(JWT_CONSTANTS.algorithm, {
+    message: `Hashed password must be a valid ${JWT_CONSTANTS.algorithm} hash`,
   })
   hashedPassword: string;
 
