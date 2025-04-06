@@ -1,33 +1,41 @@
-import 'package:ferry/ferry.dart';
-import 'package:junqo_front/core/response_handler.dart';
-import 'package:junqo_front/schemas/requests/__generated__/get_user_by_id.req.gql.dart';
+import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/core/client.dart';
+import 'package:junqo_front/core/api/api_service.dart';
 import 'package:junqo_front/shared/dto/user_data.dart';
-import 'package:junqo_front/shared/dto/user_type.dart';
 
 class UserService {
-  final Client client;
+  final RestClient client;
+  final ApiService _apiService;
   UserData? _userData;
 
-  UserService(this.client);
+  UserService(this.client) : _apiService = GetIt.instance<ApiService>();
 
   UserData? get userData => _userData;
 
+  /// Récupère les données d'un utilisateur par son ID
   Future<UserData?> fetchUserData(String id) async {
-    final request = GgetUserByIdReq((b) => b..vars.id = id);
-    final response = await client.request(request).first;
-    final data =
-        await ResponseHandler.handleGraphQLResponse(response, "GetUserById");
-
-    if (data == null) {
-      return null;
+    try {
+      _userData = await _apiService.getUserById(id);
+      return _userData;
+    } catch (e) {
+      debugPrint('Error fetching user data: $e');
+      rethrow;
     }
-    UserType? userType;
-
-    if (data.user?.type != null) {
-      userType = gUserTypeToUserType(data.user!.type);
+  }
+  
+  /// Met à jour les données d'un utilisateur
+  Future<UserData?> updateUserData(String id, {String? name, String? email}) async {
+    try {
+      if (name == null && email == null) {
+        return _userData;
+      }
+      
+      _userData = await _apiService.updateUser(id, name: name, email: email);
+      return _userData;
+    } catch (e) {
+      debugPrint('Error updating user data: $e');
+      rethrow;
     }
-    _userData = UserData(
-        id: id, name: data.user?.name, email: data.user?.email, type: userType);
-    return _userData;
   }
 }

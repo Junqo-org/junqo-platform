@@ -1,4 +1,4 @@
-import 'package:junqo_front/shared/dto/user_type.dart';
+import 'package:junqo_front/shared/enums/user_type.dart';
 
 class UserData {
   String id;

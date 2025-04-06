@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:junqo_front/core/auth_service.dart';
-import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
+import 'package:junqo_front/shared/enums/user_type.dart';
 import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:get_it/get_it.dart';
-import 'package:junqo_front/shared/errors/graphql_exception.dart';
+import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
 class Register extends StatefulWidget {
@@ -47,16 +47,16 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
     final String name = _nameController.text;
     final String email = _emailController.text;
     final String password = _passwordController.text;
-    final GUserType gUserType = GUserType.valueOf(userType.toUpperCase());
+    final UserType userTypeEnum = stringToUserType(userType);
 
     try {
-      await authService.signUp(name, email, password, gUserType);
+      await authService.signUp(name, email, password, userTypeEnum);
       if (!mounted) return;
       Navigator.pushNamed(context, '/home');
-    } on GraphQLException catch (e) {
-      e.printError();
+    } on RestApiException catch (e) {
+      debugPrint("API Error: ${e.message}");
       if (!mounted) return;
-      showErrorDialog(e.toString(), context);
+      showErrorDialog(e.message, context);
       return;
     } catch (e) {
       debugPrint("Unexpected error: $e");

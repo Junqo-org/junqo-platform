@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../shared/widgets/navbar_company.dart';
-import 'package:ferry/ferry.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/services/offer_service.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
+import 'package:junqo_front/core/client.dart';
 
 class JobOfferForm extends StatefulWidget {
-  final Client client;
+  final RestClient client;
   
   const JobOfferForm({
     super.key,
@@ -169,7 +169,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
           duration: _durationController.text,
           salary: _salaryController.text,
           workLocationType: _workLocationType,
-          expiresAt: _expirationDate!,
+          expiresAt: _expirationDate ?? DateTime.now().add(const Duration(days: 30)),
           skills: _selectedSkills,
           benefits: _selectedBenefits,
           educationLevel: _educationLevel,
@@ -177,10 +177,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
           status: 'active', 
         );
 
-        print(jobOffer);
-
-        await Future.delayed(const Duration(seconds: 2));
-        //await offerService.createOffer(jobOffer);
+        await offerService.createOffer(jobOffer);
         
         // Vérification si le widget est toujours monté
         if (!mounted) return;

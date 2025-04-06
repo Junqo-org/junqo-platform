@@ -1,4 +1,5 @@
 class OfferData {
+  final String? id;
   final String userid;
   final String title;
   final String description;
@@ -13,6 +14,7 @@ class OfferData {
   final String status;
 
   OfferData({
+    this.id,
     this.userid = '',
     required this.title,
     required this.description,
@@ -29,6 +31,7 @@ class OfferData {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'userid': userid,
       'title': title,
       'description': description,

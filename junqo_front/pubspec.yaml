@@ -14,16 +14,12 @@ dependencies:
   flutter:
     sdk: flutter
   smooth_page_indicator: ^1.2.0+3
-  # Dependencies from https://ferrygraphql.com/docs/flutter and https://ferrygraphql.com/docs/setup
-  ferry: ^0.16.1+2
-  gql_http_link: ^1.0.1
-  ferry_flutter: ^0.9.0
+  # HTTP client pour les requêtes REST
+  http: ^1.2.0
   hive: ^2.2.3
-  ferry_hive_store: ^0.6.0
   hive_flutter: ^1.1.0
   get_it: ^8.0.0
   intl: ^0.18.1
-  built_collection: ^5.1.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -34,9 +30,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  # Dev dependencies from https://ferrygraphql.com/docs/setup
-  ferry_generator: ^0.12.0+2
-  build_runner: ^2.4.6
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
