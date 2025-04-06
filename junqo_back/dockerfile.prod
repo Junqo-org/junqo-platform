@@ -21,7 +21,6 @@ WORKDIR /build
 
 # Copy source code and build the application
 COPY ./junqo_back ./
-COPY ./schemas/ /home/app/schemas/
 RUN npm ci --only=production
 RUN npm run build
 

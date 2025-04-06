@@ -19,7 +19,6 @@ jobs:
           filters: |
             any_changed:
               - 'junqo_back/**'
-              - 'schemas/**'
               - '.github/workflows/back-tests.yml'
 
   backend-tests:
