@@ -206,10 +206,10 @@ class _OfferListState extends State<OfferList> {
       ),
       child: Row(
         children: [
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   "Publiez une nouvelle offre",
                   style: TextStyle(
@@ -275,7 +275,7 @@ class _OfferListState extends State<OfferList> {
           _buildSectionHeader("Offres actives", Icons.check_circle_outline,
               activeOffers.length),
           const SizedBox(height: 16),
-          ...activeOffers.map((offer) => _buildOfferCard(offer)).toList(),
+          ...activeOffers.map((offer) => _buildOfferCard(offer)),
           const SizedBox(height: 32),
         ],
 
@@ -284,7 +284,7 @@ class _OfferListState extends State<OfferList> {
           _buildSectionHeader(
               "Offres inactives", Icons.cancel_outlined, inactiveOffers.length),
           const SizedBox(height: 16),
-          ...inactiveOffers.map((offer) => _buildOfferCard(offer)).toList(),
+          ...inactiveOffers.map((offer) => _buildOfferCard(offer)),
         ],
       ],
     );

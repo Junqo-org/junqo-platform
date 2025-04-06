@@ -1,16 +1,17 @@
 /// Types d'utilisateurs supportés par l'application
+library;
 // ignore_for_file: constant_identifier_names
 
 enum UserType {
   /// Utilisateur de type Étudiant/Candidat
   STUDENT,
-  
+
   /// Utilisateur de type Entreprise/Recruteur
   COMPANY,
-  
+
   /// Utilisateur de type Administrateur
   ADMIN,
-  
+
   /// Utilisateur de type École
   SCHOOL
 }
@@ -19,13 +20,13 @@ extension UserTypeExtension on UserType {
   String get value {
     switch (this) {
       case UserType.SCHOOL:
-        return 'school';
+        return 'SCHOOL';
       case UserType.COMPANY:
-        return 'company';
+        return 'COMPANY';
       case UserType.STUDENT:
-        return 'student';
+        return 'STUDENT';
       case UserType.ADMIN:
-        return 'admin';
+        return 'ADMIN';
     }
   }
 }
@@ -35,7 +36,7 @@ UserType stringToUserType(String? value) {
   if (value == null) {
     throw Exception('UserType cannot be null');
   }
-  
+
   value = value.toLowerCase();
   switch (value) {
     case 'school':
@@ -49,4 +50,4 @@ UserType stringToUserType(String? value) {
     default:
       throw Exception('Unknown UserType: $value');
   }
-} 
+}

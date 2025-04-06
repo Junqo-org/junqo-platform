@@ -65,7 +65,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
       if (_emailController.text.trim().isEmpty) {
         _emailError = 'Ce champ est requis';
         isValid = false;
-      } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+      } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
           .hasMatch(_emailController.text)) {
         _emailError = 'Adresse email invalide';
         isValid = false;

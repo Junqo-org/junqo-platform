@@ -8,7 +8,7 @@ import 'package:junqo_front/core/client.dart';
 
 class JobOfferForm extends StatefulWidget {
   final RestClient client;
-  
+
   const JobOfferForm({
     super.key,
     required this.client,
@@ -172,7 +172,6 @@ class _JobOfferFormState extends State<JobOfferForm> {
           duration: _durationController.text,
           salary: _salaryController.text,
           workLocationType: _workLocationType,
-          expiresAt: _expirationDate ?? DateTime.now().add(const Duration(days: 30)),
           skills: _selectedSkills,
           benefits: _selectedBenefits,
           educationLevel: _educationLevel,
@@ -181,7 +180,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         );
 
         await offerService.createOffer(jobOffer);
-        
+
         // Vérification si le widget est toujours monté
         if (!mounted) return;
 

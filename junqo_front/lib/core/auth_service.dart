@@ -69,7 +69,7 @@ class AuthService {
       }
     } catch (e) {
       debugPrint('Error during sign up: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -101,7 +101,7 @@ class AuthService {
       }
     } catch (e) {
       debugPrint('Error during sign in: $e');
-      throw e;
+      rethrow;
     }
   }
 

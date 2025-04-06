@@ -43,8 +43,10 @@ class ApiService {
   Future<List<OfferData>> getAllOffers() async {
     final response = await client.get(ApiEndpoints.offers);
     final List<dynamic> offersJson = response['offers'];
-    
-    return offersJson.map((offerJson) => _createOfferDataFromJson(offerJson)).toList();
+
+    return offersJson
+        .map((offerJson) => _createOfferDataFromJson(offerJson))
+        .toList();
   }
 
   /// Récupérer une offre par son ID
@@ -55,16 +57,6 @@ class ApiService {
 
   /// Créer une instance OfferData à partir d'un JSON
   OfferData _createOfferDataFromJson(Map<String, dynamic> json) {
-    DateTime expiresAt;
-    try {
-      expiresAt = json['expiresAt'] != null 
-          ? DateTime.parse(json['expiresAt'].toString())
-          : DateTime.now().add(const Duration(days: 30));
-    } catch (e) {
-      // Fallback à la date actuelle + 30 jours si la date n'est pas valide
-      expiresAt = DateTime.now().add(const Duration(days: 30));
-    }
-    
     return OfferData(
       id: json['id'],
       title: json['title'] ?? '',
@@ -73,7 +65,6 @@ class ApiService {
       duration: json['duration'] ?? '',
       salary: json['salary'] ?? '',
       workLocationType: json['workLocationType'] ?? '',
-      expiresAt: expiresAt,
       skills: _parseStringList(json['skills']),
       benefits: _parseStringList(json['benefits']),
       educationLevel: json['educationLevel'] ?? '',
@@ -81,7 +72,7 @@ class ApiService {
       status: json['status'] ?? '',
     );
   }
-  
+
   /// Convertir un objet en List<String> avec gestion des nulls
   List<String> _parseStringList(dynamic value) {
     if (value == null) return [];
@@ -100,7 +91,6 @@ class ApiService {
       'duration': offerData.duration,
       'salary': offerData.salary,
       'workLocationType': offerData.workLocationType,
-      'expiresAt': offerData.expiresAt.toIso8601String(),
       'skills': offerData.skills,
       'benefits': offerData.benefits,
       'educationLevel': offerData.educationLevel,
@@ -121,7 +111,6 @@ class ApiService {
       'duration': offerData.duration,
       'salary': offerData.salary,
       'workLocationType': offerData.workLocationType,
-      'expiresAt': offerData.expiresAt.toIso8601String(),
       'skills': offerData.skills,
       'benefits': offerData.benefits,
       'educationLevel': offerData.educationLevel,
@@ -142,16 +131,16 @@ class ApiService {
   /// Récupérer un utilisateur par son ID
   Future<UserData?> getUserById(String id) async {
     final response = await client.get(ApiEndpoints.getUserById(id));
-    
+
     if (response.isEmpty) {
       return null;
     }
-    
+
     UserType? userType;
     if (response['type'] != null) {
       userType = stringToUserType(response['type']);
     }
-    
+
     return UserData(
       id: id,
       name: response['name'],
@@ -166,18 +155,18 @@ class ApiService {
       if (name != null) 'name': name,
       if (email != null) 'email': email,
     };
-    
+
     if (body.isEmpty) {
       return null;
     }
-    
+
     final response = await client.put(ApiEndpoints.updateUser(id), body: body);
-    
+
     UserType? userType;
     if (response['type'] != null) {
       userType = stringToUserType(response['type']);
     }
-    
+
     return UserData(
       id: id,
       name: response['name'],
@@ -185,4 +174,4 @@ class ApiService {
       type: userType,
     );
   }
-} 
+}
