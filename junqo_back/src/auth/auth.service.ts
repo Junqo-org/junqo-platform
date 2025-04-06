@@ -15,13 +15,19 @@ import { SignInDTO } from './dto/sign-in.dto';
 import { plainToInstance } from 'class-transformer';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { StudentProfilesService } from '../student-profiles/student-profiles.service';
+import { CreateCompanyProfileDTO } from '../company-profiles/dto/company-profile.dto';
+import { CreateSchoolProfileDTO } from '../school-profiles/dto/school-profile.dto';
+import { CompanyProfilesService } from '../company-profiles/company-profiles.service';
+import { SchoolProfilesService } from '../school-profiles/school-profiles.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly studentProfilesService: StudentProfilesService,
-    private readonly jwtService: JwtService,
+    private readonly companyProfilesService: CompanyProfilesService,
+    private readonly schoolProfilesService: SchoolProfilesService,
   ) {}
 
   public async signUp(signUpInput: SignUpDTO): Promise<AuthPayloadDTO> {
@@ -37,16 +43,36 @@ export class AuthService {
     });
     const user: UserDTO = await this.usersService.create(authUser, signUpInput);
 
-    if (signUpInput.type === UserType.STUDENT) {
-      const createStudentProfileDto: CreateStudentProfileDTO = plainToInstance(
-        CreateStudentProfileDTO,
-        {
-          userId: user.id,
-          name: user.name,
-        },
-      );
+    switch (signUpInput.type) {
+      case UserType.STUDENT:
+        const createStudentProfileDto: CreateStudentProfileDTO =
+          plainToInstance(CreateStudentProfileDTO, {
+            userId: user.id,
+            name: user.name,
+          });
 
-      await this.studentProfilesService.create(user, createStudentProfileDto);
+        await this.studentProfilesService.create(user, createStudentProfileDto);
+        break;
+      case UserType.COMPANY:
+        const createCompanyProfileDto: CreateCompanyProfileDTO =
+          plainToInstance(CreateCompanyProfileDTO, {
+            userId: user.id,
+            name: user.name,
+          });
+
+        await this.companyProfilesService.create(user, createCompanyProfileDto);
+        break;
+      case UserType.SCHOOL:
+        const createSchoolProfileDto: CreateSchoolProfileDTO = plainToInstance(
+          CreateSchoolProfileDTO,
+          {
+            userId: user.id,
+            name: user.name,
+          },
+        );
+
+        await this.schoolProfilesService.create(user, createSchoolProfileDto);
+        break;
     }
     const publicUser: PublicUserDTO = plainToInstance(PublicUserDTO, user, {
       excludeExtraneousValues: true,
