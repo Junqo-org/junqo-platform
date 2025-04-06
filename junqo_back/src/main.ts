@@ -25,7 +25,7 @@ async function bootstrap() {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 
-  AppSetup(app);
+  await AppSetup(app);
 }
 
 bootstrap();

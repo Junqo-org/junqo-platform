@@ -4,10 +4,10 @@ import { jwtConstants, bcryptConstants } from './constants';
 import { AuthService } from './auth.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-import { AuthResolver } from './auth.resolver';
-import { ProfilesModule } from '../profiles/profiles.module';
 import { UsersModule } from '../users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthController } from './auth.controller';
+import { StudentProfilesModule } from '../student-profiles/student-profiles.module';
 
 if (jwtConstants.secret === undefined) {
   throw new Error('JWT_SECRET is not defined, please set it in .env file');
@@ -21,7 +21,7 @@ if (bcryptConstants.saltOrRounds === undefined) {
 @Module({
   imports: [
     UsersModule,
-    ProfilesModule,
+    StudentProfilesModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -42,8 +42,8 @@ if (bcryptConstants.saltOrRounds === undefined) {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    AuthResolver,
   ],
   exports: [AuthService],
+  controllers: [AuthController],
 })
 export class AuthModule {}

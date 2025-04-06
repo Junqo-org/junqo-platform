@@ -9,7 +9,7 @@ import { Injectable } from '@nestjs/common';
 import { AuthUserDTO } from './../shared/dto/auth-user.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { UserResource } from './dto/user-resource.dto';
-import { StudentProfileResource } from './dto/profile-resource.dto';
+import { StudentProfileResource } from './dto/student-profile-resource.dto';
 import { UserDTO } from '../users/dto/user.dto';
 import { OfferResource } from './dto/offer-resource.dto';
 

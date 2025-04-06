@@ -10,7 +10,7 @@ services:
       dockerfile: ./junqo_front/dockerfile.dev
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
-        - API_URL=${API_URL:-http://localhost:4200/graphql}
+        - API_URL=${API_URL:-http://localhost:4200/}
     restart: unless-stopped
     ports:
       - "80:80"

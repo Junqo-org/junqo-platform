@@ -43,19 +43,20 @@ If you are a new user of the project, you should start by reading the [user docu
 - Documentation
   - [Markdown](https://daringfireball.net/projects/markdown)
   - [Jekyll](https://jekyllrb.com/)
-  - [Magidoc](https://magidoc.github.io/)
+  - [Swagger](https://swagger.io/)
   - [GitHub Pages](https://pages.github.com)
 - CI/CD
   - [GitHub Actions](https://docs.github.com/en/actions)
   - [MochaJs](https://mochajs.org/)
 - Frontend
   - [Flutter](https://flutter.dev/)
-  - [Ferry Graphql](https://ferrygraphql.com/)
+  - [Dio](https://pub.dev/packages/dio)
 - Backend
   - [NestJs](https://nestjs.com/)
   - [PostgreSQL](https://www.postgresql.org/)
   - [Sequelize](https://sequelize.org/)
-  - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
+  - [Express](https://expressjs.com/)
+  - [Swagger](https://swagger.io/)
 - Operations
   - [Docker Compose](https://docs.docker.com/compose/)
   - [Docker Swarm](https://docs.docker.com/engine/swarm/)

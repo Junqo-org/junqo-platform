@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { ContextType } from '@nestjs/common';
 import { ExecutionContext } from '@nestjs/common/interfaces';
-import { GqlExecutionContext } from '@nestjs/graphql';
 
 describe('AuthGuard', () => {
   let authGuard: AuthGuard;
@@ -17,17 +16,6 @@ describe('AuthGuard', () => {
 
   beforeEach(async () => {
     const { unit, unitRef } = await TestBed.solitary(AuthGuard).compile();
-
-    jest.mock('@nestjs/graphql', () => ({
-      GqlExecutionContext: {
-        create: jest.fn(),
-      },
-    }));
-    GqlExecutionContext.create = jest.fn().mockReturnValue({
-      getContext: () => ({
-        req: mockRequest,
-      }),
-    });
 
     authGuard = unit;
     mockJwtService = unitRef.get(JwtService);

@@ -1,20 +1,16 @@
 import * as request from 'supertest';
-import { createTestingEnvironment } from './test-utils';
+import { createTestingEnvironment } from './test-setup';
 import { UserType } from '../src/users/dto/user-type.enum';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { UsersRepository } from '../src/users/repository/users.repository';
 import { AuthService } from '../src/auth/auth.service';
 import { OffersService } from '../src/offers/offers.service';
-import {
-  GET_OFFERS_REQUEST,
-  GET_OFFER_BY_ID_REQUEST,
-  CREATE_OFFER_REQUEST,
-  UPDATE_OFFER_REQUEST,
-  DELETE_OFFER_REQUEST,
-} from './requests';
 import { OfferStatus } from '../src/offers/dto/offer-status.enum';
 import { OfferType } from '../src/offers/dto/offer-type.enum';
 import { WorkContext } from '../src/offers/dto/work-context.enum';
+
+const baseRoute = '/api/v1/offers';
+const authBaseRoute = '/api/v1/auth';
 
 // Test users data
 const adminUser = {
@@ -121,236 +117,179 @@ describe('Offers E2E Tests', () => {
   describe('Query Offers', () => {
     it('should get all offers', async () => {
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+        .get(`${baseRoute}`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .send(GET_OFFERS_REQUEST)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
-      expect(response.body.errors).toBeUndefined();
-      expect(response.body.data.offers).toBeInstanceOf(Array);
-      expect(response.body.data.offers.length).toBeGreaterThanOrEqual(1);
+      expect(response.body).toBeInstanceOf(Array);
+      expect(response.body.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should get offer by ID', async () => {
-      const getOfferRequest = {
-        ...GET_OFFER_BY_ID_REQUEST,
-        variables: {
-          offerId: testOffer.id,
-        },
-      };
-
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+        .get(`${baseRoute}/${testOffer.id}`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .send(getOfferRequest)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
-      expect(response.body.errors).toBeUndefined();
-      expect(response.body.data.offer).toMatchObject({
+      expect(response.body).toMatchObject({
         id: testOffer.id,
-        ...testOfferData,
+        title: testOfferData.title,
+        description: testOfferData.description,
+        status: testOfferData.status,
+        skills: testOfferData.skills,
+        offerType: testOfferData.offerType,
+        workLocationType: testOfferData.workLocationType,
       });
     });
 
     it('should throw not found error for non-existent offer ID', async () => {
-      const nonExistentRequest = {
-        ...GET_OFFER_BY_ID_REQUEST,
-        variables: {
-          offerId: '00000000-0000-0000-0000-000000000000',
-        },
-      };
-
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+      await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}/00000000-0000-0000-0000-000000000000`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .send(nonExistentRequest)
-        .expect(200);
-
-      expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].extensions.status).toBe(404);
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 
   describe('Create Offer', () => {
     it('should create a new offer as company', async () => {
-      const createRequest = {
-        ...CREATE_OFFER_REQUEST,
-        variables: {
-          offerInput: {
-            userId: companyUserId,
-            title: 'Data Science Intern',
-            description: 'Work with big data and ML models',
-            status: 'ACTIVE',
-            skills: ['Python', 'SQL', 'Machine Learning'],
-            offerType: 'INTERNSHIP',
-            workLocationType: 'REMOTE',
-          },
+      const newOfferData = {
+        offerInput: {
+          userId: companyUserId,
+          title: 'Data Science Intern',
+          description: 'Work with big data and ML models',
+          status: OfferStatus.ACTIVE,
+          skills: ['Python', 'SQL', 'Machine Learning'],
+          offerType: OfferType.INTERNSHIP,
+          workLocationType: WorkContext.REMOTE,
         },
       };
 
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+        .post(`${baseRoute}`)
         .set('Authorization', `Bearer ${companyToken}`)
-        .send(createRequest)
-        .expect(200);
+        .send(newOfferData)
+        .expect(HttpStatus.CREATED);
 
-      expect(response.body.errors).toBeUndefined();
-      expect(response.body.data.createOffer).toMatchObject({
+      expect(response.body).toMatchObject({
         title: 'Data Science Intern',
         description: 'Work with big data and ML models',
-        status: 'ACTIVE',
+        status: OfferStatus.ACTIVE,
         skills: ['Python', 'SQL', 'Machine Learning'],
-        offerType: 'INTERNSHIP',
-        workLocationType: 'REMOTE',
+        offerType: OfferType.INTERNSHIP,
+        workLocationType: WorkContext.REMOTE,
         userId: companyUserId,
       });
     });
 
     it('should prevent students from creating offers', async () => {
-      const createRequest = {
-        ...CREATE_OFFER_REQUEST,
-        variables: {
-          offerInput: {
-            userId: companyUserId,
-            title: 'Fake Internship',
-            description: 'This should not work',
-            status: 'ACTIVE',
-            skills: ['Deception'],
-            offerType: 'INTERNSHIP',
-            workLocationType: 'ON_SITE',
-          },
+      const newOfferData = {
+        offerInput: {
+          userId: companyUserId,
+          title: 'Fake Internship',
+          description: 'This should not work',
+          status: OfferStatus.ACTIVE,
+          skills: ['Deception'],
+          offerType: OfferType.INTERNSHIP,
+          workLocationType: WorkContext.ON_SITE,
         },
       };
 
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+      await request(testEnv.app.getHttpServer())
+        .post(`${baseRoute}`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .send(createRequest)
-        .expect(200);
-
-      expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].extensions.code).toContain('FORBIDDEN');
+        .send(newOfferData)
+        .expect(HttpStatus.FORBIDDEN);
     });
 
     it('should validate offer data', async () => {
-      const createRequest = {
-        ...CREATE_OFFER_REQUEST,
-        variables: {
-          offerInput: {
-            userId: companyUserId,
-            title: '',
-            description: '',
-            status: 'INVALID_STATUS',
-            skills: [],
-            offerType: 'INVALID_TYPE',
-          },
+      const invalidOfferData = {
+        offerInput: {
+          userId: companyUserId,
+          title: '',
+          description: '',
+          status: 'INVALID_STATUS',
+          skills: [],
+          offerType: 'INVALID_TYPE',
         },
       };
 
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+      await request(testEnv.app.getHttpServer())
+        .post(`${baseRoute}`)
         .set('Authorization', `Bearer ${companyToken}`)
-        .send(createRequest)
-        .expect(200);
-
-      expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].extensions.code).toContain('BAD_REQUEST');
+        .send(invalidOfferData)
+        .expect(HttpStatus.BAD_REQUEST);
     });
   });
 
   describe('Update Offer', () => {
     it('should update an offer as the company who created it', async () => {
-      const updateRequest = {
-        ...UPDATE_OFFER_REQUEST,
-        variables: {
-          offerId: testOffer.id,
-          offerInput: {
-            title: 'Updated Software Engineer Intern',
-            description: 'Updated description',
-            status: 'INACTIVE',
-          },
+      const updateData = {
+        offerInput: {
+          title: 'Updated Software Engineer Intern',
+          description: 'Updated description',
+          status: OfferStatus.INACTIVE,
         },
       };
 
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+        .patch(`${baseRoute}/${testOffer.id}`)
         .set('Authorization', `Bearer ${companyToken}`)
-        .send(updateRequest)
-        .expect(200);
+        .send(updateData)
+        .expect(HttpStatus.OK);
 
-      expect(response.body.errors).toBeUndefined();
-      expect(response.body.data.updateOffer).toMatchObject({
+      expect(response.body).toMatchObject({
         id: testOffer.id,
         title: 'Updated Software Engineer Intern',
         description: 'Updated description',
-        status: 'INACTIVE',
+        status: OfferStatus.INACTIVE,
       });
     });
 
     it('should allow admins to update any offer', async () => {
-      const updateRequest = {
-        ...UPDATE_OFFER_REQUEST,
-        variables: {
-          offerId: testOffer.id,
-          offerInput: {
-            title: 'Admin Updated Title',
-          },
+      const updateData = {
+        offerInput: {
+          title: 'Admin Updated Title',
         },
       };
 
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+        .patch(`${baseRoute}/${testOffer.id}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send(updateRequest)
-        .expect(200);
+        .send(updateData)
+        .expect(HttpStatus.OK);
 
-      expect(response.body.errors).toBeUndefined();
-      expect(response.body.data.updateOffer).toMatchObject({
+      expect(response.body).toMatchObject({
         id: testOffer.id,
         title: 'Admin Updated Title',
       });
     });
 
     it('should prevent students from updating offers', async () => {
-      const updateRequest = {
-        ...UPDATE_OFFER_REQUEST,
-        variables: {
-          offerId: testOffer.id,
-          offerInput: {
-            title: 'Student Hack Attempt',
-          },
+      const updateData = {
+        offerInput: {
+          title: 'Student Hack Attempt',
         },
       };
 
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+      await request(testEnv.app.getHttpServer())
+        .patch(`${baseRoute}/${testOffer.id}`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .send(updateRequest)
-        .expect(200);
-
-      expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].extensions.code).toContain('FORBIDDEN');
+        .send(updateData)
+        .expect(HttpStatus.FORBIDDEN);
     });
 
     it('should validate update data', async () => {
-      const updateRequest = {
-        ...UPDATE_OFFER_REQUEST,
-        variables: {
-          offerId: testOffer.id,
-          offerInput: {
-            status: 'INVALID_STATUS',
-          },
+      const invalidUpdateData = {
+        offerInput: {
+          status: 'INVALID_STATUS',
         },
       };
 
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+      await request(testEnv.app.getHttpServer())
+        .patch(`${baseRoute}/${testOffer.id}`)
         .set('Authorization', `Bearer ${companyToken}`)
-        .send(updateRequest)
-        .expect(200);
-
-      expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].extensions.code).toContain('BAD_REQUEST');
+        .send(invalidUpdateData)
+        .expect(HttpStatus.BAD_REQUEST);
     });
   });
 
@@ -383,93 +322,73 @@ describe('Offers E2E Tests', () => {
     });
 
     it('should delete an offer as the company who created it', async () => {
-      const deleteRequest = {
-        ...DELETE_OFFER_REQUEST,
-        variables: {
-          offerId: tempOfferId,
-        },
-      };
-
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+        .delete(`${baseRoute}/${tempOfferId}`)
         .set('Authorization', `Bearer ${companyToken}`)
-        .send(deleteRequest)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
-      expect(response.body.errors).toBeUndefined();
-      expect(response.body.data.deleteOffer).toBe(true);
+      expect(response.body).toBe(true);
 
       // Verify the offer is deleted
-      const getOfferRequest = {
-        ...GET_OFFER_BY_ID_REQUEST,
-        variables: {
-          offerId: tempOfferId,
-        },
-      };
-
-      const verifyResponse = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+      await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}/${tempOfferId}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send(getOfferRequest)
-        .expect(200);
-
-      expect(verifyResponse.body.errors).toBeDefined();
-      expect(verifyResponse.body.errors[0].extensions.status).toBe(404);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it('should allow admin to delete any offer', async () => {
-      const deleteRequest = {
-        ...DELETE_OFFER_REQUEST,
-        variables: {
-          offerId: tempOfferId,
-        },
-      };
-
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+        .delete(`${baseRoute}/${tempOfferId}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send(deleteRequest)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
-      expect(response.body.errors).toBeUndefined();
-      expect(response.body.data.deleteOffer).toBe(true);
+      expect(response.body).toBe(true);
     });
 
     it('should prevent students from deleting offers', async () => {
-      const deleteRequest = {
-        ...DELETE_OFFER_REQUEST,
-        variables: {
-          offerId: tempOfferId,
-        },
-      };
-
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+      await request(testEnv.app.getHttpServer())
+        .delete(`${baseRoute}/${tempOfferId}`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .send(deleteRequest)
-        .expect(200);
-
-      expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].extensions.code).toContain('FORBIDDEN');
+        .expect(HttpStatus.FORBIDDEN);
     });
 
     it('should return error for non-existent offer ID', async () => {
-      const deleteRequest = {
-        ...DELETE_OFFER_REQUEST,
-        variables: {
-          offerId: '00000000-0000-0000-0000-000000000000',
-        },
-      };
-
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
+      await request(testEnv.app.getHttpServer())
+        .delete(`${baseRoute}/00000000-0000-0000-0000-000000000000`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send(deleteRequest)
-        .expect(200);
+        .expect(HttpStatus.NOT_FOUND);
+    });
+  });
 
-      expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].message).toContain('not found');
-      expect(response.body.errors[0].extensions.status).toBe(404);
+  describe('Company Offers Management', () => {
+    it("should get company's own offers", async () => {
+      await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}/my`)
+        .set('Authorization', `Bearer ${companyToken}`)
+        .expect(HttpStatus.NOT_IMPLEMENTED);
+    });
+  });
+
+  describe('Application Features', () => {
+    it('should get applied offers for a student', async () => {
+      await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}/applied`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(HttpStatus.NOT_IMPLEMENTED);
+    });
+
+    it('should allow a student to apply to an offer', async () => {
+      await request(testEnv.app.getHttpServer())
+        .post(`${baseRoute}/${testOffer.id}/apply`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(HttpStatus.NOT_IMPLEMENTED);
+    });
+
+    it('should allow a student to withdraw application from an offer', async () => {
+      await request(testEnv.app.getHttpServer())
+        .delete(`${baseRoute}/${testOffer.id}/apply`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(HttpStatus.NOT_IMPLEMENTED);
     });
   });
 });

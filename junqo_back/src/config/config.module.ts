@@ -4,14 +4,13 @@ import {
   appConfig,
   dbConfig,
   jwtConfig,
-  graphqlConfig,
 } from './config.service';
 
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true, // Make the config module available app-wide
-      load: [appConfig, dbConfig, jwtConfig, graphqlConfig], // Load our configuration
+      load: [appConfig, dbConfig, jwtConfig], // Load our configuration
       cache: true, // Enable caching for better performance
       envFilePath: ['.env.local', '.env'], // Load env vars from files
       expandVariables: true, // Allow variables to refer to each other

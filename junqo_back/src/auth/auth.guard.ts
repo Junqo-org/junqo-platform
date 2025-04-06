@@ -5,11 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 import { jwtConstants } from './constants';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from './../auth/is_public.decorator';
-import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -33,9 +31,10 @@ export class AuthGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
-    const ctx = GqlExecutionContext.create(context);
-    const request = ctx.getContext().req;
-    const token = this.extractTokenFromHeader(request);
+    const ctx = context.switchToHttp();
+    const request = ctx.getRequest();
+    const authHeader = request?.headers?.authorization;
+    const token = AuthGuard.extractTokenFromHeader(authHeader);
 
     if (!token) {
       throw new UnauthorizedException();
@@ -58,8 +57,10 @@ export class AuthGuard implements CanActivate {
    * @param request - The incoming request object containing headers.
    * @returns The extracted token if present and valid, otherwise undefined.
    */
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request?.headers?.authorization?.split(' ') ?? [];
+  public static extractTokenFromHeader(authHeader: string): string | undefined {
+    if (authHeader == null) return undefined;
+
+    const [type, token] = authHeader.split(' ') ?? [];
 
     return type === 'Bearer' ? token : undefined;
   }

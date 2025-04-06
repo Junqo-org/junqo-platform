@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { OffersRepositoryModule } from './repository/offers.repository.module';
-import { OffersResolver } from './offers.resolver';
 import { OffersService } from './offers.service';
 import { CaslModule } from '../casl/casl.module';
+import { OffersController } from './offers.controller';
 
 @Module({
   imports: [OffersRepositoryModule, CaslModule],
-  providers: [OffersResolver, OffersService],
+  providers: [OffersService],
+  controllers: [OffersController],
 })
 export class OffersModule {}

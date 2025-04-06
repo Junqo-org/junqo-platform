@@ -1,11 +1,20 @@
 import * as request from 'supertest';
-import { UsersService } from '../src/users/users.service';
 import { UserType } from '../src/users/dto/user-type.enum';
-import { plainToInstance } from 'class-transformer';
-import { AuthUserDTO } from '../src/shared/dto/auth-user.dto';
-import { createTestingEnvironment } from './test-utils';
-import { SIGN_IN_REQUEST, SIGN_UP_REQUEST } from './requests';
-import { INestApplication } from '@nestjs/common';
+import { createTestingEnvironment } from './test-setup';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { SignUpDTO } from '../src/auth/dto/sign-up.dto';
+import { SignInDTO } from '../src/auth/dto/sign-in.dto';
+import { AuthService } from '../src/auth/auth.service';
+import { AuthPayloadDTO } from '../src/auth/dto/auth-payload.dto';
+
+const baseRoute = '/api/v1/auth/';
+
+const signUpDto: SignUpDTO = {
+  name: 'testUser',
+  email: 'email@email.com',
+  password: 'password',
+  type: UserType.SCHOOL,
+};
 
 describe('Auth E2E Tests', () => {
   let testEnv: {
@@ -31,213 +40,162 @@ describe('Auth E2E Tests', () => {
   describe('Sign Up', () => {
     it('SignUp User', async () => {
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(SIGN_UP_REQUEST)
-        .expect(200);
+        .post(baseRoute + 'register')
+        .send(signUpDto)
+        .expect(HttpStatus.CREATED);
 
       expect(response.body).toMatchObject({
-        data: {
-          signUp: {
-            token: expect.anything(),
-            user: {
-              email: SIGN_UP_REQUEST.variables.email,
-              id: expect.anything(),
-              name: SIGN_UP_REQUEST.variables.name,
-              type: SIGN_UP_REQUEST.variables.type,
-            },
-          },
+        token: expect.anything(),
+        user: {
+          email: signUpDto.email,
+          id: expect.anything(),
+          name: signUpDto.name,
+          type: signUpDto.type,
         },
       });
     });
 
     it('SignUp with invalid email format', async () => {
-      const invalidEmailQuery = {
-        ...SIGN_UP_REQUEST,
-        variables: { ...SIGN_UP_REQUEST.variables, email: 'invalidEmail' },
+      const invalidEmailPayload = {
+        ...signUpDto,
+        email: 'invalidEmail',
       };
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(invalidEmailQuery)
-        .expect(200);
-
-      expect(response.body.errors[0].message).toContain(
-        'Email must be a valid email address',
-      );
+      await request(testEnv.app.getHttpServer())
+        .post(baseRoute + 'register')
+        .send(invalidEmailPayload)
+        .expect(HttpStatus.BAD_REQUEST);
     });
 
     it('SignUp with duplicate email', async () => {
       await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(SIGN_UP_REQUEST)
-        .expect(200);
+        .post(baseRoute + 'register')
+        .send(signUpDto)
+        .expect(HttpStatus.CREATED);
 
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(SIGN_UP_REQUEST)
-        .expect(200);
-
-      expect(response.body.errors[0].message).toContain('Email already exists');
+      await request(testEnv.app.getHttpServer())
+        .post(baseRoute + 'register')
+        .send(signUpDto)
+        .expect(HttpStatus.CONFLICT);
     });
 
     it('SignUp with invalid password', async () => {
-      const invalidPasswordQuery = {
-        ...SIGN_UP_REQUEST,
-        variables: {
-          ...SIGN_UP_REQUEST.variables,
-          email: 'email2@mail.com',
-          password: '',
-        },
+      const invalidPasswordPayload = {
+        ...signUpDto,
+        email: 'email2@mail.com',
+        password: '',
       };
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(invalidPasswordQuery)
-        .expect(200);
-
-      expect(response.body.errors[0].message).toContain(
-        'Password must be at least 8 characters',
-      );
+      await request(testEnv.app.getHttpServer())
+        .post(baseRoute + 'register')
+        .send(invalidPasswordPayload)
+        .expect(HttpStatus.BAD_REQUEST);
     });
 
     it('SignUp with invalid user type', async () => {
-      const invalidUserTypeQuery = {
-        ...SIGN_UP_REQUEST,
-        variables: {
-          ...SIGN_UP_REQUEST.variables,
-          email: 'email3@mail.com',
-          type: 'INVALID_TYPE',
-        },
+      const invalidUserTypePayload = {
+        ...signUpDto,
+        email: 'email3@mail.com',
+        type: 'INVALID_TYPE',
       };
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(invalidUserTypeQuery)
-        .expect(200);
-
-      expect(response.body.errors[0].message).toContain('invalid value');
+      await request(testEnv.app.getHttpServer())
+        .post(baseRoute + 'register')
+        .send(invalidUserTypePayload)
+        .expect(HttpStatus.BAD_REQUEST);
     });
   });
 
   describe('Sign In', () => {
-    it('SignIn User', async () => {
-      await testEnv.app.get(UsersService).create(
-        plainToInstance(AuthUserDTO, {
-          name: 'testUser',
-          email: SIGN_IN_REQUEST.variables.email,
-          type: UserType.SCHOOL,
-        }),
-        {
-          type: UserType.SCHOOL,
-          name: 'testUser',
-          email: SIGN_IN_REQUEST.variables.email,
-          password: SIGN_IN_REQUEST.variables.password,
-        },
-      );
+    const signInTestUser: SignUpDTO = {
+      name: 'testUser',
+      email: 'sigin.email@email.com',
+      password: 'password',
+      type: UserType.SCHOOL,
+    };
+    const signInDto: SignInDTO = {
+      email: signInTestUser.email,
+      password: signInTestUser.password,
+    };
+    let signInTestPayload;
 
+    beforeAll(async () => {
+      signInTestPayload = await testEnv.app
+        .get(AuthService)
+        .signUp(signInTestUser);
+    });
+
+    it('SignIn User', async () => {
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(SIGN_IN_REQUEST)
-        .expect(200);
+        .post(baseRoute + 'login')
+        .send(signInDto)
+        .expect(HttpStatus.CREATED);
 
       expect(response.body).toMatchObject({
-        data: {
-          signIn: {
-            token: expect.anything(),
-            user: {
-              email: SIGN_IN_REQUEST.variables.email,
-              id: expect.anything(),
-              name: 'testUser',
-              type: 'SCHOOL',
-            },
-          },
-        },
+        ...signInTestPayload,
+        token: expect.anything(),
       });
     });
 
     it('SignIn with invalid email', async () => {
-      await testEnv.app.get(UsersService).create(
-        plainToInstance(AuthUserDTO, {
-          name: 'testUser',
-          email: SIGN_IN_REQUEST.variables.email,
-          type: UserType.SCHOOL,
-        }),
-        {
-          type: UserType.SCHOOL,
-          name: 'testUser',
-          email: SIGN_IN_REQUEST.variables.email,
-          password: SIGN_IN_REQUEST.variables.password,
-        },
-      );
-
-      const invalidEmailQuery = {
-        ...SIGN_IN_REQUEST,
-        variables: { ...SIGN_IN_REQUEST.variables, email: 'invalidEmail' },
+      const invalidEmailPayload = {
+        ...signInDto,
+        email: 'invalidEmail',
       };
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(invalidEmailQuery)
-        .expect(200);
-
-      expect(response.body.errors[0].message).toContain(
-        'Email must be a valid email address',
-      );
+      await request(testEnv.app.getHttpServer())
+        .post(baseRoute + 'login')
+        .send(invalidEmailPayload)
+        .expect(HttpStatus.BAD_REQUEST);
     });
 
     it('SignIn with invalid password', async () => {
-      await testEnv.app.get(UsersService).create(
-        plainToInstance(AuthUserDTO, {
-          name: 'testUser',
-          email: SIGN_IN_REQUEST.variables.email,
-          type: UserType.SCHOOL,
-        }),
-        {
-          type: UserType.SCHOOL,
-          name: 'testUser',
-          email: SIGN_IN_REQUEST.variables.email,
-          password: SIGN_IN_REQUEST.variables.password,
-        },
-      );
-
-      const invalidPasswordQuery = {
-        ...SIGN_IN_REQUEST,
-        variables: { ...SIGN_IN_REQUEST.variables, password: '' },
+      const invalidPasswordPayload = {
+        ...signInDto,
+        password: 'invalid password',
       };
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(invalidPasswordQuery)
-        .expect(200);
-
-      expect(response.body.errors[0].message).toContain('Password is required');
+      await request(testEnv.app.getHttpServer())
+        .post(baseRoute + 'login')
+        .send(invalidPasswordPayload)
+        .expect(HttpStatus.UNAUTHORIZED);
     });
   });
 
   describe('IsLoggedIn', () => {
-    it('IsLoggedIn without token', async () => {
-      const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send({ query: 'query{isLoggedIn}' })
-        .expect(200);
+    const isLoggedInTestUser: SignUpDTO = {
+      name: 'testUser',
+      email: 'sigin.email@email.com',
+      password: 'password',
+      type: UserType.SCHOOL,
+    };
+    let isLoggedInTestPayload: AuthPayloadDTO;
 
-      expect(response.body.errors[0].message).toContain('Unauthorized');
+    beforeAll(async () => {
+      isLoggedInTestPayload = await testEnv.app
+        .get(AuthService)
+        .signUp(isLoggedInTestUser);
     });
 
-    it('IsLoggedIn with token', async () => {
-      const signUpResponse = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .send(SIGN_UP_REQUEST)
-        .expect(200);
-
-      const token = signUpResponse.body.data.signUp.token;
-
+    it('IsLoggedIn with valid token should return true', async () => {
       const response = await request(testEnv.app.getHttpServer())
-        .post('/graphql')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ query: 'query{isLoggedIn}' })
-        .expect(200);
+        .get(baseRoute + 'is-logged-in')
+        .set('Authorization', `Bearer ${isLoggedInTestPayload.token}`)
+        .expect(HttpStatus.OK);
 
-      expect(response.body).toMatchObject({
-        data: {
-          isLoggedIn: true,
-        },
-      });
+      expect(response.body.isLoggedIn).toBe(true);
+    });
+
+    it('IsLoggedIn without token should return false', async () => {
+      const response = await request(testEnv.app.getHttpServer())
+        .get(baseRoute + 'is-logged-in')
+        .expect(HttpStatus.OK);
+
+      expect(response.body.isLoggedIn).toBe(false);
+    });
+
+    it('IsLoggedIn with invalid token should return false', async () => {
+      const response = await request(testEnv.app.getHttpServer())
+        .get(baseRoute + 'is-logged-in')
+        .set('Authorization', 'Bearer invalid-token')
+        .expect(HttpStatus.OK);
+
+      expect(response.body.isLoggedIn).toBe(false);
     });
   });
 });

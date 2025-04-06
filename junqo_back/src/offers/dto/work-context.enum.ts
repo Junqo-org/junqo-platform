@@ -6,5 +6,5 @@ export enum WorkContext {
   HYBRID = 'HYBRID',
 
   // Work is performed entirely from a remote location
-  TELEWORKING = 'TELEWORKING',
+  REMOTE = 'TELEWORKING',
 }

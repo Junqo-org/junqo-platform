@@ -26,7 +26,7 @@ Junqo is a mobile and web application built using Flutter. The project follows a
 
 - **UI Layer**: Built with Flutter widgets.
 - **State Management**: Managed using Provider.
-- **Networking**: Handled by GraphQL and REST APIs.
+- **Networking**: Handled by REST APIs.
 - **Local Storage**: Implemented using Hive.
 
 ### Prerequisites
@@ -35,7 +35,10 @@ Before you begin, ensure you have the following tools installed:
 
 - **Flutter**: Version 3.22.2 or higher. [Install Flutter](https://docs.flutter.dev/get-started/install)
 - **Dart**: Comes with Flutter, but ensure it's up to date.
-- **GraphQL CLI**: For managing GraphQL documents. [Install GraphQL CLI](https://www.npmjs.com/package/graphql-cli)
+- **Python 3**: For updating environment configs. [Install Python 3](https://www.python.org/downloads/)
+- **Git**: For version control. [Install Git](https://git-scm.com/)
+- **Docker**: For containerization. [Install Docker](https://www.docker.com/get-started)
+- **Docker Compose**: For managing multi-container Docker applications. [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 ### Additional Resources
 
@@ -49,12 +52,6 @@ Get dependencies
 
 ```sh
 flutter pub get
-```
-
-Build graphql documents
-
-```sh
-dart run build_runner build
 ```
 
 ## Run

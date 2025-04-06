@@ -102,18 +102,21 @@ export class UsersRepository {
     }
   }
 
-  public async update(updateUserDto: UpdateUserDTO): Promise<UserDTO> {
+  public async update(
+    id: string,
+    updateUserDto: UpdateUserDTO,
+  ): Promise<UserDTO> {
     let hashedPassword: string = null;
 
     try {
       const updatedUserModel: UserModel =
         await this.userModel.sequelize.transaction(async (transaction) => {
-          const user = await this.userModel.findByPk(updateUserDto.id, {
+          const user = await this.userModel.findByPk(id, {
             transaction,
           });
 
           if (!user) {
-            throw new NotFoundException(`User #${updateUserDto.id} not found`);
+            throw new NotFoundException(`User #${id} not found`);
           }
 
           if (updateUserDto.password != null) {

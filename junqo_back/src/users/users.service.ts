@@ -70,7 +70,9 @@ export class UsersService {
 
     try {
       const user: UserDTO = await this.usersRepository.findOneById(id);
-      const userResource: UserResource = plainToInstance(UserResource, user);
+      const userResource: UserResource = plainToInstance(UserResource, user, {
+        excludeExtraneousValues: true,
+      });
 
       if (ability.cannot(Actions.READ, userResource)) {
         throw new ForbiddenException(
@@ -172,11 +174,12 @@ export class UsersService {
    */
   public async update(
     currentUser: AuthUserDTO,
+    id: string,
     updateData: UpdateUserDTO,
   ): Promise<UserDTO> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const user: UserDTO = await this.findOneById(currentUser, updateData.id);
+    const user: UserDTO = await this.findOneById(currentUser, id);
     const userResource: UserResource = plainToInstance(UserResource, user, {
       excludeExtraneousValues: true,
     });
@@ -192,7 +195,7 @@ export class UsersService {
     }
 
     try {
-      const updatedUser = await this.usersRepository.update(updateData);
+      const updatedUser = await this.usersRepository.update(id, updateData);
       return updatedUser;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;

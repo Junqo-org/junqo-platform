@@ -6,21 +6,21 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDTO } from './dto/sign-up.dto';
-import { ProfilesService } from '../profiles/profiles.service';
 import { UsersService } from '../users/users.service';
 import { PublicUserDTO, UserDTO } from '../users/dto/user.dto';
-import { CreateStudentProfileDTO } from '../profiles/dto/student-profile.dto';
-import { AuthPayloadDTO } from './dto/auth-payload.dto';
+import { CreateStudentProfileDTO } from '../student-profiles/dto/student-profile.dto';
+import { AuthPayloadDTO, TokenPayloadDTO } from './dto/auth-payload.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { SignInDTO } from './dto/sign-in.dto';
 import { plainToInstance } from 'class-transformer';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
+import { StudentProfilesService } from '../student-profiles/student-profiles.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly profilesService: ProfilesService,
+    private readonly studentProfilesService: StudentProfilesService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -46,10 +46,7 @@ export class AuthService {
         },
       );
 
-      await this.profilesService.createStudentProfile(
-        user,
-        createStudentProfileDto,
-      );
+      await this.studentProfilesService.create(user, createStudentProfileDto);
     }
     const publicUser: PublicUserDTO = plainToInstance(PublicUserDTO, user, {
       excludeExtraneousValues: true,
@@ -57,7 +54,7 @@ export class AuthService {
 
     const payload = {
       sub: publicUser.id,
-      username: publicUser.name,
+      userName: publicUser.name,
       userType: publicUser.type,
       email: publicUser.email,
     };
@@ -94,9 +91,9 @@ export class AuthService {
       excludeExtraneousValues: true,
     });
 
-    const payload = {
+    const payload: TokenPayloadDTO = {
       sub: publicUser.id,
-      username: publicUser.name,
+      userName: publicUser.name,
       userType: publicUser.type,
       email: publicUser.email,
     };

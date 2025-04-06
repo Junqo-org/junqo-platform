@@ -16,8 +16,16 @@ import {
   MIN_PASSWORD_LENGTH,
 } from '../../shared/user-validation-constants';
 import { Expose } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class SignUpDTO {
+  @ApiProperty({
+    description: 'User\'s full name',
+    example: 'John Doe',
+    minLength: MIN_NAME_LENGTH,
+    maxLength: MAX_NAME_LENGTH,
+    required: true,
+  })
   @Expose()
   @IsNotEmpty({ message: 'Name is required' })
   @IsString({ message: 'Name must be a string' })
@@ -29,6 +37,13 @@ export class SignUpDTO {
   })
   name: string;
 
+  @ApiProperty({
+    description: 'User email address',
+    example: 'user@example.com',
+    minLength: MIN_MAIL_LENGTH,
+    maxLength: MAX_MAIL_LENGTH,
+    required: true,
+  })
   @Expose()
   @IsNotEmpty({ message: 'Email is required' })
   @IsEmail({}, { message: 'Email must be a valid email address' })
@@ -40,6 +55,12 @@ export class SignUpDTO {
   })
   email: string;
 
+  @ApiProperty({
+    description: 'Type of user account',
+    enum: UserType,
+    example: 'STUDENT',
+    required: true,
+  })
   @Expose()
   @IsNotEmpty({ message: 'User type is required' })
   @IsEnum(UserType, {
@@ -47,6 +68,13 @@ export class SignUpDTO {
   })
   type: UserType;
 
+  @ApiProperty({
+    description: 'User password',
+    example: 'password123',
+    minLength: MIN_PASSWORD_LENGTH,
+    maxLength: MAX_PASSWORD_LENGTH,
+    required: true,
+  })
   @Expose()
   @IsNotEmpty({ message: 'Password is required' })
   @IsString({ message: 'Password must be a string' })

@@ -10,10 +10,10 @@ import {
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CreateOfferDTO, OfferDTO, UpdateOfferDTO } from './dto/offer.dto';
 import { UserType } from '../users/dto/user-type.enum';
-import { OfferStatus } from '../graphql.schema';
 import { plainToInstance } from 'class-transformer';
 import { Mocked } from '@suites/doubles.jest';
 import { OfferResource } from '../casl/dto/offer-resource.dto';
+import { OfferStatus } from './dto/offer-status.enum';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',

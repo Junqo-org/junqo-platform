@@ -5,18 +5,18 @@ import { UserType } from '../users/dto/user-type.enum';
 import { AuthPayloadDTO } from './dto/auth-payload.dto';
 import { PublicUserDTO, UserDTO } from '../users/dto/user.dto';
 import { UsersService } from '../users/users.service';
-import { ProfilesService } from '../profiles/profiles.service';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { plainToInstance } from 'class-transformer';
-import { StudentProfileDTO } from '../profiles/dto/student-profile.dto';
+import { StudentProfileDTO } from '../student-profiles/dto/student-profile.dto';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
+import { StudentProfilesService } from '../student-profiles/student-profiles.service';
 
 jest.mock('./../users/repository/models/user.model');
 
 describe('AuthService', () => {
   let authService: AuthService;
   let mockUsersService: Mocked<UsersService>;
-  let mockProfileService: Mocked<ProfilesService>;
+  let mockStudentProfileService: Mocked<StudentProfilesService>;
   let mockJwtService: Mocked<JwtService>;
 
   beforeEach(async () => {
@@ -24,7 +24,7 @@ describe('AuthService', () => {
 
     authService = unit;
     mockUsersService = unitRef.get(UsersService);
-    mockProfileService = unitRef.get(ProfilesService);
+    mockStudentProfileService = unitRef.get(StudentProfilesService);
     mockJwtService = unitRef.get(JwtService);
   });
 
@@ -59,7 +59,7 @@ describe('AuthService', () => {
       });
 
       mockUsersService.create.mockResolvedValue(createdUser);
-      mockProfileService.createStudentProfile.mockResolvedValue(
+      mockStudentProfileService.create.mockResolvedValue(
         plainToInstance(StudentProfileDTO, {
           userId: userData.id,
           name: userData.name,
@@ -75,7 +75,7 @@ describe('AuthService', () => {
         authUser,
         signUpInput,
       );
-      expect(mockProfileService.createStudentProfile).toHaveBeenCalledWith(
+      expect(mockStudentProfileService.create).toHaveBeenCalledWith(
         createdUser,
         {
           userId: userData.id,

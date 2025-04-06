@@ -75,25 +75,6 @@ export const dbConfig = registerAs('database', () => ({
   logging: process.env.NODE_ENV === DEVELOPMENT_ENV,
 }));
 
-// Register GraphQL configuration
-export const graphqlConfig = registerAs('graphql', () => {
-  const schemaPath = path.resolve(
-    process.env.GRAPHQL_SCHEMAS_PATH ||
-      path.join(process.cwd(), '..', 'schemas'),
-  );
-
-  if (!fs.existsSync(schemaPath)) {
-    throw new Error(`GraphQL schema path not found: ${schemaPath}`);
-  }
-
-  return {
-    typePaths: [path.join(schemaPath, '**/*.graphql')],
-    definitionsPath: path.join(process.cwd(), 'src', 'graphql.schema.ts'),
-    playground: process.env.NODE_ENV === DEVELOPMENT_ENV,
-    introspection: process.env.NODE_ENV === DEVELOPMENT_ENV,
-  };
-});
-
 // Export constants directly to be used in validators and other non-injectable places
 export const JWT_CONSTANTS = {
   algorithm: 'HS256' as Algorithm,

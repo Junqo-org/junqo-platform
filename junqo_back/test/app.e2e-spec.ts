@@ -1,6 +1,6 @@
 import * as request from 'supertest';
-import { createTestingEnvironment } from './test-utils';
-import { INestApplication } from '@nestjs/common';
+import { createTestingEnvironment } from './test-setup';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 
 describe('App E2E Tests', () => {
   let testEnv: {
@@ -18,10 +18,10 @@ describe('App E2E Tests', () => {
     await testEnv.tearDown();
   });
 
-  it('Health check', async () => {
-    await request(testEnv.app.getHttpServer())
-      .post('/graphql')
-      .send({ query: 'query{__typename}' })
-      .expect(200);
+  it('hello', async () => {
+    const response = await request(testEnv.app.getHttpServer())
+      .get('/api/v1/')
+      .expect(HttpStatus.OK);
+    expect(response.text).toBe('Welcome to the Junqo API !');
   });
 });
