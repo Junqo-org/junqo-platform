@@ -4,10 +4,12 @@ import { jwtConstants, bcryptConstants } from './constants';
 import { AuthService } from './auth.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-import { AuthResolver } from './auth.resolver';
-import { config } from '../shared/config';
-import { ProfilesModule } from '../profiles/profiles.module';
 import { UsersModule } from '../users/users.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthController } from './auth.controller';
+import { StudentProfilesModule } from '../student-profiles/student-profiles.module';
+import { CompanyProfilesModule } from '../company-profiles/company-profiles.module';
+import { SchoolProfilesModule } from '../school-profiles/school-profiles.module';
 
 if (jwtConstants.secret === undefined) {
   throw new Error('JWT_SECRET is not defined, please set it in .env file');
@@ -21,15 +23,21 @@ if (bcryptConstants.saltOrRounds === undefined) {
 @Module({
   imports: [
     UsersModule,
-    ProfilesModule,
-    JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: {
-        expiresIn: config.JWT_EXPIRE_DELAY,
-        issuer: config.JWT_ISSUER,
-        algorithm: config.HASH_ALGORITHM,
-      },
+    StudentProfilesModule,
+    CompanyProfilesModule,
+    SchoolProfilesModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        global: true,
+        secret: jwtConstants.secret,
+        signOptions: {
+          expiresIn: configService.get('jwt.expireDelay'),
+          issuer: configService.get('jwt.issuer'),
+          algorithm: configService.get('jwt.algorithm'),
+        },
+      }),
     }),
   ],
   providers: [
@@ -38,8 +46,8 @@ if (bcryptConstants.saltOrRounds === undefined) {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    AuthResolver,
   ],
   exports: [AuthService],
+  controllers: [AuthController],
 })
 export class AuthModule {}

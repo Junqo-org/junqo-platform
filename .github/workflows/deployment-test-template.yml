@@ -18,7 +18,7 @@ jobs:
         env:
           DATABASE_PASSWORD_FILE: "./db_password_example.conf"
           BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/graphql"
+          API_URL: "http://localhost:4200/api/v1"
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
       - name: Check Container Status
@@ -38,7 +38,7 @@ jobs:
         env:
           DATABASE_PASSWORD_FILE: "./db_password_example.conf"
           BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/graphql"
+          API_URL: "http://localhost:4200/api/v1"
         run: |
             max_attempts=30
             attempt=1
@@ -63,6 +63,6 @@ jobs:
         env:
           DATABASE_PASSWORD_FILE: "./db_password_example.conf"
           BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/graphql"
+          API_URL: "http://localhost:4200/api/v1"
         if: always()
         run: docker compose -f ${{ inputs.compose_file }} down --volumes

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ferry/ferry.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/log_service.dart';
@@ -12,6 +11,7 @@ import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/shared/theme.dart';
 import 'package:junqo_front/services/offer_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:junqo_front/core/api/api_service.dart';
 
 void main() async {
   try {
@@ -19,17 +19,27 @@ void main() async {
     await Hive.initFlutter();
     await dotenv.load(fileName: "config/.env", isOptional: true);
 
-    final client = await initClient();
+    // Initialize the REST client and register it first
+    final client = RestClient();
+    await client.initialize();
+    GetIt.instance.registerSingleton<RestClient>(client);
+    
+    // Create and register API service second
+    final apiService = ApiService(client);
+    GetIt.instance.registerSingleton<ApiService>(apiService);
+    
+    // Then initialize all other services that depend on the API service
     final authService = AuthService(client);
     await authService.initialize();
     final userService = UserService(client);
     final offerService = OfferService(client);
 
-    GetIt.instance.registerLazySingleton<Client>(() => client);
-    GetIt.instance.registerLazySingleton<AuthService>(() => authService);
-    GetIt.instance.registerLazySingleton<UserService>(() => userService);
-    GetIt.instance.registerLazySingleton<OfferService>(() => offerService);
-      runApp(const JunqoApp());
+    // Register the remaining services
+    GetIt.instance.registerSingleton<AuthService>(authService);
+    GetIt.instance.registerSingleton<UserService>(userService);
+    GetIt.instance.registerSingleton<OfferService>(offerService);
+    
+    runApp(const JunqoApp());
   } catch (e) {
     LogService.error('Failed to initialize application: $e');
     runApp(ErrorApp(error: e.toString()));

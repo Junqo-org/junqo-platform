@@ -2,10 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
-  // API GraphQL URL
   static String apiUrl = dotenv.env['API_URL'] ??
       const String.fromEnvironment('API_URL',
-          defaultValue: 'http://localhost:4200/graphql');
+          defaultValue: 'http://localhost:4200/api/v1');
 
   // Nom des Box Hive
   static const String authBox = "auth";

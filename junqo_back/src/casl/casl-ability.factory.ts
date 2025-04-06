@@ -8,9 +8,12 @@ import {
 import { Injectable } from '@nestjs/common';
 import { AuthUserDTO } from './../shared/dto/auth-user.dto';
 import { UserType } from '../users/dto/user-type.enum';
-import { UserIdDTO } from './dto/user-id.dto';
-import { StudentProfileIdDTO } from './dto/profile-id.dto';
+import { UserResource } from './dto/user-resource.dto';
+import { StudentProfileResource } from './dto/student-profile-resource.dto';
 import { UserDTO } from '../users/dto/user.dto';
+import { OfferResource } from './dto/offer-resource.dto';
+import { SchoolProfileResource } from './dto/school-profile-resource.dto';
+import { CompanyProfileResource } from './dto/company-profile-resource.dto';
 
 // Describes what user can actually do in the application
 export enum Actions {
@@ -26,8 +29,11 @@ type Subjects =
   | InferSubjects<
       | typeof UserDTO
       | typeof AuthUserDTO
-      | typeof UserIdDTO
-      | typeof StudentProfileIdDTO
+      | typeof UserResource
+      | typeof StudentProfileResource
+      | typeof CompanyProfileResource
+      | typeof SchoolProfileResource
+      | typeof OfferResource
     >
   | 'all'; // `all` is a special keyword in CASL which represents "any" resource
 
@@ -40,21 +46,41 @@ export class CaslAbilityFactory {
       createMongoAbility,
     );
 
-    if (user.type === UserType.ADMIN) {
-      can(Actions.MANAGE, 'all'); // read-write access to everything
-    } else {
+    if (user.type !== UserType.ADMIN) {
       cannot(Actions.MANAGE, 'all'); // no access to anything by default
     }
 
-    can(Actions.MANAGE, UserDTO, { id: user.id });
-    can(Actions.MANAGE, AuthUserDTO, { id: user.id });
-    can(Actions.MANAGE, UserIdDTO, { id: user.id });
-    can(Actions.CREATE, UserDTO, { type: { $ne: UserType.ADMIN } });
-    can(Actions.CREATE, AuthUserDTO, { type: { $ne: UserType.ADMIN } });
-    cannot(Actions.CREATE, UserIdDTO);
+    cannot(Actions.READ, UserResource, { id: { $exists: false } });
+    can(Actions.MANAGE, UserResource, { id: user.id });
+    cannot(Actions.CREATE, UserResource, { type: { $exists: false } });
+    can(Actions.CREATE, UserResource, { type: { $ne: UserType.ADMIN } });
 
-    can(Actions.MANAGE, StudentProfileIdDTO, { id: user.id });
-    can(Actions.READ, StudentProfileIdDTO, 'all');
+    if (user.type === UserType.STUDENT) {
+      can(Actions.CREATE, StudentProfileResource);
+      can(Actions.MANAGE, StudentProfileResource, { userId: user.id });
+      can(Actions.READ, OfferResource);
+      can(Actions.READ, SchoolProfileResource);
+      can(Actions.READ, CompanyProfileResource);
+    }
+    if (user.type === UserType.COMPANY) {
+      can(Actions.CREATE, CompanyProfileResource);
+      can(Actions.MANAGE, CompanyProfileResource, { userId: user.id });
+      can(Actions.CREATE, OfferResource);
+      can(Actions.MANAGE, OfferResource, { userId: user.id });
+      can(Actions.READ, StudentProfileResource);
+      can(Actions.READ, SchoolProfileResource);
+    }
+    if (user.type === UserType.SCHOOL) {
+      can(Actions.CREATE, SchoolProfileResource);
+      can(Actions.MANAGE, SchoolProfileResource, { userId: user.id });
+      can(Actions.READ, OfferResource);
+      can(Actions.READ, StudentProfileResource);
+      can(Actions.READ, CompanyProfileResource);
+    }
+
+    if (user.type === UserType.ADMIN) {
+      can(Actions.MANAGE, 'all'); // read-write access to everything
+    }
 
     return build({
       // Read https://casl.js.org/v6/en/guide/subject-type-detection#use-classes-as-subject-types for details

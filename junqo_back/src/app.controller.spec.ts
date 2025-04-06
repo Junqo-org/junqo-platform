@@ -16,9 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return welcome text', () => {
-      expect(appController.getHello()).toBe(
-        'Welcome to the Junqo API !\nTo interact with the graphql API use POST requests to /graphql.',
-      );
+      expect(appController.getHello()).toBe('Welcome to the Junqo API !');
     });
   });
 });

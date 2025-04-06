@@ -77,6 +77,7 @@ You should replace *localhost* by the IP address of the machine running the proj
 
 - Access the web server at [http://localhost:80](http://localhost:80) or [https://localhost:443](https://localhost:443) if using TLS.
 - Access the back server at [http://localhost:4200](http://localhost:4200).
+- Access the API documentation at [http://localhost:4200/api/v1](http://localhost:4200/api/v1).
 - Access the database adminer at [http://localhost:3000](http://localhost:3000).
 
 ## Learn more
@@ -108,7 +109,7 @@ The project is structured as follows:
 
 > Project structure diagram
 
-- `back`: Runs the Graphql API server to communicate with the database.
+- `back`: Runs the REST API server to communicate with the database.
 - `front`: Runs the web server / Flutter app seen by the user.
 - `docs`: Contains the documentation of the project.
 - `docker-compose.yaml`: The main file to deploy the project in production mode.
@@ -126,7 +127,7 @@ The following diagram shows the interactions between the different parts of the 
 
 > Interactions diagram
 
-The **front** communicates with the back using the Graphql API.  
+The **front** communicates with the back using the REST API.  
 The **back** communicates with the database using the database driver.  
 The **database** stores the data.  
 
@@ -177,9 +178,8 @@ The **adminer** is accessible on the World Wide Web at port **3000**.
 
 ### API
 
-The **backend** API uses **GraphQL** to communicate with the **frontend**.  
-A schema is available at [/schemas/schema.graphql](../../schemas/schema.graphql).
-Yous can find the API documentation at [http://doc.junqo.fr/api/index.html](../api/index.html).
+The **backend** API communicate with the **frontend**.  
+Yous can find the API documentation at [http://prod.junqo.fr:4200/api/v1]([../api/index.html](http://prod.junqo.fr:4200/api/v1)).
 
 ### Sequence Diagram
 
@@ -192,14 +192,14 @@ sequenceDiagram
   participant U as User
   participant LS as Register Screen
   participant FAS as Frontend AuthService
-  participant GC as GraphQL Client
-  participant AR as AuthResolver (Backend)
+  participant GC as Validation and Transformation
+  participant AR as AuthController (Backend)
   participant BAS as Backend AuthService
   participant DB as Database
 
   U->>LS: Enter credentials
   LS->>FAS: Call signUp(type, name, email, password)
-  FAS->>GC: Send signUp mutation
+  FAS->>GC: Send signUp request
   GC->>AR: Relay signUp request
   AR->>BAS: Invoke signUp method
   BAS->>DB: Create user record
@@ -217,14 +217,14 @@ sequenceDiagram
   participant U as User
   participant LS as Login Screen
   participant FAS as Frontend AuthService
-  participant GC as GraphQL Client
-  participant AR as AuthResolver (Backend)
+  participant GC as Validation and Transformation
+  participant AR as AuthController (Backend)
   participant BAS as Backend AuthService
   participant DB as Database
 
   U->>LS: Enter credentials
   LS->>FAS: Call signIn(email, password)
-  FAS->>GC: Send signIn mutation
+  FAS->>GC: Send signIn request
   GC->>AR: Relay signIn request
   AR->>BAS: Invoke signIn method
   BAS->>DB: Query user record by email
@@ -242,12 +242,12 @@ sequenceDiagram
   participant U as User
   participant FE as Frontend Component
   participant FAS as Frontend AuthService
-  participant GC as GraphQL Client
+  participant GC as Validation and Transformation
   participant AR as AuthResolver (Backend)
 
   U->>FE: Request login status check
   FE->>FAS: Call isLoggedIn()
-  FAS->>GC: Send isLoggedIn query
+  FAS->>GC: Send isLoggedIn request
   GC->>AR: Request login status
   AR-->>GC: Return true
   GC-->>FAS: Deliver status
@@ -273,18 +273,17 @@ The project uses the following technologies:
 - Documentation
   - [Markdown](https://daringfireball.net/projects/markdown)
   - [Jekyll](https://jekyllrb.com/)
-  - [Magidoc](https://magidoc.github.io/)
   - [GitHub Pages](https://pages.github.com)
+  - [Swagger](https://swagger.io/)
 - CI/CD
   - [GitHub Actions](https://docs.github.com/en/actions)
 - Frontend
   - [Flutter](https://flutter.dev/)
-  - [Ferry Graphql](https://ferrygraphql.com/)
+  - [Dio](https://pub.dev/packages/dio)
 - Backend
   - [NestJs](https://nestjs.com/)
   - [PostgreSQL](https://www.postgresql.org/)
   - [Sequelize](https://sequelize.org/)
-  - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
 - Operations
   - [Docker Compose](https://docs.docker.com/compose/)
   - [Docker Swarm](https://docs.docker.com/engine/swarm/)

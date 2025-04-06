@@ -5,11 +5,11 @@
 
 services:
   db:
-    container_name: junqo_db_test
+    container_name: ${DB_CONTAINER_NAME:-junqo_db_test}
     image: postgres:alpine
     shm_size: ${DATABASE_SHM_SIZE:-128mb}
     ports:
-      - 5432:5432
+      - "${DATABASE_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}

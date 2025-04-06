@@ -56,16 +56,6 @@ plugins:
 #   - vendor/gems/
 #   - vendor/ruby/
 
-include:
-  - api/
-  - api/_app/
-  - _app
-
-keep_files:
-  - api/
-  - api/_app/
-  - _app
-
 permalink: pretty
 
 # Set a path/url to a logo that will be displayed instead of the title

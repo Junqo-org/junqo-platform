@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../shared/widgets/navbar_company.dart';
-import 'package:ferry/ferry.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/services/offer_service.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
+import 'package:junqo_front/core/client.dart';
 
 class JobOfferForm extends StatefulWidget {
-  final Client client;
-  
+  final RestClient client;
+
   const JobOfferForm({
     super.key,
     required this.client,
@@ -23,15 +23,16 @@ class _JobOfferFormState extends State<JobOfferForm> {
   final AuthService authService = GetIt.instance<AuthService>();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String _workLocationType = 'Sur place'; // Valeurs possibles: 'Sur place', 'Distanciel'
+  String _workLocationType =
+      'Sur place'; // Valeurs possibles: 'Sur place', 'Distanciel'
   DateTime? _expirationDate;
-  
+
   // Type d'offre
   String _offerType = 'Stage';
-  
+
   // Durée d'expiration
   String _expiresIn = '1 mois';
-  
+
   // Contrôleurs pour les champs de texte
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -43,11 +44,11 @@ class _JobOfferFormState extends State<JobOfferForm> {
   final TextEditingController _skillsController = TextEditingController();
   final TextEditingController _educationController = TextEditingController();
   final TextEditingController _benefitsController = TextEditingController();
-  
+
   // Mots-clés et compétences
   List<String> _selectedSkills = [];
   final FocusNode _skillsFocusNode = FocusNode();
-  
+
   // Niveau d'études requis
   String _educationLevel = 'Bac+3';
   final List<String> _educationLevels = [
@@ -78,7 +79,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
       }
     });
   }
-  
+
   void _addSkillFromController() {
     if (_skillsController.text.isNotEmpty) {
       setState(() {
@@ -87,7 +88,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
       });
     }
   }
-  
+
   void _removeSkill(String skill) {
     setState(() {
       _selectedSkills.remove(skill);
@@ -102,7 +103,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
       });
     }
   }
-  
+
   void _removeBenefit(String benefit) {
     setState(() {
       _selectedBenefits.remove(benefit);
@@ -112,9 +113,11 @@ class _JobOfferFormState extends State<JobOfferForm> {
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate 
-        ? _expirationDate ?? DateTime.now().add(const Duration(days: 14)) 
-        : _expirationDate ?? (_expirationDate?.add(const Duration(days: 90)) ?? DateTime.now().add(const Duration(days: 104))),
+      initialDate: isStartDate
+          ? _expirationDate ?? DateTime.now().add(const Duration(days: 14))
+          : _expirationDate ??
+              (_expirationDate?.add(const Duration(days: 90)) ??
+                  DateTime.now().add(const Duration(days: 104))),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 730)),
       builder: (context, child) {
@@ -131,7 +134,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         );
       },
     );
-    
+
     if (picked != null) {
       if (!mounted) return;
       setState(() {
@@ -158,7 +161,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
 
       final scaffoldContext = ScaffoldMessenger.of(context);
       final navigatorContext = Navigator.of(context);
-      
+
       try {
         final String titleValue = _titleController.text;
 
@@ -169,28 +172,25 @@ class _JobOfferFormState extends State<JobOfferForm> {
           duration: _durationController.text,
           salary: _salaryController.text,
           workLocationType: _workLocationType,
-          expiresAt: _expirationDate!,
           skills: _selectedSkills,
           benefits: _selectedBenefits,
           educationLevel: _educationLevel,
           userid: authService.userId ?? '',
-          status: 'active', 
+          status: 'active',
         );
 
-        print(jobOffer);
+        await offerService.createOffer(jobOffer);
 
-        await Future.delayed(const Duration(seconds: 2));
-        //await offerService.createOffer(jobOffer);
-        
         // Vérification si le widget est toujours monté
         if (!mounted) return;
-        
+
         // Utiliser un Future.microtask pour s'assurer que l'opération est effectuée après la fin du cycle de rendu actuel
         Future.microtask(() {
           if (!mounted) return;
           showDialog(
             context: context,
-            barrierDismissible: false, // Empêche la fermeture en cliquant à l'extérieur
+            barrierDismissible:
+                false, // Empêche la fermeture en cliquant à l'extérieur
             builder: (BuildContext dialogContext) {
               return AlertDialog(
                 shape: RoundedRectangleBorder(
@@ -266,7 +266,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                 TextButton(
                                   onPressed: () {
                                     Navigator.of(dialogContext).pop();
-                                    
+
                                     // Vérifier si le widget est toujours monté avant de modifier l'état
                                     if (mounted) {
                                       // Reset form
@@ -293,10 +293,12 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                   },
                                   style: TextButton.styleFrom(
                                     backgroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(color: Colors.grey.shade300),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade300),
                                     ),
                                   ),
                                   child: const Text(
@@ -313,13 +315,16 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                     Navigator.of(dialogContext).pop();
                                     // Navigation sécurisée
                                     if (mounted) {
-                                      navigatorContext.pushReplacementNamed('/my-offers');
+                                      navigatorContext
+                                          .pushReplacementNamed('/my-offers');
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF6366F1), // Indigo
+                                    backgroundColor:
+                                        const Color(0xFF6366F1), // Indigo
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -346,7 +351,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
       } catch (e) {
         // Vérifier si le widget est toujours monté
         if (!mounted) return;
-        
+
         // Utiliser le scaffoldContext capturé pour afficher le message d'erreur
         scaffoldContext.showSnackBar(
           SnackBar(
@@ -358,7 +363,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
             ),
           ),
         );
-        
+
         // Mettre à jour l'état si le widget est toujours monté
         if (mounted) {
           setState(() => _isLoading = false);
@@ -367,7 +372,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
     } else {
       // Vérifier si le widget est toujours monté
       if (!mounted) return;
-      
+
       // Afficher un message si le formulaire n'est pas valide
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -408,7 +413,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         ),
       );
     }
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // Slate 50
       body: Column(
@@ -418,7 +423,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 800),
@@ -460,7 +466,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.1), // Indigo with opacity
+                color: const Color(0xFF6366F1)
+                    .withOpacity(0.1), // Indigo with opacity
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(
@@ -505,7 +512,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
           ),
           child: const Row(
             children: [
-              Icon(Icons.info_outline_rounded, color: Color(0xFF3B82F6)), // Blue 500
+              Icon(Icons.info_outline_rounded,
+                  color: Color(0xFF3B82F6)), // Blue 500
               SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -587,7 +595,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                     onTap: () => setState(() => _offerType = 'Alternance'),
                     child: _buildOfferTypeOption(
                       title: 'Alternance',
-                      description: 'Formation alternant périodes en entreprise et à l\'école',
+                      description:
+                          'Formation alternant périodes en entreprise et à l\'école',
                       icon: Icons.sync_alt_outlined,
                       isSelected: _offerType == 'Alternance',
                     ),
@@ -610,25 +619,25 @@ class _JobOfferFormState extends State<JobOfferForm> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isSelected 
-          ? const Color(0xFF6366F1).withOpacity(0.08) // Indigo with opacity 
-          : Colors.white,
+        color: isSelected
+            ? const Color(0xFF6366F1).withOpacity(0.08) // Indigo with opacity
+            : Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isSelected 
-            ? const Color(0xFF6366F1) // Indigo
-            : const Color(0xFFE2E8F0), // Slate 200
+          color: isSelected
+              ? const Color(0xFF6366F1) // Indigo
+              : const Color(0xFFE2E8F0), // Slate 200
           width: 1.5,
         ),
         boxShadow: isSelected
-          ? [
-              BoxShadow(
-                color: const Color(0xFF6366F1).withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ]
-          : null,
+            ? [
+                BoxShadow(
+                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -637,9 +646,9 @@ class _JobOfferFormState extends State<JobOfferForm> {
             children: [
               Icon(
                 icon,
-                color: isSelected 
-                  ? const Color(0xFF6366F1) // Indigo
-                  : const Color(0xFF94A3B8), // Slate 400
+                color: isSelected
+                    ? const Color(0xFF6366F1) // Indigo
+                    : const Color(0xFF94A3B8), // Slate 400
                 size: 22,
               ),
               const SizedBox(width: 12),
@@ -648,13 +657,12 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isSelected 
-                    ? const Color(0xFF6366F1) // Indigo
-                    : const Color(0xFF0F172A), // Slate 900
+                  color: isSelected
+                      ? const Color(0xFF6366F1) // Indigo
+                      : const Color(0xFF0F172A), // Slate 900
                 ),
               ),
-              if (isSelected)
-                const Spacer(),
+              if (isSelected) const Spacer(),
               if (isSelected)
                 const Icon(
                   Icons.check_circle_rounded,
@@ -668,9 +676,10 @@ class _JobOfferFormState extends State<JobOfferForm> {
             description,
             style: TextStyle(
               fontSize: 13,
-              color: isSelected 
-                ? const Color(0xFF6366F1).withOpacity(0.8) // Indigo with opacity
-                : const Color(0xFF64748B), // Slate 500
+              color: isSelected
+                  ? const Color(0xFF6366F1)
+                      .withOpacity(0.8) // Indigo with opacity
+                  : const Color(0xFF64748B), // Slate 500
             ),
           ),
         ],
@@ -779,7 +788,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                     ),
                     decoration: InputDecoration(
                       labelText: "Durée",
-                      hintText: _offerType == 'Stage' ? "Ex: 6 mois" : "Ex: 12 mois",
+                      hintText:
+                          _offerType == 'Stage' ? "Ex: 6 mois" : "Ex: 12 mois",
                       filled: true,
                       fillColor: const Color(0xFFF8FAFC), // Slate 50
                       border: OutlineInputBorder(
@@ -882,7 +892,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           value: _expiresIn,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 11),
                           ),
                           icon: const Icon(
                             Icons.arrow_drop_down,
@@ -968,8 +979,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                _workLocationType == 'Distanciel' 
-                                    ? "Distanciel" 
+                                _workLocationType == 'Distanciel'
+                                    ? "Distanciel"
                                     : "Sur place (adresse du profil)",
                                 style: const TextStyle(
                                   fontSize: 14,
@@ -986,7 +997,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                 ),
                 const SizedBox(width: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -1012,13 +1024,15 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           _buildLocationTypeOption(
                             label: "Sur place",
                             isSelected: _workLocationType == "Sur place",
-                            onTap: () => setState(() => _workLocationType = "Sur place"),
+                            onTap: () =>
+                                setState(() => _workLocationType = "Sur place"),
                           ),
                           const SizedBox(width: 8),
                           _buildLocationTypeOption(
                             label: "Distanciel",
                             isSelected: _workLocationType == "Distanciel",
-                            onTap: () => setState(() => _workLocationType = "Distanciel"),
+                            onTap: () => setState(
+                                () => _workLocationType = "Distanciel"),
                           ),
                         ],
                       ),
@@ -1112,7 +1126,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
               ),
               decoration: InputDecoration(
                 labelText: "Description détaillée *",
-                hintText: "Détaillez les missions, le contexte, les objectifs et les technologies utilisées...",
+                hintText:
+                    "Détaillez les missions, le contexte, les objectifs et les technologies utilisées...",
                 filled: true,
                 fillColor: const Color(0xFFF8FAFC), // Slate 50
                 border: OutlineInputBorder(
@@ -1216,7 +1231,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                     color: Colors.white,
                   ),
                   onDeleted: () => _removeBenefit(benefit),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                   visualDensity: VisualDensity.compact,
                   elevation: 0,
                 );
@@ -1301,7 +1317,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           value: _educationLevel,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 11),
                           ),
                           icon: const Icon(
                             Icons.arrow_drop_down,
@@ -1347,7 +1364,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                       TextFormField(
                         controller: _educationController,
                         style: const TextStyle(
-                          color: Color(0xFF1E293B), // Couleur du texte en noir/gris foncé
+                          color: Color(
+                              0xFF1E293B), // Couleur du texte en noir/gris foncé
                           fontSize: 14,
                         ),
                         decoration: InputDecoration(
@@ -1379,7 +1397,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                             Icons.school_rounded,
                             color: Color(0xFF94A3B8), // Slate 400
                           ),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 10),
                         ),
                       ),
                     ],
@@ -1463,7 +1482,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                     color: Colors.white,
                   ),
                   onDeleted: () => _removeSkill(skill),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                   visualDensity: VisualDensity.compact,
                   elevation: 0,
                 );

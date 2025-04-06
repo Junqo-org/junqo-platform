@@ -30,8 +30,7 @@ Its main goal is to provide a user interface to interact with the backend.
 
 - **Flutter**: Version 3.22.2 or higher. [Install Flutter](https://docs.flutter.dev/get-started/install)
 - **Dart**: Comes with Flutter, but ensure it's up to date.
-- **GraphQL CLI**: For managing GraphQL documents. [Install GraphQL CLI](https://www.npmjs.com/package/graphql-cli)
-- **Python 3**: For updating the GraphQL schemas. [Install Python 3](https://www.python.org/downloads/)
+- **Python 3**: For updating environment configs. [Install Python 3](https://www.python.org/downloads/)
 
 ### Installation
 
@@ -47,19 +46,13 @@ Its main goal is to provide a user interface to interact with the backend.
     cd junqo-platform
     ```
 
-3. Update the schemas:
-
-    ```sh
-    python3 tools/update_schemas.py
-    ```
-
-4. Navigate to the frontend directory:
+3. Navigate to the frontend directory:
 
     ```sh
     cd junqo_front
     ```
 
-5. Get the Flutter dependencies:
+4. Get the Flutter dependencies:
 
     ```sh
     flutter pub get
@@ -72,19 +65,13 @@ If an environment variable is not found, the default value will be used.
 
 Here is the list of environment variables used by the **frontend**:
 
-- `API_URL`: The URL of the backend API. Default: `http://localhost:4200/graphql`
+- `API_URL`: The URL of the backend API. Default: `http://localhost:4200/api/v1`
 
 Create a `.env` file in the `junqo_front/config/` directory and add the following environment variables:
 
 ```env
 # Url of the junqo-platform backend
-API_URL=http://localhost:4200/graphql
-```
-
-If you want to use the flutter build environment variables, you can use the following command:
-
-```sh
-flutter run --dart-define=API_URL=http://localhost:4200/graphql
+API_URL=http://localhost:4200/api/v1
 ```
 
 ### Local Development Setup
@@ -153,12 +140,6 @@ flutter run --dart-define=API_URL=http://localhost:4200/graphql
   flutter analyze
   ```
 
-- Generate GraphQL code:
-
-  ```sh
-  flutter pub run build_runner build
-  ```
-
 ### Platform-Specific Build Instructions
 
 - **iOS**: Ensure you have Xcode installed. Run:
@@ -185,5 +166,7 @@ flutter run --dart-define=API_URL=http://localhost:4200/graphql
 
 - [Flutter](https://flutter.dev/)
   - It is an open source framework for building beautiful, natively compiled, multi-platform applications from a single codebase.
-- [Ferry Graphql](https://ferrygraphql.com/)
-  - It is a simple, powerful GraphQL Client for Flutter and Dart.
+- [Dart](https://dart.dev/)
+  - It is a client-optimized programming language for fast apps on any platform.
+- [Dio](https://pub.dev/packages/dio)
+  - It is a powerful HTTP client for Dart, which supports Interceptors, FormData, Request Cancellation, File Downloading, Timeout, and more.

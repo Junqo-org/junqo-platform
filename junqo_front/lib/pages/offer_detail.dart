@@ -4,7 +4,7 @@ import 'package:junqo_front/shared/dto/offer_data.dart';
 
 class OfferDetail extends StatelessWidget {
   final OfferData offer;
-  
+
   const OfferDetail({super.key, required this.offer});
 
   @override
@@ -31,7 +31,7 @@ class OfferDetail extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildHeader(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,13 +218,6 @@ class OfferDetail extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(
-                      child: _buildInfoItem(
-                        icon: Icons.event_available_outlined,
-                        label: "Expire le",
-                        value: _formatDate(offer.expiresAt),
-                      ),
-                    ),
                     if (offer.workLocationType.isNotEmpty)
                       Expanded(
                         child: _buildInfoItem(
@@ -261,7 +254,8 @@ class OfferDetail extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                         backgroundColor: const Color(0xFFEEF2FF), // Indigo 50
-                        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 2, vertical: 0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                           side: const BorderSide(
@@ -329,7 +323,8 @@ class OfferDetail extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -345,7 +340,8 @@ class OfferDetail extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                       ),
                     ),
                   ],
@@ -357,7 +353,7 @@ class OfferDetail extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildInfoItem({
     required IconData icon,
     required String label,
@@ -395,13 +391,13 @@ class OfferDetail extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildTag(String text, {bool isOfferType = false}) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isOfferType 
+        color: isOfferType
             ? const Color(0xFF6366F1) // Indigo pour le type d'offre
             : const Color(0xFFE2E8F0), // Slate 200 pour les autres tags
         borderRadius: BorderRadius.circular(16),
@@ -411,20 +407,21 @@ class OfferDetail extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: isOfferType 
-              ? Colors.white 
-              : const Color(0xFF475569), // Slate 600
+          color:
+              isOfferType ? Colors.white : const Color(0xFF475569), // Slate 600
         ),
       ),
     );
   }
-  
+
   Widget _buildStatusTag(String status) {
     return Container(
       margin: const EdgeInsets.only(left: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: status == 'active' ? const Color(0xFF6366F1) : const Color(0xFFE2E8F0),
+        color: status == 'active'
+            ? const Color(0xFF6366F1)
+            : const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
@@ -437,8 +434,8 @@ class OfferDetail extends StatelessWidget {
       ),
     );
   }
-  
+
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
-} 
+}

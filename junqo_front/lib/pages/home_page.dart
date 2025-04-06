@@ -4,7 +4,7 @@ import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/user_service.dart';
 import 'package:junqo_front/pages/jobcard.dart';
 import 'package:junqo_front/pages/recruter_dashboard.dart';
-import 'package:junqo_front/shared/dto/user_type.dart';
+import 'package:junqo_front/shared/enums/user_type.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 import '../shared/widgets/navbar.dart';
 
@@ -41,6 +41,14 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       debugPrint('Error fetching user type: $e');
       if (!mounted) return;
+
+      RegExpMatch? match = RegExp(r'GetUserById\s*failed:\s*User.*not\s*found')
+          .firstMatch(e.toString());
+
+      if (match != null) {
+        authService.logout();
+        return;
+      }
       showErrorDialog(e.toString(), context);
     }
   }

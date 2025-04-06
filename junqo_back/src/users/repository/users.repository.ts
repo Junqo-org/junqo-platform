@@ -102,27 +102,44 @@ export class UsersRepository {
     }
   }
 
-  public async update(updateUserDto: UpdateUserDTO): Promise<UserDTO> {
+  public async update(
+    id: string,
+    updateUserDto: UpdateUserDTO,
+  ): Promise<UserDTO> {
+    let hashedPassword: string = null;
+
     try {
       const updatedUserModel: UserModel =
         await this.userModel.sequelize.transaction(async (transaction) => {
-          const user = await this.userModel.findByPk(updateUserDto.id, {
+          const user = await this.userModel.findByPk(id, {
             transaction,
           });
 
           if (!user) {
-            throw new NotFoundException(`User #${updateUserDto.id} not found`);
+            throw new NotFoundException(`User #${id} not found`);
           }
-          const hashedPassword = await bcrypt.hash(
-            updateUserDto.password,
-            bcryptConstants.saltOrRounds,
-          );
+
+          if (updateUserDto.password != null) {
+            hashedPassword = await bcrypt.hash(
+              updateUserDto.password,
+              bcryptConstants.saltOrRounds,
+            );
+          }
+
           const updatedUser = await user.update(
             {
-              type: updateUserDto.type,
-              name: updateUserDto.name,
-              email: updateUserDto.email,
-              hashedPassword: hashedPassword,
+              ...(updateUserDto.type != undefined && {
+                type: updateUserDto.type,
+              }),
+              ...(updateUserDto.name != undefined && {
+                name: updateUserDto.name,
+              }),
+              ...(updateUserDto.email != undefined && {
+                email: updateUserDto.email,
+              }),
+              ...(hashedPassword != undefined && {
+                hashedPassword: hashedPassword,
+              }),
             },
             {
               transaction,

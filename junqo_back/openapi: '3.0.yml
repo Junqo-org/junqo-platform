@@ -1,0 +1,517 @@
+openapi: "3.0.3"
+info:
+  title: Junqo API
+  version: "1.0"
+servers:
+  - url: https://junqo.fr/api/v1
+paths:
+  /status:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+
+  # users
+  /users/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 1
+                  email:
+                    type: string
+                    format: email
+                    example:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email already exists
+  /users/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example:
+                password:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJlbWFpbCI6ImFkbWluQGp1bnFvLmZyIiwiaWF0IjoxNjA5NzQwNjIyLCJleHAiOjE2MDk3NDQyMjJ9.7Q6Z2Q6Q6ZQ6
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid email or password
+  /users/logout:
+    post:
+      summary: Logout
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+  /users/me:
+    get:
+      summary: Get current user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 1
+                  email:
+                    type: string
+                    format: email
+                    example:
+
+  # ai
+  /ai/profile-from-resume:
+    get:
+      summary: Get profile from CV
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: John Doe
+                      email:
+                        type: string
+                        format: email
+                        example:
+
+  /ai/interview-reply:
+    get:
+      summary: Get interview reply
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reply:
+                    type: string
+                    example: OK
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+
+  # offers
+  /offer:
+    post:
+      summary: Create an offer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Fullstack developer
+                description:
+                  type: string
+                  example: We are looking for a fullstack developer
+                salary:
+                  type: integer
+                  example: 50000
+                location:
+                  type: string
+                  example: Paris
+                contract:
+                  type: string
+                  example: CDI
+                experience:
+                  type: string
+                  example: 2 years
+                skills:
+                  type: array
+                  items:
+                    type: string
+                    example: Javascript
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 1
+                  title:
+                    type: string
+                    example: Fullstack developer
+                  description:
+                    type: string
+                    example: We are looking for a fullstack developer
+                  salary:
+                    type: integer
+                    example: 50000
+                  location:
+                    type: string
+                    example: Paris
+                  contract:
+                    type: string
+                    example: CDI
+                  experience:
+                    type: string
+                    example: 2 years
+                  skills:
+                    type: array
+                    items:
+                      type: string
+                      example: Javascript
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+  /offer{id}:
+    get:
+      summary: Get an offer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 1
+                  title:
+                    type: string
+                    example: Fullstack developer
+                  description:
+                    type: string
+                    example: We are looking for a fullstack developer
+                  salary:
+                    type: integer
+                    example: 50000
+                  location:
+                    type: string
+                    example: Paris
+                  contract:
+                    type: string
+                    example: CDI
+                  experience:
+                    type: string
+                    example: 2 years
+                  skills:
+                    type: array
+                    items:
+                      type: string
+                      example: Javascript
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+    put:
+      summary: Update an offer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Fullstack developer
+                description:
+                  type: string
+                  example: We are looking for a fullstack developer
+                salary:
+                  type: integer
+                  example: 50000
+                location:
+                  type: string
+                  example: Paris
+                contract:
+                  type: string
+                  example: CDI
+                experience:
+                  type: string
+                  example: 2 years
+                skills:
+                  type: array
+                  items:
+                    type: string
+                    example: Javascript
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 1
+                  title:
+                    type: string
+                    example: Fullstack developer
+                  description:
+                    type: string
+                    example: We are looking for a fullstack developer
+                  salary:
+                    type: integer
+                    example: 50000
+                  location:
+                    type: string
+                    example: Paris
+                  contract:
+                    type: string
+                    example: CDI
+                  experience:
+                    type: string
+                    example: 2 years
+                  skills:
+                    type: array
+                    items:
+                      type: string
+                      example: Javascript
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+    delete:
+      summary: Delete an offer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+
+  /offers/query:
+    get:
+      summary: Query offers
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+            example: Fullstack developer
+        - name: location
+          in: query
+          schema:
+            type: string
+            example: Paris
+        - name: contract
+          in: query
+          schema:
+            type: string
+            example: CDI
+        - name: experience
+          in: query
+          schema:
+            type: string
+            example: 2 years
+        - name: skills
+          in: query
+          schema:
+            type: string
+            example: Javascript
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                      example: 1
+                    title:
+                      type: string
+                      example: Fullstack developer
+                    description:
+                      type: string
+                      example: We are looking for a fullstack developer
+                    salary:
+                      type: integer
+                      example: 50000
+                    location:
+                      type: string
+                      example: Paris
+                    contract:
+                      type: string
+                      example: CDI
+                    experience:
+                      type: string
+                      example: 2 years
+                    skills:
+                      type: array
+                      items:
+                        type: string
+                        example: Javascript
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token

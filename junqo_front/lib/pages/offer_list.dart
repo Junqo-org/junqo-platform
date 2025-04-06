@@ -3,7 +3,7 @@ import '../shared/widgets/navbar_company.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
 import 'package:junqo_front/pages/offer_detail.dart';
 import 'package:junqo_front/pages/offer_creation.dart';
-import 'package:ferry/ferry.dart';
+import 'package:junqo_front/core/client.dart';
 import 'package:get_it/get_it.dart';
 
 class OfferList extends StatefulWidget {
@@ -19,40 +19,48 @@ class _OfferListState extends State<OfferList> {
     OfferData(
       userid: 'user-123',
       title: 'Développeur Front-end React',
-      description: 'Nous recherchons un développeur Front-end pour travailler sur nos applications React. Vous intégrerez une équipe dynamique et participerez au développement de nouvelles fonctionnalités.',
+      description:
+          'Nous recherchons un développeur Front-end pour travailler sur nos applications React. Vous intégrerez une équipe dynamique et participerez au développement de nouvelles fonctionnalités.',
       offerType: 'Stage',
       duration: '6 mois',
       salary: '800€/mois',
       workLocationType: 'Sur place',
-      expiresAt: DateTime.now().add(const Duration(days: 30)),
       skills: ['React', 'JavaScript', 'HTML/CSS', 'TypeScript'],
-      benefits: ['Tickets restaurant', 'Remboursement transport 50%', 'Possibilité d\'embauche'],
+      benefits: [
+        'Tickets restaurant',
+        'Remboursement transport 50%',
+        'Possibilité d\'embauche'
+      ],
       educationLevel: 'Bac+3',
       status: 'active',
     ),
     OfferData(
       userid: 'user-456',
       title: 'Développeur Full Stack',
-      description: 'Participez au développement de notre plateforme e-commerce en utilisant les technologies modernes du web. Vous travaillerez tant sur le front-end que sur le back-end.',
+      description:
+          'Participez au développement de notre plateforme e-commerce en utilisant les technologies modernes du web. Vous travaillerez tant sur le front-end que sur le back-end.',
       offerType: 'Alternance',
       duration: '12 mois',
       salary: '1200€/mois',
       workLocationType: 'Hybride',
-      expiresAt: DateTime.now().add(const Duration(days: 45)),
       skills: ['Node.js', 'Vue.js', 'MongoDB', 'Docker', 'API REST'],
-      benefits: ['Télétravail partiel', 'Matériel fourni', 'Formation continue'],
+      benefits: [
+        'Télétravail partiel',
+        'Matériel fourni',
+        'Formation continue'
+      ],
       educationLevel: 'Bac+5',
       status: 'active',
     ),
     OfferData(
       userid: 'user-789',
       title: 'Data Scientist Junior',
-      description: 'Vous aiderez notre équipe à extraire des insights à partir de nos données. Vous travaillerez sur des modèles de machine learning et participerez à l\'amélioration de nos algorithmes de recommandation.',
+      description:
+          'Vous aiderez notre équipe à extraire des insights à partir de nos données. Vous travaillerez sur des modèles de machine learning et participerez à l\'amélioration de nos algorithmes de recommandation.',
       offerType: 'Stage',
       duration: '4 mois',
       salary: '1000€/mois',
       workLocationType: 'Distanciel',
-      expiresAt: DateTime.now().add(const Duration(days: 20)),
       skills: ['Python', 'Pandas', 'Scikit-learn', 'TensorFlow', 'SQL'],
       benefits: ['Horaires flexibles', 'Projets innovants'],
       educationLevel: 'Bac+4',
@@ -68,9 +76,9 @@ class _OfferListState extends State<OfferList> {
         onPressed: () {
           // Navigation vers la page de création d'offre
           Navigator.push(
-            context, 
+            context,
             MaterialPageRoute(
-              builder: (context) => JobOfferForm(client: GetIt.instance<Client>()),
+              builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
             ),
           );
         },
@@ -86,7 +94,7 @@ class _OfferListState extends State<OfferList> {
       ),
       body: Column(
         children: [
-          const NavbarCompany(currentIndex: 2), // Mettre l'index qui correspond à cette page
+          const NavbarCompany(currentIndex: 1), // Mettre l'index qui correspond à cette page
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -104,7 +112,7 @@ class _OfferListState extends State<OfferList> {
       ),
     );
   }
-  
+
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +122,8 @@ class _OfferListState extends State<OfferList> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.1), // Indigo with opacity
+                color: const Color(0xFF6366F1)
+                    .withOpacity(0.1), // Indigo with opacity
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(
@@ -152,9 +161,9 @@ class _OfferListState extends State<OfferList> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
-                    context, 
+                    context,
                     MaterialPageRoute(
-                      builder: (context) => JobOfferForm(client: GetIt.instance<Client>()),
+                      builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
                     ),
                   );
                 },
@@ -167,7 +176,8 @@ class _OfferListState extends State<OfferList> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
@@ -178,7 +188,7 @@ class _OfferListState extends State<OfferList> {
       ],
     );
   }
-  
+
   Widget _buildCreateOfferSection() {
     return Container(
       margin: const EdgeInsets.only(top: 16),
@@ -196,10 +206,10 @@ class _OfferListState extends State<OfferList> {
       ),
       child: Row(
         children: [
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   "Publiez une nouvelle offre",
                   style: TextStyle(
@@ -223,9 +233,9 @@ class _OfferListState extends State<OfferList> {
           ElevatedButton.icon(
             onPressed: () {
               Navigator.push(
-                context, 
+                context,
                 MaterialPageRoute(
-                  builder: (context) => JobOfferForm(client: GetIt.instance<Client>()),
+                  builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
                 ),
               );
             },
@@ -249,33 +259,37 @@ class _OfferListState extends State<OfferList> {
       ),
     );
   }
-  
+
   Widget _buildOfferList() {
     // Filtrer les offres par statut
-    final List<OfferData> activeOffers = _fakeOffers.where((offer) => offer.status == 'active').toList();
-    final List<OfferData> inactiveOffers = _fakeOffers.where((offer) => offer.status == 'inactive').toList();
-    
+    final List<OfferData> activeOffers =
+        _fakeOffers.where((offer) => offer.status == 'active').toList();
+    final List<OfferData> inactiveOffers =
+        _fakeOffers.where((offer) => offer.status == 'inactive').toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section des offres actives
         if (activeOffers.isNotEmpty) ...[
-          _buildSectionHeader("Offres actives", Icons.check_circle_outline, activeOffers.length),
+          _buildSectionHeader("Offres actives", Icons.check_circle_outline,
+              activeOffers.length),
           const SizedBox(height: 16),
-          ...activeOffers.map((offer) => _buildOfferCard(offer)).toList(),
+          ...activeOffers.map((offer) => _buildOfferCard(offer)),
           const SizedBox(height: 32),
         ],
-        
+
         // Section des offres inactives
         if (inactiveOffers.isNotEmpty) ...[
-          _buildSectionHeader("Offres inactives", Icons.cancel_outlined, inactiveOffers.length),
+          _buildSectionHeader(
+              "Offres inactives", Icons.cancel_outlined, inactiveOffers.length),
           const SizedBox(height: 16),
-          ...inactiveOffers.map((offer) => _buildOfferCard(offer)).toList(),
+          ...inactiveOffers.map((offer) => _buildOfferCard(offer)),
         ],
       ],
     );
   }
-  
+
   Widget _buildSectionHeader(String title, IconData icon, int count) {
     return Row(
       children: [
@@ -312,7 +326,7 @@ class _OfferListState extends State<OfferList> {
       ],
     );
   }
-  
+
   Widget _buildOfferCard(OfferData offer) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -408,7 +422,8 @@ class _OfferListState extends State<OfferList> {
                           fontWeight: FontWeight.w500,
                         ),
                         backgroundColor: const Color(0xFFEEF2FF), // Indigo 50
-                        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 2, vertical: 0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                           side: const BorderSide(
@@ -440,13 +455,6 @@ class _OfferListState extends State<OfferList> {
                           value: offer.salary,
                         ),
                       ),
-                    Expanded(
-                      child: _buildInfoItem(
-                        icon: Icons.event_available_outlined,
-                        label: "Expire le",
-                        value: _formatDate(offer.expiresAt),
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -464,7 +472,8 @@ class _OfferListState extends State<OfferList> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -482,30 +491,33 @@ class _OfferListState extends State<OfferList> {
                               duration: offer.duration,
                               salary: offer.salary,
                               workLocationType: offer.workLocationType,
-                              expiresAt: offer.expiresAt,
                               skills: offer.skills,
                               benefits: offer.benefits,
                               educationLevel: offer.educationLevel,
-                              status: offer.status == 'active' ? 'inactive' : 'active',
+                              status: offer.status == 'active'
+                                  ? 'inactive'
+                                  : 'active',
                             );
                             _fakeOffers[index] = updatedOffer;
                           }
                         });
                       },
                       icon: Icon(
-                        offer.status == 'active' 
-                            ? Icons.toggle_off_outlined 
+                        offer.status == 'active'
+                            ? Icons.toggle_off_outlined
                             : Icons.toggle_on_outlined,
                       ),
-                      label: Text(offer.status == 'active' ? "Désactiver" : "Activer"),
+                      label: Text(
+                          offer.status == 'active' ? "Désactiver" : "Activer"),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: offer.status == 'active' 
+                        foregroundColor: offer.status == 'active'
                             ? const Color(0xFFEF4444) // Rouge pour désactiver
                             : const Color(0xFF10B981), // Vert pour activer
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -526,7 +538,8 @@ class _OfferListState extends State<OfferList> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                       ),
                     ),
                   ],
@@ -538,7 +551,7 @@ class _OfferListState extends State<OfferList> {
       ),
     );
   }
-  
+
   Widget _buildInfoItem({
     required IconData icon,
     required String label,
@@ -576,13 +589,13 @@ class _OfferListState extends State<OfferList> {
       ],
     );
   }
-  
+
   Widget _buildTag(String text, {bool isOfferType = false}) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isOfferType 
+        color: isOfferType
             ? const Color(0xFF6366F1) // Indigo pour le type d'offre
             : const Color(0xFFE2E8F0), // Slate 200 pour les autres tags
         borderRadius: BorderRadius.circular(16),
@@ -592,20 +605,21 @@ class _OfferListState extends State<OfferList> {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: isOfferType 
-              ? Colors.white 
-              : const Color(0xFF475569), // Slate 600
+          color:
+              isOfferType ? Colors.white : const Color(0xFF475569), // Slate 600
         ),
       ),
     );
   }
-  
+
   Widget _buildStatusTag(String status) {
     return Container(
       margin: const EdgeInsets.only(left: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: status == 'active' ? const Color(0xFF6366F1) : const Color(0xFFE2E8F0),
+        color: status == 'active'
+            ? const Color(0xFF6366F1)
+            : const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
@@ -618,7 +632,7 @@ class _OfferListState extends State<OfferList> {
       ),
     );
   }
-  
+
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }

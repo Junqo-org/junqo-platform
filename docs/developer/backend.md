@@ -20,7 +20,7 @@ nav_order: 2
 ## Getting started
 
 The backend of the **Junqo-platform** is a NestJs application.  
-Its main goal is to provide a GraphQL API that enables efficient and flexible database interactions.
+Its main goal is to provide a REST API that enables efficient and flexible database interactions.
 
 ### Prerequisites
 
@@ -58,7 +58,6 @@ If an environment variable is not found, the default value will be used.
 
 Here is the list of environment variables used by the **backend**:
 
-- `GRAPHQL_SCHEMAS_PATH`: The path to the GraphQL schemas. Default value is `./../schemas`.
 - `DATABASE_HOST`: The host of the database. Default value is `localhost`.
 - `DATABASE_PORT`: The port of the database. Default value is `5432`.
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
@@ -106,7 +105,7 @@ Here is the list of environment variables used by the **backend**:
 
 ### Basic Usage
 
-Once the application is running, you can access the API at `http://localhost:3000/graphql`. For detailed API documentation, refer to the [API documentation](http://doc.junqo.fr/api/introduction).
+Once the application is running, you can access the API at `http://localhost:3000/api/v1`. For detailed API documentation, refer to the [API documentation](http://prod.junqo.fr:4200/api/v1).
 
 ## Technologies
 
@@ -116,5 +115,5 @@ Once the application is running, you can access the API at `http://localhost:300
   - It is a powerful, open-source object-relational database system.
 - [Sequelize](https://sequelize.org/)
   - It is a promise-based Node.js ORM for Postgres, MySQL, MariaDB, SQLite, and Microsoft SQL Server.
-- [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
-  - It is a community-maintained open-source GraphQL server that works with many Node.js HTTP server frameworks.
+- [Express](https://expressjs.com/)
+  - It is a fast, unopinionated, minimalist web framework for Node.js.

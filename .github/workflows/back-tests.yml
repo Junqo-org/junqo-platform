@@ -19,7 +19,6 @@ jobs:
           filters: |
             any_changed:
               - 'junqo_back/**'
-              - 'schemas/**'
               - '.github/workflows/back-tests.yml'
 
   backend-tests:
@@ -33,7 +32,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16" # Specify the Node.js version you are using
+          node-version: "23" # Specify the Node.js version you are using
 
       - name: Install dependencies
         working-directory: junqo_back

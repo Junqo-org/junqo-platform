@@ -31,13 +31,7 @@ Once you have installed these tools, you can proceed to the deployment of the **
     cd junqo-platform
     ```
 
-2. After cloning the repository, you need to spread the graphql schema to the frontend and the backend.
-
-    ```bash
-    python3 tools/update_schemas.py
-    ```
-
-3. Once you are in the project directory, you need to create a `db_password.conf` file at the root of the project.
+2. Once you are in the project directory, you need to create a `db_password.conf` file at the root of the project.
     This file should contain the password for the database user.
     The content of the file should look like this:
 
@@ -45,19 +39,19 @@ Once you have installed these tools, you can proceed to the deployment of the **
     my_db_password
     ```
 
-4. Then, you need to create the `junqo_back/.env` file to configure the backend.
+3. Then, you need to create the `junqo_back/.env` file to configure the backend.
     You can use the `junqo_back/exemple.env` file to create the new one.
     Don't forget to change the values as they are not safe for production use.
 
     For more informations, see the [backend configuration documentation](./backend.md#configuration).
 
-5. Then, you need to create the `junqo_front/config/.env` file to configure the frontend.
+4. Then, you need to create the `junqo_front/config/.env` file to configure the frontend.
     You can use the `junqo_front/config/exemple.env` file to create the new one.
     Don't forget to change the values as they are not safe for production use.
 
     For more informations, see the [frontend configuration documentation](./frontend.md#configuration).
 
-6. After creating the `db_password.conf`, the `junqo_back/.env` and the `junqo_front/config/.env` files, you can proceed to deploy the **Junqo-platform** using Docker Compose.
+5. After creating the `db_password.conf`, the `junqo_back/.env` and the `junqo_front/config/.env` files, you can proceed to deploy the **Junqo-platform** using Docker Compose.
 
     ```bash
     docker-compose up -d

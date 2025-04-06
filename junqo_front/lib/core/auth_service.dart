@@ -1,30 +1,27 @@
-import 'package:ferry/ferry.dart';
-import 'package:hive/hive.dart';
 import 'package:flutter/foundation.dart';
-import 'package:junqo_front/core/response_handler.dart';
-import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
-import 'package:junqo_front/schemas/requests/__generated__/is_logged_in.req.gql.dart';
-import 'package:junqo_front/schemas/requests/__generated__/sign_in.req.gql.dart';
-import 'package:junqo_front/schemas/requests/__generated__/sign_up.req.gql.dart';
-import 'package:junqo_front/shared/errors/graphql_exception.dart';
+import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
+import 'package:junqo_front/core/client.dart';
+import 'package:junqo_front/core/api/api_service.dart';
+import 'package:junqo_front/shared/enums/user_type.dart';
 
 class AuthService {
-  final Client client;
-  late final Box<String> _authBox;
+  final RestClient client;
+  final ApiService _apiService;
   late final Box<String> _userBox;
   bool? _isLoggedIn;
 
-  AuthService(this.client);
+  AuthService(this.client) : _apiService = GetIt.instance<ApiService>();
 
-  String? get token => _authBox.get('token');
+  String? get token => client.token;
   String? get userId => _userBox.get('user');
 
+  /// Initialize the auth service
   Future<void> initialize() async {
     int retries = 3;
 
     while (retries > 0) {
       try {
-        _authBox = await Hive.openBox<String>('auth');
         _userBox = await Hive.openBox<String>('user');
         return;
       } catch (e, stack) {
@@ -40,8 +37,10 @@ class AuthService {
     }
   }
 
+  /// Sign up a new user
   Future<void> signUp(
-      String name, String email, String password, GUserType type) async {
+      String name, String email, String password, UserType type) async {
+    // Validation
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       throw ArgumentError('Name, email, and password cannot be empty');
     }
@@ -52,54 +51,64 @@ class AuthService {
       throw ArgumentError('Password must be at least 8 characters long');
     }
 
-    final request = GsignUpGetUserReq(
-      (b) => b
-        ..vars.name = name
-        ..vars.email = email
-        ..vars.password = password
-        ..vars.type = type,
-    );
+    try {
+      final data = await _apiService.signUp(name, email, password, type.value);
 
-    final response = await client.request(request).first;
-    final data =
-        await ResponseHandler.handleGraphQLResponse(response, "SignUp");
-    if (data?.signUp.user.id != null) {
-      await _userBox.put('user', data!.signUp.user.id);
+      final userId = data['user']['id'];
+      final token = data['token'];
+
+      if (userId != null) {
+        await _userBox.put('user', userId);
+      }
+      
+      if (token != null) {
+        await client.saveToken(token);
+        _isLoggedIn = true;
+      } else {
+        throw Exception('Token not found in response');
+      }
+    } catch (e) {
+      debugPrint('Error during sign up: $e');
+      rethrow;
     }
-    await _saveToken(data?.signUp.token);
-    _isLoggedIn = true;
   }
 
+  /// Sign in an existing user
   Future<void> signIn(String email, String password) async {
+    // Validation
     if (email.isEmpty || password.isEmpty) {
-      throw ArgumentError('Email, and password cannot be empty');
+      throw ArgumentError('Email and password cannot be empty');
     }
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       throw ArgumentError('Invalid email format');
     }
-    if (password.length < 8) {
-      throw ArgumentError('Password must be at least 8 characters long');
-    }
 
-    final request = GsignInGetUserReq(
-      (b) => b
-        ..vars.email = email
-        ..vars.password = password,
-    );
+    try {
+      final data = await _apiService.signIn(email, password);
 
-    final response = await client.request(request).first;
-    final data =
-        await ResponseHandler.handleGraphQLResponse(response, "SignIn");
-    if (data?.signIn.user.id != null) {
-      await _userBox.put('user', data!.signIn.user.id);
+      final userId = data['user']['id'];
+      final token = data['token'];
+
+      if (userId != null) {
+        await _userBox.put('user', userId);
+      }
+      
+      if (token != null) {
+        await client.saveToken(token);
+        _isLoggedIn = true;
+      } else {
+        throw Exception('Token not found in response');
+      }
+    } catch (e) {
+      debugPrint('Error during sign in: $e');
+      rethrow;
     }
-    await _saveToken(data?.signIn.token);
-    _isLoggedIn = true;
   }
 
+  /// Log out the current user
   Future<void> logout() async {
     try {
-      await _authBox.delete('token');
+      await client.clearToken();
       await _userBox.delete('user');
       _isLoggedIn = false;
       debugPrint('User logged out.');
@@ -109,6 +118,7 @@ class AuthService {
     }
   }
 
+  /// Check if the user is logged in
   Future<bool> isLoggedIn() async {
     if (token == null) {
       _isLoggedIn = false;
@@ -119,34 +129,18 @@ class AuthService {
       return false;
     }
 
-    final request = GisLoggedInReq((b) => b);
-
-    final response = await client.request(request).first;
-
     try {
-      final data = await ResponseHandler.handleGraphQLResponse(
-          response, "Login status check");
-      final result = data?.isLoggedIn;
-      _isLoggedIn = result ?? false;
-      return _isLoggedIn as bool;
+      final result = await _apiService.isLoggedIn();
+      _isLoggedIn = result;
+      return result;
     } catch (e) {
-      if (e is GraphQLException &&
-          e.errors?.any((error) => error.contains('Unauthorized')) == true) {
+      if (e is RestApiException && e.statusCode == 401) {
         _isLoggedIn = false;
         _userBox.delete('user');
-        _authBox.delete('token');
+        client.clearToken();
         return false;
       }
       rethrow;
     }
-  }
-
-  Future<void> _saveToken(String? token) async {
-    if (token != null) {
-      await _authBox.put('token', token);
-      debugPrint('Token saved successfully.');
-      return;
-    }
-    throw 'Error: Token is null.';
   }
 }

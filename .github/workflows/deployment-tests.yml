@@ -19,7 +19,6 @@ jobs:
             any_changed:
               - 'junqo_back/**'
               - 'junqo_front/**'
-              - 'schemas/**'
               - '.github/workflows/deployment-tests.yml'
               - docker-compose.dev.yaml
               - docker-compose.yaml

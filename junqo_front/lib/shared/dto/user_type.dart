@@ -1,7 +1,5 @@
 // ignore_for_file: constant_identifier_names
 
-import 'package:junqo_front/schemas/__generated__/schema.schema.gql.dart';
-
 enum UserType {
   SCHOOL,
   COMPANY,
@@ -24,7 +22,11 @@ extension UserTypeExtension on UserType {
   }
 }
 
-UserType stringToUserType(String value) {
+UserType stringToUserType(String? value) {
+  if (value == null) {
+    throw Exception('UserType cannot be null');
+  }
+  
   value = value.toLowerCase();
   switch (value) {
     case 'school':
@@ -37,20 +39,5 @@ UserType stringToUserType(String value) {
       return UserType.ADMIN;
     default:
       throw Exception('Unknown UserType: $value');
-  }
-}
-
-UserType gUserTypeToUserType(GUserType value) {
-  switch (value) {
-    case GUserType.SCHOOL:
-      return UserType.SCHOOL;
-    case GUserType.COMPANY:
-      return UserType.COMPANY;
-    case GUserType.STUDENT:
-      return UserType.STUDENT;
-    case GUserType.ADMIN:
-      return UserType.ADMIN;
-    default:
-      throw Exception('Unknown GUserType: $value');
   }
 }

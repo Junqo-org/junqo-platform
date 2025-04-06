@@ -18,7 +18,6 @@ jobs:
           filters: |
             any_changed:
               - 'junqo_front/**'
-              - 'schemas/**'
               - '.github/workflows/front-tests.yml'
 
   front-tests:
@@ -49,17 +48,6 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: junqo_front
-
-      - name: Generate graphql types
-        run: |
-          mkdir -p ./lib/schemas
-          if [ ! -d "../schemas" ] || [ -z "$(ls -A ../schemas/*.graphql 2>/dev/null)" ]; then
-            echo "Error: GraphQL schema files not found in ../schemas/"
-            exit 1
-          fi
-          cp ../schemas/*.graphql ./lib/schemas/
-          dart run build_runner build
         working-directory: junqo_front
 
       - name: Run Flutter tests
