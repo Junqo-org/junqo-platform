@@ -39,8 +39,6 @@ export default defineConfig([
 
       parserOptions: {
         project: 'tsconfig.json',
-        tsconfigRootDir:
-          '/home/viveli/Epitech/Delivery/EIP/junqo-platform/junqo_back',
       },
     },
 
