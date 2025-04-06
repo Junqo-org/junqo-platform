@@ -5,13 +5,17 @@ import { Actions, CaslAbilityFactory } from './casl-ability.factory';
 import { UserResource } from './dto/user-resource.dto';
 import { StudentProfileResource } from './dto/student-profile-resource.dto';
 import { OfferResource } from './dto/offer-resource.dto';
+import { CompanyProfileResource } from './dto/company-profile-resource.dto';
+import { SchoolProfileResource } from './dto/school-profile-resource.dto';
 
 describe('CaslAbilityFactory', () => {
   let caslAbilityFactory: CaslAbilityFactory;
   let studentUser: AuthUserDTO;
   let studentUser2: AuthUserDTO;
   let companyUser: AuthUserDTO;
+  let companyUser2: AuthUserDTO;
   let schoolUser: AuthUserDTO;
+  let schoolUser2: AuthUserDTO;
   let adminUser: AuthUserDTO;
 
   beforeEach(() => {
@@ -34,14 +38,26 @@ describe('CaslAbilityFactory', () => {
       name: 'Company User',
       email: 'company.user@mail.com',
     });
-    schoolUser = plainToInstance(AuthUserDTO, {
+    companyUser2 = plainToInstance(AuthUserDTO, {
       id: 'e69cc25b-0cc4-4032-83c2-0d34c84318bd',
+      type: UserType.COMPANY,
+      name: 'Company User 2',
+      email: 'company.user2@mail.com',
+    });
+    schoolUser = plainToInstance(AuthUserDTO, {
+      id: 'e69cc25b-0cc4-4032-83c2-0d34c84318be',
       type: UserType.SCHOOL,
       name: 'School User',
       email: 'school.user@mail.com',
     });
+    schoolUser2 = plainToInstance(AuthUserDTO, {
+      id: 'e69cc25b-0cc4-4032-83c2-0d34c84318bf',
+      type: UserType.SCHOOL,
+      name: 'School User 2',
+      email: 'school.user2@mail.com',
+    });
     adminUser = plainToInstance(AuthUserDTO, {
-      id: 'e69cc25b-0cc4-4032-83c2-0d34c84318be',
+      id: 'e69cc25b-0cc4-4032-83c2-0d34c84318bg',
       type: UserType.ADMIN,
       name: 'Admin User',
       email: 'admin@mail.com',
@@ -213,6 +229,206 @@ describe('CaslAbilityFactory', () => {
       );
 
       expect(ability.can(Actions.READ, studentProfileResource)).toBeTruthy();
+    });
+  });
+
+  describe('Company profile resource casl', () => {
+    it('should allow company user to create company profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(ability.can(Actions.CREATE, CompanyProfileResource)).toBeTruthy();
+    });
+
+    it('should not allow student user to create company profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(ability.can(Actions.CREATE, CompanyProfileResource)).toBeFalsy();
+    });
+
+    it('should not allow school user to create company profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+
+      expect(ability.can(Actions.CREATE, CompanyProfileResource)).toBeFalsy();
+    });
+
+    it('should allow company user to manage company profile resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const companyProfileResource: CompanyProfileResource = plainToInstance(
+        CompanyProfileResource,
+        { userId: companyUser.id },
+      );
+
+      expect(ability.can(Actions.MANAGE, companyProfileResource)).toBeTruthy();
+    });
+
+    it('should not allow company user to manage company profile resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const companyProfileResource: CompanyProfileResource = plainToInstance(
+        CompanyProfileResource,
+        { userId: companyUser2.id },
+      );
+
+      expect(ability.can(Actions.MANAGE, companyProfileResource)).toBeFalsy();
+    });
+
+    it('should not allow student user to manage company profile resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+      const companyProfileResource: CompanyProfileResource = plainToInstance(
+        CompanyProfileResource,
+        { userId: companyUser.id },
+      );
+
+      expect(ability.can(Actions.MANAGE, companyProfileResource)).toBeFalsy();
+    });
+
+    it('should not allow school user to manage company profile resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const companyProfileResource: CompanyProfileResource = plainToInstance(
+        CompanyProfileResource,
+        { userId: schoolUser.id },
+      );
+
+      expect(ability.can(Actions.MANAGE, companyProfileResource)).toBeFalsy();
+    });
+
+    it('should allow company user to read company profile resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const companyProfileResource: CompanyProfileResource = plainToInstance(
+        CompanyProfileResource,
+        { userId: companyUser.id },
+      );
+
+      expect(ability.can(Actions.READ, companyProfileResource)).toBeTruthy();
+    });
+
+    it('should not allow company user to read company profile resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const companyProfileResource: CompanyProfileResource = plainToInstance(
+        CompanyProfileResource,
+        { userId: companyUser2.id },
+      );
+
+      expect(ability.can(Actions.READ, companyProfileResource)).toBeFalsy();
+    });
+
+    it('should allow student user to read company profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+      const companyProfileResource: CompanyProfileResource = plainToInstance(
+        CompanyProfileResource,
+        { userId: companyUser.id },
+      );
+
+      expect(ability.can(Actions.READ, companyProfileResource)).toBeTruthy();
+    });
+
+    it('should allow school user to read company profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const companyProfileResource: CompanyProfileResource = plainToInstance(
+        CompanyProfileResource,
+        { userId: companyUser.id },
+      );
+
+      expect(ability.can(Actions.READ, companyProfileResource)).toBeTruthy();
+    });
+  });
+
+  describe('School profile resource casl', () => {
+    it('should allow school user to create school profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+
+      expect(ability.can(Actions.CREATE, SchoolProfileResource)).toBeTruthy();
+    });
+
+    it('should not allow company user to create school profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(ability.can(Actions.CREATE, SchoolProfileResource)).toBeFalsy();
+    });
+
+    it('should not allow student user to create school profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(ability.can(Actions.CREATE, SchoolProfileResource)).toBeFalsy();
+    });
+
+    it('should allow school user to manage school profile resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const schoolProfileResource: SchoolProfileResource = plainToInstance(
+        SchoolProfileResource,
+        { userId: schoolUser.id },
+      );
+
+      expect(ability.can(Actions.MANAGE, schoolProfileResource)).toBeTruthy();
+    });
+
+    it('should not allow school user to manage school profile resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const schoolProfileResource: SchoolProfileResource = plainToInstance(
+        SchoolProfileResource,
+        { userId: schoolUser2.id },
+      );
+
+      expect(ability.can(Actions.MANAGE, schoolProfileResource)).toBeFalsy();
+    });
+
+    it('should not allow company user to manage school profile resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const schoolProfileResource: SchoolProfileResource = plainToInstance(
+        SchoolProfileResource,
+        { userId: companyUser.id },
+      );
+
+      expect(ability.can(Actions.MANAGE, schoolProfileResource)).toBeFalsy();
+    });
+
+    it('should not allow student user to manage school profile resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+      const schoolProfileResource: SchoolProfileResource = plainToInstance(
+        SchoolProfileResource,
+        { userId: schoolUser.id },
+      );
+
+      expect(ability.can(Actions.MANAGE, schoolProfileResource)).toBeFalsy();
+    });
+
+    it('should allow school user to read school profile resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const schoolProfileResource: SchoolProfileResource = plainToInstance(
+        SchoolProfileResource,
+        { userId: schoolUser.id },
+      );
+
+      expect(ability.can(Actions.READ, schoolProfileResource)).toBeTruthy();
+    });
+
+    it('should not allow school user to read school profile resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const schoolProfileResource: SchoolProfileResource = plainToInstance(
+        SchoolProfileResource,
+        { userId: schoolUser2.id },
+      );
+
+      expect(ability.can(Actions.READ, schoolProfileResource)).toBeFalsy();
+    });
+
+    it('should allow company user to read school profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const schoolProfileResource: SchoolProfileResource = plainToInstance(
+        SchoolProfileResource,
+        { userId: schoolUser.id },
+      );
+
+      expect(ability.can(Actions.READ, schoolProfileResource)).toBeTruthy();
+    });
+
+    it('should allow student user to read school profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+      const schoolProfileResource: SchoolProfileResource = plainToInstance(
+        SchoolProfileResource,
+        { userId: schoolUser.id },
+      );
+
+      expect(ability.can(Actions.READ, schoolProfileResource)).toBeTruthy();
     });
   });
 
