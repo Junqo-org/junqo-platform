@@ -167,7 +167,6 @@ export class OffersController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
   @ApiOperation({ summary: 'Delete an offer' })
   @ApiParam({
     name: 'id',
@@ -187,7 +186,7 @@ export class OffersController {
   public async deleteOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id') id: string,
-  ): Promise<boolean> {
+  ): Promise<{ isSuccessful: boolean }> {
     const isSuccess: boolean = await this.offersService.deleteOffer(
       currentUser,
       id,
@@ -196,7 +195,7 @@ export class OffersController {
     if (isSuccess === false) {
       throw new InternalServerErrorException(`While deleting offer ${id}`);
     }
-    return isSuccess;
+    return { isSuccessful: isSuccess };
   }
 
   @Get('applied')
@@ -237,12 +236,11 @@ export class OffersController {
   public async applyToOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id') id: string,
-  ): Promise<boolean> {
+  ): Promise<{ isSuccessful: boolean }> {
     throw new NotImplementedException();
   }
 
   @Delete(':id/apply')
-  @HttpCode(204)
   @ApiOperation({ summary: 'Remove application from an offer' })
   @ApiParam({
     name: 'id',
@@ -262,7 +260,7 @@ export class OffersController {
   public async removeApplyToOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id') id: string,
-  ): Promise<boolean> {
+  ): Promise<{ isSuccessful: boolean }> {
     throw new NotImplementedException();
   }
 }

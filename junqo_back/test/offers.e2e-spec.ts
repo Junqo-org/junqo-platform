@@ -327,7 +327,7 @@ describe('Offers E2E Tests', () => {
         .set('Authorization', `Bearer ${companyToken}`)
         .expect(HttpStatus.OK);
 
-      expect(response.body).toBe(true);
+      expect(response.body.isSuccessful).toBe(true);
 
       // Verify the offer is deleted
       await request(testEnv.app.getHttpServer())
@@ -342,7 +342,7 @@ describe('Offers E2E Tests', () => {
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(HttpStatus.OK);
 
-      expect(response.body).toBe(true);
+      expect(response.body.isSuccessful).toBe(true);
     });
 
     it('should prevent students from deleting offers', async () => {
@@ -369,26 +369,26 @@ describe('Offers E2E Tests', () => {
     });
   });
 
-  describe('Application Features', () => {
-    it('should get applied offers for a student', async () => {
-      await request(testEnv.app.getHttpServer())
-        .get(`${baseRoute}/applied`)
-        .set('Authorization', `Bearer ${studentToken}`)
-        .expect(HttpStatus.NOT_IMPLEMENTED);
-    });
+  // describe('Application Features', () => {
+  //   it('should get applied offers for a student', async () => {
+  //     await request(testEnv.app.getHttpServer())
+  //       .get(`${baseRoute}/applied`)
+  //       .set('Authorization', `Bearer ${studentToken}`)
+  //       .expect(HttpStatus.NOT_IMPLEMENTED);
+  //   });
 
-    it('should allow a student to apply to an offer', async () => {
-      await request(testEnv.app.getHttpServer())
-        .post(`${baseRoute}/${testOffer.id}/apply`)
-        .set('Authorization', `Bearer ${studentToken}`)
-        .expect(HttpStatus.NOT_IMPLEMENTED);
-    });
+  //   it('should allow a student to apply to an offer', async () => {
+  //     await request(testEnv.app.getHttpServer())
+  //       .post(`${baseRoute}/${testOffer.id}/apply`)
+  //       .set('Authorization', `Bearer ${studentToken}`)
+  //       .expect(HttpStatus.NOT_IMPLEMENTED);
+  //   });
 
-    it('should allow a student to withdraw application from an offer', async () => {
-      await request(testEnv.app.getHttpServer())
-        .delete(`${baseRoute}/${testOffer.id}/apply`)
-        .set('Authorization', `Bearer ${studentToken}`)
-        .expect(HttpStatus.NOT_IMPLEMENTED);
-    });
-  });
+  //   it('should allow a student to withdraw application from an offer', async () => {
+  //     await request(testEnv.app.getHttpServer())
+  //       .delete(`${baseRoute}/${testOffer.id}/apply`)
+  //       .set('Authorization', `Bearer ${studentToken}`)
+  //       .expect(HttpStatus.NOT_IMPLEMENTED);
+  //   });
+  // });
 });

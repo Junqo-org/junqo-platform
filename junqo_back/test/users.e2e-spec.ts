@@ -211,11 +211,11 @@ describe('Users E2E Tests', () => {
 
       expect(response.body.isSuccessful).toBe(true);
 
-      // Verify user was deleted by trying to access the profile
+      // Verify user was deleted by trying to access
       await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}/me`)
         .set('Authorization', `Bearer ${tempUserToken}`)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 });

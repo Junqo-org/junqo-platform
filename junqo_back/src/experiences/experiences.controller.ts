@@ -168,7 +168,6 @@ export class ExperiencesController {
   }
 
   @Delete('my/:id')
-  @HttpCode(204)
   @ApiOperation({ summary: 'Delete an experience' })
   @ApiNoContentResponse({
     description: 'Experience deleted successfully',
@@ -188,7 +187,9 @@ export class ExperiencesController {
   async delete(
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id') id: string,
-  ): Promise<boolean> {
-    return this.experiencesService.delete(currentUser, id);
+  ): Promise<{ isSuccessful: boolean }> {
+    const isSuccess = await this.experiencesService.delete(currentUser, id);
+
+    return { isSuccessful: isSuccess };
   }
 }

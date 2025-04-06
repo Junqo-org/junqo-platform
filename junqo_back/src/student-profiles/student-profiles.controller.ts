@@ -49,7 +49,6 @@ export class StudentProfilesController {
     @CurrentUser() currentUser: AuthUserDTO,
     @Query() query: StudentProfileQueryDTO,
   ) {
-    console.log('query is ' + JSON.stringify(query));
     return this.studentProfilesService.findByQuery(currentUser, query);
   }
 

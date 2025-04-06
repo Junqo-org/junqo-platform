@@ -66,7 +66,6 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  @HttpCode(200)
   @ApiOperation({ summary: 'Log in a user' })
   @ApiBody({
     type: SignInDTO,

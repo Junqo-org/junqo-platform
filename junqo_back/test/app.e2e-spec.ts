@@ -20,7 +20,7 @@ describe('App E2E Tests', () => {
 
   it('hello', async () => {
     const response = await request(testEnv.app.getHttpServer())
-      .get('/api/v1/')
+      .get('/')
       .expect(HttpStatus.OK);
     expect(response.text).toBe('Welcome to the Junqo API !');
   });

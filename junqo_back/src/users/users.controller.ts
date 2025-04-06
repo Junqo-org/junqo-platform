@@ -77,10 +77,13 @@ export class UsersController {
     switch (currentUser.type) {
       case UserType.STUDENT:
         isSuccess = await this.studentProfilesService.delete(currentUser);
+        break;
       case UserType.COMPANY:
         isSuccess = await this.companyProfilesService.delete(currentUser);
+        break;
       case UserType.SCHOOL:
         isSuccess = await this.schoolProfilesService.delete(currentUser);
+        break;
     }
 
     if (!isSuccess) {

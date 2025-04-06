@@ -23,7 +23,10 @@ export async function AppSetup(app: INestApplication<any>) {
   );
 
   app.setGlobalPrefix('api/v1', {
-    exclude: [{ path: 'health', method: RequestMethod.GET }],
+    exclude: [
+      { path: 'health', method: RequestMethod.GET },
+      { path: '/', method: RequestMethod.GET },
+    ],
   });
 
   app.enableCors({

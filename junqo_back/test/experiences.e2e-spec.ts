@@ -173,10 +173,12 @@ describe('Experiences E2E Tests', () => {
     });
 
     it('should delete an experience', async () => {
-      await request(testEnv.app.getHttpServer())
+      const response = await request(testEnv.app.getHttpServer())
         .delete(`/api/v1/experiences/my/${experienceId}`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .expect(HttpStatus.NO_CONTENT);
+        .expect(HttpStatus.OK);
+
+      expect(response.body.isSuccessful).toBe(true);
 
       // Verify it's deleted
       const profileResponse = await request(testEnv.app.getHttpServer())

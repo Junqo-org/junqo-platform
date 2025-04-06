@@ -35,7 +35,7 @@ export class StudentProfilesService {
    */
   public async findByQuery(
     currentUser: AuthUserDTO,
-    query: StudentProfileQueryDTO
+    query: StudentProfileQueryDTO,
   ): Promise<StudentProfileDTO[]> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
@@ -50,7 +50,9 @@ export class StudentProfilesService {
         await this.profilesRepository.findByQuery(query);
 
       if (!studentsProfiles || studentsProfiles.length === 0) {
-        throw new NotFoundException(`No student profiles found matching query: ${query}`);
+        throw new NotFoundException(
+          `No student profiles found matching query: ${query}`,
+        );
       }
       return studentsProfiles;
     } catch (error) {
