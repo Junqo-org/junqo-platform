@@ -69,7 +69,7 @@ describe('StudentProfilesController', () => {
 
   describe('find by query', () => {
     const query: StudentProfileQueryDTO = plainToInstance(StudentProfileQueryDTO, {
-      skills: ['skill'],
+      skills: 'skill,js',
       page: 1,
       limit: 1,
     })

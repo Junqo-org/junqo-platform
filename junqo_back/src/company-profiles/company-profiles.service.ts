@@ -8,6 +8,7 @@ import { CompanyProfilesRepository } from './repository/company-profiles.reposit
 import {
   CreateCompanyProfileDTO,
   CompanyProfileDTO,
+  CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
 } from './dto/company-profile.dto';
 import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
@@ -23,15 +24,19 @@ export class CompanyProfilesService {
   ) {}
 
   /**
-   * Retrieves all company profiles if the current user has the required permissions.
+   * Retrieves company profiles matching the query if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user requesting the profiles
-   * @returns Promise containing an array of CompanyProfileDTO objects
+   * @param query - The search query to filter profiles
+   * @returns Promise containing an array of matching CompanyProfileDTO objects
    * @throws ForbiddenException if user lacks READ permission on CompanyProfileResource
-   * @throws NotFoundException if no company profiles are found
+   * @throws NotFoundException if no matching company profiles are found
    * @throws InternalServerErrorException if database query fails
    */
-  public async findAll(currentUser: AuthUserDTO): Promise<CompanyProfileDTO[]> {
+  public async findByQuery(
+    currentUser: AuthUserDTO,
+    query: CompanyProfileQueryDTO,
+  ): Promise<CompanyProfileDTO[]> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
     if (ability.cannot(Actions.READ, new CompanyProfileResource())) {
@@ -39,12 +44,15 @@ export class CompanyProfilesService {
         'You do not have permission to read company profiles',
       );
     }
+
     try {
       const companysProfiles: CompanyProfileDTO[] =
-        await this.profilesRepository.findAll();
+        await this.profilesRepository.findByQuery(query);
 
       if (!companysProfiles || companysProfiles.length === 0) {
-        throw new NotFoundException(`Company profiles not found`);
+        throw new NotFoundException(
+          `No company profiles found matching query: ${query}`,
+        );
       }
       return companysProfiles;
     } catch (error) {
@@ -57,7 +65,7 @@ export class CompanyProfilesService {
   }
 
   /**
-   * Retrieves a company profile by its ID, checking for user permissions.
+   * Retrieves a company profile by its ID if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user requesting the profile
    * @param id - The unique identifier of the company profile to retrieve
@@ -103,7 +111,7 @@ export class CompanyProfilesService {
   }
 
   /**
-   * Creates a new company profile for the current user.
+   * Creates a new company profile for the current user if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user creating the profile
    * @param createCompanyProfileDto - The DTO containing the profile data to create
@@ -148,7 +156,7 @@ export class CompanyProfilesService {
   }
 
   /**
-   * Updates a company profile with the provided data.
+   * Updates a company profile with the provided data if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user's DTO containing their credentials and permissions
    * @param updateCompanyProfileDto - The DTO containing the profile data to be updated
@@ -198,7 +206,7 @@ export class CompanyProfilesService {
   }
 
   /**
-   * Deletes a company profile for the authenticated user.
+   * Deletes a company profile for the authenticated user if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user's data transfer object
    * @returns Promise resolving to true if deletion was successful

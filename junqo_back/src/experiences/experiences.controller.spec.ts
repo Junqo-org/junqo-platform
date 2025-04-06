@@ -191,7 +191,7 @@ describe('ExperiencesController', () => {
         experienceId,
       );
 
-      expect(result).toBe(true);
+      expect(result.isSuccessful).toBe(true);
       expect(experiencesService.delete).toHaveBeenCalledWith(
         currentUser,
         experienceId,

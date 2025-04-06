@@ -7,7 +7,7 @@ import { CaslModule } from '../casl/casl.module';
 @Module({
   controllers: [CompanyProfilesController],
   providers: [CompanyProfilesService],
-    exports: [CompanyProfilesService],
+  exports: [CompanyProfilesService],
   imports: [CompanyProfilesRepositoryModule, CaslModule],
 })
 export class CompanyProfilesModule {}

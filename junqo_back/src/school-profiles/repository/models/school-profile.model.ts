@@ -39,20 +39,29 @@ export class SchoolProfileModel extends Model {
 
   @Column({
     type: DataType.STRING,
+    allowNull: true,
   })
-  avatar: string;
+  avatar?: string;
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
+    type: DataType.TEXT,
+    allowNull: true,
   })
-  skills: string[];
+  description?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  websiteUrl?: string;
 
   public toSchoolProfileDTO(): SchoolProfileDTO {
     return plainToInstance(SchoolProfileDTO, {
       userId: this.userId,
       name: this.name,
       avatar: this.avatar,
-      skills: this.skills,
+      description: this.description,
+      websiteUrl: this.websiteUrl,
     });
   }
 }

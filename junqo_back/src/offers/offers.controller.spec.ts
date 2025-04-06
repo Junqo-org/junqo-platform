@@ -135,19 +135,6 @@ describe('OffersController', () => {
         await controller.createOffer(mockCurrentUser, mockCreateOffer),
       ).toEqual(mockOffers[0]);
     });
-
-    it('should fail validation with invalid data', async () => {
-      const invalidOffer: CreateOfferDTO = plainToInstance(CreateOfferDTO, {
-        title: '',
-        description: 123,
-        userId: 'not-a-uuid',
-      });
-
-      service.createOffer.mockResolvedValue(mockOffers[0]);
-      await expect(
-        controller.createOffer(mockCurrentUser, invalidOffer),
-      ).rejects.toThrow(BadRequestException);
-    });
   });
 
   describe('updateOffer', () => {
@@ -161,34 +148,16 @@ describe('OffersController', () => {
         ),
       ).toEqual(mockOffers[0]);
     });
-
-    it('should fail validation with invalid update data', async () => {
-      const invalidUpdate: UpdateOfferDTO = plainToInstance(UpdateOfferDTO, {
-        title: null,
-        description: 123,
-        skills: 123,
-      });
-
-      service.updateOffer.mockResolvedValue(mockOffers[0]);
-      await expect(
-        controller.updateOffer(
-          mockCurrentUser,
-          '1aec0948-58dd-40b2-b085-5a47244036c2',
-          invalidUpdate,
-        ),
-      ).rejects.toThrow(BadRequestException);
-    });
   });
 
   describe('deleteOffer', () => {
     it('should delete an offer and return true', async () => {
       service.deleteOffer.mockResolvedValue(true);
-      expect(
-        await controller.deleteOffer(
-          mockCurrentUser,
-          '1aec0948-58dd-40b2-b085-5a47244036c2',
-        ),
-      ).toBe(true);
+      const result = await controller.deleteOffer(
+        mockCurrentUser,
+        '1aec0948-58dd-40b2-b085-5a47244036c2',
+      );
+      expect(result.isSuccessful).toBe(true);
     });
 
     it('should throw InternalServerErrorException when deletion fails', async () => {

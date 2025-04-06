@@ -3,48 +3,41 @@ import { getModelToken } from '@nestjs/sequelize';
 import {
   CreateCompanyProfileDTO,
   CompanyProfileDTO,
+  CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
 } from '../dto/company-profile.dto';
 import { CompanyProfilesRepository } from './company-profiles.repository';
 import { CompanyProfileModel } from './models/company-profile.model';
 import { plainToInstance } from 'class-transformer';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
-const CompanyProfileDtoExample: CompanyProfileDTO = new CompanyProfileDTO({
-  userId: '8aec0948-58dd-40b2-b085-5a47244036c2',
-  name: 'Test User',
-  avatar: 'https://picsum.photos/200/300',
-});
+const companyProfiles: CompanyProfileDTO[] = [
+  new CompanyProfileDTO({
+    userId: '8aec0948-58dd-40b2-b085-5a47244036c2',
+    name: 'Test User',
+    avatar: 'https://picsum.photos/200/300',
+    description: 'Test User Company profile',
+    websiteUrl: 'http://junqo.fr',
+  }),
+  new CompanyProfileDTO({
+    userId: '8aec0948-58dd-40b2-b085-5a47244036c2',
+    name: 'Test User',
+    avatar: 'https://picsum.photos/200/300',
+    description: 'Test User Company profile',
+    websiteUrl: 'http://junqo.fr',
+  }),
+];
+
+let companyProfileModels: CompanyProfileModel[] = [];
 
 describe('CompanyProfilesRepository', () => {
   let repository: CompanyProfilesRepository;
   let mockCompanyProfileModel: any;
-  let mockExperienceModel: any;
 
   beforeEach(async () => {
-    mockCompanyProfileModel = {
-      create: jest.fn(),
-      findAll: jest.fn(),
-      findOne: jest.fn(),
-      findByPk: jest.fn(),
-      update: jest.fn(),
-      destroy: jest.fn(),
-      toCompanyProfileDTO: jest.fn(),
-      sequelize: {
-        transaction: jest.fn((transaction) => transaction()),
-      },
-    };
-    mockExperienceModel = {
-      create: jest.fn(),
-      findAll: jest.fn(),
-      findOne: jest.fn(),
-      findByPk: jest.fn(),
-      update: jest.fn(),
-      destroy: jest.fn(),
-      toCompanyProfileDTO: jest.fn(),
-      sequelize: {
-        transaction: jest.fn((transaction) => transaction()),
-      },
-    };
     mockCompanyProfileModel = {
       create: jest.fn(),
       findAll: jest.fn(),
@@ -65,130 +58,213 @@ describe('CompanyProfilesRepository', () => {
           provide: getModelToken(CompanyProfileModel),
           useValue: mockCompanyProfileModel,
         },
-        {
-          provide: getModelToken(CompanyProfileModel),
-          useValue: mockCompanyProfileModel,
-        },
       ],
     }).compile();
 
     repository = module.get<CompanyProfilesRepository>(
       CompanyProfilesRepository,
     );
+
+    companyProfileModels = companyProfiles.map((profile) => ({
+      ...profile,
+      ...mockCompanyProfileModel,
+      toCompanyProfileDTO: jest.fn().mockReturnValue(profile),
+    }));
   });
 
   it('should be defined', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create a new company profile', async () => {
-      const createCompanyProfile: CreateCompanyProfileDTO =
-        CompanyProfileDtoExample;
-      const expectedCompanyProfile: CompanyProfileDTO = new CompanyProfileDTO(
-        CompanyProfileDtoExample,
+  describe('findByQuery', () => {
+    const query: CompanyProfileQueryDTO = plainToInstance(
+      CompanyProfileQueryDTO,
+      {
+        skills: ['skill'],
+        page: 1,
+        limit: 1,
+      },
+    );
+
+    it('should return all company profiles if no query', async () => {
+      mockCompanyProfileModel.findAll.mockResolvedValue(companyProfileModels);
+
+      const result = await repository.findByQuery({});
+      expect(result).toEqual(companyProfiles);
+      expect(mockCompanyProfileModel.findAll).toHaveBeenCalled();
+    });
+
+    it('should find every company profile corresponding to given query', async () => {
+      mockCompanyProfileModel.findAll.mockResolvedValue(companyProfileModels);
+
+      const result = await repository.findByQuery(query);
+      expect(result).toEqual(companyProfiles);
+      expect(mockCompanyProfileModel.findAll).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException if there is no company profile', async () => {
+      mockCompanyProfileModel.findAll.mockResolvedValue([]);
+
+      await expect(repository.findByQuery(query)).rejects.toThrow(
+        NotFoundException,
       );
-      const companyProfileModel: CompanyProfileModel = {
-        ...CompanyProfileDtoExample,
-        ...mockCompanyProfileModel,
-        toCompanyProfileDTO: jest
-          .fn()
-          .mockResolvedValue(expectedCompanyProfile),
-      };
+    });
 
-      mockCompanyProfileModel.create.mockResolvedValue(companyProfileModel);
+    it('should throw InternalServerErrorException if fetch fail', async () => {
+      mockCompanyProfileModel.findAll.mockRejectedValue(new Error());
 
-      const result = await repository.create(createCompanyProfile);
-      expect(result).toEqual(expectedCompanyProfile);
-      expect(mockCompanyProfileModel.create).toHaveBeenCalledWith(
-        CompanyProfileDtoExample,
+      await expect(repository.findByQuery(query)).rejects.toThrow(
+        InternalServerErrorException,
       );
     });
   });
 
   describe('findOneById', () => {
     it('should find one company profile by userId', async () => {
-      const userId = CompanyProfileDtoExample.userId;
-      const expectedCompanyProfile: CompanyProfileDTO = new CompanyProfileDTO(
-        CompanyProfileDtoExample,
-      );
-      const companyProfileModel: CompanyProfileModel = {
-        ...CompanyProfileDtoExample,
-        ...mockCompanyProfileModel,
-        toCompanyProfileDTO: jest
-          .fn()
-          .mockResolvedValue(expectedCompanyProfile),
-      };
+      const userId = companyProfiles[0].userId;
 
-      mockCompanyProfileModel.findByPk.mockResolvedValue(companyProfileModel);
+      mockCompanyProfileModel.findByPk.mockResolvedValue(
+        companyProfileModels[0],
+      );
 
       const result = await repository.findOneById(userId);
-      expect(result).toEqual(expectedCompanyProfile);
+      expect(result).toEqual(companyProfiles[0]);
       expect(mockCompanyProfileModel.findByPk).toHaveBeenCalledWith(userId);
+    });
+
+    it("should throw NotFoundException if the company profile doesn't exists", async () => {
+      mockCompanyProfileModel.findByPk.mockResolvedValue(null);
+
+      await expect(repository.findOneById('id')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw InternalServerErrorException if fetch fail', async () => {
+      mockCompanyProfileModel.findByPk.mockRejectedValue(new Error());
+
+      await expect(repository.findOneById('id')).rejects.toThrow(
+        InternalServerErrorException,
+      );
+    });
+  });
+
+  describe('create', () => {
+    const createCompanyProfile: CreateCompanyProfileDTO = companyProfiles[0];
+
+    it('should create a new company profile', async () => {
+      mockCompanyProfileModel.create.mockResolvedValue(companyProfileModels[0]);
+
+      const result = await repository.create(createCompanyProfile);
+      expect(result).toEqual(companyProfiles[0]);
+      expect(mockCompanyProfileModel.create).toHaveBeenCalledWith(
+        companyProfiles[0],
+      );
+    });
+
+    it('should throw InternalServerErrorException if create fails', async () => {
+      mockCompanyProfileModel.create.mockRejectedValue(new Error());
+
+      await expect(repository.create(createCompanyProfile)).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 
   describe('update', () => {
+    const updateData: UpdateCompanyProfileDTO = {
+      avatar: 'https://picsum.photos/200/400',
+    };
+
     it('should update a company profile', async () => {
-      const updateData: UpdateCompanyProfileDTO = {
-        avatar: 'https://picsum.photos/200/400',
-      };
-      const expectedCompanyProfile: CompanyProfileDTO = new CompanyProfileDTO(
-        CompanyProfileDtoExample,
-      );
-      const companyProfileModel: CompanyProfileModel = {
-        ...CompanyProfileDtoExample,
-        ...mockCompanyProfileModel,
-        toCompanyProfileDTO: jest
-          .fn()
-          .mockResolvedValue(expectedCompanyProfile),
-      };
-      companyProfileModel.update = jest.fn().mockResolvedValue({
-        ...companyProfileModel,
+      companyProfileModels[0].update = jest.fn().mockResolvedValue({
+        ...companyProfileModels[0],
         ...updateData,
       });
 
-      mockCompanyProfileModel.findByPk.mockResolvedValue(companyProfileModel);
+      mockCompanyProfileModel.findByPk.mockResolvedValue(
+        companyProfileModels[0],
+      );
 
       const result = await repository.update(
-        CompanyProfileDtoExample.userId,
+        companyProfiles[0].userId,
         updateData,
       );
-      expect(result).toEqual(expectedCompanyProfile);
+      expect(result).toEqual(companyProfiles[0]);
       expect(mockCompanyProfileModel.findByPk).toHaveBeenCalledWith(
-        CompanyProfileDtoExample.userId,
+        companyProfiles[0].userId,
         { transaction: undefined },
       );
-      expect(companyProfileModel.update).toHaveBeenCalledWith(
-        {
-          userId: CompanyProfileDtoExample.userId,
-          ...updateData,
-        },
-        { transaction: undefined },
+      expect(companyProfileModels[0].update).toHaveBeenCalledWith(updateData, {
+        transaction: undefined,
+      });
+    });
+
+    it("should throw NotFoundException if user doesn't exists", async () => {
+      mockCompanyProfileModel.findByPk.mockResolvedValue(null);
+
+      await expect(
+        repository.update(companyProfiles[0].userId, updateData),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw InternalServerErrorException if fetch fails', async () => {
+      mockCompanyProfileModel.findByPk.mockRejectedValue(new Error());
+
+      await expect(
+        repository.update(companyProfiles[0].userId, updateData),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+
+    it('should throw InternalServerErrorException if update fails', async () => {
+      mockCompanyProfileModel.findByPk.mockResolvedValue(
+        companyProfileModels[0],
       );
+      mockCompanyProfileModel.update.mockRejectedValue(new Error());
+
+      await expect(
+        repository.update(companyProfiles[0].userId, updateData),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 
   describe('delete', () => {
     it('should delete a company profile', async () => {
-      const userId = '8aec0948-58dd-40b2-b085-5a47244036c2';
-      const expectedCompanyProfile: CompanyProfileDTO = new CompanyProfileDTO(
-        CompanyProfileDtoExample,
+      companyProfileModels[0].destroy = jest.fn().mockResolvedValue(true);
+      mockCompanyProfileModel.findByPk.mockResolvedValue(
+        companyProfileModels[0],
       );
-      const companyProfileModel: CompanyProfileModel = {
-        ...CompanyProfileDtoExample,
-        ...mockCompanyProfileModel,
-        toCompanyProfileDTO: jest
-          .fn()
-          .mockResolvedValue(expectedCompanyProfile),
-      };
-      companyProfileModel.destroy = jest.fn().mockResolvedValue(true);
 
-      mockCompanyProfileModel.findByPk.mockResolvedValue(companyProfileModel);
-
-      const result = await repository.delete(userId);
+      const result = await repository.delete(companyProfiles[0].userId);
       expect(result).toEqual(true);
-      expect(companyProfileModel.destroy).toHaveBeenCalled();
+      expect(companyProfileModels[0].destroy).toHaveBeenCalled();
+    });
+
+    it("should throw NotFoundException if user doesn't exists", async () => {
+      mockCompanyProfileModel.findByPk.mockResolvedValue(null);
+
+      await expect(
+        repository.delete(companyProfiles[0].userId),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw InternalServerErrorException if fetch fails', async () => {
+      mockCompanyProfileModel.findByPk.mockRejectedValue(new Error());
+
+      await expect(
+        repository.delete(companyProfiles[0].userId),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+
+    it('should throw InternalServerErrorException if delete fails', async () => {
+      mockCompanyProfileModel.findByPk.mockResolvedValue(
+        companyProfileModels[0],
+      );
+      mockCompanyProfileModel.destroy.mockRejectedValue(new Error());
+
+      await expect(
+        repository.delete(companyProfiles[0].userId),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 });

@@ -130,12 +130,17 @@ export class UpdateStudentProfileDTO {
 
 export class StudentProfileQueryDTO {
   @ApiPropertyOptional({
-    description: 'Filter by skills (comma-separated)',
-    example: 'JavaScript,React,Node.js',
+    description: 'Filter by skills (comma-separated string or array)',
+    example: ['JavaScript', 'React', 'Node.js'],
   })
   @Expose()
   @IsOptional()
-  @Transform(({ value }) => value.split(','))
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.split(',');
+    }
+    return value;
+  })
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true })
   @Type(() => String)

@@ -96,7 +96,7 @@ describe('OffersService', () => {
       );
       expect(cannotMockFn).toHaveBeenLastCalledWith(
         Actions.READ,
-        OfferResource,
+        new OfferResource(),
       );
     });
 
@@ -112,7 +112,7 @@ describe('OffersService', () => {
       );
       expect(cannotMockFn).toHaveBeenLastCalledWith(
         Actions.READ,
-        OfferResource,
+        new OfferResource(),
       );
     });
 
@@ -136,7 +136,7 @@ describe('OffersService', () => {
       );
       expect(cannotMockFnRev).toHaveBeenLastCalledWith(
         Actions.READ,
-        OfferResource,
+        new OfferResource(),
       );
     });
   });

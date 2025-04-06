@@ -8,9 +8,9 @@ import {
 } from '../dto/student-profile.dto';
 import { StudentProfilesRepository } from './student-profiles.repository';
 import { StudentProfileModel } from './models/student-profile.model';
-import { ExperienceModel } from './models/experience.model';
+import { ExperienceModel } from '../../experiences/repository/models/experience.model';
 import { CompanyProfileModel } from '../../company-profiles/repository/models/company-profile.model';
-import { ExperienceDTO } from '../dto/experience.dto';
+import { ExperienceDTO } from '../../experiences/dto/experience.dto';
 import { plainToInstance } from 'class-transformer';
 import {
   InternalServerErrorException,
@@ -58,7 +58,6 @@ describe('StudentProfilesRepository', () => {
   let repository: StudentProfilesRepository;
   let mockStudentProfileModel: any;
   let mockExperienceModel: any;
-  let mockCompanyProfileModel: any;
 
   beforeEach(async () => {
     mockStudentProfileModel = {
@@ -85,18 +84,6 @@ describe('StudentProfilesRepository', () => {
         transaction: jest.fn((transaction) => transaction()),
       },
     };
-    mockCompanyProfileModel = {
-      create: jest.fn(),
-      findAll: jest.fn(),
-      findOne: jest.fn(),
-      findByPk: jest.fn(),
-      update: jest.fn(),
-      destroy: jest.fn(),
-      toStudentProfileDTO: jest.fn(),
-      sequelize: {
-        transaction: jest.fn((transaction) => transaction()),
-      },
-    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -108,10 +95,6 @@ describe('StudentProfilesRepository', () => {
         {
           provide: getModelToken(ExperienceModel),
           useValue: mockExperienceModel,
-        },
-        {
-          provide: getModelToken(CompanyProfileModel),
-          useValue: mockCompanyProfileModel,
         },
       ],
     }).compile();
@@ -220,9 +203,9 @@ describe('StudentProfilesRepository', () => {
     it('should throw InternalServerErrorException if create fails', async () => {
       mockStudentProfileModel.create.mockRejectedValue(new Error());
 
-      await expect(
-        repository.create(createStudentProfile),
-      ).rejects.toThrow(InternalServerErrorException);
+      await expect(repository.create(createStudentProfile)).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 

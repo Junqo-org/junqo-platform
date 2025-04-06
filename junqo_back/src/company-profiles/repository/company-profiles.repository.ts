@@ -9,8 +9,10 @@ import { CompanyProfileModel } from './models/company-profile.model';
 import {
   CreateCompanyProfileDTO,
   CompanyProfileDTO,
+  CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
 } from '../dto/company-profile.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class CompanyProfilesRepository {
@@ -19,58 +21,100 @@ export class CompanyProfilesRepository {
     private readonly companyProfileModel: typeof CompanyProfileModel,
   ) {}
 
-  public async findAll(): Promise<CompanyProfileDTO[]> {
+  /**
+   * Retrieves company profiles matching the query.
+   *
+   * @param query - The search query to filter profiles
+   * @returns Promise containing an array of matching CompanyProfileDTO objects
+   * @throws NotFoundException if no matching company profiles are found
+   * @throws InternalServerErrorException if database query fails
+   */
+  public async findByQuery(
+    query: CompanyProfileQueryDTO = {},
+  ): Promise<CompanyProfileDTO[]> {
+    const { page = 1, limit = 10 } = query;
+    const offset = (page - 1) * limit;
+
     try {
-      const companyProfilesModels: CompanyProfileModel[] =
-        await this.companyProfileModel.findAll();
+      const companyProfilesM: CompanyProfileModel[] =
+        await this.companyProfileModel.findAll({
+          offset,
+          limit,
+        });
 
-      if (!companyProfilesModels || companyProfilesModels.length === 0) {
-        throw new NotFoundException('Company profile not found');
+      if (companyProfilesM.length == 0) {
+        throw new NotFoundException(
+          'No company profiles found matching the criteria',
+        );
       }
-      const companyProfiles: CompanyProfileDTO[] = companyProfilesModels.map(
-        (companyProfile) => companyProfile.toCompanyProfileDTO(),
-      );
 
-      return companyProfiles;
+      return companyProfilesM.map((profile) => profile.toCompanyProfileDTO());
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch company profiles: ${error.message}`,
       );
     }
   }
 
+  /**
+   * Retrieves a company profile by its ID.
+   *
+   * @param id - The unique identifier of the company profile to retrieve
+   * @returns A promise that resolves to the requested CompanyProfileDTO
+   * @throws NotFoundException if no profile is found with the given ID
+   * @throws InternalServerErrorException if database query fails
+   */
   public async findOneById(id: string): Promise<CompanyProfileDTO> {
     if (!id || typeof id !== 'string') {
       throw new BadRequestException('Invalid company profile ID');
     }
-    const companyProfileModel: CompanyProfileModel =
-      await this.companyProfileModel.findByPk(id);
 
-    if (!companyProfileModel) {
-      throw new NotFoundException(`Company profile #${id} not found`);
+    try {
+      const companyProfileM: CompanyProfileModel =
+        await this.companyProfileModel.findByPk(id);
+
+      if (!companyProfileM) {
+        throw new NotFoundException(`Company profile #${id} not found`);
+      }
+
+      const companyProfile: CompanyProfileDTO =
+        companyProfileM.toCompanyProfileDTO();
+
+      return companyProfile;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to fetch company profile: ${error.message}`,
+      );
     }
-    const companyProfile: CompanyProfileDTO =
-      companyProfileModel.toCompanyProfileDTO();
-
-    return companyProfile;
   }
 
+  /**
+   * Creates a new company profile for the current user.
+   *
+   * @param createCompanyProfileDto - The DTO containing the profile data to create
+   * @returns Promise containing the newly created CompanyProfileDTO
+   * @throws InternalServerErrorException if profile creation fails or returns null
+   */
   public async create(
     createCompanyProfileDto: CreateCompanyProfileDTO,
   ): Promise<CompanyProfileDTO> {
     try {
-      const newCompanyProfileModel: CompanyProfileModel =
+      const newCompanyProfileM: CompanyProfileModel =
         await this.companyProfileModel.create({
           userId: createCompanyProfileDto.userId,
           name: createCompanyProfileDto.name,
           avatar: createCompanyProfileDto.avatar,
+          description: createCompanyProfileDto.description,
+          websiteUrl: createCompanyProfileDto.websiteUrl,
         });
 
-      if (!newCompanyProfileModel) {
+      if (!newCompanyProfileM) {
         throw new InternalServerErrorException('Company Profile not created');
       }
       const newCompanyProfile: CompanyProfileDTO =
-        newCompanyProfileModel.toCompanyProfileDTO();
+        newCompanyProfileM.toCompanyProfileDTO();
 
       return newCompanyProfile;
     } catch (error) {
@@ -80,12 +124,21 @@ export class CompanyProfilesRepository {
     }
   }
 
+  /**
+   * Updates a company profile with the provided data.
+   *
+   * @param id - The unique identifier of the company profile to update
+   * @param updateCompanyProfileDto - The DTO containing the profile data to be updated
+   * @returns A Promise that resolves to the updated CompanyProfileDTO
+   * @throws NotFoundException if the profile is not found
+   * @throws InternalServerErrorException if the profile update fails or returns null
+   */
   public async update(
     id: string,
     updateCompanyProfileDto: UpdateCompanyProfileDTO,
   ): Promise<CompanyProfileDTO> {
     try {
-      const updatedCompanyProfileModel: CompanyProfileModel =
+      const updatedCompanyProfileM: CompanyProfileModel =
         await this.companyProfileModel.sequelize.transaction(
           async (transaction) => {
             const companyProfile = await this.companyProfileModel.findByPk(id, {
@@ -100,6 +153,12 @@ export class CompanyProfilesRepository {
                 ...(updateCompanyProfileDto.avatar != undefined && {
                   avatar: updateCompanyProfileDto.avatar,
                 }),
+                ...(updateCompanyProfileDto.description != undefined && {
+                  skills: updateCompanyProfileDto.description,
+                }),
+                ...(updateCompanyProfileDto.websiteUrl != undefined && {
+                  experiences: updateCompanyProfileDto.websiteUrl,
+                }),
               },
               {
                 transaction,
@@ -109,22 +168,30 @@ export class CompanyProfilesRepository {
           },
         );
 
-      if (!updatedCompanyProfileModel) {
+      if (!updatedCompanyProfileM) {
         throw new InternalServerErrorException(
           'Fetched company profile is null',
         );
       }
       const updatedCompanyProfile: CompanyProfileDTO =
-        updatedCompanyProfileModel.toCompanyProfileDTO();
+        updatedCompanyProfileM.toCompanyProfileDTO();
 
       return updatedCompanyProfile;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to update company profile: ${error.message}`,
       );
     }
   }
 
+  /**
+   * Deletes a company profile for the authenticated user.
+   * @param id - The unique identifier of the company profile to delete
+   * @returns Promise resolving to true if deletion was successful
+   * @throws NotFoundException if the profile is not found
+   * @throws InternalServerErrorException if there's an error during deletion
+   */
   public async delete(id: string): Promise<boolean> {
     try {
       const companyProfile = await this.companyProfileModel.findByPk(id);

@@ -6,12 +6,14 @@ import {
   IsNotEmpty,
   IsOptional,
   IsUrl,
+  IsArray,
+  IsInt,
 } from 'class-validator';
 import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
-import { Expose } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // School Profile retrieved from database
@@ -52,6 +54,24 @@ export class SchoolProfileDTO {
   @IsUrl()
   avatar?: string;
 
+  @ApiPropertyOptional({
+    description: 'School description',
+    example: 'A leading software development school.',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Description must be a string' })
+  description?: string;
+
+  @ApiPropertyOptional({
+    description: 'school website URL',
+    example: 'https://www.acmecorp.com',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl({}, { message: 'Website must be a valid URL' })
+  websiteUrl?: string;
+
   // Obligatory for use with casl ability
   constructor(data: Partial<SchoolProfileDTO>) {
     Object.assign(this, data);
@@ -71,4 +91,46 @@ export class UpdateSchoolProfileDTO {
   @IsOptional()
   @IsUrl()
   avatar?: string;
+
+  @ApiPropertyOptional({
+    description: 'School description',
+    example: 'A leading software development school.',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Description must be a string' })
+  description?: string;
+
+  @ApiPropertyOptional({
+    description: 'school website URL',
+    example: 'https://www.acmecorp.com',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl({}, { message: 'Website must be a valid URL' })
+  websiteUrl?: string;
+}
+
+export class SchoolProfileQueryDTO {
+  @ApiPropertyOptional({
+    description: 'Page number for pagination',
+    example: 1,
+    minimum: 1,
+  })
+  @Expose()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  readonly page?: number;
+
+  @ApiPropertyOptional({
+    description: 'Number of items per page',
+    example: 10,
+    minimum: 1,
+  })
+  @Expose()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  readonly limit?: number;
 }

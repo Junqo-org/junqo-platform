@@ -1,48 +1,116 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  NotImplementedException,
-} from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Query } from '@nestjs/common';
 import { CompanyProfilesService } from './company-profiles.service';
-import { CreateCompanyProfileDTO, UpdateCompanyProfileDTO } from './dto/company-profile.dto';
+import { AuthUserDTO } from '../shared/dto/auth-user.dto';
+import { CurrentUser } from '../users/users.decorator';
+import {
+  CompanyProfileQueryDTO,
+  UpdateCompanyProfileDTO,
+  CompanyProfileDTO,
+} from './dto/company-profile.dto';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
-
+@ApiTags('company-profiles')
+@ApiBearerAuth()
 @Controller('company-profiles')
 export class CompanyProfilesController {
   constructor(
     private readonly companyProfilesService: CompanyProfilesService,
   ) {}
 
-  @Post()
-  create(@Body() createCompanyProfileDto: CreateCompanyProfileDTO) {
-    throw new NotImplementedException();
+  @Get()
+  @ApiOperation({ summary: 'Get company profiles by query parameters' })
+  @ApiQuery({
+    type: CompanyProfileQueryDTO,
+    description: 'Query parameters for filtering company profiles',
+  })
+  @ApiOkResponse({
+    description: 'Company profiles retrieved successfully',
+    type: [CompanyProfileDTO],
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to view company profiles',
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async findByQuery(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Query() query: CompanyProfileQueryDTO,
+  ) {
+    return this.companyProfilesService.findByQuery(currentUser, query);
   }
 
-  @Get()
-  findAll() {
-    throw new NotImplementedException();
+  @Get('my')
+  @ApiOperation({ summary: "Get current user's company profile" })
+  @ApiOkResponse({
+    description: 'Company profile retrieved successfully',
+    type: CompanyProfileDTO,
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiNotFoundResponse({ description: 'Company profile not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async findMy(@CurrentUser() currentUser: AuthUserDTO) {
+    return this.companyProfilesService.findOneById(currentUser, currentUser.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    throw new NotImplementedException();
+  @ApiOperation({ summary: 'Get a company profile by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the company profile',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    description: 'Company profile retrieved successfully',
+    type: CompanyProfileDTO,
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to view this company profile',
+  })
+  @ApiNotFoundResponse({ description: 'Company profile not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async findOne(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Param('id') id: string,
+  ) {
+    return this.companyProfilesService.findOneById(currentUser, id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
+  @Patch('my')
+  @ApiOperation({ summary: "Update current user's company profile" })
+  @ApiBody({
+    type: UpdateCompanyProfileDTO,
+    description: 'Updated company profile data',
+  })
+  @ApiOkResponse({
+    description: 'Company profile updated successfully',
+    type: CompanyProfileDTO,
+  })
+  @ApiBadRequestResponse({ description: 'Invalid request data' })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiNotFoundResponse({ description: 'Company profile not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async updateMy(
+    @CurrentUser() currentUser: AuthUserDTO,
     @Body() updateCompanyProfileDto: UpdateCompanyProfileDTO,
   ) {
-    throw new NotImplementedException();
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    throw new NotImplementedException();
+    return this.companyProfilesService.update(
+      currentUser,
+      updateCompanyProfileDto,
+    );
   }
 }

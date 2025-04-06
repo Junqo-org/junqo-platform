@@ -6,12 +6,14 @@ import {
   IsNotEmpty,
   IsOptional,
   IsUrl,
+  IsArray,
+  IsInt,
 } from 'class-validator';
 import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
-import { Expose } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // Company Profile retrieved from database
@@ -52,6 +54,24 @@ export class CompanyProfileDTO {
   @IsUrl()
   avatar?: string;
 
+  @ApiPropertyOptional({
+    description: 'Company description',
+    example: 'A leading software development company specializing in web applications.',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Description must be a string' })
+  description?: string;
+
+  @ApiPropertyOptional({
+    description: 'Company website URL',
+    example: 'https://www.acmecorp.com',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl({}, { message: 'Website must be a valid URL' })
+  websiteUrl?: string;
+
   // Obligatory for use with casl ability
   constructor(data: Partial<CompanyProfileDTO>) {
     Object.assign(this, data);
@@ -71,4 +91,46 @@ export class UpdateCompanyProfileDTO {
   @IsOptional()
   @IsUrl()
   avatar?: string;
+
+  @ApiPropertyOptional({
+    description: 'Company description',
+    example: 'A leading software development company specializing in web applications.',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Description must be a string' })
+  description?: string;
+
+  @ApiPropertyOptional({
+    description: 'Company website URL',
+    example: 'https://www.acmecorp.com',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl({}, { message: 'Website must be a valid URL' })
+  websiteUrl?: string;
+}
+
+export class CompanyProfileQueryDTO {
+  @ApiPropertyOptional({
+    description: 'Page number for pagination',
+    example: 1,
+    minimum: 1,
+  })
+  @Expose()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  readonly page?: number;
+
+  @ApiPropertyOptional({
+    description: 'Number of items per page',
+    example: 10,
+    minimum: 1,
+  })
+  @Expose()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  readonly limit?: number;
 }

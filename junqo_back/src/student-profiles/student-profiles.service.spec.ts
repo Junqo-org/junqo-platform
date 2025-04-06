@@ -14,7 +14,7 @@ import {
 } from './dto/student-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
-import { ExperienceDTO } from './dto/experience.dto';
+import { ExperienceDTO } from '../experiences/dto/experience.dto'
 import { Mocked } from '@suites/doubles.jest';
 import { TestBed } from '@suites/unit';
 import { StudentProfileResource } from '../casl/dto/student-profile-resource.dto';

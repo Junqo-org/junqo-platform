@@ -38,14 +38,29 @@ export class CompanyProfileModel extends Model {
 
   @Column({
     type: DataType.STRING,
+    allowNull: true,
   })
   avatar: string;
 
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  description?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  websiteUrl?: string;
+
   public toCompanyProfileDTO(): CompanyProfileDTO {
-      return plainToInstance(CompanyProfileDTO, {
-        userId: this.userId,
-        name: this.name,
-        avatar: this.avatar,
-      });
-    }
+    return plainToInstance(CompanyProfileDTO, {
+      userId: this.userId,
+      name: this.name,
+      avatar: this.avatar,
+      description: this.description,
+      websiteUrl: this.websiteUrl,
+    });
+  }
 }

@@ -8,6 +8,7 @@ import { SchoolProfilesRepository } from './repository/school-profiles.repositor
 import {
   CreateSchoolProfileDTO,
   SchoolProfileDTO,
+  SchoolProfileQueryDTO,
   UpdateSchoolProfileDTO,
 } from './dto/school-profile.dto';
 import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
@@ -23,15 +24,19 @@ export class SchoolProfilesService {
   ) {}
 
   /**
-   * Retrieves all school profiles if the current user has the required permissions.
+   * Retrieves school profiles matching the query if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user requesting the profiles
-   * @returns Promise containing an array of SchoolProfileDTO objects
+   * @param query - The search query to filter profiles
+   * @returns Promise containing an array of matching SchoolProfileDTO objects
    * @throws ForbiddenException if user lacks READ permission on SchoolProfileResource
-   * @throws NotFoundException if no school profiles are found
+   * @throws NotFoundException if no matching school profiles are found
    * @throws InternalServerErrorException if database query fails
    */
-  public async findAll(currentUser: AuthUserDTO): Promise<SchoolProfileDTO[]> {
+  public async findByQuery(
+    currentUser: AuthUserDTO,
+    query: SchoolProfileQueryDTO,
+  ): Promise<SchoolProfileDTO[]> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
     if (ability.cannot(Actions.READ, new SchoolProfileResource())) {
@@ -39,12 +44,15 @@ export class SchoolProfilesService {
         'You do not have permission to read school profiles',
       );
     }
+
     try {
       const schoolsProfiles: SchoolProfileDTO[] =
-        await this.profilesRepository.findAll();
+        await this.profilesRepository.findByQuery(query);
 
       if (!schoolsProfiles || schoolsProfiles.length === 0) {
-        throw new NotFoundException(`School profiles not found`);
+        throw new NotFoundException(
+          `No school profiles found matching query: ${query}`,
+        );
       }
       return schoolsProfiles;
     } catch (error) {
@@ -57,7 +65,7 @@ export class SchoolProfilesService {
   }
 
   /**
-   * Retrieves a school profile by its ID, checking for user permissions.
+   * Retrieves a school profile by its ID if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user requesting the profile
    * @param id - The unique identifier of the school profile to retrieve
@@ -103,7 +111,7 @@ export class SchoolProfilesService {
   }
 
   /**
-   * Creates a new school profile for the current user.
+   * Creates a new school profile for the current user if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user creating the profile
    * @param createSchoolProfileDto - The DTO containing the profile data to create
@@ -117,7 +125,7 @@ export class SchoolProfilesService {
   ): Promise<SchoolProfileDTO> {
     const userId: string = currentUser.id;
     const ability = this.caslAbilityFactory.createForUser(currentUser);
-    const schoolProfileResource: SchoolProfileResource = plainToInstance(
+    const schoolProfileResource = plainToInstance(
       SchoolProfileResource,
       { ...createSchoolProfileDto, userId },
       { excludeExtraneousValues: true },
@@ -148,7 +156,7 @@ export class SchoolProfilesService {
   }
 
   /**
-   * Updates a school profile with the provided data.
+   * Updates a school profile with the provided data if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user's DTO containing their credentials and permissions
    * @param updateSchoolProfileDto - The DTO containing the profile data to be updated
@@ -198,7 +206,7 @@ export class SchoolProfilesService {
   }
 
   /**
-   * Deletes a school profile for the authenticated user.
+   * Deletes a school profile for the authenticated user if the current user has the required permissions.
    *
    * @param currentUser - The authenticated user's data transfer object
    * @returns Promise resolving to true if deletion was successful
