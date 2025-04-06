@@ -1,63 +1,149 @@
-import 'package:gql_http_link/gql_http_link.dart';
-import 'package:ferry/ferry.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:junqo_front/core/config.dart';
 
-/// Initializes a GraphQL client with local caching and authentication using Hive.
-///
-/// [clearBox] - When true, clears any existing cached data.
-///
-/// Throws [HiveError] if box initialization fails.
-/// Throws [HttpLinkError] if API URL is invalid.
-Future<Client> initClient({bool clearBox = false}) async {
-  try {
-    final authBox = await Hive.openBox<String>('auth');
+/// Client HTTP pour les appels à l'API REST
+class RestClient {
+  final http.Client _httpClient;
+  late final Box<String> _authBox;
+  
+  RestClient() : _httpClient = http.Client();
 
-    if (clearBox) {
-      await authBox.clear();
+  /// Initialise le client avec le stockage local pour l'authentification
+  Future<void> initialize({bool clearBox = false}) async {
+    try {
+      _authBox = await Hive.openBox<String>('auth');
+
+      if (clearBox) {
+        await _authBox.clear();
+      }
+    } catch (e) {
+      throw Exception('Failed to initialize auth storage: $e');
+    }
+  }
+
+  /// Retourne le token d'authentification s'il existe
+  String? get token => _authBox.get('token');
+
+  /// Sauvegarde le token d'authentification
+  Future<void> saveToken(String token) async {
+    await _authBox.put('token', token);
+  }
+
+  /// Supprime le token d'authentification
+  Future<void> clearToken() async {
+    await _authBox.delete('token');
+  }
+
+  /// Headers par défaut pour toutes les requêtes
+  Map<String, String> get _headers {
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
     }
 
-    final authLink = Link.function((request, [forward]) {
-      String? token = authBox.get('token');
+    return headers;
+  }
 
-      final headers = {
-        'Accept': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      };
-
-      final modifiedRequest =
-          request.withContextEntry(HttpLinkHeaders(headers: headers));
-      return forward!(modifiedRequest);
-    });
-
-    final apiUrl = AppConfig.apiUrl;
-
-    bool isUriValid = Uri.tryParse(apiUrl)?.hasScheme ?? false;
-    if (isUriValid == false) {
-      throw HttpLinkError('Invalid API URL: $apiUrl');
-    }
-
-    final link = authLink.concat(HttpLink(AppConfig.apiUrl));
-
-    final client = Client(
-      link: link,
+  /// Envoie une requête GET
+  Future<Map<String, dynamic>> get(String endpoint) async {
+    final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
+    
+    final response = await _httpClient.get(
+      url,
+      headers: _headers,
     );
+    
+    return _handleResponse(response);
+  }
 
-    return client;
-  } on HiveError catch (e) {
-    throw Exception('Failed to initialize auth storage: $e');
-  } on HttpLinkError catch (e) {
-    throw Exception('Failed to initialize HTTP link: $e');
-  } catch (e) {
-    throw Exception('Failed to initialize GraphQL client: $e');
+  /// Envoie une requête POST
+  Future<Map<String, dynamic>> post(String endpoint, {Map<String, dynamic>? body}) async {
+    final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
+    
+    final response = await _httpClient.post(
+      url,
+      headers: _headers,
+      body: body != null ? jsonEncode(body) : null,
+    );
+    
+    return _handleResponse(response);
+  }
+
+  /// Envoie une requête PUT
+  Future<Map<String, dynamic>> put(String endpoint, {Map<String, dynamic>? body}) async {
+    final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
+    
+    final response = await _httpClient.put(
+      url,
+      headers: _headers,
+      body: body != null ? jsonEncode(body) : null,
+    );
+    
+    return _handleResponse(response);
+  }
+
+  /// Envoie une requête DELETE
+  Future<Map<String, dynamic>> delete(String endpoint) async {
+    final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
+    
+    final response = await _httpClient.delete(
+      url,
+      headers: _headers,
+    );
+    
+    return _handleResponse(response);
+  }
+
+  /// Gère les réponses HTTP et les erreurs
+  Map<String, dynamic> _handleResponse(http.Response response) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.body.isEmpty) {
+        return {};
+      }
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      Map<String, dynamic> errorBody = {};
+      
+      try {
+        if (response.body.isNotEmpty) {
+          errorBody = jsonDecode(response.body) as Map<String, dynamic>;
+        }
+      } catch (_) {
+        // En cas d'erreur de parsing, on utilise un corps d'erreur vide
+      }
+      
+      throw RestApiException(
+        statusCode: response.statusCode,
+        message: errorBody['message'] ?? 'Unknown error occurred',
+        errors: errorBody['errors'],
+      );
+    }
+  }
+
+  /// Ferme le client HTTP
+  void close() {
+    _httpClient.close();
   }
 }
 
-class HttpLinkError extends Error {
+/// Exception pour les erreurs d'API REST
+class RestApiException implements Exception {
+  final int statusCode;
   final String message;
+  final dynamic errors;
 
-  HttpLinkError(this.message);
+  RestApiException({
+    required this.statusCode,
+    required this.message,
+    this.errors,
+  });
 
   @override
-  String toString() => 'HttpLinkError: $message';
+  String toString() => 'RestApiException: [$statusCode] $message';
 }

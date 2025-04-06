@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 
-void showErrorDialog(String errorMessage, BuildContext context) {
+/// Affiche une boîte de dialogue d'erreur à l'utilisateur
+void showErrorDialog(String message, BuildContext context) {
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      title: const Text(
-        "Error",
-        style: TextStyle(color: Colors.red),
-      ),
-      content: Text(
-        errorMessage,
-        style: const TextStyle(color: Colors.red),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("OK"),
-        ),
-      ],
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    ),
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Erreur'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Fermer'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
   );
 }

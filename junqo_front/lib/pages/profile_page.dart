@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/user_service.dart';
 import 'package:junqo_front/pages/profile_recruter.dart';
-import 'package:junqo_front/shared/dto/user_type.dart';
+import 'package:junqo_front/shared/enums/user_type.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 import '../shared/widgets/navbar.dart';
 

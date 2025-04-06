@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/log_service.dart';
-import 'package:junqo_front/shared/errors/graphql_exception.dart';
+import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 
 class Login extends StatefulWidget {
@@ -42,10 +42,10 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
 
     try {
       await authService.signIn(email, password);
-    } on GraphQLException catch (e) {
-      e.printError();
+    } on RestApiException catch (e) {
+      LogService.error('API Error: ${e.message}');
       if (!mounted) return;
-      showErrorDialog(e.toString(), context);
+      showErrorDialog(e.message, context);
       return;
     } catch (e) {
       LogService.error(e.toString());

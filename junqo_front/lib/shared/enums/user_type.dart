@@ -1,10 +1,18 @@
+/// Types d'utilisateurs supportés par l'application
 // ignore_for_file: constant_identifier_names
 
 enum UserType {
-  SCHOOL,
-  COMPANY,
+  /// Utilisateur de type Étudiant/Candidat
   STUDENT,
+  
+  /// Utilisateur de type Entreprise/Recruteur
+  COMPANY,
+  
+  /// Utilisateur de type Administrateur
   ADMIN,
+  
+  /// Utilisateur de type École
+  SCHOOL
 }
 
 extension UserTypeExtension on UserType {
@@ -22,6 +30,7 @@ extension UserTypeExtension on UserType {
   }
 }
 
+/// Convertit une chaîne en valeur d'énumération UserType
 UserType stringToUserType(String? value) {
   if (value == null) {
     throw Exception('UserType cannot be null');
@@ -40,4 +49,4 @@ UserType stringToUserType(String? value) {
     default:
       throw Exception('Unknown UserType: $value');
   }
-}
+} 

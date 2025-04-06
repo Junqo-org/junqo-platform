@@ -3,7 +3,7 @@ import '../shared/widgets/navbar_company.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
 import 'package:junqo_front/pages/offer_detail.dart';
 import 'package:junqo_front/pages/offer_creation.dart';
-import 'package:ferry/ferry.dart';
+import 'package:junqo_front/core/client.dart';
 import 'package:get_it/get_it.dart';
 
 class OfferList extends StatefulWidget {
@@ -78,8 +78,7 @@ class _OfferListState extends State<OfferList> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  JobOfferForm(client: GetIt.instance<Client>()),
+              builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
             ),
           );
         },
@@ -95,8 +94,7 @@ class _OfferListState extends State<OfferList> {
       ),
       body: Column(
         children: [
-          const NavbarCompany(
-              currentIndex: 2), // Mettre l'index qui correspond à cette page
+          const NavbarCompany(currentIndex: 1), // Mettre l'index qui correspond à cette page
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -165,8 +163,7 @@ class _OfferListState extends State<OfferList> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          JobOfferForm(client: GetIt.instance<Client>()),
+                      builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
                     ),
                   );
                 },
@@ -238,8 +235,7 @@ class _OfferListState extends State<OfferList> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      JobOfferForm(client: GetIt.instance<Client>()),
+                  builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
                 ),
               );
             },

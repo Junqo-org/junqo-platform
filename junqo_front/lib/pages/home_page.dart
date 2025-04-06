@@ -4,7 +4,7 @@ import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/user_service.dart';
 import 'package:junqo_front/pages/jobcard.dart';
 import 'package:junqo_front/pages/recruter_dashboard.dart';
-import 'package:junqo_front/shared/dto/user_type.dart';
+import 'package:junqo_front/shared/enums/user_type.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 import '../shared/widgets/navbar.dart';
 
