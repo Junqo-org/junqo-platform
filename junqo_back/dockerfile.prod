@@ -69,4 +69,4 @@ HEALTHCHECK --interval=5s --timeout=5s --start-period=20s --retries=5 \
 EXPOSE 4200
 
 # Start the application
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main"]
