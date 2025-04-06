@@ -5,7 +5,7 @@ describe('UsersController', () => {
   let controller: UsersController;
 
   beforeEach(async () => {
-    const { unit, unitRef } = await TestBed.solitary(UsersController).compile();
+    const { unit } = await TestBed.solitary(UsersController).compile();
 
     controller = unit;
   });

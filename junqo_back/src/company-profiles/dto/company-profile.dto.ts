@@ -6,14 +6,13 @@ import {
   IsNotEmpty,
   IsOptional,
   IsUrl,
-  IsArray,
   IsInt,
 } from 'class-validator';
 import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
-import { Expose, Transform, Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // Company Profile retrieved from database
@@ -56,7 +55,8 @@ export class CompanyProfileDTO {
 
   @ApiPropertyOptional({
     description: 'Company description',
-    example: 'A leading software development company specializing in web applications.',
+    example:
+      'A leading software development company specializing in web applications.',
   })
   @Expose()
   @IsOptional()
@@ -94,7 +94,8 @@ export class UpdateCompanyProfileDTO {
 
   @ApiPropertyOptional({
     description: 'Company description',
-    example: 'A leading software development company specializing in web applications.',
+    example:
+      'A leading software development company specializing in web applications.',
   })
   @Expose()
   @IsOptional()

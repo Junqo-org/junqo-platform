@@ -5,7 +5,6 @@ import { ExperienceModel } from './models/experience.model';
 import { NotFoundException } from '@nestjs/common';
 import {
   CreateExperienceDTO,
-  ExperienceDTO,
   UpdateExperienceDTO,
 } from '../dto/experience.dto';
 

@@ -12,7 +12,6 @@ import {
   CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
 } from '../dto/company-profile.dto';
-import { Op } from 'sequelize';
 
 @Injectable()
 export class CompanyProfilesRepository {

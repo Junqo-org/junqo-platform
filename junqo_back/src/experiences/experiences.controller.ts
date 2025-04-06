@@ -6,8 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  HttpCode,
-  Query,
 } from '@nestjs/common';
 import { ExperiencesService } from './experiences.service';
 import {
@@ -20,7 +18,6 @@ import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import {
   ApiTags,
   ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
   ApiBody,
   ApiParam,

@@ -1,10 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import {
-  appConfig,
-  dbConfig,
-  jwtConfig,
-} from './config.service';
+import { appConfig, dbConfig, jwtConfig } from './config.service';
 
 @Module({
   imports: [

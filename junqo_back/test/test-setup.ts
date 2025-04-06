@@ -10,7 +10,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { Sequelize } from 'sequelize-typescript';
 import { AppSetup } from '../src/app.setup';
-import { NestExpressApplication } from '@nestjs/platform-express';
 
 /**
  * Finds a free port in the specified range

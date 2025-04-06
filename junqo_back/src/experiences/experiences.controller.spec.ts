@@ -1,11 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExperiencesController } from './experiences.controller';
 import { ExperiencesService } from './experiences.service';
-import {
-  CreateExperienceDTO,
-  ExperienceDTO,
-  UpdateExperienceDTO,
-} from './dto/experience.dto';
+import { CreateExperienceDTO, UpdateExperienceDTO } from './dto/experience.dto';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { UserType } from '../users/dto/user-type.enum';
 

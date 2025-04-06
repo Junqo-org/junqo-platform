@@ -33,7 +33,7 @@ export class TokenPayloadDTO {
   readonly sub: string;
 
   @ApiProperty({
-    description: 'User\'s name',
+    description: "User's name",
     example: 'John Doe',
   })
   @Expose()

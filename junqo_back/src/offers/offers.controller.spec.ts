@@ -1,7 +1,6 @@
 import { OffersController } from './offers.controller';
 import { OffersService } from './offers.service';
 import {
-  BadRequestException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';

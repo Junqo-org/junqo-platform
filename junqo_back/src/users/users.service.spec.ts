@@ -54,7 +54,6 @@ describe('UsersService', () => {
   let canMockFn: jest.Mock;
   let cannotMockFn: jest.Mock;
 
-
   beforeEach(async () => {
     canMockFn = jest.fn().mockReturnValue(true);
     cannotMockFn = jest.fn().mockReturnValue(false);

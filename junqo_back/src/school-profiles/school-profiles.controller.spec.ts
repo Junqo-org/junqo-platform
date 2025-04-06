@@ -2,10 +2,13 @@ import { SchoolProfilesController } from './school-profiles.controller';
 import { SchoolProfilesService } from './school-profiles.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
-import { SchoolProfileDTO, SchoolProfileQueryDTO } from './dto/school-profile.dto';
+import {
+  SchoolProfileDTO,
+  SchoolProfileQueryDTO,
+} from './dto/school-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
-import { ExperienceDTO } from '../experiences/dto/experience.dto'
+import { ExperienceDTO } from '../experiences/dto/experience.dto';
 import { Mocked, TestBed } from '@suites/unit';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
@@ -68,11 +71,14 @@ describe('SchoolProfilesController', () => {
   });
 
   describe('find by query', () => {
-    const query: SchoolProfileQueryDTO = plainToInstance(SchoolProfileQueryDTO, {
-      skills: 'skill,js',
-      page: 1,
-      limit: 1,
-    })
+    const query: SchoolProfileQueryDTO = plainToInstance(
+      SchoolProfileQueryDTO,
+      {
+        skills: 'skill,js',
+        page: 1,
+        limit: 1,
+      },
+    );
 
     it('should return every school profiles if no query', async () => {
       schoolProfilesService.findByQuery.mockResolvedValue(schoolProfiles);
@@ -80,7 +86,10 @@ describe('SchoolProfilesController', () => {
       expect(await controller.findByQuery(currentUser, {})).toEqual(
         schoolProfiles,
       );
-      expect(schoolProfilesService.findByQuery).toHaveBeenCalledWith(currentUser, {});
+      expect(schoolProfilesService.findByQuery).toHaveBeenCalledWith(
+        currentUser,
+        {},
+      );
     });
 
     it('should return every school profiles corresponding to given query', async () => {
@@ -89,14 +98,20 @@ describe('SchoolProfilesController', () => {
       expect(await controller.findByQuery(currentUser, query)).toEqual(
         schoolProfiles,
       );
-      expect(schoolProfilesService.findByQuery).toHaveBeenCalledWith(currentUser, query);
+      expect(schoolProfilesService.findByQuery).toHaveBeenCalledWith(
+        currentUser,
+        query,
+      );
     });
 
     it('should return empty if no school profiles correspond to given query', async () => {
       schoolProfilesService.findByQuery.mockResolvedValue([]);
 
       expect(await controller.findByQuery(currentUser, query)).toEqual([]);
-      expect(schoolProfilesService.findByQuery).toHaveBeenCalledWith(currentUser, query);
+      expect(schoolProfilesService.findByQuery).toHaveBeenCalledWith(
+        currentUser,
+        query,
+      );
     });
 
     it("should throw ForbiddenException if user don't have rights to read school profile", async () => {
@@ -184,13 +199,10 @@ describe('SchoolProfilesController', () => {
     };
 
     it('should update a school profile', async () => {
-      const mockProfile: SchoolProfileDTO = plainToInstance(
-        SchoolProfileDTO,
-        {
-          userId: 'test-id',
-          name: 'John Doe',
-        },
-      );
+      const mockProfile: SchoolProfileDTO = plainToInstance(SchoolProfileDTO, {
+        userId: 'test-id',
+        name: 'John Doe',
+      });
       schoolProfilesService.update.mockResolvedValue(mockProfile);
 
       expect(

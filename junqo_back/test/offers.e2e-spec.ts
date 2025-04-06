@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as request from 'supertest';
 import { createTestingEnvironment } from './test-setup';
 import { UserType } from '../src/users/dto/user-type.enum';

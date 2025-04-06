@@ -1,4 +1,4 @@
-import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 import {
   ForbiddenException,
   InternalServerErrorException,
@@ -12,7 +12,6 @@ import { TestBed } from '@suites/unit';
 import { CreateUserDTO, UpdateUserDTO, UserDTO } from './dto/user.dto';
 import { UsersService } from './users.service';
 import { UsersRepository } from './repository/users.repository';
-import { UserResource } from '../casl/dto/user-resource.dto';
 
 const usersList: UserDTO[] = [
   plainToInstance(UserDTO, {

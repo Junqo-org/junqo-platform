@@ -6,14 +6,13 @@ import {
   IsNotEmpty,
   IsOptional,
   IsUrl,
-  IsArray,
   IsInt,
 } from 'class-validator';
 import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
-import { Expose, Transform, Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // School Profile retrieved from database
@@ -46,7 +45,7 @@ export class SchoolProfileDTO {
   name: string;
 
   @ApiPropertyOptional({
-    description: 'URL to school\'s logo image',
+    description: "URL to school's logo image",
     example: 'https://example.com/school-logo.jpg',
   })
   @Expose()
@@ -84,7 +83,7 @@ export class CreateSchoolProfileDTO extends SchoolProfileDTO {}
 // Expected values to update a School Profile
 export class UpdateSchoolProfileDTO {
   @ApiPropertyOptional({
-    description: 'URL to school\'s logo image',
+    description: "URL to school's logo image",
     example: 'https://example.com/school-logo.jpg',
   })
   @Expose()

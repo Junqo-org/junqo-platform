@@ -9,7 +9,6 @@ import {
 import { StudentProfilesRepository } from './student-profiles.repository';
 import { StudentProfileModel } from './models/student-profile.model';
 import { ExperienceModel } from '../../experiences/repository/models/experience.model';
-import { CompanyProfileModel } from '../../company-profiles/repository/models/company-profile.model';
 import { ExperienceDTO } from '../../experiences/dto/experience.dto';
 import { plainToInstance } from 'class-transformer';
 import {

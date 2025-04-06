@@ -16,9 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return welcome text', () => {
-      expect(appController.getHello()).toBe(
-        'Welcome to the Junqo API !',
-      );
+      expect(appController.getHello()).toBe('Welcome to the Junqo API !');
     });
   });
 });

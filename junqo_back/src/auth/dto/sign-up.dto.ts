@@ -20,7 +20,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class SignUpDTO {
   @ApiProperty({
-    description: 'User\'s full name',
+    description: "User's full name",
     example: 'John Doe',
     minLength: MIN_NAME_LENGTH,
     maxLength: MAX_NAME_LENGTH,

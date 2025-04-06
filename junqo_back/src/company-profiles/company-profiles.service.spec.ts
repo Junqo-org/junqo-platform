@@ -14,7 +14,7 @@ import {
 } from './dto/company-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
-import { ExperienceDTO } from '../experiences/dto/experience.dto'
+import { ExperienceDTO } from '../experiences/dto/experience.dto';
 import { Mocked } from '@suites/doubles.jest';
 import { TestBed } from '@suites/unit';
 import { CompanyProfileResource } from '../casl/dto/company-profile-resource.dto';
@@ -129,7 +129,10 @@ describe('CompanyProfilesService', () => {
     it('should return every company profiles corresponding to given query', async () => {
       companyProfilesRepository.findByQuery.mockResolvedValue(companyProfiles);
 
-      const result = await companyProfilesService.findByQuery(currentUser, query);
+      const result = await companyProfilesService.findByQuery(
+        currentUser,
+        query,
+      );
       expect(result).toBe(companyProfiles);
       expect(companyProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(

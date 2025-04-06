@@ -14,7 +14,7 @@ import {
 } from './dto/school-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
-import { ExperienceDTO } from '../experiences/dto/experience.dto'
+import { ExperienceDTO } from '../experiences/dto/experience.dto';
 import { Mocked } from '@suites/doubles.jest';
 import { TestBed } from '@suites/unit';
 import { SchoolProfileResource } from '../casl/dto/school-profile-resource.dto';
@@ -129,7 +129,10 @@ describe('SchoolProfilesService', () => {
     it('should return every school profiles corresponding to given query', async () => {
       schoolProfilesRepository.findByQuery.mockResolvedValue(schoolProfiles);
 
-      const result = await schoolProfilesService.findByQuery(currentUser, query);
+      const result = await schoolProfilesService.findByQuery(
+        currentUser,
+        query,
+      );
       expect(result).toBe(schoolProfiles);
       expect(schoolProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
@@ -184,9 +187,7 @@ describe('SchoolProfilesService', () => {
 
   describe('findOneById', () => {
     it('should return a school profile by ID', async () => {
-      schoolProfilesRepository.findOneById.mockResolvedValue(
-        schoolProfiles[0],
-      );
+      schoolProfilesRepository.findOneById.mockResolvedValue(schoolProfiles[0]);
 
       const result = await schoolProfilesService.findOneById(
         currentUser,
@@ -222,9 +223,7 @@ describe('SchoolProfilesService', () => {
     });
 
     it('should throw ForbiddenException if user cannot read school profile', async () => {
-      schoolProfilesRepository.findOneById.mockResolvedValue(
-        schoolProfiles[0],
-      );
+      schoolProfilesRepository.findOneById.mockResolvedValue(schoolProfiles[0]);
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
       );
@@ -255,10 +254,13 @@ describe('SchoolProfilesService', () => {
 
   describe('create', () => {
     it('should create an school profile', async () => {
-      const createSchoolProfileInput: CreateSchoolProfileDTO =
-        plainToInstance(CreateSchoolProfileDTO, schoolProfiles[0], {
+      const createSchoolProfileInput: CreateSchoolProfileDTO = plainToInstance(
+        CreateSchoolProfileDTO,
+        schoolProfiles[0],
+        {
           excludeExtraneousValues: true,
-        });
+        },
+      );
 
       schoolProfilesRepository.create.mockResolvedValue(schoolProfiles[0]);
 
@@ -282,10 +284,13 @@ describe('SchoolProfilesService', () => {
     });
 
     it('should throw ForbiddenException if user cannot create school profile', async () => {
-      const createSchoolProfileInput: CreateSchoolProfileDTO =
-        plainToInstance(CreateSchoolProfileDTO, schoolProfiles[0], {
+      const createSchoolProfileInput: CreateSchoolProfileDTO = plainToInstance(
+        CreateSchoolProfileDTO,
+        schoolProfiles[0],
+        {
           excludeExtraneousValues: true,
-        });
+        },
+      );
 
       schoolProfilesRepository.create.mockResolvedValue(schoolProfiles[0]);
       caslAbilityFactory.createForUser.mockImplementationOnce(
@@ -336,10 +341,13 @@ describe('SchoolProfilesService', () => {
       const newData = {
         title: 'new title',
       };
-      const updateSchoolProfileInput: UpdateSchoolProfileDTO =
-        plainToInstance(UpdateSchoolProfileDTO, newData, {
+      const updateSchoolProfileInput: UpdateSchoolProfileDTO = plainToInstance(
+        UpdateSchoolProfileDTO,
+        newData,
+        {
           excludeExtraneousValues: true,
-        });
+        },
+      );
       const expectedSchoolProfile: SchoolProfileDTO = plainToInstance(
         SchoolProfileDTO,
         {
@@ -348,12 +356,8 @@ describe('SchoolProfilesService', () => {
         },
       );
 
-      schoolProfilesRepository.findOneById.mockResolvedValue(
-        schoolProfiles[0],
-      );
-      schoolProfilesRepository.update.mockResolvedValue(
-        expectedSchoolProfile,
-      );
+      schoolProfilesRepository.findOneById.mockResolvedValue(schoolProfiles[0]);
+      schoolProfilesRepository.update.mockResolvedValue(expectedSchoolProfile);
 
       const result = await schoolProfilesService.update(
         currentUser,
@@ -383,8 +387,10 @@ describe('SchoolProfilesService', () => {
       const newData = {
         title: 'new title',
       };
-      const updateSchoolProfileInput: UpdateSchoolProfileDTO =
-        plainToInstance(UpdateSchoolProfileDTO, newData);
+      const updateSchoolProfileInput: UpdateSchoolProfileDTO = plainToInstance(
+        UpdateSchoolProfileDTO,
+        newData,
+      );
       const expectedSchoolProfile: SchoolProfileDTO = plainToInstance(
         SchoolProfileDTO,
         {
@@ -393,12 +399,8 @@ describe('SchoolProfilesService', () => {
         },
       );
 
-      schoolProfilesRepository.findOneById.mockResolvedValue(
-        schoolProfiles[0],
-      );
-      schoolProfilesRepository.update.mockResolvedValue(
-        expectedSchoolProfile,
-      );
+      schoolProfilesRepository.findOneById.mockResolvedValue(schoolProfiles[0]);
+      schoolProfilesRepository.update.mockResolvedValue(expectedSchoolProfile);
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
       );
@@ -430,12 +432,12 @@ describe('SchoolProfilesService', () => {
       const newData = {
         title: 'new title',
       };
-      const updateSchoolProfileInput: UpdateSchoolProfileDTO =
-        plainToInstance(UpdateSchoolProfileDTO, newData);
-
-      schoolProfilesRepository.findOneById.mockResolvedValue(
-        schoolProfiles[0],
+      const updateSchoolProfileInput: UpdateSchoolProfileDTO = plainToInstance(
+        UpdateSchoolProfileDTO,
+        newData,
       );
+
+      schoolProfilesRepository.findOneById.mockResolvedValue(schoolProfiles[0]);
       schoolProfilesRepository.update.mockRejectedValue(new Error());
 
       await expect(
@@ -446,9 +448,7 @@ describe('SchoolProfilesService', () => {
 
   describe('delete', () => {
     it('should delete an school profile', async () => {
-      schoolProfilesRepository.findOneById.mockResolvedValue(
-        schoolProfiles[0],
-      );
+      schoolProfilesRepository.findOneById.mockResolvedValue(schoolProfiles[0]);
       schoolProfilesRepository.delete.mockResolvedValue(true);
 
       const result = await schoolProfilesService.delete(currentUser);
@@ -468,9 +468,7 @@ describe('SchoolProfilesService', () => {
     });
 
     it('should throw ForbiddenException if user cannot read school profile', async () => {
-      schoolProfilesRepository.findOneById.mockResolvedValue(
-        schoolProfiles[0],
-      );
+      schoolProfilesRepository.findOneById.mockResolvedValue(schoolProfiles[0]);
       schoolProfilesRepository.delete.mockResolvedValue(true);
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
@@ -497,9 +495,7 @@ describe('SchoolProfilesService', () => {
     });
 
     it('should throw InternalServerErrorException if delete fails', async () => {
-      schoolProfilesRepository.findOneById.mockResolvedValue(
-        schoolProfiles[0],
-      );
+      schoolProfilesRepository.findOneById.mockResolvedValue(schoolProfiles[0]);
       schoolProfilesRepository.delete.mockRejectedValue(new Error());
 
       await expect(schoolProfilesService.delete(currentUser)).rejects.toThrow(

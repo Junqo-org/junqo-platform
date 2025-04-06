@@ -36,11 +36,13 @@ export class StudentProfilesRepository {
     const offset = (page - 1) * limit;
 
     try {
-      const whereClause = skills ? {
-        skills: {
-          [Op.overlap]: skills
-        }
-      } : {};
+      const whereClause = skills
+        ? {
+            skills: {
+              [Op.overlap]: skills,
+            },
+          }
+        : {};
 
       const studentProfilesM: StudentProfileModel[] =
         await this.studentProfileModel.findAll({

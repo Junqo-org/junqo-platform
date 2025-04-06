@@ -14,7 +14,7 @@ import {
 } from './dto/student-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
-import { ExperienceDTO } from '../experiences/dto/experience.dto'
+import { ExperienceDTO } from '../experiences/dto/experience.dto';
 import { Mocked } from '@suites/doubles.jest';
 import { TestBed } from '@suites/unit';
 import { StudentProfileResource } from '../casl/dto/student-profile-resource.dto';
@@ -129,7 +129,10 @@ describe('StudentProfilesService', () => {
     it('should return every student profiles corresponding to given query', async () => {
       studentProfilesRepository.findByQuery.mockResolvedValue(studentProfiles);
 
-      const result = await studentProfilesService.findByQuery(currentUser, query);
+      const result = await studentProfilesService.findByQuery(
+        currentUser,
+        query,
+      );
       expect(result).toBe(studentProfiles);
       expect(studentProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(

@@ -26,9 +26,7 @@ import {
 @ApiBearerAuth()
 @Controller('school-profiles')
 export class SchoolProfilesController {
-  constructor(
-    private readonly schoolProfilesService: SchoolProfilesService,
-  ) {}
+  constructor(private readonly schoolProfilesService: SchoolProfilesService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get school profiles by query parameters' })

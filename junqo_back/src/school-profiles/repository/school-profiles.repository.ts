@@ -12,7 +12,6 @@ import {
   SchoolProfileQueryDTO,
   UpdateSchoolProfileDTO,
 } from '../dto/school-profile.dto';
-import { Op } from 'sequelize';
 
 @Injectable()
 export class SchoolProfilesRepository {

@@ -76,7 +76,8 @@ export class OfferDTO {
 
   @ApiProperty({
     description: 'Detailed description of the job offer',
-    example: 'We are looking for a senior frontend developer with React experience...',
+    example:
+      'We are looking for a senior frontend developer with React experience...',
   })
   @Expose()
   @IsNotEmpty({ message: 'Description is required' })
@@ -209,7 +210,8 @@ export class CreateOfferDTO {
 
   @ApiProperty({
     description: 'Detailed description of the job offer',
-    example: 'We are looking for a senior frontend developer with React experience...',
+    example:
+      'We are looking for a senior frontend developer with React experience...',
   })
   @Expose()
   @IsNotEmpty({ message: 'Description is required' })

@@ -14,7 +14,10 @@ import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
-import { ExperienceDTO, UpdateExperienceDTO } from '../../experiences/dto/experience.dto';
+import {
+  ExperienceDTO,
+  UpdateExperienceDTO,
+} from '../../experiences/dto/experience.dto';
 import { Expose, Transform, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -31,7 +34,7 @@ export class StudentProfileDTO {
   userId: string;
 
   @ApiProperty({
-    description: 'Student\'s full name',
+    description: "Student's full name",
     example: 'John Doe',
     minLength: MIN_NAME_LENGTH,
     maxLength: MAX_NAME_LENGTH,
@@ -48,7 +51,7 @@ export class StudentProfileDTO {
   name: string;
 
   @ApiPropertyOptional({
-    description: 'URL to student\'s avatar image',
+    description: "URL to student's avatar image",
     example: 'https://example.com/avatar.jpg',
   })
   @Expose()
@@ -68,7 +71,7 @@ export class StudentProfileDTO {
   skills?: string[];
 
   @ApiPropertyOptional({
-    description: 'List of student\'s work experiences',
+    description: "List of student's work experiences",
     type: [ExperienceDTO],
   })
   @Expose()
@@ -93,7 +96,7 @@ export class CreateStudentProfileDTO extends StudentProfileDTO {}
 // Expected values to update a Student Profile
 export class UpdateStudentProfileDTO {
   @ApiPropertyOptional({
-    description: 'URL to student\'s avatar image',
+    description: "URL to student's avatar image",
     example: 'https://example.com/avatar.jpg',
   })
   @Expose()
@@ -115,7 +118,7 @@ export class UpdateStudentProfileDTO {
   skills?: string[];
 
   @ApiPropertyOptional({
-    description: 'List of student\'s work experiences to update',
+    description: "List of student's work experiences to update",
     type: [UpdateExperienceDTO],
   })
   @Expose()

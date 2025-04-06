@@ -97,7 +97,7 @@ export class ExperienceModel extends Model {
       endDate: this.endDate,
       description: this.description,
       skills: this.skills,
-      studentProfileId: this.studentProfileId
+      studentProfileId: this.studentProfileId,
     };
   }
 }

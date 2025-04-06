@@ -7,7 +7,6 @@ import {
   Param,
   Patch,
   Post,
-  HttpCode,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDTO, OfferDTO, UpdateOfferDTO } from './dto/offer.dto';
@@ -67,6 +66,7 @@ export class OffersController {
   })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async getMy(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @CurrentUser() currentUser: AuthUserDTO,
   ): Promise<OfferDTO[]> {
     throw new NotImplementedException();
@@ -210,6 +210,7 @@ export class OffersController {
   })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async getAppliedOffers(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @CurrentUser() currentUser: AuthUserDTO,
   ): Promise<OfferDTO[]> {
     throw new NotImplementedException();
@@ -234,7 +235,9 @@ export class OffersController {
   @ApiNotFoundResponse({ description: 'Offer not found' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async applyToOffer(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @CurrentUser() currentUser: AuthUserDTO,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Param('id') id: string,
   ): Promise<{ isSuccessful: boolean }> {
     throw new NotImplementedException();
@@ -258,7 +261,9 @@ export class OffersController {
   @ApiNotFoundResponse({ description: 'Offer or application not found' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async removeApplyToOffer(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @CurrentUser() currentUser: AuthUserDTO,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Param('id') id: string,
   ): Promise<{ isSuccessful: boolean }> {
     throw new NotImplementedException();

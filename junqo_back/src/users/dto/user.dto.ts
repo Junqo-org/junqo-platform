@@ -35,7 +35,7 @@ export class UserDTO {
   id: string;
 
   @ApiProperty({
-    description: 'User\'s full name',
+    description: "User's full name",
     example: 'John Doe',
     minLength: MIN_NAME_LENGTH,
     maxLength: MAX_NAME_LENGTH,
@@ -71,7 +71,7 @@ export class UserDTO {
   @ApiProperty({
     description: 'Type of user account',
     enum: UserType,
-    example: 'STUDENT'
+    example: 'STUDENT',
   })
   @Expose()
   @IsNotEmpty({ message: 'User type is required' })
@@ -102,7 +102,7 @@ export class PublicUserDTO extends OmitType(UserDTO, ['hashedPassword']) {}
 // Expected values to create a User
 export class CreateUserDTO {
   @ApiProperty({
-    description: 'User\'s full name',
+    description: "User's full name",
     example: 'John Doe',
     minLength: MIN_NAME_LENGTH,
     maxLength: MAX_NAME_LENGTH,
@@ -136,7 +136,7 @@ export class CreateUserDTO {
   @ApiProperty({
     description: 'Type of user account',
     enum: UserType,
-    example: 'STUDENT'
+    example: 'STUDENT',
   })
   @IsNotEmpty({ message: 'User type is required' })
   @IsEnum(UserType, { message: 'User type must be a valid enum value' })
