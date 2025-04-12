@@ -7,7 +7,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
 export class ExperienceDTO {
   @ApiProperty({ description: 'Unique identifier for the experience' })
@@ -61,6 +61,7 @@ export class ExperienceDTO {
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true })
   @IsOptional()
+  @Type(() => String)
   skills?: string[];
 
   @ApiProperty({
@@ -121,6 +122,7 @@ export class CreateExperienceDTO {
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true })
   @IsOptional()
+  @Type(() => String)
   skills?: string[];
 
   constructor(data: Partial<CreateExperienceDTO>) {

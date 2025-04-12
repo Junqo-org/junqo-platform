@@ -138,6 +138,11 @@ export class StudentProfilesService {
     }
 
     try {
+      createStudentProfileDto = {
+        ...createStudentProfileDto,
+        userId: userId,
+        name: currentUser.name,
+      };
       const createdStudentProfile: StudentProfileDTO =
         await this.profilesRepository.create(createStudentProfileDto);
 

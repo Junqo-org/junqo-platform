@@ -13,6 +13,7 @@ import {
   UpdateStudentProfileDTO,
 } from '../dto/student-profile.dto';
 import { Op } from 'sequelize';
+import { ExperienceModel } from '../../experiences/repository/models/experience.model';
 
 @Injectable()
 export class StudentProfilesRepository {
@@ -46,6 +47,7 @@ export class StudentProfilesRepository {
 
       const studentProfilesM: StudentProfileModel[] =
         await this.studentProfileModel.findAll({
+          include: [ExperienceModel],
           where: whereClause,
           offset,
           limit,
@@ -81,7 +83,9 @@ export class StudentProfilesRepository {
 
     try {
       const studentProfileM: StudentProfileModel =
-        await this.studentProfileModel.findByPk(id);
+        await this.studentProfileModel.findByPk(id, {
+          include: [ExperienceModel],
+        });
 
       if (!studentProfileM) {
         throw new NotFoundException(`Student profile #${id} not found`);
@@ -111,13 +115,20 @@ export class StudentProfilesRepository {
   ): Promise<StudentProfileDTO> {
     try {
       const newStudentProfileM: StudentProfileModel =
-        await this.studentProfileModel.create({
-          userId: createStudentProfileDto.userId,
-          name: createStudentProfileDto.name,
-          avatar: createStudentProfileDto.avatar,
-          skills: createStudentProfileDto.skills,
-          experiences: createStudentProfileDto.experiences,
-        });
+        await this.studentProfileModel.create(
+          {
+            userId: createStudentProfileDto.userId,
+            name: createStudentProfileDto.name,
+            avatar: createStudentProfileDto.avatar,
+            skills: createStudentProfileDto.skills,
+            ...(createStudentProfileDto.experiences != undefined && {
+              experiences: createStudentProfileDto.experiences,
+            }),
+          },
+          {
+            include: [ExperienceModel],
+          },
+        );
 
       if (!newStudentProfileM) {
         throw new InternalServerErrorException('Student Profile not created');
@@ -151,12 +162,17 @@ export class StudentProfilesRepository {
         await this.studentProfileModel.sequelize.transaction(
           async (transaction) => {
             const studentProfile = await this.studentProfileModel.findByPk(id, {
+              include: [ExperienceModel],
               transaction,
             });
 
             if (!studentProfile) {
               throw new NotFoundException(`Student profile #${id} not found`);
             }
+            console.log(
+              'updated is : ' + JSON.stringify(updateStudentProfileDto),
+            );
+
             const updatedStudentProfile = await studentProfile.update(
               {
                 ...(updateStudentProfileDto.avatar != undefined && {
@@ -203,7 +219,9 @@ export class StudentProfilesRepository {
    */
   public async delete(id: string): Promise<boolean> {
     try {
-      const studentProfile = await this.studentProfileModel.findByPk(id);
+      const studentProfile = await this.studentProfileModel.findByPk(id, {
+        include: [ExperienceModel],
+      });
 
       if (!studentProfile) {
         throw new NotFoundException(`Student Profile #${id} not found`);

@@ -166,7 +166,9 @@ describe('StudentProfilesRepository', () => {
 
       const result = await repository.findOneById(userId);
       expect(result).toEqual(studentProfiles[0]);
-      expect(mockStudentProfileModel.findByPk).toHaveBeenCalledWith(userId);
+      expect(mockStudentProfileModel.findByPk).toHaveBeenCalledWith(userId, {
+        include: expect.any(Array),
+      });
     });
 
     it("should throw NotFoundException if the student profile doesn't exists", async () => {
@@ -196,6 +198,9 @@ describe('StudentProfilesRepository', () => {
       expect(result).toEqual(studentProfiles[0]);
       expect(mockStudentProfileModel.create).toHaveBeenCalledWith(
         studentProfiles[0],
+        {
+          include: expect.any(Array),
+        },
       );
     });
 
@@ -230,7 +235,10 @@ describe('StudentProfilesRepository', () => {
       expect(result).toEqual(studentProfiles[0]);
       expect(mockStudentProfileModel.findByPk).toHaveBeenCalledWith(
         studentProfiles[0].userId,
-        { transaction: undefined },
+        {
+          include: expect.any(Array),
+          transaction: undefined,
+        },
       );
       expect(studentProfileModels[0].update).toHaveBeenCalledWith(updateData, {
         transaction: undefined,

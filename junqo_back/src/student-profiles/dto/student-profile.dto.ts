@@ -15,6 +15,7 @@ import {
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
 import {
+  CreateExperienceDTO,
   ExperienceDTO,
   UpdateExperienceDTO,
 } from '../../experiences/dto/experience.dto';
@@ -68,6 +69,7 @@ export class StudentProfileDTO {
   @Expose()
   @IsOptional()
   @IsArray({ message: 'Skills must be an array' })
+  @Type(() => String)
   skills?: string[];
 
   @ApiPropertyOptional({
@@ -91,7 +93,70 @@ export class StudentProfileDTO {
 }
 
 // Expected values to create a Student Profile
-export class CreateStudentProfileDTO extends StudentProfileDTO {}
+export class CreateStudentProfileDTO {
+  @ApiProperty({
+    description: 'User ID that owns this profile',
+    format: 'uuid',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @Expose()
+  @IsNotEmpty({ message: 'User ID is required' })
+  @IsUUID('4', { message: 'User ID must be a valid UUID' })
+  userId: string;
+
+  @ApiProperty({
+    description: "Student's full name",
+    example: 'John Doe',
+    minLength: MIN_NAME_LENGTH,
+    maxLength: MAX_NAME_LENGTH,
+  })
+  @Expose()
+  @IsNotEmpty({ message: 'Name is required' })
+  @IsString({ message: 'Name must be a string' })
+  @MinLength(MIN_NAME_LENGTH, {
+    message: `Name must be at least ${MIN_NAME_LENGTH} characters long`,
+  })
+  @MaxLength(MAX_NAME_LENGTH, {
+    message: `Name must be at most ${MAX_NAME_LENGTH} characters long`,
+  })
+  name: string;
+
+  @ApiPropertyOptional({
+    description: "URL to student's avatar image",
+    example: 'https://example.com/avatar.jpg',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl()
+  avatar?: string;
+
+  @ApiPropertyOptional({
+    description: 'List of student skills',
+    example: ['JavaScript', 'React', 'Node.js'],
+    isArray: true,
+    type: [String],
+  })
+  @Expose()
+  @IsOptional()
+  @IsArray({ message: 'Skills must be an array' })
+  @IsString({ each: true })
+  @Type(() => String)
+  skills?: string[];
+
+  @ApiPropertyOptional({
+    description: "List of student's work experiences to create",
+    type: [CreateExperienceDTO],
+  })
+  @Expose()
+  @IsOptional()
+  @IsArray({ message: 'Experiences must be an array' })
+  @ValidateNested({
+    each: true,
+    message: 'Each experience must be a valid CreateExperienceDTO',
+  })
+  @Type(() => UpdateExperienceDTO)
+  experiences?: CreateExperienceDTO[];
+}
 
 // Expected values to update a Student Profile
 export class UpdateStudentProfileDTO {
@@ -126,8 +191,9 @@ export class UpdateStudentProfileDTO {
   @IsArray({ message: 'Experiences must be an array' })
   @ValidateNested({
     each: true,
-    message: 'Each experience must be a valid ExperienceDTO',
+    message: 'Each experience must be a valid UpdateExperienceDTO',
   })
+  @Type(() => UpdateExperienceDTO)
   experiences?: UpdateExperienceDTO[];
 }
 
