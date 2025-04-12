@@ -169,9 +169,6 @@ export class StudentProfilesRepository {
             if (!studentProfile) {
               throw new NotFoundException(`Student profile #${id} not found`);
             }
-            console.log(
-              'updated is : ' + JSON.stringify(updateStudentProfileDto),
-            );
 
             const updatedStudentProfile = await studentProfile.update(
               {
