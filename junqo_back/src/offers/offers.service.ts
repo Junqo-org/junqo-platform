@@ -10,6 +10,7 @@ import { OffersRepository } from './repository/offers.repository';
 import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { OfferResource } from '../casl/dto/offer-resource.dto';
 import { plainToInstance } from 'class-transformer';
+import { OfferQueryDTO, OfferQueryOutputDTO } from './dto/offer-query.dto';
 
 @Injectable()
 export class OffersService {
@@ -40,6 +41,80 @@ export class OffersService {
         throw new NotFoundException(`Offers not found`);
       }
       return Offers;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof ForbiddenException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to fetch offers: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Retrieves offers matching the query if the current user has the required permissions.
+   *
+   * @param currentUser - The authenticated user requesting the offers
+   * @param query - The search query to filter offers
+   * @returns Promise containing an array of matching OfferDTO objects
+   * @throws ForbiddenException if user lacks READ permission on OfferResource
+   * @throws NotFoundException if no matching offers are found
+   * @throws InternalServerErrorException if database query fails
+   */
+  public async findByQuery(
+    currentUser: AuthUserDTO,
+    query: OfferQueryDTO,
+  ): Promise<OfferQueryOutputDTO> {
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(Actions.READ, new OfferResource())) {
+      throw new ForbiddenException('You do not have permission to read offers');
+    }
+
+    try {
+      const queryResult: OfferQueryOutputDTO =
+        await this.offersRepository.findByQuery(query);
+
+      if (!queryResult || queryResult.count === 0) {
+        throw new NotFoundException(`No offers found matching query: ${query}`);
+      }
+      return queryResult;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof ForbiddenException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to fetch offers: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Retrieves all offers created by a specific user.
+   *
+   * @param currentUser - The authenticated user requesting the offers
+   * @param userId - The ID of the user whose offers to retrieve
+   * @returns Promise containing an array of OfferDTO objects
+   * @throws ForbiddenException if user lacks READ permission
+   * @throws NotFoundException if no offers are found for the user
+   * @throws InternalServerErrorException if database query fails
+   */
+  public async findByUserId(
+    currentUser: AuthUserDTO,
+    userId: string,
+  ): Promise<OfferDTO[]> {
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(Actions.READ, new OfferResource(userId))) {
+      throw new ForbiddenException('You do not have permission to read offers');
+    }
+
+    try {
+      const offers: OfferDTO[] =
+        await this.offersRepository.findByUserId(userId);
+
+      if (!offers || offers.length === 0) {
+        throw new NotFoundException(`No offers found for user ${userId}`);
+      }
+      return offers;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       if (error instanceof ForbiddenException) throw error;

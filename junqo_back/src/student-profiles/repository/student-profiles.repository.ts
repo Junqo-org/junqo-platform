@@ -55,8 +55,8 @@ export class StudentProfilesRepository {
       const { rows, count } = await this.studentProfileModel.findAndCountAll({
         include: [ExperienceModel],
         where,
-        limit,
         offset,
+        limit,
       });
 
       if (count === 0) {

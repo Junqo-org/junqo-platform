@@ -41,6 +41,10 @@ const testOfferData = {
   status: OfferStatus.ACTIVE,
   skills: ['JavaScript', 'Node.js'],
   offerType: OfferType.INTERNSHIP,
+  duration: 6,
+  salary: 600,
+  benefits: ['Coffee'],
+  educationLevel: 5,
   workLocationType: WorkContext.HYBRID,
 };
 
@@ -116,14 +120,29 @@ describe('Offers E2E Tests', () => {
   });
 
   describe('Query Offers', () => {
-    it('should get all offers', async () => {
+    it('offers query empty', async () => {
       const response = await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}`)
         .set('Authorization', `Bearer ${studentToken}`)
         .expect(HttpStatus.OK);
 
-      expect(response.body).toBeInstanceOf(Array);
-      expect(response.body.length).toBeGreaterThanOrEqual(1);
+      expect(response.body.rows).toBeInstanceOf(Array);
+      expect(response.body.rows.length).toBeGreaterThanOrEqual(1);
+      expect(response.body.count).toBeGreaterThanOrEqual(1);
+    });
+
+    it('complete offers query', async () => {
+      const response = await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .query(
+          `userId=${companyUserId}&title=Engineer&skills=JavaScript&mode=any&offerType=INTERNSHIP&duration=6&salary=600&workLocationType=HYBRID&benefits=Coffee&educationLevel=5&offset=0&limit=1`,
+        )
+        .expect(HttpStatus.OK);
+
+      expect(response.body.rows).toBeInstanceOf(Array);
+      expect(response.body.rows.length).toBeGreaterThanOrEqual(1);
+      expect(response.body.count).toBeGreaterThanOrEqual(1);
     });
 
     it('should get offer by ID', async () => {
@@ -361,35 +380,15 @@ describe('Offers E2E Tests', () => {
     });
   });
 
-  describe('Company Offers Management', () => {
+  describe('Get Company Offers', () => {
     it("should get company's own offers", async () => {
-      await request(testEnv.app.getHttpServer())
+      const response = await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}/my`)
         .set('Authorization', `Bearer ${companyToken}`)
-        .expect(HttpStatus.NOT_IMPLEMENTED);
+        .expect(HttpStatus.OK);
+
+      expect(response.body).toBeInstanceOf(Array);
+      expect(response.body.length).toBeGreaterThanOrEqual(1);
     });
   });
-
-  // describe('Application Features', () => {
-  //   it('should get applied offers for a student', async () => {
-  //     await request(testEnv.app.getHttpServer())
-  //       .get(`${baseRoute}/applied`)
-  //       .set('Authorization', `Bearer ${studentToken}`)
-  //       .expect(HttpStatus.NOT_IMPLEMENTED);
-  //   });
-
-  //   it('should allow a student to apply to an offer', async () => {
-  //     await request(testEnv.app.getHttpServer())
-  //       .post(`${baseRoute}/${testOffer.id}/apply`)
-  //       .set('Authorization', `Bearer ${studentToken}`)
-  //       .expect(HttpStatus.NOT_IMPLEMENTED);
-  //   });
-
-  //   it('should allow a student to withdraw application from an offer', async () => {
-  //     await request(testEnv.app.getHttpServer())
-  //       .delete(`${baseRoute}/${testOffer.id}/apply`)
-  //       .set('Authorization', `Bearer ${studentToken}`)
-  //       .expect(HttpStatus.NOT_IMPLEMENTED);
-  //   });
-  // });
 });

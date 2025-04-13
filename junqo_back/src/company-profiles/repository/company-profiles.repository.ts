@@ -9,9 +9,12 @@ import { CompanyProfileModel } from './models/company-profile.model';
 import {
   CreateCompanyProfileDTO,
   CompanyProfileDTO,
-  CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
 } from '../dto/company-profile.dto';
+import {
+  CompanyProfileQueryDTO,
+  CompanyProfileQueryOutputDTO,
+} from '../dto/company-profile-query.dto';
 
 @Injectable()
 export class CompanyProfilesRepository {
@@ -30,24 +33,28 @@ export class CompanyProfilesRepository {
    */
   public async findByQuery(
     query: CompanyProfileQueryDTO = {},
-  ): Promise<CompanyProfileDTO[]> {
-    const { page = 1, limit = 10 } = query;
-    const offset = (page - 1) * limit;
+  ): Promise<CompanyProfileQueryOutputDTO> {
+    const { offset, limit } = query;
+    const where = {};
 
     try {
-      const companyProfilesM: CompanyProfileModel[] =
-        await this.companyProfileModel.findAll({
-          offset,
-          limit,
-        });
+      const { rows, count } = await this.companyProfileModel.findAndCountAll({
+        where,
+        limit,
+        offset,
+      });
 
-      if (companyProfilesM.length == 0) {
+      if (count === 0) {
         throw new NotFoundException(
           'No company profiles found matching the criteria',
         );
       }
+      const queryResult: CompanyProfileQueryOutputDTO = {
+        rows: rows.map((profile) => profile.toCompanyProfileDTO()),
+        count,
+      };
 
-      return companyProfilesM.map((profile) => profile.toCompanyProfileDTO());
+      return queryResult;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(

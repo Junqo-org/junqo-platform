@@ -131,17 +131,3 @@ export class CreateExperienceDTO {
 }
 
 export class UpdateExperienceDTO extends PartialType(CreateExperienceDTO) {}
-
-export class ExperienceQueryDTO {
-  @ApiPropertyOptional({ description: 'Filter experiences by company name' })
-  @Expose()
-  @IsString()
-  @IsOptional()
-  readonly company?: string;
-
-  @ApiPropertyOptional({ description: 'Filter experiences by title' })
-  @Expose()
-  @IsString()
-  @IsOptional()
-  readonly title?: string;
-}

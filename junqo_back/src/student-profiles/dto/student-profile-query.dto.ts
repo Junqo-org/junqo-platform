@@ -39,9 +39,9 @@ export class StudentProfileQueryDTO {
   readonly mode?: 'all' | 'any';
 
   @ApiPropertyOptional({
-    description: 'Page number for pagination',
+    description: 'Offset number for pagination',
     example: 1,
-    minimum: 1,
+    minimum: 0,
   })
   @Expose()
   @IsOptional()

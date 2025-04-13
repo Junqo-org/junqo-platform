@@ -6,13 +6,12 @@ import {
   IsNotEmpty,
   IsOptional,
   IsUrl,
-  IsInt,
 } from 'class-validator';
 import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
-import { Expose, Type } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // Company Profile retrieved from database
@@ -110,28 +109,4 @@ export class UpdateCompanyProfileDTO {
   @IsOptional()
   @IsUrl({}, { message: 'Website must be a valid URL' })
   websiteUrl?: string;
-}
-
-export class CompanyProfileQueryDTO {
-  @ApiPropertyOptional({
-    description: 'Page number for pagination',
-    example: 1,
-    minimum: 1,
-  })
-  @Expose()
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  readonly page?: number;
-
-  @ApiPropertyOptional({
-    description: 'Number of items per page',
-    example: 10,
-    minimum: 1,
-  })
-  @Expose()
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  readonly limit?: number;
 }

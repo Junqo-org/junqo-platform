@@ -86,7 +86,7 @@ describe('OffersController', () => {
     it('should return an array of offers', async () => {
       service.findAll.mockResolvedValue(mockOffers);
 
-      expect(await controller.getAll(mockCurrentUser)).toEqual(mockOffers);
+      expect(await controller.findByQuery(mockCurrentUser)).toEqual(mockOffers);
     });
   });
 

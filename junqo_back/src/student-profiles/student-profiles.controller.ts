@@ -41,7 +41,7 @@ export class StudentProfilesController {
   })
   @ApiOkResponse({
     description: 'Student profiles retrieved successfully',
-    type: [StudentProfileQueryOutputDTO],
+    type: StudentProfileQueryOutputDTO,
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   @ApiForbiddenResponse({

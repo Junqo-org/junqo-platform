@@ -3,7 +3,6 @@ import { SchoolProfilesService } from './school-profiles.service';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CurrentUser } from '../users/users.decorator';
 import {
-  SchoolProfileQueryDTO,
   UpdateSchoolProfileDTO,
   SchoolProfileDTO,
 } from './dto/school-profile.dto';
@@ -21,6 +20,10 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import {
+  SchoolProfileQueryDTO,
+  SchoolProfileQueryOutputDTO,
+} from './dto/school-profile-query.dto';
 
 @ApiTags('school-profiles')
 @ApiBearerAuth()
@@ -36,7 +39,7 @@ export class SchoolProfilesController {
   })
   @ApiOkResponse({
     description: 'School profiles retrieved successfully',
-    type: [SchoolProfileDTO],
+    type: SchoolProfileQueryOutputDTO,
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   @ApiForbiddenResponse({
@@ -46,7 +49,7 @@ export class SchoolProfilesController {
   public async findByQuery(
     @CurrentUser() currentUser: AuthUserDTO,
     @Query() query: SchoolProfileQueryDTO,
-  ) {
+  ): Promise<SchoolProfileQueryOutputDTO> {
     return this.schoolProfilesService.findByQuery(currentUser, query);
   }
 
