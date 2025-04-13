@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:junqo_front/core/config.dart';
+import 'package:flutter/foundation.dart';
 
 /// Client HTTP pour les appels à l'API REST
 class RestClient {
@@ -51,62 +52,119 @@ class RestClient {
   }
 
   /// Envoie une requête GET
-  Future<Map<String, dynamic>> get(String endpoint) async {
+  Future<dynamic> get(String endpoint) async {
     final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
     
-    final response = await _httpClient.get(
-      url,
-      headers: _headers,
-    );
-    
-    return _handleResponse(response);
+    debugPrint('GET request to: $url');
+    try {
+      final response = await _httpClient.get(
+        url,
+        headers: _headers,
+      );
+      
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('Error during GET request: $e');
+      rethrow;
+    }
   }
 
   /// Envoie une requête POST
   Future<Map<String, dynamic>> post(String endpoint, {Map<String, dynamic>? body}) async {
     final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
     
-    final response = await _httpClient.post(
-      url,
-      headers: _headers,
-      body: body != null ? jsonEncode(body) : null,
-    );
+    debugPrint('POST request to: $url');
+    debugPrint('POST body: $body');
     
-    return _handleResponse(response);
+    try {
+      final response = await _httpClient.post(
+        url,
+        headers: _headers,
+        body: body != null ? jsonEncode(body) : null,
+      );
+      
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('Error during POST request: $e');
+      rethrow;
+    }
   }
 
   /// Envoie une requête PUT
   Future<Map<String, dynamic>> put(String endpoint, {Map<String, dynamic>? body}) async {
     final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
     
-    final response = await _httpClient.put(
-      url,
-      headers: _headers,
-      body: body != null ? jsonEncode(body) : null,
-    );
+    debugPrint('PUT request to: $url');
+    debugPrint('PUT body: $body');
     
-    return _handleResponse(response);
+    try {
+      final response = await _httpClient.put(
+        url,
+        headers: _headers,
+        body: body != null ? jsonEncode(body) : null,
+      );
+      
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('Error during PUT request: $e');
+      rethrow;
+    }
+  }
+
+  /// Envoie une requête PATCH
+  Future<Map<String, dynamic>> patch(String endpoint, {Map<String, dynamic>? body}) async {
+    final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
+    
+    debugPrint('PATCH request to: $url');
+    debugPrint('PATCH body: $body');
+    
+    try {
+      final response = await _httpClient.patch(
+        url,
+        headers: _headers,
+        body: body != null ? jsonEncode(body) : null,
+      );
+      
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('Error during PATCH request: $e');
+      rethrow;
+    }
   }
 
   /// Envoie une requête DELETE
   Future<Map<String, dynamic>> delete(String endpoint) async {
     final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
     
-    final response = await _httpClient.delete(
-      url,
-      headers: _headers,
-    );
+    debugPrint('DELETE request to: $url');
     
-    return _handleResponse(response);
+    try {
+      final response = await _httpClient.delete(
+        url,
+        headers: _headers,
+      );
+      
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('Error during DELETE request: $e');
+      rethrow;
+    }
   }
 
   /// Gère les réponses HTTP et les erreurs
-  Map<String, dynamic> _handleResponse(http.Response response) {
+  dynamic _handleResponse(http.Response response) {
+    debugPrint('Response status code: ${response.statusCode}');
+    debugPrint('Response headers: ${response.headers}');
+    debugPrint('Response body: ${response.body}');
+    
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) {
         return {};
       }
-      return jsonDecode(response.body) as Map<String, dynamic>;
+      
+      final decoded = jsonDecode(response.body);
+      // Return the decoded JSON as is (can be Map or List)
+      return decoded;
     } else {
       Map<String, dynamic> errorBody = {};
       
@@ -114,8 +172,9 @@ class RestClient {
         if (response.body.isNotEmpty) {
           errorBody = jsonDecode(response.body) as Map<String, dynamic>;
         }
-      } catch (_) {
+      } catch (e) {
         // En cas d'erreur de parsing, on utilise un corps d'erreur vide
+        debugPrint('Error parsing error response: $e');
       }
       
       throw RestApiException(

@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import '../shared/widgets/navbar_company.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/services/offer_service.dart';
+import 'package:junqo_front/pages/offer_creation.dart';
+import 'package:junqo_front/core/client.dart';
 
-class OfferDetail extends StatelessWidget {
+class OfferDetail extends StatefulWidget {
   final OfferData offer;
 
   const OfferDetail({super.key, required this.offer});
 
+  @override
+  State<OfferDetail> createState() => _OfferDetailState();
+}
+
+class _OfferDetailState extends State<OfferDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +81,7 @@ class OfferDetail extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    offer.title,
+                    widget.offer.title,
                     style: const TextStyle(
                       fontSize: 16,
                       color: Color(0xFF6366F1),
@@ -133,7 +142,7 @@ class OfferDetail extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        offer.title,
+                        widget.offer.title,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -143,10 +152,10 @@ class OfferDetail extends StatelessWidget {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          _buildTag(offer.offerType, isOfferType: true),
-                          if (offer.workLocationType.isNotEmpty)
-                            _buildTag(offer.workLocationType),
-                          _buildStatusTag(offer.status),
+                          _buildTag(widget.offer.offerType, isOfferType: true),
+                          if (widget.offer.workLocationType.isNotEmpty)
+                            _buildTag(widget.offer.workLocationType),
+                          _buildStatusTag(widget.offer.status),
                         ],
                       ),
                     ],
@@ -170,7 +179,7 @@ class OfferDetail extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  offer.description,
+                  widget.offer.description,
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF475569), // Slate 600
@@ -189,28 +198,28 @@ class OfferDetail extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    if (offer.duration.isNotEmpty)
+                    if (widget.offer.duration.isNotEmpty)
                       Expanded(
                         child: _buildInfoItem(
                           icon: Icons.access_time,
                           label: "Durée",
-                          value: offer.duration,
+                          value: widget.offer.duration,
                         ),
                       ),
-                    if (offer.salary.isNotEmpty)
+                    if (widget.offer.salary.isNotEmpty)
                       Expanded(
                         child: _buildInfoItem(
                           icon: Icons.euro_rounded,
                           label: "Salaire",
-                          value: offer.salary,
+                          value: widget.offer.salary,
                         ),
                       ),
-                    if (offer.educationLevel.isNotEmpty)
+                    if (widget.offer.educationLevel.isNotEmpty)
                       Expanded(
                         child: _buildInfoItem(
                           icon: Icons.school_outlined,
                           label: "Niveau d'études",
-                          value: offer.educationLevel,
+                          value: widget.offer.educationLevel,
                         ),
                       ),
                   ],
@@ -218,12 +227,12 @@ class OfferDetail extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    if (offer.workLocationType.isNotEmpty)
+                    if (widget.offer.workLocationType.isNotEmpty)
                       Expanded(
                         child: _buildInfoItem(
                           icon: Icons.location_on_outlined,
                           label: "Type de lieu",
-                          value: offer.workLocationType,
+                          value: widget.offer.workLocationType,
                         ),
                       ),
                     Expanded(
@@ -232,7 +241,7 @@ class OfferDetail extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                if (offer.skills.isNotEmpty) ...[
+                if (widget.offer.skills.isNotEmpty) ...[
                   const Text(
                     "Compétences requises",
                     style: TextStyle(
@@ -245,7 +254,7 @@ class OfferDetail extends StatelessWidget {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: offer.skills.map((skill) {
+                    children: widget.offer.skills.map((skill) {
                       return Chip(
                         label: Text(skill),
                         labelStyle: const TextStyle(
@@ -269,7 +278,7 @@ class OfferDetail extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                 ],
-                if (offer.benefits.isNotEmpty) ...[
+                if (widget.offer.benefits.isNotEmpty) ...[
                   const Text(
                     "Avantages proposés",
                     style: TextStyle(
@@ -281,7 +290,7 @@ class OfferDetail extends StatelessWidget {
                   const SizedBox(height: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: offer.benefits.map((benefit) {
+                    children: widget.offer.benefits.map((benefit) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
@@ -314,7 +323,19 @@ class OfferDetail extends StatelessWidget {
                   children: [
                     OutlinedButton.icon(
                       onPressed: () {
-                        // Action pour modifier l'offre
+                        // Ouvrir le formulaire d'édition avec l'offre existante
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => JobOfferForm(
+                              client: GetIt.instance<RestClient>(),
+                              existingOffer: widget.offer,
+                            ),
+                          ),
+                        ).then((_) {
+                          // Recharger les détails de l'offre après modification
+                          Navigator.pop(context, true); // Retourner à la liste avec refresh
+                        });
                       },
                       icon: const Icon(Icons.edit_outlined),
                       label: const Text("Modifier"),
@@ -330,7 +351,89 @@ class OfferDetail extends StatelessWidget {
                     const SizedBox(width: 12),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Action pour supprimer l'offre
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext dialogContext) {
+                            return AlertDialog(
+                              title: const Text(
+                                "Supprimer cette offre ?",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E293B),
+                                ),
+                              ),
+                              content: const Text(
+                                "Cette action est irréversible. L'offre sera définitivement supprimée.",
+                                style: TextStyle(
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(dialogContext).pop();
+                                  },
+                                  child: const Text(
+                                    "Annuler",
+                                    style: TextStyle(
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    Navigator.of(dialogContext).pop();
+                                    
+                                    try {
+                                      // Montrer un indicateur de chargement
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Suppression en cours..."),
+                                          duration: Duration(seconds: 1),
+                                        ),
+                                      );
+                                      
+                                      final offerService = GetIt.instance<OfferService>();
+                                      final bool success = await offerService.deleteOffer(widget.offer.id!);
+                                      
+                                      if (success) {
+                                        // Retourner à la liste des offres avec un message de succès
+                                        Navigator.of(context).pop(true);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("L'offre a été supprimée avec succès"),
+                                            backgroundColor: Color(0xFF10B981), // Emerald 500
+                                          ),
+                                        );
+                                      } else {
+                                        // Afficher un message d'erreur
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Échec de la suppression de l'offre"),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      // Afficher un message d'erreur
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text("Erreur: ${e.toString()}"),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFEF4444), // Red 500
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text("Supprimer"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                       icon: const Icon(Icons.delete_outline),
                       label: const Text("Supprimer"),

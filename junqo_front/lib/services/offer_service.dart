@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
+import 'package:junqo_front/core/auth_service.dart';
 
 class OfferService {
   final RestClient client;
@@ -30,6 +31,16 @@ class OfferService {
     }
   }
 
+  /// Récupère toutes les offres créées par l'utilisateur connecté
+  Future<List<OfferData>> getMyOffers() async {
+    try {
+      return await _apiService.getMyOffers();
+    } catch (e) {
+      debugPrint('Error getting my offers: $e');
+      rethrow;
+    }
+  }
+
   /// Récupère une offre d'emploi par son ID
   Future<OfferData> getOfferById(String id) async {
     try {
@@ -51,9 +62,9 @@ class OfferService {
   }
 
   /// Supprime une offre d'emploi
-  Future<void> deleteOffer(String id) async {
+  Future<bool> deleteOffer(String id) async {
     try {
-      await _apiService.deleteOffer(id);
+      return await _apiService.deleteOffer(id);
     } catch (e) {
       debugPrint('Error deleting offer: $e');
       rethrow;
