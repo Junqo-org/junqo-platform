@@ -43,4 +43,65 @@ class OfferData {
       'status': status,
     };
   }
+  
+  factory OfferData.fromJson(Map<String, dynamic> json) {
+    // Gérer les compétences (skills)
+    List<String> skills = [];
+    if (json['skills'] != null) {
+      if (json['skills'] is List) {
+        skills = (json['skills'] as List).map((item) => item.toString()).toList();
+      } else if (json['skills'] is String) {
+        // Si c'est une chaîne de caractères, tenter de séparer par des virgules
+        skills = (json['skills'] as String).split(',').map((s) => s.trim()).toList();
+      }
+    }
+
+    // Gérer les avantages (benefits)
+    List<String> benefits = [];
+    if (json['benefits'] != null) {
+      if (json['benefits'] is List) {
+        benefits = (json['benefits'] as List).map((item) => item.toString()).toList();
+      } else if (json['benefits'] is String) {
+        // Si c'est une chaîne de caractères, tenter de séparer par des virgules
+        benefits = (json['benefits'] as String).split(',').map((s) => s.trim()).toList();
+      }
+    }
+
+    // Gérer le statut (actif/inactif)
+    String status = json['status']?.toString() ?? '';
+    if (status.toLowerCase() == 'active' || status.toUpperCase() == 'ACTIVE') {
+      status = 'active';
+    } else if (status.toLowerCase() == 'inactive' || status.toUpperCase() == 'INACTIVE') {
+      status = 'inactive';
+    }
+
+    // Gérer le niveau d'éducation (s'assurer que c'est bien une String)
+    String educationLevel = '';
+    if (json['educationLevel'] != null) {
+      educationLevel = json['educationLevel'].toString();
+    }
+
+    return OfferData(
+      id: json['id']?.toString(),
+      userid: json['userId']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      offerType: json['offerType']?.toString() ?? '',
+      duration: json['duration']?.toString() ?? '',
+      salary: json['salary']?.toString() ?? '',
+      workLocationType: json['workLocationType']?.toString() ?? '',
+      skills: skills,
+      benefits: benefits,
+      educationLevel: educationLevel,
+      status: status,
+    );
+  }
+  
+  static List<String> _parseStringList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) {
+      return value.map((item) => item.toString()).toList();
+    }
+    return [];
+  }
 }
