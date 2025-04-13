@@ -3,9 +3,9 @@ import { getModelToken } from '@nestjs/sequelize';
 import {
   CreateStudentProfileDTO,
   StudentProfileDTO,
-  StudentProfileQueryDTO,
   UpdateStudentProfileDTO,
 } from '../dto/student-profile.dto';
+import { StudentProfileQueryDTO } from '../dto/student-profile-query.dto';
 import { StudentProfilesRepository } from './student-profiles.repository';
 import { StudentProfileModel } from './models/student-profile.model';
 import { ExperienceModel } from '../../experiences/repository/models/experience.model';

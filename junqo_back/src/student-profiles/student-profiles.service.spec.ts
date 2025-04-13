@@ -9,9 +9,12 @@ import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import {
   CreateStudentProfileDTO,
   StudentProfileDTO,
-  StudentProfileQueryDTO,
   UpdateStudentProfileDTO,
 } from './dto/student-profile.dto';
+import {
+  StudentProfileQueryDTO,
+  StudentProfileQueryOutputDTO,
+} from './dto/student-profile-query.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
 import { ExperienceDTO } from '../experiences/dto/experience.dto';
@@ -106,16 +109,23 @@ describe('StudentProfilesService', () => {
       StudentProfileQueryDTO,
       {
         skills: ['skill'],
-        page: 1,
-        limit: 1,
+        mode: ['any'],
+        offset: 0,
+        limit: 10,
       },
     );
 
     it('should return all student profiles if no query', async () => {
-      studentProfilesRepository.findByQuery.mockResolvedValue(studentProfiles);
+      const expectedQueryResult: StudentProfileQueryOutputDTO = {
+        rows: studentProfiles,
+        count: studentProfiles.length,
+      };
+      studentProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
 
       const result = await studentProfilesService.findByQuery(currentUser, {});
-      expect(result).toBe(studentProfiles);
+      expect(result).toBe(expectedQueryResult);
       expect(studentProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
@@ -127,13 +137,19 @@ describe('StudentProfilesService', () => {
     });
 
     it('should return every student profiles corresponding to given query', async () => {
-      studentProfilesRepository.findByQuery.mockResolvedValue(studentProfiles);
+      const expectedQueryResult: StudentProfileQueryOutputDTO = {
+        rows: studentProfiles,
+        count: studentProfiles.length,
+      };
+      studentProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
 
       const result = await studentProfilesService.findByQuery(
         currentUser,
         query,
       );
-      expect(result).toBe(studentProfiles);
+      expect(result).toBe(expectedQueryResult);
       expect(studentProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
@@ -145,7 +161,10 @@ describe('StudentProfilesService', () => {
     });
 
     it('should throw NotFoundException if there is no student profile', async () => {
-      studentProfilesRepository.findByQuery.mockResolvedValue([]);
+      studentProfilesRepository.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
 
       await expect(
         studentProfilesService.findByQuery(currentUser, query),
@@ -161,7 +180,13 @@ describe('StudentProfilesService', () => {
     });
 
     it('should throw ForbiddenException if user cannot read student profile', async () => {
-      studentProfilesRepository.findByQuery.mockResolvedValue(studentProfiles);
+      const expectedQueryResult: StudentProfileQueryOutputDTO = {
+        rows: studentProfiles,
+        count: studentProfiles.length,
+      };
+      studentProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
       );

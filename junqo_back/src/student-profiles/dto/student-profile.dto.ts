@@ -8,7 +8,6 @@ import {
   IsNotEmpty,
   IsOptional,
   ValidateNested,
-  IsInt,
 } from 'class-validator';
 import {
   MAX_NAME_LENGTH,
@@ -19,7 +18,7 @@ import {
   ExperienceDTO,
   UpdateExperienceDTO,
 } from '../../experiences/dto/experience.dto';
-import { Expose, Transform, Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // Student Profile retrieved from database
@@ -195,45 +194,4 @@ export class UpdateStudentProfileDTO {
   })
   @Type(() => UpdateExperienceDTO)
   experiences?: UpdateExperienceDTO[];
-}
-
-export class StudentProfileQueryDTO {
-  @ApiPropertyOptional({
-    description: 'Filter by skills (comma-separated string or array)',
-    example: ['JavaScript', 'React', 'Node.js'],
-  })
-  @Expose()
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value.split(',');
-    }
-    return value;
-  })
-  @IsArray({ message: 'Skills must be an array' })
-  @IsString({ each: true })
-  @Type(() => String)
-  readonly skills?: string[];
-
-  @ApiPropertyOptional({
-    description: 'Page number for pagination',
-    example: 1,
-    minimum: 1,
-  })
-  @Expose()
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  readonly page?: number;
-
-  @ApiPropertyOptional({
-    description: 'Number of items per page',
-    example: 10,
-    minimum: 1,
-  })
-  @Expose()
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  readonly limit?: number;
 }

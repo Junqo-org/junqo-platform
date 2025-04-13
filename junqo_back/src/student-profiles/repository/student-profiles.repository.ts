@@ -9,9 +9,12 @@ import { StudentProfileModel } from './models/student-profile.model';
 import {
   CreateStudentProfileDTO,
   StudentProfileDTO,
-  StudentProfileQueryDTO,
   UpdateStudentProfileDTO,
 } from '../dto/student-profile.dto';
+import {
+  StudentProfileQueryDTO,
+  StudentProfileQueryOutputDTO,
+} from '../dto/student-profile-query.dto';
 import { Op } from 'sequelize';
 import { ExperienceModel } from '../../experiences/repository/models/experience.model';
 
@@ -32,34 +35,41 @@ export class StudentProfilesRepository {
    */
   public async findByQuery(
     query: StudentProfileQueryDTO = {},
-  ): Promise<StudentProfileDTO[]> {
-    const { skills, page = 1, limit = 10 } = query;
-    const offset = (page - 1) * limit;
+  ): Promise<StudentProfileQueryOutputDTO> {
+    const { skills, mode, offset, limit } = query;
+    const where = {};
+
+    if (skills && Array.isArray(skills) && skills.length > 0) {
+      if (mode === 'all') {
+        where['skills'] = {
+          [Op.contains]: skills,
+        };
+      } else {
+        where['skills'] = {
+          [Op.overlap]: skills,
+        };
+      }
+    }
 
     try {
-      const whereClause = skills
-        ? {
-            skills: {
-              [Op.overlap]: skills,
-            },
-          }
-        : {};
+      const { rows, count } = await this.studentProfileModel.findAndCountAll({
+        include: [ExperienceModel],
+        where,
+        limit,
+        offset,
+      });
 
-      const studentProfilesM: StudentProfileModel[] =
-        await this.studentProfileModel.findAll({
-          include: [ExperienceModel],
-          where: whereClause,
-          offset,
-          limit,
-        });
-
-      if (studentProfilesM.length == 0) {
+      if (count === 0) {
         throw new NotFoundException(
           'No student profiles found matching the criteria',
         );
       }
+      const queryResult: StudentProfileQueryOutputDTO = {
+        rows: rows.map((profile) => profile.toStudentProfileDTO()),
+        count,
+      };
 
-      return studentProfilesM.map((profile) => profile.toStudentProfileDTO());
+      return queryResult;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(

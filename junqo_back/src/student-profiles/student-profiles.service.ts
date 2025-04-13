@@ -8,9 +8,12 @@ import { StudentProfilesRepository } from './repository/student-profiles.reposit
 import {
   CreateStudentProfileDTO,
   StudentProfileDTO,
-  StudentProfileQueryDTO,
   UpdateStudentProfileDTO,
 } from './dto/student-profile.dto';
+import {
+  StudentProfileQueryDTO,
+  StudentProfileQueryOutputDTO,
+} from './dto/student-profile-query.dto';
 import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { StudentProfileResource } from '../casl/dto/student-profile-resource.dto';
@@ -36,7 +39,7 @@ export class StudentProfilesService {
   public async findByQuery(
     currentUser: AuthUserDTO,
     query: StudentProfileQueryDTO,
-  ): Promise<StudentProfileDTO[]> {
+  ): Promise<StudentProfileQueryOutputDTO> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
     if (ability.cannot(Actions.READ, new StudentProfileResource())) {
@@ -46,15 +49,15 @@ export class StudentProfilesService {
     }
 
     try {
-      const studentsProfiles: StudentProfileDTO[] =
+      const queryResult: StudentProfileQueryOutputDTO =
         await this.profilesRepository.findByQuery(query);
 
-      if (!studentsProfiles || studentsProfiles.length === 0) {
+      if (!queryResult || queryResult.count === 0) {
         throw new NotFoundException(
           `No student profiles found matching query: ${query}`,
         );
       }
-      return studentsProfiles;
+      return queryResult;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       if (error instanceof ForbiddenException) throw error;
