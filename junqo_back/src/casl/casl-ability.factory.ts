@@ -14,6 +14,7 @@ import { UserDTO } from '../users/dto/user.dto';
 import { OfferResource } from './dto/offer-resource.dto';
 import { SchoolProfileResource } from './dto/school-profile-resource.dto';
 import { CompanyProfileResource } from './dto/company-profile-resource.dto';
+import { ApplicationResource } from './dto/application-resource.dto';
 
 // Describes what user can actually do in the application
 export enum Actions {
@@ -34,6 +35,7 @@ type Subjects =
       | typeof CompanyProfileResource
       | typeof SchoolProfileResource
       | typeof OfferResource
+      | typeof ApplicationResource
     >
   | 'all'; // `all` is a special keyword in CASL which represents "any" resource
 
@@ -61,6 +63,10 @@ export class CaslAbilityFactory {
       can(Actions.READ, OfferResource);
       can(Actions.READ, SchoolProfileResource);
       can(Actions.READ, CompanyProfileResource);
+      can(Actions.CREATE, ApplicationResource);
+      can([Actions.READ, Actions.DELETE], ApplicationResource, {
+        studentId: user.id,
+      });
     }
     if (user.type === UserType.COMPANY) {
       can(Actions.CREATE, CompanyProfileResource);
@@ -69,6 +75,9 @@ export class CaslAbilityFactory {
       can(Actions.MANAGE, OfferResource, { userId: user.id });
       can(Actions.READ, StudentProfileResource);
       can(Actions.READ, SchoolProfileResource);
+      can([Actions.READ, Actions.UPDATE, Actions.DELETE], ApplicationResource, {
+        companyId: user.id,
+      });
     }
     if (user.type === UserType.SCHOOL) {
       can(Actions.CREATE, SchoolProfileResource);

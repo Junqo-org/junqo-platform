@@ -9,9 +9,12 @@ import { SchoolProfileModel } from './models/school-profile.model';
 import {
   CreateSchoolProfileDTO,
   SchoolProfileDTO,
-  SchoolProfileQueryDTO,
   UpdateSchoolProfileDTO,
 } from '../dto/school-profile.dto';
+import {
+  SchoolProfileQueryDTO,
+  SchoolProfileQueryOutputDTO,
+} from '../dto/school-profile-query.dto';
 
 @Injectable()
 export class SchoolProfilesRepository {
@@ -30,24 +33,28 @@ export class SchoolProfilesRepository {
    */
   public async findByQuery(
     query: SchoolProfileQueryDTO = {},
-  ): Promise<SchoolProfileDTO[]> {
-    const { page = 1, limit = 10 } = query;
-    const offset = (page - 1) * limit;
+  ): Promise<SchoolProfileQueryOutputDTO> {
+    const { offset, limit } = query;
+    const where = {};
 
     try {
-      const schoolProfilesM: SchoolProfileModel[] =
-        await this.schoolProfileModel.findAll({
-          offset,
-          limit,
-        });
+      const { rows, count } = await this.schoolProfileModel.findAndCountAll({
+        where,
+        limit,
+        offset,
+      });
 
-      if (schoolProfilesM.length == 0) {
+      if (count === 0) {
         throw new NotFoundException(
           'No school profiles found matching the criteria',
         );
       }
+      const queryResult: SchoolProfileQueryOutputDTO = {
+        rows: rows.map((profile) => profile.toSchoolProfileDTO()),
+        count,
+      };
 
-      return schoolProfilesM.map((profile) => profile.toSchoolProfileDTO());
+      return queryResult;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(

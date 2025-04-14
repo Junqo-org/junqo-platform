@@ -9,7 +9,6 @@ import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import {
   CreateSchoolProfileDTO,
   SchoolProfileDTO,
-  SchoolProfileQueryDTO,
   UpdateSchoolProfileDTO,
 } from './dto/school-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
@@ -19,6 +18,10 @@ import { Mocked } from '@suites/doubles.jest';
 import { TestBed } from '@suites/unit';
 import { SchoolProfileResource } from '../casl/dto/school-profile-resource.dto';
 import { SchoolProfilesService } from './school-profiles.service';
+import {
+  SchoolProfileQueryDTO,
+  SchoolProfileQueryOutputDTO,
+} from './dto/school-profile-query.dto';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -105,17 +108,22 @@ describe('SchoolProfilesService', () => {
     const query: SchoolProfileQueryDTO = plainToInstance(
       SchoolProfileQueryDTO,
       {
-        skills: ['skill'],
-        page: 1,
-        limit: 1,
+        offset: 0,
+        limit: 10,
       },
     );
 
     it('should return all school profiles if no query', async () => {
-      schoolProfilesRepository.findByQuery.mockResolvedValue(schoolProfiles);
+      const expectedQueryResult: SchoolProfileQueryOutputDTO = {
+        rows: schoolProfiles,
+        count: schoolProfiles.length,
+      };
+      schoolProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
 
       const result = await schoolProfilesService.findByQuery(currentUser, {});
-      expect(result).toBe(schoolProfiles);
+      expect(result).toBe(expectedQueryResult);
       expect(schoolProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
@@ -127,13 +135,19 @@ describe('SchoolProfilesService', () => {
     });
 
     it('should return every school profiles corresponding to given query', async () => {
-      schoolProfilesRepository.findByQuery.mockResolvedValue(schoolProfiles);
+      const expectedQueryResult: SchoolProfileQueryOutputDTO = {
+        rows: schoolProfiles,
+        count: schoolProfiles.length,
+      };
+      schoolProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
 
       const result = await schoolProfilesService.findByQuery(
         currentUser,
         query,
       );
-      expect(result).toBe(schoolProfiles);
+      expect(result).toBe(expectedQueryResult);
       expect(schoolProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
@@ -145,7 +159,10 @@ describe('SchoolProfilesService', () => {
     });
 
     it('should throw NotFoundException if there is no school profile', async () => {
-      schoolProfilesRepository.findByQuery.mockResolvedValue([]);
+      schoolProfilesRepository.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
 
       await expect(
         schoolProfilesService.findByQuery(currentUser, query),
@@ -161,7 +178,13 @@ describe('SchoolProfilesService', () => {
     });
 
     it('should throw ForbiddenException if user cannot read school profile', async () => {
-      schoolProfilesRepository.findByQuery.mockResolvedValue(schoolProfiles);
+      const expectedQueryResult: SchoolProfileQueryOutputDTO = {
+        rows: schoolProfiles,
+        count: schoolProfiles.length,
+      };
+      schoolProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
       );

@@ -9,7 +9,6 @@ import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import {
   CreateCompanyProfileDTO,
   CompanyProfileDTO,
-  CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
 } from './dto/company-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
@@ -19,6 +18,10 @@ import { Mocked } from '@suites/doubles.jest';
 import { TestBed } from '@suites/unit';
 import { CompanyProfileResource } from '../casl/dto/company-profile-resource.dto';
 import { CompanyProfilesService } from './company-profiles.service';
+import {
+  CompanyProfileQueryDTO,
+  CompanyProfileQueryOutputDTO,
+} from './dto/company-profile-query.dto';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -105,17 +108,22 @@ describe('CompanyProfilesService', () => {
     const query: CompanyProfileQueryDTO = plainToInstance(
       CompanyProfileQueryDTO,
       {
-        skills: ['skill'],
-        page: 1,
-        limit: 1,
+        offset: 0,
+        limit: 10,
       },
     );
 
     it('should return all company profiles if no query', async () => {
-      companyProfilesRepository.findByQuery.mockResolvedValue(companyProfiles);
+      const expectedQueryResult: CompanyProfileQueryOutputDTO = {
+        rows: companyProfiles,
+        count: companyProfiles.length,
+      };
+      companyProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
 
       const result = await companyProfilesService.findByQuery(currentUser, {});
-      expect(result).toBe(companyProfiles);
+      expect(result).toBe(expectedQueryResult);
       expect(companyProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
@@ -127,13 +135,19 @@ describe('CompanyProfilesService', () => {
     });
 
     it('should return every company profiles corresponding to given query', async () => {
-      companyProfilesRepository.findByQuery.mockResolvedValue(companyProfiles);
+      const expectedQueryResult: CompanyProfileQueryOutputDTO = {
+        rows: companyProfiles,
+        count: companyProfiles.length,
+      };
+      companyProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
 
       const result = await companyProfilesService.findByQuery(
         currentUser,
         query,
       );
-      expect(result).toBe(companyProfiles);
+      expect(result).toBe(expectedQueryResult);
       expect(companyProfilesRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
@@ -145,7 +159,10 @@ describe('CompanyProfilesService', () => {
     });
 
     it('should throw NotFoundException if there is no company profile', async () => {
-      companyProfilesRepository.findByQuery.mockResolvedValue([]);
+      companyProfilesRepository.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
 
       await expect(
         companyProfilesService.findByQuery(currentUser, query),
@@ -161,7 +178,13 @@ describe('CompanyProfilesService', () => {
     });
 
     it('should throw ForbiddenException if user cannot read company profile', async () => {
-      companyProfilesRepository.findByQuery.mockResolvedValue(companyProfiles);
+      const expectedQueryResult: CompanyProfileQueryOutputDTO = {
+        rows: companyProfiles,
+        count: companyProfiles.length,
+      };
+      companyProfilesRepository.findByQuery.mockResolvedValue(
+        expectedQueryResult,
+      );
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
       );

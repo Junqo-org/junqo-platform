@@ -177,19 +177,44 @@ describe('Student Profiles E2E Tests', () => {
         .set('Authorization', `Bearer ${companyToken}`)
         .expect(HttpStatus.OK);
 
-      expect(response.body.length).toBeGreaterThanOrEqual(2);
+      expect(response.body.rows.length).toBeGreaterThanOrEqual(2);
+      expect(response.body.count).toBeGreaterThanOrEqual(2);
+    });
 
-      const response2 = await request(testEnv.app.getHttpServer())
+    it('should query students by multiple skills', async () => {
+      const response = await request(testEnv.app.getHttpServer())
         .get(baseRoute)
         .query('skills=Python,Django')
         .set('Authorization', `Bearer ${companyToken}`)
         .expect(HttpStatus.OK);
 
-      expect(response2.body.length).toBeGreaterThanOrEqual(1);
-      const hasStudent2 = response2.body.some(
+      expect(response.body.rows.length).toBeGreaterThanOrEqual(1);
+      expect(response.body.count).toBeGreaterThanOrEqual(1);
+      const hasStudent = response.body.rows.some(
         (profile) => profile.userId === student2UserId,
       );
-      expect(hasStudent2).toBe(true);
+      expect(hasStudent).toBe(true);
+    });
+
+    it('should query students with offset and limit', async () => {
+      const response = await request(testEnv.app.getHttpServer())
+        .get(baseRoute)
+        .query('offset=1&limit=1')
+        .set('Authorization', `Bearer ${companyToken}`)
+        .expect(HttpStatus.OK);
+
+      expect(response.body.rows.length).toBe(1);
+      expect(response.body.count).toBe(2);
+    });
+
+    it('should query students without query parameter', async () => {
+      const response = await request(testEnv.app.getHttpServer())
+        .get(baseRoute)
+        .set('Authorization', `Bearer ${companyToken}`)
+        .expect(HttpStatus.OK);
+
+      expect(response.body.rows.length).toBe(2);
+      expect(response.body.count).toBe(2);
     });
   });
 
@@ -198,6 +223,16 @@ describe('Student Profiles E2E Tests', () => {
       const updateRequest = {
         avatar: 'https://picsum.photos/200/400',
         skills: ['JavaScript', 'TypeScript', 'React'],
+        experiences: [
+          {
+            title: 'experience1',
+            company: 'junqo',
+            startDate: '2022-01-01',
+            endDate: '2022-03-01',
+            description: 'experience description',
+            skills: ['TypeScript'],
+          },
+        ],
       };
 
       const response = await request(testEnv.app.getHttpServer())
@@ -209,7 +244,6 @@ describe('Student Profiles E2E Tests', () => {
       expect(response.body).toMatchObject({
         userId: studentUserId,
         name: studentUser.name,
-        experiences: expect.any(Array),
         ...updateRequest,
       });
     });
@@ -226,41 +260,4 @@ describe('Student Profiles E2E Tests', () => {
         .expect(HttpStatus.BAD_REQUEST);
     });
   });
-
-  // describe('Pagination Tests', () => {
-  //   it('should return paginated results', async () => {
-  //     const response = await request(testEnv.app.getHttpServer())
-  //       .get(baseRoute)
-  //       .query({ limit: 1, page: 1 })
-  //       .set('Authorization', `Bearer ${companyToken}`)
-  //       .expect(HttpStatus.OK);
-
-  //     expect(response.body).toHaveProperty('meta');
-  //     expect(response.body.meta).toHaveProperty('itemCount');
-  //     expect(response.body.meta).toHaveProperty('totalItems');
-  //     expect(response.body.meta).toHaveProperty('totalPages');
-  //     expect(response.body.data.length).toBeLessThanOrEqual(1);
-  //   });
-
-  //   it('should navigate to next page', async () => {
-  //     const response1 = await request(testEnv.app.getHttpServer())
-  //       .get(baseRoute)
-  //       .query({ limit: 1, page: 1 })
-  //       .set('Authorization', `Bearer ${companyToken}`)
-  //       .expect(HttpStatus.OK);
-
-  //     const response2 = await request(testEnv.app.getHttpServer())
-  //       .get(baseRoute)
-  //       .query({ limit: 1, page: 2 })
-  //       .set('Authorization', `Bearer ${companyToken}`)
-  //       .expect(HttpStatus.OK);
-
-  //     // Different profiles on different pages
-  //     if (response1.body.data.length > 0 && response2.body.data.length > 0) {
-  //       expect(response1.body.data[0].userId).not.toBe(
-  //         response2.body.data[0].userId,
-  //       );
-  //     }
-  //   });
-  // });
 });

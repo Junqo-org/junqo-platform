@@ -8,13 +8,16 @@ import { SchoolProfilesRepository } from './repository/school-profiles.repositor
 import {
   CreateSchoolProfileDTO,
   SchoolProfileDTO,
-  SchoolProfileQueryDTO,
   UpdateSchoolProfileDTO,
 } from './dto/school-profile.dto';
 import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { SchoolProfileResource } from '../casl/dto/school-profile-resource.dto';
 import { plainToInstance } from 'class-transformer';
+import {
+  SchoolProfileQueryDTO,
+  SchoolProfileQueryOutputDTO,
+} from './dto/school-profile-query.dto';
 
 @Injectable()
 export class SchoolProfilesService {
@@ -36,7 +39,7 @@ export class SchoolProfilesService {
   public async findByQuery(
     currentUser: AuthUserDTO,
     query: SchoolProfileQueryDTO,
-  ): Promise<SchoolProfileDTO[]> {
+  ): Promise<SchoolProfileQueryOutputDTO> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
     if (ability.cannot(Actions.READ, new SchoolProfileResource())) {
@@ -46,15 +49,15 @@ export class SchoolProfilesService {
     }
 
     try {
-      const schoolsProfiles: SchoolProfileDTO[] =
+      const queryResult: SchoolProfileQueryOutputDTO =
         await this.profilesRepository.findByQuery(query);
 
-      if (!schoolsProfiles || schoolsProfiles.length === 0) {
+      if (!queryResult || queryResult.count === 0) {
         throw new NotFoundException(
           `No school profiles found matching query: ${query}`,
         );
       }
-      return schoolsProfiles;
+      return queryResult;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       if (error instanceof ForbiddenException) throw error;

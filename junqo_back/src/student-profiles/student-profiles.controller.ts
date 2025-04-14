@@ -3,10 +3,13 @@ import { StudentProfilesService } from './student-profiles.service';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CurrentUser } from '../users/users.decorator';
 import {
-  StudentProfileQueryDTO,
   UpdateStudentProfileDTO,
   StudentProfileDTO,
 } from './dto/student-profile.dto';
+import {
+  StudentProfileQueryDTO,
+  StudentProfileQueryOutputDTO,
+} from './dto/student-profile-query.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -38,7 +41,7 @@ export class StudentProfilesController {
   })
   @ApiOkResponse({
     description: 'Student profiles retrieved successfully',
-    type: [StudentProfileDTO],
+    type: StudentProfileQueryOutputDTO,
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   @ApiForbiddenResponse({
@@ -48,7 +51,7 @@ export class StudentProfilesController {
   public async findByQuery(
     @CurrentUser() currentUser: AuthUserDTO,
     @Query() query: StudentProfileQueryDTO,
-  ) {
+  ): Promise<StudentProfileQueryOutputDTO> {
     return this.studentProfilesService.findByQuery(currentUser, query);
   }
 

@@ -8,13 +8,16 @@ import { CompanyProfilesRepository } from './repository/company-profiles.reposit
 import {
   CreateCompanyProfileDTO,
   CompanyProfileDTO,
-  CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
 } from './dto/company-profile.dto';
 import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CompanyProfileResource } from '../casl/dto/company-profile-resource.dto';
 import { plainToInstance } from 'class-transformer';
+import {
+  CompanyProfileQueryDTO,
+  CompanyProfileQueryOutputDTO,
+} from './dto/company-profile-query.dto';
 
 @Injectable()
 export class CompanyProfilesService {
@@ -36,7 +39,7 @@ export class CompanyProfilesService {
   public async findByQuery(
     currentUser: AuthUserDTO,
     query: CompanyProfileQueryDTO,
-  ): Promise<CompanyProfileDTO[]> {
+  ): Promise<CompanyProfileQueryOutputDTO> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
     if (ability.cannot(Actions.READ, new CompanyProfileResource())) {
@@ -46,15 +49,15 @@ export class CompanyProfilesService {
     }
 
     try {
-      const companysProfiles: CompanyProfileDTO[] =
+      const queryResult: CompanyProfileQueryOutputDTO =
         await this.profilesRepository.findByQuery(query);
 
-      if (!companysProfiles || companysProfiles.length === 0) {
+      if (!queryResult || queryResult.count === 0) {
         throw new NotFoundException(
           `No company profiles found matching query: ${query}`,
         );
       }
-      return companysProfiles;
+      return queryResult;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       if (error instanceof ForbiddenException) throw error;

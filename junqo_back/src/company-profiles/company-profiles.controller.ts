@@ -3,7 +3,6 @@ import { CompanyProfilesService } from './company-profiles.service';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CurrentUser } from '../users/users.decorator';
 import {
-  CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
   CompanyProfileDTO,
 } from './dto/company-profile.dto';
@@ -21,6 +20,10 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import {
+  CompanyProfileQueryDTO,
+  CompanyProfileQueryOutputDTO,
+} from './dto/company-profile-query.dto';
 
 @ApiTags('company-profiles')
 @ApiBearerAuth()
@@ -38,7 +41,7 @@ export class CompanyProfilesController {
   })
   @ApiOkResponse({
     description: 'Company profiles retrieved successfully',
-    type: [CompanyProfileDTO],
+    type: CompanyProfileQueryOutputDTO,
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   @ApiForbiddenResponse({
@@ -48,7 +51,7 @@ export class CompanyProfilesController {
   public async findByQuery(
     @CurrentUser() currentUser: AuthUserDTO,
     @Query() query: CompanyProfileQueryDTO,
-  ) {
+  ): Promise<CompanyProfileQueryOutputDTO> {
     return this.companyProfilesService.findByQuery(currentUser, query);
   }
 

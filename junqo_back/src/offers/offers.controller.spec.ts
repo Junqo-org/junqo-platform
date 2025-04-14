@@ -82,28 +82,33 @@ describe('OffersController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('getAll', () => {
+  describe('getByQuery', () => {
     it('should return an array of offers', async () => {
-      service.findAll.mockResolvedValue(mockOffers);
+      const expectedOutput = {
+        rows: mockOffers,
+        count: mockOffers.length,
+      };
+      service.findByQuery.mockResolvedValue(expectedOutput);
 
-      expect(await controller.getAll(mockCurrentUser)).toEqual(mockOffers);
+      expect(await controller.findByQuery(mockCurrentUser, {})).toEqual(
+        expectedOutput,
+      );
     });
   });
 
-  // // TODO
-  // describe('getMy', () => {
-  //   it('should return an array of offers', async () => {
-  //     service.findOneById.mockResolvedValue(mockOffers[0]);
-  //     expect(await controller.getMy(mockCurrentUser)).toEqual(mockOffers[0]);
-  //   });
+  describe('getMy', () => {
+    it('should return an array of offers', async () => {
+      service.findByUserId.mockResolvedValue(mockOffers);
+      expect(await controller.getMy(mockCurrentUser)).toEqual(mockOffers);
+    });
 
-  //   it('should throw NotFoundException when offer is not found', async () => {
-  //     service.findOneById.mockResolvedValue(null);
-  //     await expect(controller.getMy(mockCurrentUser)).rejects.toThrow(
-  //       NotFoundException,
-  //     );
-  //   });
-  // });
+    it('should throw NotFoundException when offer is not found', async () => {
+      service.findByUserId.mockRejectedValue(new NotFoundException());
+      await expect(controller.getMy(mockCurrentUser)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
 
   describe('getOne', () => {
     it('should return a single offer', async () => {

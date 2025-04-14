@@ -35,6 +35,13 @@ const usersList: UserDTO[] = [
     name: 'SchoolUser',
     hashedPassword: '',
   }),
+  plainToInstance(UserDTO, {
+    id: 'd69cc25b-0cc4-4032-83c2-0d34c84318ba',
+    type: UserType.ADMIN,
+    email: 'admin@test.com',
+    name: 'AdminUser',
+    hashedPassword: '',
+  }),
 ];
 
 const authUsersList: AuthUserDTO[] = usersList.map((user) =>
@@ -67,7 +74,7 @@ describe('UsersService', () => {
     it('should return all users', async () => {
       usersRepository.findAll.mockResolvedValue(usersList);
 
-      const result = await usersService.findAll(authUsersList[0]);
+      const result = await usersService.findAll(authUsersList[3]);
       expect(result).toBe(usersList);
       expect(usersRepository.findAll).toHaveBeenCalled();
     });
@@ -75,7 +82,7 @@ describe('UsersService', () => {
     it('should throw NotFoundException if there is no user', async () => {
       usersRepository.findAll.mockResolvedValue([]);
 
-      await expect(usersService.findAll(authUsersList[0])).rejects.toThrow(
+      await expect(usersService.findAll(authUsersList[3])).rejects.toThrow(
         NotFoundException,
       );
       expect(usersRepository.findAll).toHaveBeenCalled();
@@ -84,7 +91,23 @@ describe('UsersService', () => {
     it('should throw ForbiddenException if user cannot read user', async () => {
       usersRepository.findAll.mockResolvedValue(usersList);
 
+      await expect(usersService.findAll(authUsersList[0])).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('should throw ForbiddenException if user cannot read user', async () => {
+      usersRepository.findAll.mockResolvedValue(usersList);
+
       await expect(usersService.findAll(authUsersList[1])).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('should throw ForbiddenException if user cannot read user', async () => {
+      usersRepository.findAll.mockResolvedValue(usersList);
+
+      await expect(usersService.findAll(authUsersList[2])).rejects.toThrow(
         ForbiddenException,
       );
     });
@@ -117,7 +140,7 @@ describe('UsersService', () => {
       usersRepository.findOneById.mockResolvedValue(usersList[0]);
 
       await expect(
-        usersService.findOneById(authUsersList[0], usersList[0].id),
+        usersService.findOneById(authUsersList[2], usersList[0].id),
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -126,7 +149,7 @@ describe('UsersService', () => {
     it('should create an user', async () => {
       const createUserInput: CreateUserDTO = plainToInstance(
         CreateUserDTO,
-        usersList[0],
+        { ...usersList[0], password: 'password1234' },
         {
           excludeExtraneousValues: true,
         },
@@ -142,16 +165,16 @@ describe('UsersService', () => {
       expect(usersRepository.create).toHaveBeenCalledWith(createUserInput);
     });
 
-    it('should throw ForbiddenException if user cannot create user', async () => {
+    it('should throw ForbiddenException if user cannot create admin user', async () => {
       const createUserInput: CreateUserDTO = plainToInstance(
         CreateUserDTO,
-        usersList[0],
+        { ...usersList[3], password: 'password1234' },
         {
           excludeExtraneousValues: true,
         },
       );
 
-      usersRepository.create.mockResolvedValue(usersList[0]);
+      usersRepository.create.mockResolvedValue(usersList[3]);
       await expect(
         usersService.create(authUsersList[0], createUserInput),
       ).rejects.toThrow(ForbiddenException);
@@ -251,7 +274,7 @@ describe('UsersService', () => {
       usersRepository.delete.mockResolvedValue(true);
 
       await expect(
-        usersService.delete(authUsersList[0], authUsersList[0].id),
+        usersService.delete(authUsersList[2], authUsersList[0].id),
       ).rejects.toThrow(ForbiddenException);
     });
 

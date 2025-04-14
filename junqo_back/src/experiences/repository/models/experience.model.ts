@@ -10,6 +10,7 @@ import {
 } from 'sequelize-typescript';
 import { StudentProfileModel } from '../../../student-profiles/repository/models/student-profile.model';
 import { ExperienceDTO } from '../../dto/experience.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Table({
   tableName: 'Experiences',
@@ -89,7 +90,7 @@ export class ExperienceModel extends Model {
   updatedAt: Date;
 
   public toExperienceDTO(): ExperienceDTO {
-    return {
+    return plainToInstance(ExperienceDTO, {
       id: this.id,
       title: this.title,
       company: this.company,
@@ -98,6 +99,6 @@ export class ExperienceModel extends Model {
       description: this.description,
       skills: this.skills,
       studentProfileId: this.studentProfileId,
-    };
+    });
   }
 }

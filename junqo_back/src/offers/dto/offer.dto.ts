@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { OmitType, PartialType } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { OfferStatus } from './offer-status.enum';
 import { WorkContext } from './work-context.enum';
 import { OfferType } from './offer-type.enum';
@@ -125,7 +125,7 @@ export class OfferDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Duration must be an integer' })
-  duration?: string;
+  duration?: number;
 
   @ApiPropertyOptional({
     description: 'Monthly salary in the local currency',
@@ -134,7 +134,7 @@ export class OfferDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Salary must be an integer' })
-  salary?: string;
+  salary?: number;
 
   @ApiProperty({
     description: 'Work location type (on-site, remote, hybrid)',
@@ -158,6 +158,7 @@ export class OfferDTO {
   @IsOptional()
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true, message: 'Each skill must be a string' })
+  @Type(() => String)
   skills?: string[];
 
   @ApiPropertyOptional({
@@ -170,6 +171,7 @@ export class OfferDTO {
   @IsOptional()
   @IsArray({ message: 'Benefits must be an array' })
   @IsString({ each: true, message: 'Each benefit must be a string' })
+  @Type(() => String)
   benefits?: string[];
 
   @ApiPropertyOptional({
@@ -284,6 +286,7 @@ export class CreateOfferDTO {
   @IsOptional()
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true, message: 'Each skill must be a string' })
+  @Type(() => String)
   skills?: string[];
 
   @ApiPropertyOptional({
@@ -296,6 +299,7 @@ export class CreateOfferDTO {
   @IsOptional()
   @IsArray({ message: 'Benefits must be an array' })
   @IsString({ each: true, message: 'Each benefit must be a string' })
+  @Type(() => String)
   benefits?: string[];
 
   @ApiPropertyOptional({

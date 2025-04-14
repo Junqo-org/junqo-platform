@@ -3,10 +3,10 @@ import {
   Controller,
   Delete,
   Get,
-  NotImplementedException,
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDTO, OfferDTO, UpdateOfferDTO } from './dto/offer.dto';
@@ -28,9 +28,11 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { OfferQueryDTO, OfferQueryOutputDTO } from './dto/offer-query.dto';
 
 @ApiTags('offers')
 @ApiBearerAuth()
@@ -39,19 +41,23 @@ export class OffersController {
   constructor(private readonly offersService: OffersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all offers' })
+  @ApiOperation({ summary: 'Get offers by query parameters' })
+  @ApiQuery({
+    type: OfferQueryDTO,
+    description: 'Query parameters for filtering offers',
+  })
   @ApiOkResponse({
     description: 'List of offers retrieved successfully',
-    type: [OfferDTO],
+    type: OfferQueryOutputDTO,
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   @ApiForbiddenResponse({ description: 'User not authorized to view offers' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  public async getAll(
+  public async findByQuery(
     @CurrentUser() currentUser: AuthUserDTO,
-  ): Promise<OfferDTO[]> {
-    const offers: OfferDTO[] = await this.offersService.findAll(currentUser);
-    return offers;
+    @Query() query: OfferQueryDTO,
+  ): Promise<OfferQueryOutputDTO> {
+    return this.offersService.findByQuery(currentUser, query);
   }
 
   @Get('my')
@@ -66,10 +72,9 @@ export class OffersController {
   })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async getMy(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @CurrentUser() currentUser: AuthUserDTO,
   ): Promise<OfferDTO[]> {
-    throw new NotImplementedException();
+    return this.offersService.findByUserId(currentUser, currentUser.id);
   }
 
   @Get(':id')
@@ -121,7 +126,7 @@ export class OffersController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async createOffer(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Body('offerInput') offerInput: CreateOfferDTO,
+    @Body() offerInput: CreateOfferDTO,
   ): Promise<OfferDTO> {
     const offer: OfferDTO = await this.offersService.createOffer(
       currentUser,
@@ -196,76 +201,5 @@ export class OffersController {
       throw new InternalServerErrorException(`While deleting offer ${id}`);
     }
     return { isSuccessful: isSuccess };
-  }
-
-  @Get('applied')
-  @ApiOperation({ summary: 'Get offers to which the current user has applied' })
-  @ApiOkResponse({
-    description: 'List of applied offers retrieved successfully',
-    type: [OfferDTO],
-  })
-  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({
-    description: 'User not authorized to view applied offers',
-  })
-  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  public async getAppliedOffers(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @CurrentUser() currentUser: AuthUserDTO,
-  ): Promise<OfferDTO[]> {
-    throw new NotImplementedException();
-  }
-
-  @Post(':id/apply')
-  @ApiOperation({ summary: 'Apply to an offer' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID of the offer to apply to',
-    type: String,
-    required: true,
-  })
-  @ApiCreatedResponse({
-    description: 'Successfully applied to offer',
-    type: Boolean,
-  })
-  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({
-    description: 'User not authorized to apply to this offer',
-  })
-  @ApiNotFoundResponse({ description: 'Offer not found' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  public async applyToOffer(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @CurrentUser() currentUser: AuthUserDTO,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Param('id') id: string,
-  ): Promise<{ isSuccessful: boolean }> {
-    throw new NotImplementedException();
-  }
-
-  @Delete(':id/apply')
-  @ApiOperation({ summary: 'Remove application from an offer' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID of the offer to remove application from',
-    type: String,
-    required: true,
-  })
-  @ApiNoContentResponse({
-    description: 'Application removed successfully',
-  })
-  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({
-    description: 'User not authorized to remove this application',
-  })
-  @ApiNotFoundResponse({ description: 'Offer or application not found' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  public async removeApplyToOffer(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @CurrentUser() currentUser: AuthUserDTO,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Param('id') id: string,
-  ): Promise<{ isSuccessful: boolean }> {
-    throw new NotImplementedException();
   }
 }

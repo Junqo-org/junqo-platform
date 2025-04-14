@@ -9,10 +9,14 @@ import { StudentProfileModel } from './models/student-profile.model';
 import {
   CreateStudentProfileDTO,
   StudentProfileDTO,
-  StudentProfileQueryDTO,
   UpdateStudentProfileDTO,
 } from '../dto/student-profile.dto';
+import {
+  StudentProfileQueryDTO,
+  StudentProfileQueryOutputDTO,
+} from '../dto/student-profile-query.dto';
 import { Op } from 'sequelize';
+import { ExperienceModel } from '../../experiences/repository/models/experience.model';
 
 @Injectable()
 export class StudentProfilesRepository {
@@ -31,33 +35,41 @@ export class StudentProfilesRepository {
    */
   public async findByQuery(
     query: StudentProfileQueryDTO = {},
-  ): Promise<StudentProfileDTO[]> {
-    const { skills, page = 1, limit = 10 } = query;
-    const offset = (page - 1) * limit;
+  ): Promise<StudentProfileQueryOutputDTO> {
+    const { skills, mode, offset, limit } = query;
+    const where = {};
+
+    if (skills && Array.isArray(skills) && skills.length > 0) {
+      if (mode === 'all') {
+        where['skills'] = {
+          [Op.contains]: skills,
+        };
+      } else {
+        where['skills'] = {
+          [Op.overlap]: skills,
+        };
+      }
+    }
 
     try {
-      const whereClause = skills
-        ? {
-            skills: {
-              [Op.overlap]: skills,
-            },
-          }
-        : {};
+      const { rows, count } = await this.studentProfileModel.findAndCountAll({
+        include: [ExperienceModel],
+        where,
+        offset,
+        limit,
+      });
 
-      const studentProfilesM: StudentProfileModel[] =
-        await this.studentProfileModel.findAll({
-          where: whereClause,
-          offset,
-          limit,
-        });
-
-      if (studentProfilesM.length == 0) {
+      if (count === 0) {
         throw new NotFoundException(
           'No student profiles found matching the criteria',
         );
       }
+      const queryResult: StudentProfileQueryOutputDTO = {
+        rows: rows.map((profile) => profile.toStudentProfileDTO()),
+        count,
+      };
 
-      return studentProfilesM.map((profile) => profile.toStudentProfileDTO());
+      return queryResult;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
@@ -81,7 +93,9 @@ export class StudentProfilesRepository {
 
     try {
       const studentProfileM: StudentProfileModel =
-        await this.studentProfileModel.findByPk(id);
+        await this.studentProfileModel.findByPk(id, {
+          include: [ExperienceModel],
+        });
 
       if (!studentProfileM) {
         throw new NotFoundException(`Student profile #${id} not found`);
@@ -111,13 +125,20 @@ export class StudentProfilesRepository {
   ): Promise<StudentProfileDTO> {
     try {
       const newStudentProfileM: StudentProfileModel =
-        await this.studentProfileModel.create({
-          userId: createStudentProfileDto.userId,
-          name: createStudentProfileDto.name,
-          avatar: createStudentProfileDto.avatar,
-          skills: createStudentProfileDto.skills,
-          experiences: createStudentProfileDto.experiences,
-        });
+        await this.studentProfileModel.create(
+          {
+            userId: createStudentProfileDto.userId,
+            name: createStudentProfileDto.name,
+            avatar: createStudentProfileDto.avatar,
+            skills: createStudentProfileDto.skills,
+            ...(createStudentProfileDto.experiences != undefined && {
+              experiences: createStudentProfileDto.experiences,
+            }),
+          },
+          {
+            include: [ExperienceModel],
+          },
+        );
 
       if (!newStudentProfileM) {
         throw new InternalServerErrorException('Student Profile not created');
@@ -151,12 +172,14 @@ export class StudentProfilesRepository {
         await this.studentProfileModel.sequelize.transaction(
           async (transaction) => {
             const studentProfile = await this.studentProfileModel.findByPk(id, {
+              include: [ExperienceModel],
               transaction,
             });
 
             if (!studentProfile) {
               throw new NotFoundException(`Student profile #${id} not found`);
             }
+
             const updatedStudentProfile = await studentProfile.update(
               {
                 ...(updateStudentProfileDto.avatar != undefined && {
@@ -203,7 +226,9 @@ export class StudentProfilesRepository {
    */
   public async delete(id: string): Promise<boolean> {
     try {
-      const studentProfile = await this.studentProfileModel.findByPk(id);
+      const studentProfile = await this.studentProfileModel.findByPk(id, {
+        include: [ExperienceModel],
+      });
 
       if (!studentProfile) {
         throw new NotFoundException(`Student Profile #${id} not found`);

@@ -2,10 +2,11 @@ import { StudentProfilesController } from './student-profiles.controller';
 import { StudentProfilesService } from './student-profiles.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
+import { StudentProfileDTO } from './dto/student-profile.dto';
 import {
-  StudentProfileDTO,
   StudentProfileQueryDTO,
-} from './dto/student-profile.dto';
+  StudentProfileQueryOutputDTO,
+} from './dto/student-profile-query.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
 import { ExperienceDTO } from '../experiences/dto/experience.dto';
@@ -75,16 +76,21 @@ describe('StudentProfilesController', () => {
       StudentProfileQueryDTO,
       {
         skills: 'skill,js',
-        page: 1,
-        limit: 1,
+        mode: 'any',
+        offset: 0,
+        limit: 10,
       },
     );
 
     it('should return every student profiles if no query', async () => {
-      studentProfilesService.findByQuery.mockResolvedValue(studentProfiles);
+      const expectedQueryResult: StudentProfileQueryOutputDTO = {
+        rows: studentProfiles,
+        count: studentProfiles.length,
+      };
+      studentProfilesService.findByQuery.mockResolvedValue(expectedQueryResult);
 
       expect(await controller.findByQuery(currentUser, {})).toEqual(
-        studentProfiles,
+        expectedQueryResult,
       );
       expect(studentProfilesService.findByQuery).toHaveBeenCalledWith(
         currentUser,
@@ -93,10 +99,14 @@ describe('StudentProfilesController', () => {
     });
 
     it('should return every student profiles corresponding to given query', async () => {
-      studentProfilesService.findByQuery.mockResolvedValue(studentProfiles);
+      const expectedQueryResult: StudentProfileQueryOutputDTO = {
+        rows: studentProfiles,
+        count: studentProfiles.length,
+      };
+      studentProfilesService.findByQuery.mockResolvedValue(expectedQueryResult);
 
       expect(await controller.findByQuery(currentUser, query)).toEqual(
-        studentProfiles,
+        expectedQueryResult,
       );
       expect(studentProfilesService.findByQuery).toHaveBeenCalledWith(
         currentUser,
@@ -105,9 +115,15 @@ describe('StudentProfilesController', () => {
     });
 
     it('should return empty if no student profiles correspond to given query', async () => {
-      studentProfilesService.findByQuery.mockResolvedValue([]);
+      studentProfilesService.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
 
-      expect(await controller.findByQuery(currentUser, query)).toEqual([]);
+      expect(await controller.findByQuery(currentUser, query)).toEqual({
+        rows: [],
+        count: 0,
+      });
       expect(studentProfilesService.findByQuery).toHaveBeenCalledWith(
         currentUser,
         query,

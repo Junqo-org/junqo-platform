@@ -27,8 +27,8 @@ jobs:
   deployment-dev-tests:
     needs: changes-check
     if:
-      github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
-      (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
+      (github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
+      github.event.action == 'synchronize') && needs.changes-check.outputs.any_changed == 'true'
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.dev.yaml
@@ -36,8 +36,8 @@ jobs:
   deployment-prod-tests:
     needs: changes-check
     if:
-      github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
-      (github.event.action == 'synchronize' && needs.changes-check.outputs.any_changed == 'true')
+      (github.event_name == 'workflow_dispatch' || github.event.action == 'opened' ||
+      github.event.action == 'synchronize') && needs.changes-check.outputs.any_changed == 'true'
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.yaml

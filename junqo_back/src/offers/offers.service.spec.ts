@@ -261,20 +261,20 @@ describe('OffersService', () => {
         ),
       );
     });
-  });
 
-  it('should throw InternalServerErrorException if create fails', async () => {
-    const createOfferInput: CreateOfferDTO = plainToInstance(
-      CreateOfferDTO,
-      offers[0],
-      { excludeExtraneousValues: true },
-    );
+    it('should throw InternalServerErrorException if create fails', async () => {
+      const createOfferInput: CreateOfferDTO = plainToInstance(
+        CreateOfferDTO,
+        offers[0],
+        { excludeExtraneousValues: true },
+      );
 
-    offersRepository.createOffer.mockRejectedValue(new Error());
+      offersRepository.createOffer.mockRejectedValue(new Error());
 
-    await expect(
-      offersService.createOffer(currentUser, createOfferInput),
-    ).rejects.toThrow(InternalServerErrorException);
+      await expect(
+        offersService.createOffer(currentUser, createOfferInput),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
   });
 
   describe('updateOffer', () => {

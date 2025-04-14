@@ -3,9 +3,9 @@ import { getModelToken } from '@nestjs/sequelize';
 import {
   CreateStudentProfileDTO,
   StudentProfileDTO,
-  StudentProfileQueryDTO,
   UpdateStudentProfileDTO,
 } from '../dto/student-profile.dto';
+import { StudentProfileQueryDTO } from '../dto/student-profile-query.dto';
 import { StudentProfilesRepository } from './student-profiles.repository';
 import { StudentProfileModel } from './models/student-profile.model';
 import { ExperienceModel } from '../../experiences/repository/models/experience.model';
@@ -61,7 +61,7 @@ describe('StudentProfilesRepository', () => {
   beforeEach(async () => {
     mockStudentProfileModel = {
       create: jest.fn(),
-      findAll: jest.fn(),
+      findAndCountAll: jest.fn(),
       findOne: jest.fn(),
       findByPk: jest.fn(),
       update: jest.fn(),
@@ -73,7 +73,7 @@ describe('StudentProfilesRepository', () => {
     };
     mockExperienceModel = {
       create: jest.fn(),
-      findAll: jest.fn(),
+      findAndCountAll: jest.fn(),
       findOne: jest.fn(),
       findByPk: jest.fn(),
       update: jest.fn(),
@@ -123,24 +123,39 @@ describe('StudentProfilesRepository', () => {
       },
     );
 
-    it('should return all student profiles if no query', async () => {
-      mockStudentProfileModel.findAll.mockResolvedValue(studentProfileModels);
+    it('should return all school profiles if no query', async () => {
+      mockStudentProfileModel.findAndCountAll.mockResolvedValue({
+        rows: studentProfileModels,
+        count: studentProfileModels.length,
+      });
 
       const result = await repository.findByQuery({});
-      expect(result).toEqual(studentProfiles);
-      expect(mockStudentProfileModel.findAll).toHaveBeenCalled();
+      expect(result).toEqual({
+        rows: studentProfiles,
+        count: studentProfiles.length,
+      });
+      expect(mockStudentProfileModel.findAndCountAll).toHaveBeenCalled();
     });
 
-    it('should find every student profile corresponding to given query', async () => {
-      mockStudentProfileModel.findAll.mockResolvedValue(studentProfileModels);
+    it('should find every school profile corresponding to given query', async () => {
+      mockStudentProfileModel.findAndCountAll.mockResolvedValue({
+        rows: studentProfileModels,
+        count: studentProfileModels.length,
+      });
 
       const result = await repository.findByQuery(query);
-      expect(result).toEqual(studentProfiles);
-      expect(mockStudentProfileModel.findAll).toHaveBeenCalled();
+      expect(result).toEqual({
+        rows: studentProfiles,
+        count: studentProfiles.length,
+      });
+      expect(mockStudentProfileModel.findAndCountAll).toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException if there is no student profile', async () => {
-      mockStudentProfileModel.findAll.mockResolvedValue([]);
+    it('should throw NotFoundException if there is no school profile', async () => {
+      mockStudentProfileModel.findAndCountAll.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
 
       await expect(repository.findByQuery(query)).rejects.toThrow(
         NotFoundException,
@@ -148,7 +163,7 @@ describe('StudentProfilesRepository', () => {
     });
 
     it('should throw InternalServerErrorException if fetch fail', async () => {
-      mockStudentProfileModel.findAll.mockRejectedValue(new Error());
+      mockStudentProfileModel.findAndCountAll.mockRejectedValue(new Error());
 
       await expect(repository.findByQuery(query)).rejects.toThrow(
         InternalServerErrorException,
@@ -166,7 +181,9 @@ describe('StudentProfilesRepository', () => {
 
       const result = await repository.findOneById(userId);
       expect(result).toEqual(studentProfiles[0]);
-      expect(mockStudentProfileModel.findByPk).toHaveBeenCalledWith(userId);
+      expect(mockStudentProfileModel.findByPk).toHaveBeenCalledWith(userId, {
+        include: expect.any(Array),
+      });
     });
 
     it("should throw NotFoundException if the student profile doesn't exists", async () => {
@@ -196,6 +213,9 @@ describe('StudentProfilesRepository', () => {
       expect(result).toEqual(studentProfiles[0]);
       expect(mockStudentProfileModel.create).toHaveBeenCalledWith(
         studentProfiles[0],
+        {
+          include: expect.any(Array),
+        },
       );
     });
 
@@ -230,7 +250,10 @@ describe('StudentProfilesRepository', () => {
       expect(result).toEqual(studentProfiles[0]);
       expect(mockStudentProfileModel.findByPk).toHaveBeenCalledWith(
         studentProfiles[0].userId,
-        { transaction: undefined },
+        {
+          include: expect.any(Array),
+          transaction: undefined,
+        },
       );
       expect(studentProfileModels[0].update).toHaveBeenCalledWith(updateData, {
         transaction: undefined,

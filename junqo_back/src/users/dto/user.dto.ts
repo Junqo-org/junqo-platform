@@ -107,6 +107,7 @@ export class CreateUserDTO {
     minLength: MIN_NAME_LENGTH,
     maxLength: MAX_NAME_LENGTH,
   })
+  @Expose()
   @IsNotEmpty({ message: 'Name is required' })
   @IsString({ message: 'Name must be a string' })
   @MinLength(MIN_NAME_LENGTH, {
@@ -123,6 +124,7 @@ export class CreateUserDTO {
     minLength: MIN_MAIL_LENGTH,
     maxLength: MAX_MAIL_LENGTH,
   })
+  @Expose()
   @IsNotEmpty({ message: 'Email is required' })
   @IsEmail({}, { message: 'Email must be a valid email address' })
   @MinLength(MIN_MAIL_LENGTH, {
@@ -138,6 +140,7 @@ export class CreateUserDTO {
     enum: UserType,
     example: 'STUDENT',
   })
+  @Expose()
   @IsNotEmpty({ message: 'User type is required' })
   @IsEnum(UserType, { message: 'User type must be a valid enum value' })
   type: UserType;
@@ -148,6 +151,7 @@ export class CreateUserDTO {
     minLength: MIN_PASSWORD_LENGTH,
     maxLength: MAX_PASSWORD_LENGTH,
   })
+  @Expose()
   @IsNotEmpty({ message: 'Password is required' })
   @IsString({ message: 'Password must be a string' })
   @MinLength(MIN_PASSWORD_LENGTH, {
