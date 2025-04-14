@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     } else if (userType == UserType.COMPANY) {
       return const RecruiterDashboard();
     } else if (userType == UserType.STUDENT) {
-      return const JobCardSwipe();
+      return JobCardSwipe();
     }
     return Scaffold(
       backgroundColor: Colors.white,

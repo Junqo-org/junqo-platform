@@ -21,7 +21,7 @@ class ApiEndpoints {
   static const String applications = '/applications';
   static String getApplicationById(String id) => '/applications/$id';
   static String updateApplication(String id) => '/applications/$id';
-  static String deleteApplication(String id) => '/applications/$id';
+  static String postulateOffer(String id) => '/applications/apply/$id';
 
   // Entreprises
   static const String companies = '/company-profiles';

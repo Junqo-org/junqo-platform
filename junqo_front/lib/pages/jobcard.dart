@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:junqo_front/shared/widgets/navbar.dart';
+import 'package:junqo_front/core/api/api_service.dart';
+import 'package:junqo_front/shared/dto/offer_data.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/core/client.dart';
 
 class CardData {
   final String companyName;
@@ -13,6 +17,10 @@ class CardData {
   final List<String> technicalSkills;
   final bool showDetails;
   final String details;
+  final String id;
+  final String userid;
+  final String status;
+  final bool isPlaceHolder;
 
   CardData({
     required this.companyName,
@@ -26,11 +34,18 @@ class CardData {
     required this.technicalSkills,
     required this.details,
     this.showDetails = false,
+    required this.id,
+    required this.userid,
+    required this.status,
+    required this.isPlaceHolder,
   });
 }
 
+//
 class JobCardSwipe extends StatefulWidget {
-  const JobCardSwipe({super.key});
+  final RestClient client = GetIt.instance<RestClient>();
+
+  JobCardSwipe({super.key});
 
   @override
   State<JobCardSwipe> createState() => _JobCardSwipeState();
@@ -38,12 +53,63 @@ class JobCardSwipe extends StatefulWidget {
 
 class _JobCardSwipeState extends State<JobCardSwipe> {
   late CardData cardData;
-  int currentIndex = 0;
+  late final ApiService _apiService;
+  late final RestClient client;
 
   @override
   void initState() {
     super.initState();
-    cardData = setCardData(0); // Initialise avec le premier CardData
+    _apiService = GetIt.instance<ApiService>();
+    client = widget.client;
+    _initCardData();
+  }
+
+  List<CardData> cardDataList = [
+    CardData(
+      companyName: 'Company PlaceHolder Inc. 1',
+      companyLogo: 'assets/company_a.png',
+      jobTitle: 'Software PlaceHolder',
+      contractType: 'Full-time PlaceHolder',
+      duration: '6 months PlaceHolder',
+      location: 'Remote',
+      salary: '60,000€ - 80,000€',
+      benefits: ['Gym Membership'],
+      technicalSkills: ['Flutter', 'Dart', 'REST API'],
+      details:
+          'If you see this placeholder it means that there is either no more data or that the data is not yet available.1',
+      id: '1',
+      userid: '1',
+      status: 'active',
+      isPlaceHolder: true,
+    ),
+    CardData(
+      companyName: 'Company PlaceHolder Inc. 2',
+      companyLogo: 'assets/company_a.png',
+      jobTitle: 'Software PlaceHolder',
+      contractType: 'Full-time PlaceHolder',
+      duration: '6 months PlaceHolder',
+      location: 'Remote',
+      salary: '60,000€ - 80,000€',
+      benefits: ['Gym Membership'],
+      technicalSkills: ['Flutter', 'Dart', 'REST API'],
+      details:
+          'If you see this placeholder it means that there is either no more data or that the data is not yet available.2',
+      id: '1',
+      userid: '1',
+      status: 'active',
+      isPlaceHolder: true,
+    )
+  ];
+  bool initialized = false;
+  int currentIndex = 0;
+  int offsetIndex = 0;
+  bool outOfData = false;
+
+  Future<void> _initCardData() async {
+    final data = await setCardData();
+    setState(() {
+      cardData = data;
+    });
   }
 
   @override
@@ -58,10 +124,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildActionButton(
-                  onTap: () {
+                  onTap: () async {
+                    final newData = await setCardData();
                     setState(() {
-                      currentIndex = (currentIndex + 1) % 3;
-                      cardData = setCardData(currentIndex);
+                      cardData = newData;
                     });
                   },
                   color: Colors.red,
@@ -74,10 +140,11 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
                 ),
                 const SizedBox(width: 16),
                 _buildActionButton(
-                  onTap: () {
+                  onTap: () async {
+                    postulate(cardData.id);
+                    final newData = await setCardData();
                     setState(() {
-                      currentIndex = (currentIndex + 1) % 3;
-                      cardData = setCardData(currentIndex);
+                      cardData = newData;
                     });
                   },
                   color: Colors.green,
@@ -122,76 +189,185 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
     );
   }
 
-  CardData setCardData(int index) {
-    List<CardData> cardDataList = [
-      CardData(
-          companyName: 'Airbus',
-          companyLogo: 'assets/images/junqo_logo.png',
-          jobTitle: 'Alternance DevOps (H/F)',
-          contractType: 'Alternance',
-          duration: '3 ans',
-          location: 'Blagnac',
-          salary: '1400/m € brut',
-          benefits: ['Présentiel', 'Grande équipe', 'Installations de Fitness'],
-          technicalSkills: [
-            'bac+3 informatique',
-            'Docker',
-            'GitHub',
-            'Jira',
-            'Bash',
-            'Linux'
-          ],
-          details:
-              'Rejoignez Airbus à Blagnac en tant qu\'alternant DevOps pour une durée de 3 ans. Vous travaillerez sur des projets dans l\'aéronautique avec une grande équipe. Utilisez Docker, GitHub, Jira, et Bash sur Linux pour automatiser les processus et améliorer les infrastructures. Vous aurez accès à des installations modernes, incluant une salle de fitness. C\'est une opportunité unique de développer vos compétences techniques dans un environnement international et stimulant.'),
-      CardData(
-          companyName: 'Google',
-          companyLogo: 'assets/images/junqo_logo.png',
-          jobTitle: 'Software Engineer (H/F)',
-          contractType: 'Internship',
-          duration: '4 mois',
-          location: 'Paris',
-          salary: '6000 € net total',
-          benefits: [
-            'Télétravail flexible',
-            'Cantine gratuite',
-            'Équipe internationale'
-          ],
-          technicalSkills: [
-            'bac+5 en informatique',
-            'Python',
-            'Java',
-            'Kubernetes',
-            'Google Cloud Platform',
-            'Agile'
-          ],
-          details:
-              'Intégrez Google à Paris en tant qu\'ingénieur logiciel pour travailler sur des projets innovants à l\'échelle mondiale. Vous collaborerez avec des équipes internationales et utiliserez des technologies comme Python, Java, Kubernetes, et Google Cloud Platform. Télétravail flexible, repas gratuits et un environnement agile sont quelques-uns des avantages. Rejoignez une entreprise qui façonne l\'avenir de la technologie tout en favorisant l\'innovation et l\'épanouissement personnel.'),
-      CardData(
-          companyName: 'Devvmaxing',
-          companyLogo: 'assets/images/junqo_logo.png',
-          jobTitle: 'Développeur Full Stack (H/F)',
-          contractType: 'Internship part-time',
-          duration: '8 mois 2j/s',
-          location: 'Lyon',
-          salary: '8000 € net total',
-          benefits: [
-            'Horaires flexibles',
-            'Télétravail partiel',
-            'Équipe dynamique'
-          ],
-          technicalSkills: [
-            'bac+4 en développement',
-            'Node.js',
-            'React',
-            'SQL',
-            'Docker',
-            'Git'
-          ],
-          details:
-              'Rejoignez Devvmaxing, une startup en pleine croissance à Lyon, spécialisée dans les solutions SaaS. En tant que développeur full stack, vous travaillerez avec Node.js, React, SQL, Docker et Git pour concevoir et développer des produits modernes. Nous offrons des horaires flexibles, du télétravail partiel et un environnement dynamique. C\'est l\'occasion de contribuer à des projets passionnants dans une équipe soudée, tout en bénéficiant d\'opportunités de développement personnel.'),
-    ];
+  void postulate(String id) {
+    // Implement the postulate logic here
+    if (cardData.isPlaceHolder) {
+      debugPrint('Cannot postulate for placeholder data');
+      return;
+    }
+    debugPrint('Postulating for offer with ID: $id');
+    _apiService.postulateOffer(id);
+    //Postulate to offer
+  }
 
-    return cardDataList[index % cardDataList.length];
+  Future<CardData> setCardData() async {
+    if (!initialized) {
+      initialized = true;
+      cardDataList = await getOfferQuery(0);
+      if (cardDataList.isEmpty) {
+        outOfData = true;
+        currentIndex = 0;
+        return placeholderCardData()[0];
+      }
+      debugPrint('Card Data initialized with ${cardDataList.length} items');
+      return cardDataList[currentIndex];
+    }
+
+    if (outOfData) {
+      debugPrint('No more data available');
+      if (currentIndex == 0) {
+        currentIndex = 1;
+        return placeholderCardData()[1];
+      } else {
+        currentIndex = 0;
+        return placeholderCardData()[0];
+      }
+    }
+    //rest of code
+    currentIndex++;
+    debugPrint('Current index: $currentIndex');
+    debugPrint('Card data list length: ${cardDataList.length}');
+    if (currentIndex >= cardDataList.length) {
+      debugPrint('Fetching more data');
+      offsetIndex = offsetIndex + currentIndex;
+      currentIndex = 0;
+      cardDataList = await getOfferQuery(offsetIndex);
+      if (cardDataList.isEmpty) {
+        outOfData = true;
+        currentIndex = 0;
+        return placeholderCardData()[0];
+      }
+      return cardDataList[currentIndex];
+    }
+
+    return cardDataList[currentIndex];
+  }
+
+  fakeAllOffersQuery() {
+    return [
+      OfferData(
+        id: '1',
+        title: 'Software Engineer',
+        offerType: 'Full-time',
+        duration: '6 months',
+        salary: '60,000€ - 80,000€',
+        benefits: ['Gym Membership'],
+        skills: ['Flutter', 'Dart', 'REST API'],
+        educationLevel: 'Bachelor\'s Degree',
+        description: 'Job description goes here.',
+        status: 'active',
+      ),
+      OfferData(
+        id: '2',
+        title: 'Data Scientist',
+        offerType: 'Part-time',
+        duration: '3 months',
+        salary: '50,000€ - 70,000€',
+        benefits: ['Health Insurance'],
+        skills: ['Python', 'Machine Learning'],
+        educationLevel: 'Master\'s Degree',
+        description: 'Job description goes here.',
+        status: 'active',
+      ),
+      OfferData(
+        id: '3',
+        title: 'Product Manager',
+        offerType: 'Contract',
+        duration: '12 months',
+        salary: '80,000€ - 100,000€',
+        benefits: ['Remote Work'],
+        skills: ['Agile', 'Scrum'],
+        educationLevel: 'Master\'s Degree',
+        description: 'Job description goes here.',
+        status: 'active',
+      ),
+    ];
+  }
+
+  Future<List<CardData>> getOfferQuery(int offset) async {
+    try {
+      final query = {
+        'offset': offset.toString(),
+      };
+
+      //Should be replaced with ApiService.getAllOffersQuery
+      final List<OfferData> offers = await _apiService.getAllOffersQuery(query);
+      // final List<OfferData> offers = await fakeAllOffersQuery();
+
+      // Transform each OfferData into CardData
+      final List<CardData> cardDataList = transformOffersToCards(offers);
+      if (cardDataList.isEmpty) {
+        // If no data is returned, return the placeholder data
+        return placeholderCardData();
+      }
+
+      return cardDataList;
+    } catch (e) {
+      throw Exception('Failed to load offers: $e');
+    }
+  }
+
+  CardData transformOfferToCard(OfferData offer) {
+    return CardData(
+      id: offer.id ?? '',
+      userid: offer.userid,
+      jobTitle: offer.title,
+      contractType: offer.offerType,
+      duration: offer.duration,
+      salary: offer.salary,
+      benefits: [...offer.benefits, offer.workLocationType],
+      technicalSkills: [...offer.skills, offer.educationLevel],
+      details: offer.description,
+      status: offer.status,
+      companyName: 'Company name currently not available',
+      companyLogo: 'Company logo currently not available',
+      location: 'Location currently not available',
+      showDetails: false,
+      isPlaceHolder: false,
+    );
+  }
+
+  List<CardData> transformOffersToCards(List<OfferData> offers) {
+    return offers.map(transformOfferToCard).toList();
+  }
+
+  List<CardData> placeholderCardData() {
+    return [
+      CardData(
+        companyName: 'Company PlaceHolder Inc.',
+        companyLogo: 'assets/company_a.png',
+        jobTitle: 'Software PlaceHolder',
+        contractType: 'Full-time PlaceHolder',
+        duration: '6 months PlaceHolder',
+        location: 'Remote',
+        salary: '60,000€ - 80,000€',
+        benefits: ['Gym Membership'],
+        technicalSkills: ['Flutter', 'Dart', 'REST API'],
+        details:
+            'If you see this placeholder it means that there is either no more data or that the data is not yet available.4',
+        id: '1',
+        userid: '1',
+        status: 'active',
+        isPlaceHolder: true,
+      ),
+      CardData(
+        companyName: 'Company PlaceHolder Inc.',
+        companyLogo: 'assets/company_a.png',
+        jobTitle: 'Software PlaceHolder',
+        contractType: 'Full-time PlaceHolder',
+        duration: '6 months PlaceHolder',
+        location: 'Remote',
+        salary: '60,000€ - 80,000€',
+        benefits: ['Gym Membership'],
+        technicalSkills: ['Flutter', 'Dart', 'REST API'],
+        details:
+            'If you see this placeholder it means that there is either no more data or that the data is not yet available.5',
+        id: '1',
+        userid: '1',
+        status: 'active',
+        isPlaceHolder: true,
+      )
+    ];
   }
 }
 
