@@ -13,11 +13,7 @@ import {
   MAX_NAME_LENGTH,
   MIN_NAME_LENGTH,
 } from '../../shared/user-validation-constants';
-import {
-  CreateExperienceDTO,
-  ExperienceDTO,
-  UpdateExperienceDTO,
-} from '../../experiences/dto/experience.dto';
+import { ExperienceDTO } from '../../experiences/dto/experience.dto';
 import { Expose, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -141,20 +137,6 @@ export class CreateStudentProfileDTO {
   @IsString({ each: true })
   @Type(() => String)
   skills?: string[];
-
-  @ApiPropertyOptional({
-    description: "List of student's work experiences to create",
-    type: [CreateExperienceDTO],
-  })
-  @Expose()
-  @IsOptional()
-  @IsArray({ message: 'Experiences must be an array' })
-  @ValidateNested({
-    each: true,
-    message: 'Each experience must be a valid CreateExperienceDTO',
-  })
-  @Type(() => UpdateExperienceDTO)
-  experiences?: CreateExperienceDTO[];
 }
 
 // Expected values to update a Student Profile
@@ -180,18 +162,4 @@ export class UpdateStudentProfileDTO {
   @IsString({ each: true })
   @Type(() => String)
   skills?: string[];
-
-  @ApiPropertyOptional({
-    description: "List of student's work experiences to update",
-    type: [UpdateExperienceDTO],
-  })
-  @Expose()
-  @IsOptional()
-  @IsArray({ message: 'Experiences must be an array' })
-  @ValidateNested({
-    each: true,
-    message: 'Each experience must be a valid UpdateExperienceDTO',
-  })
-  @Type(() => UpdateExperienceDTO)
-  experiences?: UpdateExperienceDTO[];
 }
