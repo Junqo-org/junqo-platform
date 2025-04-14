@@ -187,10 +187,7 @@ describe('ApplicationsService', () => {
       );
       expect(cannotMockFnRev).toHaveBeenLastCalledWith(
         Actions.READ,
-        plainToInstance(
-          ApplicationResource,
-          applications[applications.length - 1],
-        ),
+        plainToInstance(ApplicationResource, applications[0]),
       );
     });
   });
