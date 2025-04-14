@@ -140,10 +140,9 @@ describe('Applications E2E Tests', () => {
     it('applications query empty', async () => {
       const response = await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}`)
-        .set('Authorization', `Bearer ${studentToken}`);
-      // .expect(HttpStatus.OK);
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(HttpStatus.OK);
 
-      console.log('body is ' + JSON.stringify(response.body));
       expect(response.body.rows).toBeInstanceOf(Array);
       expect(response.body.rows.length).toBeGreaterThanOrEqual(1);
       expect(response.body.count).toBeGreaterThanOrEqual(1);

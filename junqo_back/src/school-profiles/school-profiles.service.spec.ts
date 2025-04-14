@@ -113,7 +113,7 @@ describe('SchoolProfilesService', () => {
       },
     );
 
-    it('should return all student profiles if no query', async () => {
+    it('should return all school profiles if no query', async () => {
       const expectedQueryResult: SchoolProfileQueryOutputDTO = {
         rows: schoolProfiles,
         count: schoolProfiles.length,
@@ -134,7 +134,7 @@ describe('SchoolProfilesService', () => {
       );
     });
 
-    it('should return every student profiles corresponding to given query', async () => {
+    it('should return every school profiles corresponding to given query', async () => {
       const expectedQueryResult: SchoolProfileQueryOutputDTO = {
         rows: schoolProfiles,
         count: schoolProfiles.length,
@@ -158,7 +158,7 @@ describe('SchoolProfilesService', () => {
       );
     });
 
-    it('should throw NotFoundException if there is no student profile', async () => {
+    it('should throw NotFoundException if there is no school profile', async () => {
       schoolProfilesRepository.findByQuery.mockResolvedValue({
         rows: [],
         count: 0,
@@ -177,7 +177,7 @@ describe('SchoolProfilesService', () => {
       );
     });
 
-    it('should throw ForbiddenException if user cannot read student profile', async () => {
+    it('should throw ForbiddenException if user cannot read school profile', async () => {
       const expectedQueryResult: SchoolProfileQueryOutputDTO = {
         rows: schoolProfiles,
         count: schoolProfiles.length,

@@ -114,7 +114,7 @@ export class ApplicationsRepository {
     try {
       const applicationsModels = await this.applicationModel.findAll({
         ...this.includeOption,
-        where: { userId: companyId },
+        where: { companyId },
       });
 
       if (!applicationsModels || applicationsModels.length === 0) {
@@ -138,7 +138,7 @@ export class ApplicationsRepository {
     try {
       const applicationsModels = await this.applicationModel.findAll({
         ...this.includeOption,
-        where: { userId: studentId },
+        where: { studentId },
       });
 
       if (!applicationsModels || applicationsModels.length === 0) {

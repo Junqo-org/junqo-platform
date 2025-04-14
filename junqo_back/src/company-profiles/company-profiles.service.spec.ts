@@ -113,7 +113,7 @@ describe('CompanyProfilesService', () => {
       },
     );
 
-    it('should return all student profiles if no query', async () => {
+    it('should return all company profiles if no query', async () => {
       const expectedQueryResult: CompanyProfileQueryOutputDTO = {
         rows: companyProfiles,
         count: companyProfiles.length,
@@ -134,7 +134,7 @@ describe('CompanyProfilesService', () => {
       );
     });
 
-    it('should return every student profiles corresponding to given query', async () => {
+    it('should return every company profiles corresponding to given query', async () => {
       const expectedQueryResult: CompanyProfileQueryOutputDTO = {
         rows: companyProfiles,
         count: companyProfiles.length,
@@ -158,7 +158,7 @@ describe('CompanyProfilesService', () => {
       );
     });
 
-    it('should throw NotFoundException if there is no student profile', async () => {
+    it('should throw NotFoundException if there is no company profile', async () => {
       companyProfilesRepository.findByQuery.mockResolvedValue({
         rows: [],
         count: 0,
@@ -177,7 +177,7 @@ describe('CompanyProfilesService', () => {
       );
     });
 
-    it('should throw ForbiddenException if user cannot read student profile', async () => {
+    it('should throw ForbiddenException if user cannot read company profile', async () => {
       const expectedQueryResult: CompanyProfileQueryOutputDTO = {
         rows: companyProfiles,
         count: companyProfiles.length,
