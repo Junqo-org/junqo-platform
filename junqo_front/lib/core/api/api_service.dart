@@ -44,14 +44,19 @@ class ApiService {
   Future<List<OfferData>> getAllOffers() async {
     try {
       final response = await client.get(ApiEndpoints.offers);
-      
+
       if (response is List) {
         return (response as List)
-            .map((offerJson) => OfferData.fromJson(offerJson as Map<String, dynamic>))
+            .map((offerJson) =>
+                OfferData.fromJson(offerJson as Map<String, dynamic>))
             .toList();
-      } else if (response is Map<String, dynamic> && response.containsKey('offers')) {
+      } else if (response is Map<String, dynamic> &&
+          response.containsKey('offers')) {
         final List<dynamic> offersJson = response['offers'];
-        return offersJson.map((offerJson) => OfferData.fromJson(offerJson as Map<String, dynamic>)).toList();
+        return offersJson
+            .map((offerJson) =>
+                OfferData.fromJson(offerJson as Map<String, dynamic>))
+            .toList();
       } else {
         return [];
       }
@@ -64,18 +69,50 @@ class ApiService {
     }
   }
 
+  Future<List<OfferData>> getAllOffersQuery(Map<String, dynamic>? query) async {
+    try {
+      final response = await client.getQuery(ApiEndpoints.offers, query: query);
+
+      if (response is List) {
+        return response
+            .map((offerJson) =>
+                OfferData.fromJson(offerJson as Map<String, dynamic>))
+            .toList();
+      } else if (response is Map<String, dynamic> &&
+          response.containsKey('offers')) {
+        final List<dynamic> offersJson = response['offers'];
+        return offersJson
+            .map((offerJson) =>
+                OfferData.fromJson(offerJson as Map<String, dynamic>))
+            .toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      if (e is RestApiException && e.statusCode == 404) {
+        return [];
+      }
+      rethrow;
+    }
+  }
+
   /// Récupérer toutes les offres créées par l'utilisateur connecté
   Future<List<OfferData>> getMyOffers() async {
     try {
       final response = await client.get(ApiEndpoints.myOffers);
-      
+
       if (response is List) {
         return (response as List)
-            .map((offerJson) => OfferData.fromJson(offerJson as Map<String, dynamic>))
+            .map((offerJson) =>
+                OfferData.fromJson(offerJson as Map<String, dynamic>))
             .toList();
-      } else if (response is Map<String, dynamic> && response.containsKey('offers')) {
+      } else if (response is Map<String, dynamic> &&
+          response.containsKey('offers')) {
         final List<dynamic> offersJson = response['offers'];
-        return offersJson.map((offerJson) => OfferData.fromJson(offerJson as Map<String, dynamic>)).toList();
+        return offersJson
+            .map((offerJson) =>
+                OfferData.fromJson(offerJson as Map<String, dynamic>))
+            .toList();
       } else {
         return [];
       }
@@ -117,12 +154,18 @@ class ApiService {
         'description': offerData.description,
         'status': OfferEnumMapper.mapStatusToBackend(offerData.status),
         'offerType': OfferEnumMapper.mapOfferTypeToBackend(offerData.offerType),
-        'duration': offerData.duration.isNotEmpty ? int.tryParse(offerData.duration) : null,
-        'salary': offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
-        'workLocationType': OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
+        'duration': offerData.duration.isNotEmpty
+            ? int.tryParse(offerData.duration)
+            : null,
+        'salary':
+            offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
+        'workLocationType':
+            OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
         'skills': offerData.skills,
         'benefits': offerData.benefits,
-        'educationLevel': offerData.educationLevel.isNotEmpty ? int.tryParse(offerData.educationLevel) : null,
+        'educationLevel': offerData.educationLevel.isNotEmpty
+            ? int.tryParse(offerData.educationLevel)
+            : null,
       }
     };
 
@@ -138,36 +181,43 @@ class ApiService {
         'description': offerData.description,
         'status': OfferEnumMapper.mapStatusToBackend(offerData.status),
         'offerType': OfferEnumMapper.mapOfferTypeToBackend(offerData.offerType),
-        'duration': offerData.duration.isNotEmpty ? int.tryParse(offerData.duration) : null,
-        'salary': offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
-        'workLocationType': OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
+        'duration': offerData.duration.isNotEmpty
+            ? int.tryParse(offerData.duration)
+            : null,
+        'salary':
+            offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
+        'workLocationType':
+            OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
         'skills': offerData.skills,
         'benefits': offerData.benefits,
-        'educationLevel': offerData.educationLevel.isNotEmpty ? int.tryParse(offerData.educationLevel) : null,
+        'educationLevel': offerData.educationLevel.isNotEmpty
+            ? int.tryParse(offerData.educationLevel)
+            : null,
       }
     };
 
     try {
       // Utiliser la méthode PATCH qui est généralement utilisée pour les mises à jour partielles
-      final response = await client.patch(ApiEndpoints.updateOffer(id), body: body);
+      final response =
+          await client.patch(ApiEndpoints.updateOffer(id), body: body);
       return _createOfferDataFromJson(response);
     } catch (e) {
       // Si l'erreur est liée à la méthode HTTP (par exemple si PATCH n'est pas supportée), essayer PUT
       if (e is RestApiException) {
         // Log l'erreur pour aider au débogage
         print('Erreur lors de la mise à jour de l\'offre: ${e.message}');
-        
+
         // Si l'erreur est 404, cela peut signifier que l'endpoint n'est pas disponible
         if (e.statusCode == 404) {
           print('Endpoint non trouvé, essai avec URL alternative');
-          
+
           // Essayer avec une URL alternative
           final String alternativeEndpoint = '/offers/$id';
           final response = await client.put(alternativeEndpoint, body: body);
           return _createOfferDataFromJson(response);
         }
       }
-      
+
       // Pour les autres erreurs, simplement les propager
       rethrow;
     }
@@ -181,7 +231,8 @@ class ApiService {
     } catch (e) {
       // Si l'erreur est liée aux permissions (403) ou que l'offre n'existe pas (404)
       // on retourne false pour indiquer l'échec de l'opération
-      if (e is RestApiException && (e.statusCode == 403 || e.statusCode == 404)) {
+      if (e is RestApiException &&
+          (e.statusCode == 403 || e.statusCode == 404)) {
         return false;
       }
       // Pour les autres types d'erreurs, on les propage

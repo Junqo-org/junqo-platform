@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:junqo_front/shared/widgets/navbar.dart';
-import 'package:http/http.dart' as http;
-import 'package:junqo_front/core/config.dart';
+import 'package:junqo_front/core/api/api_service.dart';
+import 'package:junqo_front/shared/dto/offer_data.dart';
 
 class CardData {
   final String companyName;
@@ -15,6 +15,10 @@ class CardData {
   final List<String> technicalSkills;
   final bool showDetails;
   final String details;
+  final String id;
+  final String userid;
+  final String status;
+  final bool isPlaceHolder;
 
   CardData({
     required this.companyName,
@@ -28,6 +32,10 @@ class CardData {
     required this.technicalSkills,
     required this.details,
     this.showDetails = false,
+    required this.id,
+    required this.userid,
+    required this.status,
+    required this.isPlaceHolder,
   });
 }
 
@@ -53,6 +61,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       technicalSkills: ['Flutter', 'Dart', 'REST API'],
       details:
           'If you see this placeholder it means that there is either no more data or that the data is not yet available.1',
+      id: '1',
+      userid: '1',
+      status: 'active',
+      isPlaceHolder: true,
     ),
     CardData(
       companyName: 'Company PlaceHolder Inc. 2',
@@ -66,6 +78,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       technicalSkills: ['Flutter', 'Dart', 'REST API'],
       details:
           'If you see this placeholder it means that there is either no more data or that the data is not yet available.2',
+      id: '1',
+      userid: '1',
+      status: 'active',
+      isPlaceHolder: true,
     )
   ];
   bool initialized = false;
@@ -168,7 +184,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       cardDataList = await getOfferQuery(0);
       if (cardDataList.isEmpty) {
         //should correctly display error message
-        print("Initialized with empty data");
+        // print("Initialized with empty data");
         outOfData = true;
         currentIndex = 0;
         return placeholderCardData()[0];
@@ -178,7 +194,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
 
     if (outOfData) {
       //Print message in console
-      print('No more data available');
+      // print('No more data available');
       if (currentIndex == 0) {
         currentIndex = 1;
         return placeholderCardData()[1];
@@ -202,55 +218,50 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
     return cardDataList[currentIndex];
   }
 
-  // Future<List<CardData>> getOfferQuery(int offset) async {
-  //   final Uri uri = Uri.parse('${AppConfig.apiUrl}/offers').replace(
-  //     queryParameters: {
-  //       'offset': offset.toString(),
-  //     },
-  //   );
-
-  //   final response = await http.get(uri);
-
-  //   if (response.statusCode == 200) {
-  //     return parseCardDataList(response.body);
-  //   } else {
-  //     throw Exception('Failed to load offers');
-  //   }
-  // }
-
   Future<List<CardData>> getOfferQuery(int offset) async {
-    final Uri uri = Uri.parse('http://dev.junqo.fr:4200/api/v1/offers')
-        .replace(queryParameters: {
-      'offset': offset.toString(),
-    });
+    try {
+      final query = {
+        'offset': offset.toString(),
+      };
 
-    final response = await http.get(uri);
+      //Should be replaced with ApiService.getAllOffersQuery
+      final List<OfferData> offers = await getAllOffersQuery(query);
 
-    if (response.statusCode == 200) {
-      return parseCardDataList(response.body);
-    } else {
-      throw Exception(
-        'Failed to load offers. Status code: ${response.statusCode}, Body: ${response.body}',
-      );
+      // Transform each OfferData into CardData
+      final List<CardData> cardDataList = transformOffersToCards(offers);
+      if (cardDataList.isEmpty) {
+        // If no data is returned, return the placeholder data
+        return placeholderCardData();
+      }
+
+      return cardDataList;
+    } catch (e) {
+      throw Exception('Failed to load offers: $e');
     }
   }
 
-  parseCardDataList(String responseBody) {
-    return [
-      CardData(
-        companyName: 'Guess We got here',
-        companyLogo: 'assets/company_a.png',
-        jobTitle: 'Software PlaceHolder',
-        contractType: 'Full-time PlaceHolder',
-        duration: '6 months PlaceHolder',
-        location: 'Remote',
-        salary: '60,000€ - 80,000€',
-        benefits: ['Gym Membership'],
-        technicalSkills: ['Flutter', 'Dart', 'REST API'],
-        details:
-            'If you see this placeholder it means that there is either no more data or that the data is not yet available.3',
-      ),
-    ];
+  CardData transformOfferToCard(OfferData offer) {
+    return CardData(
+      id: offer.id ?? '',
+      userid: offer.userid,
+      jobTitle: offer.title,
+      contractType: offer.offerType,
+      duration: offer.duration,
+      salary: offer.salary,
+      benefits: [...offer.benefits, offer.workLocationType],
+      technicalSkills: [...offer.skills, offer.educationLevel],
+      details: offer.description,
+      status: offer.status,
+      companyName: 'Company name currently not available',
+      companyLogo: 'Company logo currently not available',
+      location: 'Location currently not available',
+      showDetails: false,
+      isPlaceHolder: false,
+    );
+  }
+
+  List<CardData> transformOffersToCards(List<OfferData> offers) {
+    return offers.map(transformOfferToCard).toList();
   }
 
   List<CardData> placeholderCardData() {
@@ -267,6 +278,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
         technicalSkills: ['Flutter', 'Dart', 'REST API'],
         details:
             'If you see this placeholder it means that there is either no more data or that the data is not yet available.4',
+        id: '1',
+        userid: '1',
+        status: 'active',
+        isPlaceHolder: true,
       ),
       CardData(
         companyName: 'Company PlaceHolder Inc.',
@@ -280,6 +295,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
         technicalSkills: ['Flutter', 'Dart', 'REST API'],
         details:
             'If you see this placeholder it means that there is either no more data or that the data is not yet available.5',
+        id: '1',
+        userid: '1',
+        status: 'active',
+        isPlaceHolder: true,
       )
     ];
   }
