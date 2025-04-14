@@ -13,29 +13,69 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { StudentProfileDTO } from '../../student-profiles/dto/student-profile.dto';
+import { CompanyProfileDTO } from '../../company-profiles/dto/company-profile.dto';
+import { OfferDTO } from '../../offers/dto/offer.dto';
+import { StudentProfileModel } from '../../student-profiles/repository/models/student-profile.model';
+import { CompanyProfileModel } from '../../company-profiles/repository/models/company-profile.model';
+import { OfferModel } from '../../offers/repository/models/offer.model';
 
 const applications: ApplicationDTO[] = [
   plainToInstance(ApplicationDTO, {
-    id: 'e42cc25b-0cc4-4032-83c2-0d34c84318ba',
-    userId: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
-    title: 'Application 1',
-    description: 'Desc',
+    id: 'a42cc25b-0cc4-4032-83c2-0d34c84318ba',
+    studentId: 's69cc25b-0cc4-4032-83c2-0d34c84318ba',
+    companyId: '69cc25b-0cc4-4032-83c2-0d34c84318ba',
+    offerId: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
     createdAt: new Date(),
     updatedAt: new Date(),
     status: ApplicationStatus.NOT_OPENED,
-    viewCount: 0,
+    student: plainToInstance(StudentProfileDTO, {
+      id: 's69cc25b-0cc4-4032-83c2-0d34c84318ba',
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john.doe@example.com',
+    }),
+    company: plainToInstance(CompanyProfileDTO, {
+      id: '69cc25b-0cc4-4032-83c2-0d34c84318ba',
+      name: 'Test Company',
+      email: 'contact@testcompany.com',
+    }),
+    offer: plainToInstance(OfferDTO, {
+      id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
+      title: 'Software Engineer',
+      description: 'Test position',
+    }),
   }),
   plainToInstance(ApplicationDTO, {
-    id: 'e42cc25b-0cc4-4032-83c2-0d34c84318bb',
-    userId: 'e69cc25b-0cc4-4032-83c2-0d34c84318bb',
-    title: 'Application 2',
-    description: 'Desc 2',
+    id: 'a42cc25b-0cc4-4032-83c2-0d34c84318bb',
+    studentId: 's69cc25b-0cc4-4032-83c2-0d34c84318bb',
+    companyId: 'c9cc25b-0cc4-4032-83c2-0d34c84318bb',
+    offerId: 'o69cc25b-0cc4-4032-83c2-0d34c84318bb',
     createdAt: new Date(),
     updatedAt: new Date(),
     status: ApplicationStatus.PENDING,
-    viewCount: 10,
+    student: plainToInstance(StudentProfileDTO, {
+      id: 's69cc25b-0cc4-4032-83c2-0d34c84318bb',
+      firstName: 'Jane',
+      lastName: 'Smith',
+      email: 'jane.smith@example.com',
+    }),
+    company: plainToInstance(CompanyProfileDTO, {
+      id: 'c9cc25b-0cc4-4032-83c2-0d34c84318bb',
+      name: 'Another Company',
+      email: 'contact@anothercompany.com',
+    }),
+    offer: plainToInstance(OfferDTO, {
+      id: 'o69cc25b-0cc4-4032-83c2-0d34c84318bb',
+      title: 'Full Stack Developer',
+      description: 'Another test position',
+    }),
   }),
 ];
+
+const includeOption = {
+  include: [StudentProfileModel, CompanyProfileModel, OfferModel],
+};
 
 describe('ApplicationsRepository', () => {
   let applicationsRepository: ApplicationsRepository;
@@ -91,7 +131,14 @@ describe('ApplicationsRepository', () => {
       expect(result).toEqual(applications);
     });
 
-    it('should return an empty list if there is no application', async () => {});
+    it('should throw NotFoundException if there is no application', async () => {
+      mockApplicationModel.findAll.mockResolvedValue([]);
+
+      await expect(applicationsRepository.findAll()).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      expect(mockApplicationModel.findAll).toHaveBeenCalledWith(includeOption);
+    });
   });
 
   describe('findOneById', () => {
@@ -108,7 +155,10 @@ describe('ApplicationsRepository', () => {
 
       const result = await applicationsRepository.findOneById(applicationId);
       expect(result).toEqual(expectedApplication);
-      expect(mockApplicationModel.findByPk).toHaveBeenCalledWith(applicationId);
+      expect(mockApplicationModel.findByPk).toHaveBeenCalledWith(
+        applicationId,
+        includeOption,
+      );
     });
 
     it("should throw NotFoundException if the application don't exists", async () => {
@@ -119,7 +169,10 @@ describe('ApplicationsRepository', () => {
       await expect(
         applicationsRepository.findOneById(applicationId),
       ).rejects.toBeInstanceOf(NotFoundException);
-      expect(mockApplicationModel.findByPk).toHaveBeenCalledWith(applicationId);
+      expect(mockApplicationModel.findByPk).toHaveBeenCalledWith(
+        applicationId,
+        includeOption,
+      );
     });
   });
 
@@ -145,6 +198,7 @@ describe('ApplicationsRepository', () => {
       expect(result).toEqual(expectedApplication);
       expect(mockApplicationModel.create).toHaveBeenCalledWith(
         createApplication,
+        includeOption,
       );
     });
 
@@ -164,6 +218,7 @@ describe('ApplicationsRepository', () => {
       ).rejects.toThrow(InternalServerErrorException);
       expect(mockApplicationModel.create).toHaveBeenCalledWith(
         createApplication,
+        includeOption,
       );
     });
   });
@@ -194,6 +249,7 @@ describe('ApplicationsRepository', () => {
       expect(mockApplicationModel.findByPk).toHaveBeenCalledWith(
         applications[0].id,
         {
+          ...includeOption,
           transaction: undefined,
         },
       );
@@ -205,7 +261,31 @@ describe('ApplicationsRepository', () => {
       );
     });
 
-    it('should throw InternalServerErrorException if update fails', async () => {});
+    it('should throw InternalServerErrorException if update fails', async () => {
+      const updateData: UpdateApplicationDTO = {
+        status: ApplicationStatus.ACCEPTED,
+      };
+      const applicationId = applications[0].id;
+      const applicationModel: ApplicationModel = {
+        ...applications[0],
+        ...mockApplicationModel,
+        update: jest.fn().mockRejectedValue(new Error('Update failed')),
+      };
+
+      mockApplicationModel.findByPk.mockResolvedValue(applicationModel);
+
+      await expect(
+        applicationsRepository.update(applicationId, updateData),
+      ).rejects.toThrow(InternalServerErrorException);
+
+      expect(mockApplicationModel.findByPk).toHaveBeenCalledWith(
+        applicationId,
+        {
+          ...includeOption,
+          transaction: undefined,
+        },
+      );
+    });
   });
 
   describe('deleteApplication', () => {

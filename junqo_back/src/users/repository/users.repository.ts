@@ -31,6 +31,7 @@ export class UsersRepository {
 
       return users;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch users: ${error.message}`,
       );

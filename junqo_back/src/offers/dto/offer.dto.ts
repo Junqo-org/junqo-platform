@@ -125,7 +125,7 @@ export class OfferDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Duration must be an integer' })
-  duration?: string;
+  duration?: number;
 
   @ApiPropertyOptional({
     description: 'Monthly salary in the local currency',
@@ -134,7 +134,7 @@ export class OfferDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Salary must be an integer' })
-  salary?: string;
+  salary?: number;
 
   @ApiProperty({
     description: 'Work location type (on-site, remote, hybrid)',

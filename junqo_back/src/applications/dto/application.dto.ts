@@ -109,7 +109,7 @@ export class ApplicationDTO {
   @ApiProperty({
     description: 'Current status of the application',
     enum: ApplicationStatus,
-    example: 'ACTIVE',
+    example: 'PENDING',
   })
   @Expose()
   @IsNotEmpty({ message: 'Status is required' })
@@ -159,7 +159,7 @@ export class CreateApplicationDTO {
   @ApiProperty({
     description: 'Current status of the application',
     enum: ApplicationStatus,
-    example: 'ACTIVE',
+    example: 'PENDING',
   })
   @Expose()
   @IsOptional()
@@ -179,7 +179,7 @@ export class UpdateApplicationDTO {
   @ApiProperty({
     description: 'Current status of the application',
     enum: ApplicationStatus,
-    example: 'ACTIVE',
+    example: 'PENDING',
   })
   @Expose()
   @IsOptional()

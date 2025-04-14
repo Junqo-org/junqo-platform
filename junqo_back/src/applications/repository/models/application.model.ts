@@ -96,6 +96,9 @@ export class ApplicationModel extends Model {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       deletedAt: this.deletedAt,
+      student: this.student?.toStudentProfileDTO?.() || undefined,
+      company: this.company?.toCompanyProfileDTO?.() || undefined,
+      offer: this.offer?.toOfferDTO?.() || undefined,
     });
   }
 }

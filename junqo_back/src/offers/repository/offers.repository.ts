@@ -28,6 +28,7 @@ export class OffersRepository {
 
       return offers;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch offers: ${error.message}`,
       );

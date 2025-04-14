@@ -14,6 +14,9 @@ import {
   ApplicationQueryDTO,
   ApplicationQueryOutputDTO,
 } from '../dto/application-query.dto';
+import { StudentProfileModel } from '../../student-profiles/repository/models/student-profile.model';
+import { CompanyProfileModel } from '../../company-profiles/repository/models/company-profile.model';
+import { OfferModel } from '../../offers/repository/models/offer.model';
 
 export class ApplicationsRepository {
   constructor(
@@ -21,10 +24,14 @@ export class ApplicationsRepository {
     private readonly applicationModel: typeof ApplicationModel,
   ) {}
 
+  private includeOption = {
+    include: [StudentProfileModel, CompanyProfileModel, OfferModel],
+  };
+
   public async findAll(): Promise<ApplicationDTO[]> {
     try {
       const applicationsModels: ApplicationModel[] =
-        await this.applicationModel.findAll();
+        await this.applicationModel.findAll(this.includeOption);
 
       if (!applicationsModels || applicationsModels.length === 0) {
         throw new NotFoundException('Application not found');
@@ -35,6 +42,7 @@ export class ApplicationsRepository {
 
       return applications;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch applications: ${error.message}`,
       );
@@ -77,6 +85,7 @@ export class ApplicationsRepository {
     }
     try {
       const { rows, count } = await this.applicationModel.findAndCountAll({
+        ...this.includeOption,
         where: whereClause,
         offset,
         limit,
@@ -104,6 +113,7 @@ export class ApplicationsRepository {
   public async findByCompanyId(companyId: string): Promise<ApplicationDTO[]> {
     try {
       const applicationsModels = await this.applicationModel.findAll({
+        ...this.includeOption,
         where: { userId: companyId },
       });
 
@@ -127,6 +137,7 @@ export class ApplicationsRepository {
   public async findByStudentId(studentId: string): Promise<ApplicationDTO[]> {
     try {
       const applicationsModels = await this.applicationModel.findAll({
+        ...this.includeOption,
         where: { userId: studentId },
       });
 
@@ -152,7 +163,7 @@ export class ApplicationsRepository {
       throw new BadRequestException('Invalid application ID');
     }
     const applicationModel: ApplicationModel =
-      await this.applicationModel.findByPk(id);
+      await this.applicationModel.findByPk(id, this.includeOption);
 
     if (!applicationModel) {
       throw new NotFoundException(`Application #${id} not found`);
@@ -167,9 +178,12 @@ export class ApplicationsRepository {
   ): Promise<ApplicationDTO> {
     try {
       const newApplicationModel: ApplicationModel =
-        await this.applicationModel.create({
-          ...createApplicationDto,
-        });
+        await this.applicationModel.create(
+          {
+            ...createApplicationDto,
+          },
+          this.includeOption,
+        );
 
       if (!newApplicationModel) {
         throw new InternalServerErrorException('Application not created');
@@ -194,6 +208,7 @@ export class ApplicationsRepository {
         await this.applicationModel.sequelize.transaction(
           async (transaction) => {
             const application = await this.applicationModel.findByPk(id, {
+              ...this.includeOption,
               transaction,
             });
 
