@@ -13,7 +13,7 @@ export class SchoolProfileQueryDTO {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  readonly offset?: number = 0;
+  offset?: number = 0;
 
   @ApiPropertyOptional({
     description: 'Number of items per page',
@@ -25,7 +25,7 @@ export class SchoolProfileQueryDTO {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  readonly limit?: number = 10;
+  limit?: number = 10;
 }
 
 export class SchoolProfileQueryOutputDTO {

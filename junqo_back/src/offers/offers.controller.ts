@@ -126,7 +126,7 @@ export class OffersController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async createOffer(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Body('offerInput') offerInput: CreateOfferDTO,
+    @Body() offerInput: CreateOfferDTO,
   ): Promise<OfferDTO> {
     const offer: OfferDTO = await this.offersService.createOffer(
       currentUser,

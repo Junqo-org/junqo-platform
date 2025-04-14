@@ -3,7 +3,6 @@ import { getModelToken } from '@nestjs/sequelize';
 import {
   CreateCompanyProfileDTO,
   CompanyProfileDTO,
-  CompanyProfileQueryDTO,
   UpdateCompanyProfileDTO,
 } from '../dto/company-profile.dto';
 import { CompanyProfilesRepository } from './company-profiles.repository';
@@ -13,6 +12,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { CompanyProfileQueryDTO } from '../dto/company-profile-query.dto';
 
 const companyProfiles: CompanyProfileDTO[] = [
   new CompanyProfileDTO({
@@ -40,7 +40,7 @@ describe('CompanyProfilesRepository', () => {
   beforeEach(async () => {
     mockCompanyProfileModel = {
       create: jest.fn(),
-      findAll: jest.fn(),
+      findAndCountAll: jest.fn(),
       findOne: jest.fn(),
       findByPk: jest.fn(),
       update: jest.fn(),
@@ -80,30 +80,44 @@ describe('CompanyProfilesRepository', () => {
     const query: CompanyProfileQueryDTO = plainToInstance(
       CompanyProfileQueryDTO,
       {
-        skills: ['skill'],
         page: 1,
         limit: 1,
       },
     );
 
-    it('should return all company profiles if no query', async () => {
-      mockCompanyProfileModel.findAll.mockResolvedValue(companyProfileModels);
+    it('should return all school profiles if no query', async () => {
+      mockCompanyProfileModel.findAndCountAll.mockResolvedValue({
+        rows: companyProfileModels,
+        count: companyProfileModels.length,
+      });
 
       const result = await repository.findByQuery({});
-      expect(result).toEqual(companyProfiles);
-      expect(mockCompanyProfileModel.findAll).toHaveBeenCalled();
+      expect(result).toEqual({
+        rows: companyProfiles,
+        count: companyProfiles.length,
+      });
+      expect(mockCompanyProfileModel.findAndCountAll).toHaveBeenCalled();
     });
 
-    it('should find every company profile corresponding to given query', async () => {
-      mockCompanyProfileModel.findAll.mockResolvedValue(companyProfileModels);
+    it('should find every school profile corresponding to given query', async () => {
+      mockCompanyProfileModel.findAndCountAll.mockResolvedValue({
+        rows: companyProfileModels,
+        count: companyProfileModels.length,
+      });
 
       const result = await repository.findByQuery(query);
-      expect(result).toEqual(companyProfiles);
-      expect(mockCompanyProfileModel.findAll).toHaveBeenCalled();
+      expect(result).toEqual({
+        rows: companyProfiles,
+        count: companyProfiles.length,
+      });
+      expect(mockCompanyProfileModel.findAndCountAll).toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException if there is no company profile', async () => {
-      mockCompanyProfileModel.findAll.mockResolvedValue([]);
+    it('should throw NotFoundException if there is no school profile', async () => {
+      mockCompanyProfileModel.findAndCountAll.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
 
       await expect(repository.findByQuery(query)).rejects.toThrow(
         NotFoundException,
@@ -111,7 +125,7 @@ describe('CompanyProfilesRepository', () => {
     });
 
     it('should throw InternalServerErrorException if fetch fail', async () => {
-      mockCompanyProfileModel.findAll.mockRejectedValue(new Error());
+      mockCompanyProfileModel.findAndCountAll.mockRejectedValue(new Error());
 
       await expect(repository.findByQuery(query)).rejects.toThrow(
         InternalServerErrorException,

@@ -173,15 +173,13 @@ describe('Offers E2E Tests', () => {
   describe('Create Offer', () => {
     it('should create a new offer as company', async () => {
       const newOfferData = {
-        offerInput: {
-          userId: companyUserId,
-          title: 'Data Science Intern',
-          description: 'Work with big data and ML models',
-          status: OfferStatus.ACTIVE,
-          skills: ['Python', 'SQL', 'Machine Learning'],
-          offerType: OfferType.INTERNSHIP,
-          workLocationType: WorkContext.REMOTE,
-        },
+        userId: companyUserId,
+        title: 'Data Science Intern',
+        description: 'Work with big data and ML models',
+        status: OfferStatus.ACTIVE,
+        skills: ['Python', 'SQL', 'Machine Learning'],
+        offerType: OfferType.INTERNSHIP,
+        workLocationType: WorkContext.TELEWORKING,
       };
 
       const response = await request(testEnv.app.getHttpServer())
@@ -196,22 +194,20 @@ describe('Offers E2E Tests', () => {
         status: OfferStatus.ACTIVE,
         skills: ['Python', 'SQL', 'Machine Learning'],
         offerType: OfferType.INTERNSHIP,
-        workLocationType: WorkContext.REMOTE,
+        workLocationType: WorkContext.TELEWORKING,
         userId: companyUserId,
       });
     });
 
     it('should prevent students from creating offers', async () => {
       const newOfferData = {
-        offerInput: {
-          userId: companyUserId,
-          title: 'Fake Internship',
-          description: 'This should not work',
-          status: OfferStatus.ACTIVE,
-          skills: ['Deception'],
-          offerType: OfferType.INTERNSHIP,
-          workLocationType: WorkContext.ON_SITE,
-        },
+        userId: companyUserId,
+        title: 'Fake Internship',
+        description: 'This should not work',
+        status: OfferStatus.ACTIVE,
+        skills: ['Deception'],
+        offerType: OfferType.INTERNSHIP,
+        workLocationType: WorkContext.ON_SITE,
       };
 
       await request(testEnv.app.getHttpServer())

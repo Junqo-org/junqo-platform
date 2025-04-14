@@ -12,6 +12,7 @@ import { SchoolProfilesModule } from './school-profiles/school-profiles.module';
 import { ExperiencesModule } from './experiences/experiences.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ApplicationsModule } from './applications/applications.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AppService } from './app.service';
     CompanyProfilesModule,
     SchoolProfilesModule,
     ExperiencesModule,
+    ApplicationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

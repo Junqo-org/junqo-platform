@@ -26,7 +26,7 @@ export class StudentProfileQueryDTO {
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true })
   @Type(() => String)
-  readonly skills?: string[];
+  skills?: string[];
 
   @ApiPropertyOptional({
     description: 'Mode to fetch skills "all" or  "any"',
@@ -36,7 +36,7 @@ export class StudentProfileQueryDTO {
   @Expose()
   @IsOptional()
   @IsIn(['all', 'any'])
-  readonly mode?: 'all' | 'any';
+  mode?: 'all' | 'any';
 
   @ApiPropertyOptional({
     description: 'Offset number for pagination',
@@ -47,7 +47,7 @@ export class StudentProfileQueryDTO {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  readonly offset?: number = 0;
+  offset?: number = 0;
 
   @ApiPropertyOptional({
     description: 'Number of items per page',
@@ -59,7 +59,7 @@ export class StudentProfileQueryDTO {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  readonly limit?: number = 10;
+  limit?: number = 10;
 }
 
 export class StudentProfileQueryOutputDTO {

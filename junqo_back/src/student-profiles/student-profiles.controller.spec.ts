@@ -120,7 +120,10 @@ describe('StudentProfilesController', () => {
         count: 0,
       });
 
-      expect(await controller.findByQuery(currentUser, query)).toEqual([]);
+      expect(await controller.findByQuery(currentUser, query)).toEqual({
+        rows: [],
+        count: 0,
+      });
       expect(studentProfilesService.findByQuery).toHaveBeenCalledWith(
         currentUser,
         query,

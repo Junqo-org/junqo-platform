@@ -2,14 +2,15 @@ import { CompanyProfilesController } from './company-profiles.controller';
 import { CompanyProfilesService } from './company-profiles.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
-import {
-  CompanyProfileDTO,
-  CompanyProfileQueryDTO,
-} from './dto/company-profile.dto';
+import { CompanyProfileDTO } from './dto/company-profile.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { plainToInstance } from 'class-transformer';
 import { ExperienceDTO } from '../experiences/dto/experience.dto';
 import { Mocked, TestBed } from '@suites/unit';
+import {
+  CompanyProfileQueryDTO,
+  CompanyProfileQueryOutputDTO,
+} from './dto/company-profile-query.dto';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -75,16 +76,21 @@ describe('CompanyProfilesController', () => {
       CompanyProfileQueryDTO,
       {
         skills: 'skill,js',
-        page: 1,
-        limit: 1,
+        mode: 'any',
+        offset: 0,
+        limit: 10,
       },
     );
 
-    it('should return every company profiles if no query', async () => {
-      companyProfilesService.findByQuery.mockResolvedValue(companyProfiles);
+    it('should return every student profiles if no query', async () => {
+      const expectedQueryResult: CompanyProfileQueryOutputDTO = {
+        rows: companyProfiles,
+        count: companyProfiles.length,
+      };
+      companyProfilesService.findByQuery.mockResolvedValue(expectedQueryResult);
 
       expect(await controller.findByQuery(currentUser, {})).toEqual(
-        companyProfiles,
+        expectedQueryResult,
       );
       expect(companyProfilesService.findByQuery).toHaveBeenCalledWith(
         currentUser,
@@ -92,11 +98,15 @@ describe('CompanyProfilesController', () => {
       );
     });
 
-    it('should return every company profiles corresponding to given query', async () => {
-      companyProfilesService.findByQuery.mockResolvedValue(companyProfiles);
+    it('should return every student profiles corresponding to given query', async () => {
+      const expectedQueryResult: CompanyProfileQueryOutputDTO = {
+        rows: companyProfiles,
+        count: companyProfiles.length,
+      };
+      companyProfilesService.findByQuery.mockResolvedValue(expectedQueryResult);
 
       expect(await controller.findByQuery(currentUser, query)).toEqual(
-        companyProfiles,
+        expectedQueryResult,
       );
       expect(companyProfilesService.findByQuery).toHaveBeenCalledWith(
         currentUser,
@@ -104,17 +114,23 @@ describe('CompanyProfilesController', () => {
       );
     });
 
-    it('should return empty if no company profiles correspond to given query', async () => {
-      companyProfilesService.findByQuery.mockResolvedValue([]);
+    it('should return empty if no student profiles correspond to given query', async () => {
+      companyProfilesService.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
 
-      expect(await controller.findByQuery(currentUser, query)).toEqual([]);
+      expect(await controller.findByQuery(currentUser, query)).toEqual({
+        rows: [],
+        count: 0,
+      });
       expect(companyProfilesService.findByQuery).toHaveBeenCalledWith(
         currentUser,
         query,
       );
     });
 
-    it("should throw ForbiddenException if user don't have rights to read company profile", async () => {
+    it("should throw ForbiddenException if user don't have rights to read student profile", async () => {
       companyProfilesService.findByQuery.mockImplementation(async () => {
         throw new ForbiddenException();
       });

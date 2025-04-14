@@ -3,7 +3,6 @@ import { getModelToken } from '@nestjs/sequelize';
 import {
   CreateSchoolProfileDTO,
   SchoolProfileDTO,
-  SchoolProfileQueryDTO,
   UpdateSchoolProfileDTO,
 } from '../dto/school-profile.dto';
 import { SchoolProfilesRepository } from './school-profiles.repository';
@@ -13,6 +12,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { SchoolProfileQueryDTO } from '../dto/school-profile-query.dto';
 
 const schoolProfiles: SchoolProfileDTO[] = [
   new SchoolProfileDTO({
@@ -40,7 +40,7 @@ describe('SchoolProfilesRepository', () => {
   beforeEach(async () => {
     mockSchoolProfileModel = {
       create: jest.fn(),
-      findAll: jest.fn(),
+      findAndCountAll: jest.fn(),
       findOne: jest.fn(),
       findByPk: jest.fn(),
       update: jest.fn(),
@@ -78,30 +78,44 @@ describe('SchoolProfilesRepository', () => {
     const query: SchoolProfileQueryDTO = plainToInstance(
       SchoolProfileQueryDTO,
       {
-        skills: ['skill'],
         page: 1,
         limit: 1,
       },
     );
 
     it('should return all school profiles if no query', async () => {
-      mockSchoolProfileModel.findAll.mockResolvedValue(schoolProfileModels);
+      mockSchoolProfileModel.findAndCountAll.mockResolvedValue({
+        rows: schoolProfileModels,
+        count: schoolProfileModels.length,
+      });
 
       const result = await repository.findByQuery({});
-      expect(result).toEqual(schoolProfiles);
-      expect(mockSchoolProfileModel.findAll).toHaveBeenCalled();
+      expect(result).toEqual({
+        rows: schoolProfiles,
+        count: schoolProfiles.length,
+      });
+      expect(mockSchoolProfileModel.findAndCountAll).toHaveBeenCalled();
     });
 
     it('should find every school profile corresponding to given query', async () => {
-      mockSchoolProfileModel.findAll.mockResolvedValue(schoolProfileModels);
+      mockSchoolProfileModel.findAndCountAll.mockResolvedValue({
+        rows: schoolProfileModels,
+        count: schoolProfileModels.length,
+      });
 
       const result = await repository.findByQuery(query);
-      expect(result).toEqual(schoolProfiles);
-      expect(mockSchoolProfileModel.findAll).toHaveBeenCalled();
+      expect(result).toEqual({
+        rows: schoolProfiles,
+        count: schoolProfiles.length,
+      });
+      expect(mockSchoolProfileModel.findAndCountAll).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if there is no school profile', async () => {
-      mockSchoolProfileModel.findAll.mockResolvedValue([]);
+      mockSchoolProfileModel.findAndCountAll.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
 
       await expect(repository.findByQuery(query)).rejects.toThrow(
         NotFoundException,
@@ -109,7 +123,7 @@ describe('SchoolProfilesRepository', () => {
     });
 
     it('should throw InternalServerErrorException if fetch fail', async () => {
-      mockSchoolProfileModel.findAll.mockRejectedValue(new Error());
+      mockSchoolProfileModel.findAndCountAll.mockRejectedValue(new Error());
 
       await expect(repository.findByQuery(query)).rejects.toThrow(
         InternalServerErrorException,

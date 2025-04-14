@@ -24,7 +24,7 @@ export class OfferQueryDTO {
   @Expose()
   @IsOptional()
   @IsUUID('4', { message: 'User ID must be a valid UUID' })
-  readonly userId?: string;
+  userId?: string;
 
   @ApiPropertyOptional({
     description: 'Title of the job offer',
@@ -33,7 +33,7 @@ export class OfferQueryDTO {
   @Expose()
   @IsOptional()
   @IsString({ message: 'Title must be a string' })
-  readonly title?: string;
+  title?: string;
 
   @ApiPropertyOptional({
     description: 'Filter by skills (comma-separated string or array)',
@@ -50,7 +50,7 @@ export class OfferQueryDTO {
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true })
   @Type(() => String)
-  readonly skills?: string[];
+  skills?: string[];
 
   @ApiPropertyOptional({
     description: 'Current status of the offer',
@@ -62,7 +62,7 @@ export class OfferQueryDTO {
   @IsEnum(OfferStatus, {
     message: 'Status must be a valid OfferStatus enum value',
   })
-  readonly status?: OfferStatus;
+  status?: OfferStatus;
 
   @ApiPropertyOptional({
     description: 'Type of offer (internship, full-time, etc.)',
@@ -74,7 +74,7 @@ export class OfferQueryDTO {
   @IsEnum(OfferType, {
     message: 'Offer type must be a valid OfferType enum value',
   })
-  readonly offerType?: OfferType;
+  offerType?: OfferType;
 
   @ApiPropertyOptional({
     description: 'Duration in months',
@@ -84,7 +84,7 @@ export class OfferQueryDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Duration must be an integer' })
-  readonly duration?: number;
+  duration?: number;
 
   @ApiPropertyOptional({
     description: 'Monthly salary in the local currency',
@@ -94,7 +94,7 @@ export class OfferQueryDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Salary must be an integer' })
-  readonly salary?: number;
+  salary?: number;
 
   @ApiPropertyOptional({
     description: 'Work location type (on-site, remote, hybrid)',
@@ -106,7 +106,7 @@ export class OfferQueryDTO {
   @IsEnum(WorkContext, {
     message: 'Work location type must be a valid WorkContext enum value',
   })
-  readonly workLocationType?: WorkContext;
+  workLocationType?: WorkContext;
 
   @ApiPropertyOptional({
     description: 'Benefits offered with the position',
@@ -125,7 +125,7 @@ export class OfferQueryDTO {
   @IsArray({ message: 'Benefits must be an array' })
   @IsString({ each: true, message: 'Each benefit must be a string' })
   @Type(() => String)
-  readonly benefits?: string[];
+  benefits?: string[];
 
   @ApiPropertyOptional({
     description: 'Education level required (years after BAC)',
@@ -135,7 +135,7 @@ export class OfferQueryDTO {
   @Expose()
   @IsOptional()
   @IsInt({ message: 'Education level must be an integer' })
-  readonly educationLevel?: number;
+  educationLevel?: number;
 
   @ApiPropertyOptional({
     description: 'Mode to fetch skills "all" or  "any"',
@@ -145,7 +145,7 @@ export class OfferQueryDTO {
   @Expose()
   @IsOptional()
   @IsIn(['all', 'any'])
-  readonly mode?: 'all' | 'any';
+  mode?: 'all' | 'any';
 
   @ApiPropertyOptional({
     description: 'Offset number for pagination',
@@ -156,7 +156,7 @@ export class OfferQueryDTO {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  readonly offset?: number = 0;
+  offset?: number = 0;
 
   @ApiPropertyOptional({
     description: 'Number of items per page',
@@ -168,7 +168,7 @@ export class OfferQueryDTO {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  readonly limit?: number = 10;
+  limit?: number = 10;
 }
 
 export class OfferQueryOutputDTO {

@@ -7,6 +7,7 @@ import { StudentProfileResource } from './dto/student-profile-resource.dto';
 import { OfferResource } from './dto/offer-resource.dto';
 import { CompanyProfileResource } from './dto/company-profile-resource.dto';
 import { SchoolProfileResource } from './dto/school-profile-resource.dto';
+import { ApplicationResource } from './dto/application-resource.dto';
 
 describe('CaslAbilityFactory', () => {
   let caslAbilityFactory: CaslAbilityFactory;
@@ -136,19 +137,25 @@ describe('CaslAbilityFactory', () => {
     it('should allow student user to create student profile resource', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
-      expect(ability.can(Actions.CREATE, StudentProfileResource)).toBeTruthy();
+      expect(
+        ability.can(Actions.CREATE, new StudentProfileResource()),
+      ).toBeTruthy();
     });
 
     it('should not allow company user to create student profile resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
-      expect(ability.can(Actions.CREATE, StudentProfileResource)).toBeFalsy();
+      expect(
+        ability.can(Actions.CREATE, new StudentProfileResource()),
+      ).toBeFalsy();
     });
 
     it('should not allow school user to create student profile resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
-      expect(ability.can(Actions.CREATE, StudentProfileResource)).toBeFalsy();
+      expect(
+        ability.can(Actions.CREATE, new StudentProfileResource()),
+      ).toBeFalsy();
     });
 
     it('should allow student user to manage student profile resource with same userId', () => {
@@ -236,19 +243,25 @@ describe('CaslAbilityFactory', () => {
     it('should allow company user to create company profile resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
-      expect(ability.can(Actions.CREATE, CompanyProfileResource)).toBeTruthy();
+      expect(
+        ability.can(Actions.CREATE, new CompanyProfileResource()),
+      ).toBeTruthy();
     });
 
     it('should not allow student user to create company profile resource', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
-      expect(ability.can(Actions.CREATE, CompanyProfileResource)).toBeFalsy();
+      expect(
+        ability.can(Actions.CREATE, new CompanyProfileResource()),
+      ).toBeFalsy();
     });
 
     it('should not allow school user to create company profile resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
-      expect(ability.can(Actions.CREATE, CompanyProfileResource)).toBeFalsy();
+      expect(
+        ability.can(Actions.CREATE, new CompanyProfileResource()),
+      ).toBeFalsy();
     });
 
     it('should allow company user to manage company profile resource with same userId', () => {
@@ -336,19 +349,25 @@ describe('CaslAbilityFactory', () => {
     it('should allow school user to create school profile resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
-      expect(ability.can(Actions.CREATE, SchoolProfileResource)).toBeTruthy();
+      expect(
+        ability.can(Actions.CREATE, new SchoolProfileResource()),
+      ).toBeTruthy();
     });
 
     it('should not allow company user to create school profile resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
-      expect(ability.can(Actions.CREATE, SchoolProfileResource)).toBeFalsy();
+      expect(
+        ability.can(Actions.CREATE, new SchoolProfileResource()),
+      ).toBeFalsy();
     });
 
     it('should not allow student user to create school profile resource', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
-      expect(ability.can(Actions.CREATE, SchoolProfileResource)).toBeFalsy();
+      expect(
+        ability.can(Actions.CREATE, new SchoolProfileResource()),
+      ).toBeFalsy();
     });
 
     it('should allow school user to manage school profile resource with same userId', () => {
@@ -436,19 +455,19 @@ describe('CaslAbilityFactory', () => {
     it('should allow company user to create offer resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
-      expect(ability.can(Actions.CREATE, OfferResource)).toBeTruthy();
+      expect(ability.can(Actions.CREATE, new OfferResource())).toBeTruthy();
     });
 
     it('should not allow student user to create offer resource', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
-      expect(ability.can(Actions.CREATE, OfferResource)).toBeFalsy();
+      expect(ability.can(Actions.CREATE, new OfferResource())).toBeFalsy();
     });
 
     it('should not allow school user to create offer resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
-      expect(ability.can(Actions.CREATE, OfferResource)).toBeFalsy();
+      expect(ability.can(Actions.CREATE, new OfferResource())).toBeFalsy();
     });
 
     it('should allow company user to manage offer resource with same userId', () => {
@@ -521,6 +540,102 @@ describe('CaslAbilityFactory', () => {
       });
 
       expect(ability.can(Actions.READ, offerResource)).toBeTruthy();
+    });
+  });
+
+  describe('Application resource casl', () => {
+    it('should allow student user to create application resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(
+        ability.can(Actions.CREATE, new ApplicationResource()),
+      ).toBeTruthy();
+    });
+
+    it('should not allow company user to create application resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(
+        ability.can(Actions.CREATE, new ApplicationResource()),
+      ).toBeFalsy();
+    });
+
+    it('should not allow school user to create application resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+
+      expect(
+        ability.can(Actions.CREATE, new ApplicationResource()),
+      ).toBeFalsy();
+    });
+
+    it('should allow company user to read, update and delete application resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const applicationResource: ApplicationResource = plainToInstance(
+        ApplicationResource,
+        {
+          companyId: companyUser.id,
+        },
+      );
+
+      expect(ability.can(Actions.READ, applicationResource)).toBeTruthy();
+      expect(ability.can(Actions.UPDATE, applicationResource)).toBeTruthy();
+      expect(ability.can(Actions.DELETE, applicationResource)).toBeTruthy();
+    });
+
+    it('should not allow company user to read, update and delete application resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const applicationResource: ApplicationResource = plainToInstance(
+        ApplicationResource,
+        {
+          companyId: studentUser2.id,
+        },
+      );
+
+      expect(ability.can(Actions.READ, applicationResource)).toBeFalsy();
+      expect(ability.can(Actions.UPDATE, applicationResource)).toBeFalsy();
+      expect(ability.can(Actions.DELETE, applicationResource)).toBeFalsy();
+    });
+
+    it('should allow student user to read and delete application resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+      const applicationResource: ApplicationResource = plainToInstance(
+        ApplicationResource,
+        {
+          studentId: studentUser.id,
+        },
+      );
+
+      expect(ability.can(Actions.READ, applicationResource)).toBeTruthy();
+      expect(ability.can(Actions.UPDATE, applicationResource)).toBeFalsy();
+      expect(ability.can(Actions.DELETE, applicationResource)).toBeTruthy();
+    });
+
+    it('should not allow student user to read and delete application resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const applicationResource: ApplicationResource = plainToInstance(
+        ApplicationResource,
+        {
+          studentId: studentUser2.id,
+        },
+      );
+
+      expect(ability.can(Actions.READ, applicationResource)).toBeFalsy();
+      expect(ability.can(Actions.UPDATE, applicationResource)).toBeFalsy();
+      expect(ability.can(Actions.DELETE, applicationResource)).toBeFalsy();
+    });
+
+    it('should not allow school user to read, update and delete application resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const applicationResource: ApplicationResource = plainToInstance(
+        ApplicationResource,
+        {
+          companyId: schoolUser.id,
+        },
+      );
+
+      expect(ability.can(Actions.READ, applicationResource)).toBeFalsy();
+      expect(ability.can(Actions.UPDATE, applicationResource)).toBeFalsy();
+      expect(ability.can(Actions.DELETE, applicationResource)).toBeFalsy();
     });
   });
 });
