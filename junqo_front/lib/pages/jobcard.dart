@@ -131,6 +131,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
                 const SizedBox(width: 16),
                 _buildActionButton(
                   onTap: () async {
+                    postulate(cardData.id);
                     final newData = await setCardData();
                     setState(() {
                       cardData = newData;
@@ -178,6 +179,16 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
     );
   }
 
+  void postulate(String id) {
+    // Implement the postulate logic here
+    if (cardData.isPlaceHolder) {
+      debugPrint('Cannot postulate for placeholder data');
+      return;
+    }
+    debugPrint('Postulating for offer with ID: $id');
+    //Postulate to offer
+  }
+
   Future<CardData> setCardData() async {
     if (!initialized) {
       initialized = true;
@@ -189,12 +200,12 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
         currentIndex = 0;
         return placeholderCardData()[0];
       }
+      debugPrint('Card Data initialized with ${cardDataList.length} items');
       return cardDataList[currentIndex];
     }
 
     if (outOfData) {
-      //Print message in console
-      // print('No more data available');
+      debugPrint('No more data available');
       if (currentIndex == 0) {
         currentIndex = 1;
         return placeholderCardData()[1];
@@ -204,7 +215,11 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       }
     }
     //rest of code
+    currentIndex++;
+    debugPrint('Current index: $currentIndex');
+    debugPrint('Card data list length: ${cardDataList.length}');
     if (currentIndex >= cardDataList.length) {
+      debugPrint('Fetching more data');
       offsetIndex = offsetIndex + currentIndex;
       currentIndex = 0;
       cardDataList = await getOfferQuery(offsetIndex);
@@ -215,7 +230,49 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       }
       return cardDataList[currentIndex];
     }
+
     return cardDataList[currentIndex];
+  }
+
+  fakeAllOffersQuery() {
+    return [
+      OfferData(
+        id: '1',
+        title: 'Software Engineer',
+        offerType: 'Full-time',
+        duration: '6 months',
+        salary: '60,000€ - 80,000€',
+        benefits: ['Gym Membership'],
+        skills: ['Flutter', 'Dart', 'REST API'],
+        educationLevel: 'Bachelor\'s Degree',
+        description: 'Job description goes here.',
+        status: 'active',
+      ),
+      OfferData(
+        id: '2',
+        title: 'Data Scientist',
+        offerType: 'Part-time',
+        duration: '3 months',
+        salary: '50,000€ - 70,000€',
+        benefits: ['Health Insurance'],
+        skills: ['Python', 'Machine Learning'],
+        educationLevel: 'Master\'s Degree',
+        description: 'Job description goes here.',
+        status: 'active',
+      ),
+      OfferData(
+        id: '3',
+        title: 'Product Manager',
+        offerType: 'Contract',
+        duration: '12 months',
+        salary: '80,000€ - 100,000€',
+        benefits: ['Remote Work'],
+        skills: ['Agile', 'Scrum'],
+        educationLevel: 'Master\'s Degree',
+        description: 'Job description goes here.',
+        status: 'active',
+      ),
+    ];
   }
 
   Future<List<CardData>> getOfferQuery(int offset) async {
@@ -225,7 +282,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       };
 
       //Should be replaced with ApiService.getAllOffersQuery
-      final List<OfferData> offers = await getAllOffersQuery(query);
+      // final List<OfferData> offers = await getAllOffersQuery(query);
+      final List<OfferData> offers = await fakeAllOffersQuery();
 
       // Transform each OfferData into CardData
       final List<CardData> cardDataList = transformOffersToCards(offers);
