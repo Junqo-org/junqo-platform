@@ -5,6 +5,8 @@ import 'package:junqo_front/pages/offer_detail.dart';
 import 'package:junqo_front/pages/offer_creation.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:get_it/get_it.dart';
+import 'package:junqo_front/services/offer_service.dart';
+import 'package:junqo_front/core/auth_service.dart';
 
 class OfferList extends StatefulWidget {
   const OfferList({super.key});
@@ -14,59 +16,151 @@ class OfferList extends StatefulWidget {
 }
 
 class _OfferListState extends State<OfferList> {
-  // Liste des offres fictives
-  final List<OfferData> _fakeOffers = [
-    OfferData(
-      userid: 'user-123',
-      title: 'Développeur Front-end React',
-      description:
-          'Nous recherchons un développeur Front-end pour travailler sur nos applications React. Vous intégrerez une équipe dynamique et participerez au développement de nouvelles fonctionnalités.',
-      offerType: 'Stage',
-      duration: '6 mois',
-      salary: '800€/mois',
-      workLocationType: 'Sur place',
-      skills: ['React', 'JavaScript', 'HTML/CSS', 'TypeScript'],
-      benefits: [
-        'Tickets restaurant',
-        'Remboursement transport 50%',
-        'Possibilité d\'embauche'
-      ],
-      educationLevel: 'Bac+3',
-      status: 'active',
-    ),
-    OfferData(
-      userid: 'user-456',
-      title: 'Développeur Full Stack',
-      description:
-          'Participez au développement de notre plateforme e-commerce en utilisant les technologies modernes du web. Vous travaillerez tant sur le front-end que sur le back-end.',
-      offerType: 'Alternance',
-      duration: '12 mois',
-      salary: '1200€/mois',
-      workLocationType: 'Hybride',
-      skills: ['Node.js', 'Vue.js', 'MongoDB', 'Docker', 'API REST'],
-      benefits: [
-        'Télétravail partiel',
-        'Matériel fourni',
-        'Formation continue'
-      ],
-      educationLevel: 'Bac+5',
-      status: 'active',
-    ),
-    OfferData(
-      userid: 'user-789',
-      title: 'Data Scientist Junior',
-      description:
-          'Vous aiderez notre équipe à extraire des insights à partir de nos données. Vous travaillerez sur des modèles de machine learning et participerez à l\'amélioration de nos algorithmes de recommandation.',
-      offerType: 'Stage',
-      duration: '4 mois',
-      salary: '1000€/mois',
-      workLocationType: 'Distanciel',
-      skills: ['Python', 'Pandas', 'Scikit-learn', 'TensorFlow', 'SQL'],
-      benefits: ['Horaires flexibles', 'Projets innovants'],
-      educationLevel: 'Bac+4',
-      status: 'inactive',
-    ),
-  ];
+  final OfferService _offerService = GetIt.instance<OfferService>();
+  final AuthService _authService = GetIt.instance<AuthService>();
+  List<OfferData> _myOffers = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+  bool _isPermissionError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMyOffers();
+  }
+
+  Future<void> _loadMyOffers() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+        _isPermissionError = false;
+      });
+
+      final offers = await _offerService.getMyOffers();
+      
+      setState(() {
+        _myOffers = offers;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        
+        // Vérifier si c'est une erreur d'autorisation (403)
+        if (e.toString().contains('403') || e.toString().contains('permission')) {
+          _isPermissionError = true;
+          _errorMessage = "Vous n'avez pas les permissions nécessaires pour accéder aux offres. "
+              "Seuls les utilisateurs de type COMPANY peuvent accéder à cette fonctionnalité.";
+        } else {
+          _errorMessage = 'Erreur lors du chargement des offres: ${e.toString()}';
+        }
+      });
+    }
+  }
+
+  void _toggleOfferStatus(OfferData offer) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final bool isActivating = offer.status.toLowerCase() == 'inactive';
+        return AlertDialog(
+          title: Text(
+            isActivating ? "Activer cette offre ?" : "Désactiver cette offre ?",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          content: Text(
+            isActivating
+                ? "L'offre sera visible pour les candidats."
+                : "L'offre ne sera plus visible pour les candidats.",
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "Annuler",
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                
+                try {
+                  setState(() => _isLoading = true);
+                  
+                  final String newStatus = isActivating ? 'ACTIVE' : 'INACTIVE';
+                  
+                  // Mettre à jour l'offre avec le nouveau statut
+                  final updatedOffer = OfferData(
+                    id: offer.id,
+                    userid: offer.userid,
+                    title: offer.title,
+                    description: offer.description,
+                    offerType: offer.offerType,
+                    duration: offer.duration,
+                    salary: offer.salary,
+                    workLocationType: offer.workLocationType,
+                    skills: offer.skills,
+                    benefits: offer.benefits,
+                    educationLevel: offer.educationLevel,
+                    status: newStatus,
+                  );
+                  
+                  await _offerService.updateOffer(offer.id!, updatedOffer);
+                  
+                  // Recharger les offres après la mise à jour
+                  await _loadMyOffers();
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isActivating 
+                            ? "L'offre a été activée avec succès" 
+                            : "L'offre a été désactivée avec succès"
+                      ),
+                      backgroundColor: const Color(0xFF10B981), // Emerald 500
+                    ),
+                  );
+                } catch (e) {
+                  setState(() {
+                    _isLoading = false;
+                    _errorMessage = "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
+                  });
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Erreur: ${e.toString()}"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isActivating
+                    ? const Color(0xFF10B981) // Emerald 500
+                    : const Color(0xFFEF4444), // Red 500
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                isActivating ? "Activer" : "Désactiver",
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +174,7 @@ class _OfferListState extends State<OfferList> {
             MaterialPageRoute(
               builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
             ),
-          );
+          ).then((_) => _loadMyOffers()); // Recharger les offres après création
         },
         backgroundColor: const Color(0xFF6366F1), // Indigo
         label: const Text(
@@ -96,16 +190,80 @@ class _OfferListState extends State<OfferList> {
         children: [
           const NavbarCompany(currentIndex: 1), // Mettre l'index qui correspond à cette page
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 24),
-                  _buildOfferList(),
-                ],
-              ),
+            child: _isLoading 
+              ? _buildLoadingIndicator()
+              : _errorMessage != null 
+                ? _buildErrorMessage()
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 24),
+                        _buildOfferList(),
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            color: Color(0xFF6366F1), // Indigo
+          ),
+          SizedBox(height: 16),
+          Text(
+            "Chargement des offres...",
+            style: TextStyle(
+              color: Color(0xFF64748B), // Slate 500
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _isPermissionError ? Icons.no_accounts : Icons.error_outline,
+            color: _isPermissionError ? const Color(0xFFEF4444) : Colors.red,
+            size: 48,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _errorMessage ?? "Une erreur est survenue",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: _isPermissionError ? const Color(0xFFEF4444) : Colors.red,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _isPermissionError 
+                ? () {
+                    // Rediriger vers une page accessible
+                    Navigator.of(context).pushReplacementNamed('/profile');
+                  }
+                : _loadMyOffers,
+            icon: Icon(_isPermissionError ? Icons.person : Icons.refresh),
+            label: Text(_isPermissionError ? "Aller à mon profil" : "Réessayer"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1), // Indigo
+              foregroundColor: Colors.white,
             ),
           ),
         ],
@@ -261,11 +419,15 @@ class _OfferListState extends State<OfferList> {
   }
 
   Widget _buildOfferList() {
-    // Filtrer les offres par statut
+    if (_myOffers.isEmpty) {
+      return _buildEmptyOfferList();
+    }
+
+    // Filtrer les offres par statut (gérer les deux formats possibles de statut: 'active'/'ACTIVE' et 'inactive'/'INACTIVE')
     final List<OfferData> activeOffers =
-        _fakeOffers.where((offer) => offer.status == 'active').toList();
+        _myOffers.where((offer) => offer.status.toLowerCase() == 'active').toList();
     final List<OfferData> inactiveOffers =
-        _fakeOffers.where((offer) => offer.status == 'inactive').toList();
+        _myOffers.where((offer) => offer.status.toLowerCase() == 'inactive').toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,12 +443,81 @@ class _OfferListState extends State<OfferList> {
 
         // Section des offres inactives
         if (inactiveOffers.isNotEmpty) ...[
-          _buildSectionHeader(
-              "Offres inactives", Icons.cancel_outlined, inactiveOffers.length),
+          _buildSectionHeader("Offres inactives", Icons.block_outlined,
+              inactiveOffers.length),
           const SizedBox(height: 16),
           ...inactiveOffers.map((offer) => _buildOfferCard(offer)),
         ],
+
+        // Afficher un message si aucune offre n'est trouvée (ne devrait pas arriver avec la vérification isEmpty)
+        if (activeOffers.isEmpty && inactiveOffers.isEmpty)
+          _buildEmptyOfferList(),
       ],
+    );
+  }
+
+  Widget _buildEmptyOfferList() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      margin: const EdgeInsets.only(top: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.work_off_outlined,
+            color: Color(0xFF94A3B8), // Slate 400
+            size: 64,
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "Vous n'avez pas encore créé d'offre",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF334155), // Slate 700
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Créez votre première offre pour commencer à recruter des talents",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF64748B), // Slate 500
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
+                ),
+              ).then((_) => _loadMyOffers());
+            },
+            icon: const Icon(Icons.add),
+            label: const Text("Créer ma première offre"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1), // Indigo
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -463,7 +694,16 @@ class _OfferListState extends State<OfferList> {
                   children: [
                     OutlinedButton.icon(
                       onPressed: () {
-                        // Action pour modifier l'offre
+                        // Ouvrir le formulaire d'édition avec l'offre existante
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => JobOfferForm(
+                              client: GetIt.instance<RestClient>(),
+                              existingOffer: offer,
+                            ),
+                          ),
+                        ).then((_) => _loadMyOffers()); // Recharger les offres après modification
                       },
                       icon: const Icon(Icons.edit_outlined),
                       label: const Text("Modifier"),
@@ -479,38 +719,17 @@ class _OfferListState extends State<OfferList> {
                     const SizedBox(width: 12),
                     OutlinedButton.icon(
                       onPressed: () {
-                        setState(() {
-                          // Simuler l'activation/désactivation locale d'une offre
-                          final int index = _fakeOffers.indexOf(offer);
-                          if (index >= 0) {
-                            final OfferData updatedOffer = OfferData(
-                              userid: offer.userid,
-                              title: offer.title,
-                              description: offer.description,
-                              offerType: offer.offerType,
-                              duration: offer.duration,
-                              salary: offer.salary,
-                              workLocationType: offer.workLocationType,
-                              skills: offer.skills,
-                              benefits: offer.benefits,
-                              educationLevel: offer.educationLevel,
-                              status: offer.status == 'active'
-                                  ? 'inactive'
-                                  : 'active',
-                            );
-                            _fakeOffers[index] = updatedOffer;
-                          }
-                        });
+                        _toggleOfferStatus(offer);
                       },
                       icon: Icon(
-                        offer.status == 'active'
+                        offer.status.toLowerCase() == 'active'
                             ? Icons.toggle_off_outlined
                             : Icons.toggle_on_outlined,
                       ),
                       label: Text(
-                          offer.status == 'active' ? "Désactiver" : "Activer"),
+                          offer.status.toLowerCase() == 'active' ? "Désactiver" : "Activer"),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: offer.status == 'active'
+                        foregroundColor: offer.status.toLowerCase() == 'active'
                             ? const Color(0xFFEF4444) // Rouge pour désactiver
                             : const Color(0xFF10B981), // Vert pour activer
                         shape: RoundedRectangleBorder(
@@ -528,7 +747,10 @@ class _OfferListState extends State<OfferList> {
                           MaterialPageRoute(
                             builder: (context) => OfferDetail(offer: offer),
                           ),
-                        );
+                        ).then((_) {
+                          // Recharger les offres au retour (notamment après une suppression)
+                          _loadMyOffers();
+                        });
                       },
                       icon: const Icon(Icons.visibility_outlined),
                       label: const Text("Voir détails"),
@@ -613,21 +835,23 @@ class _OfferListState extends State<OfferList> {
   }
 
   Widget _buildStatusTag(String status) {
+    final bool isActive = status.toLowerCase() == 'active';
+    
     return Container(
       margin: const EdgeInsets.only(left: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: status == 'active'
+        color: isActive
             ? const Color(0xFF6366F1)
             : const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
-        status == 'active' ? 'Actif' : 'Inactif',
+        isActive ? 'Actif' : 'Inactif',
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: status == 'active' ? Colors.white : const Color(0xFF475569),
+          color: isActive ? Colors.white : const Color(0xFF475569),
         ),
       ),
     );

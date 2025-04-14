@@ -8,10 +8,12 @@ import 'package:junqo_front/core/client.dart';
 
 class JobOfferForm extends StatefulWidget {
   final RestClient client;
+  final OfferData? existingOffer;
 
   const JobOfferForm({
     super.key,
     required this.client,
+    this.existingOffer,
   });
 
   @override
@@ -23,9 +25,9 @@ class _JobOfferFormState extends State<JobOfferForm> {
   final AuthService authService = GetIt.instance<AuthService>();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String _workLocationType =
-      'Sur place'; // Valeurs possibles: 'Sur place', 'Distanciel'
+  String _workLocationType = 'Sur place'; // Valeurs possibles: 'Sur place', 'Distanciel'
   DateTime? _expirationDate;
+  bool _isEditMode = false;
 
   // Type d'offre
   String _offerType = 'Stage';
@@ -78,6 +80,63 @@ class _JobOfferFormState extends State<JobOfferForm> {
         _addBenefitFromController();
       }
     });
+    
+    if (widget.existingOffer != null) {
+      _isEditMode = true;
+      _initializeFormWithExistingOffer();
+    }
+  }
+  
+  void _initializeFormWithExistingOffer() {
+    final offer = widget.existingOffer!;
+    
+    _titleController.text = offer.title;
+    _descriptionController.text = offer.description;
+    
+    _offerType = _convertOfferTypeFromBackend(offer.offerType);
+    _workLocationType = _convertWorkLocationTypeFromBackend(offer.workLocationType);
+    
+    _durationController.text = offer.duration;
+    _salaryController.text = offer.salary;
+    _educationLevel = _convertEducationLevelFromBackend(offer.educationLevel);
+    
+    _selectedSkills = List<String>.from(offer.skills);
+    _selectedBenefits = List<String>.from(offer.benefits);
+  }
+  
+  String _convertOfferTypeFromBackend(String backendType) {
+    switch (backendType.toUpperCase()) {
+      case 'INTERNSHIP':
+        return 'Stage';
+      case 'APPRENTICESHIP':
+        return 'Alternance';
+      default:
+        return 'Stage';
+    }
+  }
+  
+  String _convertWorkLocationTypeFromBackend(String backendType) {
+    switch (backendType.toUpperCase()) {
+      case 'ON_SITE':
+        return 'Sur place';
+      case 'REMOTE':
+        return 'Distanciel';
+      default:
+        return 'Sur place';
+    }
+  }
+
+  String _convertEducationLevelFromBackend(String backendLevel) {
+    // Normaliser le niveau d'éducation pour assurer qu'il correspond à une des options disponibles
+    String normalized = backendLevel.trim();
+    
+    // Vérifier si la valeur existe déjà dans la liste des options
+    if (_educationLevels.contains(normalized)) {
+      return normalized;
+    }
+    
+    // Si la valeur n'est pas dans la liste, retourner une valeur par défaut
+    return 'Bac+3';
   }
 
   void _addSkillFromController() {
@@ -140,7 +199,6 @@ class _JobOfferFormState extends State<JobOfferForm> {
       setState(() {
         if (isStartDate) {
           _expirationDate = picked;
-          // Si la date de fin est avant la nouvelle date de début, on l'ajuste
           if (_expirationDate != null && _expirationDate!.isBefore(picked)) {
             _expirationDate = picked.add(const Duration(days: 90));
           }
@@ -159,38 +217,42 @@ class _JobOfferFormState extends State<JobOfferForm> {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
 
-      final scaffoldContext = ScaffoldMessenger.of(context);
-      final navigatorContext = Navigator.of(context);
-
       try {
         final String titleValue = _titleController.text;
 
         final OfferData jobOffer = OfferData(
+          id: _isEditMode ? widget.existingOffer!.id : null,
           title: _titleController.text,
           description: _descriptionController.text,
-          offerType: _offerType,
+          offerType: _convertOfferType(_offerType),
           duration: _durationController.text,
           salary: _salaryController.text,
-          workLocationType: _workLocationType,
+          workLocationType: _convertWorkLocationType(_workLocationType),
           skills: _selectedSkills,
           benefits: _selectedBenefits,
           educationLevel: _educationLevel,
           userid: authService.userId ?? '',
-          status: 'active',
+          status: _isEditMode ? widget.existingOffer!.status : 'ACTIVE',
         );
 
-        await offerService.createOffer(jobOffer);
+        OfferData resultOffer;
+        String successMessage;
+        
+        if (_isEditMode) {
+          resultOffer = await offerService.updateOffer(widget.existingOffer!.id!, jobOffer);
+          successMessage = "Votre offre « $titleValue » a été mise à jour avec succès !";
+        } else {
+          resultOffer = await offerService.createOffer(jobOffer);
+          successMessage = "Votre offre « $titleValue » a été créée avec succès !";
+        }
 
-        // Vérification si le widget est toujours monté
         if (!mounted) return;
 
-        // Utiliser un Future.microtask pour s'assurer que l'opération est effectuée après la fin du cycle de rendu actuel
         Future.microtask(() {
           if (!mounted) return;
           showDialog(
             context: context,
-            barrierDismissible:
-                false, // Empêche la fermeture en cliquant à l'extérieur
+            barrierDismissible: false,
             builder: (BuildContext dialogContext) {
               return AlertDialog(
                 shape: RoundedRectangleBorder(
@@ -225,7 +287,9 @@ class _JobOfferFormState extends State<JobOfferForm> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                "Offre de ${_offerType.toLowerCase()} créée !",
+                                _isEditMode 
+                                  ? "Offre de ${_offerType.toLowerCase()} mise à jour !" 
+                                  : "Offre de ${_offerType.toLowerCase()} créée !",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -242,7 +306,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              "Votre offre « $titleValue » a été créée avec succès !",
+                              successMessage,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 16,
@@ -250,89 +314,29 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                 color: Color(0xFF334155), // Slate 700
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              "Elle sera visible par les candidats après validation par notre équipe.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF64748B), // Slate 500
-                              ),
-                            ),
                             const SizedBox(height: 24),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(dialogContext).pop();
-
-                                    // Vérifier si le widget est toujours monté avant de modifier l'état
-                                    if (mounted) {
-                                      // Reset form
-                                      _formKey.currentState?.reset();
-                                      _titleController.clear();
-                                      _descriptionController.clear();
-                                      _companyController.clear();
-                                      _locationController.clear();
-                                      _durationController.clear();
-                                      _profileController.clear();
-                                      _salaryController.clear();
-                                      _skillsController.clear();
-                                      _educationController.clear();
-                                      _benefitsController.clear();
-                                      setState(() {
-                                        _selectedSkills = [];
-                                        _selectedBenefits = [];
-                                        _expirationDate = null;
-                                        _workLocationType = 'Sur place';
-                                        _expiresIn = '1 mois';
-                                        _isLoading = false;
-                                      });
-                                    }
-                                  },
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(
-                                          color: Colors.grey.shade300),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Créer une autre offre",
-                                    style: TextStyle(
-                                      color: Color(0xFF6366F1), // Indigo
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
                                 ElevatedButton(
                                   onPressed: () {
                                     Navigator.of(dialogContext).pop();
-                                    // Navigation sécurisée
-                                    if (mounted) {
-                                      navigatorContext
-                                          .pushReplacementNamed('/my-offers');
-                                    }
+                                    Navigator.of(context).pop();
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color(0xFF6366F1), // Indigo
+                                    backgroundColor: const Color(0xFF6366F1),
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
+                                        horizontal: 24, vertical: 12),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
                                   child: const Text(
-                                    "Voir mes offres",
+                                    "Retour à la liste des offres",
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
@@ -349,41 +353,55 @@ class _JobOfferFormState extends State<JobOfferForm> {
           );
         });
       } catch (e) {
-        // Vérifier si le widget est toujours monté
         if (!mounted) return;
-
-        // Utiliser le scaffoldContext capturé pour afficher le message d'erreur
-        scaffoldContext.showSnackBar(
+        
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur lors de la création de l\'offre: $e'),
-            backgroundColor: Colors.red.shade700,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+            content: Text('Erreur lors de la création de l\'offre: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {},
             ),
           ),
         );
-
-        // Mettre à jour l'état si le widget est toujours monté
+      } finally {
         if (mounted) {
           setState(() => _isLoading = false);
         }
       }
-    } else {
-      // Vérifier si le widget est toujours monté
-      if (!mounted) return;
+    }
+  }
 
-      // Afficher un message si le formulaire n'est pas valide
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez remplir tous les champs obligatoires'),
-          backgroundColor: Color(0xFFEF4444),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
-      );
+  String _convertOfferType(String uiType) {
+    switch (uiType) {
+      case 'Stage':
+        return 'INTERNSHIP';
+      case 'Alternance':
+        return 'APPRENTICESHIP';
+      case 'Temps partiel':
+        return 'PART_TIME';
+      case 'Temps plein':
+        return 'FULL_TIME';
+      default:
+        return 'INTERNSHIP';
+    }
+  }
+
+  String _convertWorkLocationType(String uiType) {
+    switch (uiType) {
+      case 'Sur place':
+        return 'ON_SITE';
+      case 'Distanciel':
+        return 'REMOTE';
+      case 'Hybride':
+        return 'HYBRID';
+      case 'Télétravail':
+        return 'TELEWORKING';
+      default:
+        return 'ON_SITE';
     }
   }
 
@@ -1677,10 +1695,12 @@ class _JobOfferFormState extends State<JobOfferForm> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.publish_rounded),
+              Icon(_isEditMode ? Icons.save_rounded : Icons.publish_rounded),
               const SizedBox(width: 12),
               Text(
-                "Publier l'offre de ${_offerType.toLowerCase()}",
+                _isEditMode
+                    ? "Enregistrer les modifications"
+                    : "Publier l'offre de ${_offerType.toLowerCase()}",
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

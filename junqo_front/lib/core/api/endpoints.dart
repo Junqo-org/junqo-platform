@@ -11,7 +11,9 @@ class ApiEndpoints {
 
   // Offres d'emploi
   static const String offers = '/offers';
+  static const String myOffers = '/offers/my';
   static String getOfferById(String id) => '/offers/$id';
+  static String createOffer() => '/offers';
   static String updateOffer(String id) => '/offers/$id';
   static String deleteOffer(String id) => '/offers/$id';
 

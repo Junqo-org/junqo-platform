@@ -3,6 +3,7 @@ import 'package:junqo_front/core/api/endpoints.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
 import 'package:junqo_front/shared/dto/user_data.dart';
 import 'package:junqo_front/shared/enums/user_type.dart';
+import 'package:junqo_front/shared/enums/offer_enums.dart';
 
 /// Service centralisé pour effectuer des appels API REST
 class ApiService {
@@ -41,36 +42,61 @@ class ApiService {
 
   /// Récupérer toutes les offres
   Future<List<OfferData>> getAllOffers() async {
-    final response = await client.get(ApiEndpoints.offers);
-    final List<dynamic> offersJson = response['offers'];
+    try {
+      final response = await client.get(ApiEndpoints.offers);
+      
+      if (response is List) {
+        return (response as List)
+            .map((offerJson) => OfferData.fromJson(offerJson as Map<String, dynamic>))
+            .toList();
+      } else if (response is Map<String, dynamic> && response.containsKey('offers')) {
+        final List<dynamic> offersJson = response['offers'];
+        return offersJson.map((offerJson) => OfferData.fromJson(offerJson as Map<String, dynamic>)).toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      // Si l'erreur est 404 (not found), on retourne une liste vide
+      if (e is RestApiException && e.statusCode == 404) {
+        return [];
+      }
+      rethrow;
+    }
+  }
 
-    return offersJson
-        .map((offerJson) => _createOfferDataFromJson(offerJson))
-        .toList();
+  /// Récupérer toutes les offres créées par l'utilisateur connecté
+  Future<List<OfferData>> getMyOffers() async {
+    try {
+      final response = await client.get(ApiEndpoints.myOffers);
+      
+      if (response is List) {
+        return (response as List)
+            .map((offerJson) => OfferData.fromJson(offerJson as Map<String, dynamic>))
+            .toList();
+      } else if (response is Map<String, dynamic> && response.containsKey('offers')) {
+        final List<dynamic> offersJson = response['offers'];
+        return offersJson.map((offerJson) => OfferData.fromJson(offerJson as Map<String, dynamic>)).toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      // Si l'erreur est 404 (not found), on retourne une liste vide
+      if (e is RestApiException && e.statusCode == 404) {
+        return [];
+      }
+      rethrow;
+    }
   }
 
   /// Récupérer une offre par son ID
   Future<OfferData> getOfferById(String id) async {
     final response = await client.get(ApiEndpoints.getOfferById(id));
-    return _createOfferDataFromJson(response);
+    return OfferData.fromJson(response);
   }
 
   /// Créer une instance OfferData à partir d'un JSON
   OfferData _createOfferDataFromJson(Map<String, dynamic> json) {
-    return OfferData(
-      id: json['id'],
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      offerType: json['offerType'] ?? '',
-      duration: json['duration'] ?? '',
-      salary: json['salary'] ?? '',
-      workLocationType: json['workLocationType'] ?? '',
-      skills: _parseStringList(json['skills']),
-      benefits: _parseStringList(json['benefits']),
-      educationLevel: json['educationLevel'] ?? '',
-      userid: json['userId'] ?? '',
-      status: json['status'] ?? '',
-    );
+    return OfferData.fromJson(json);
   }
 
   /// Convertir un objet en List<String> avec gestion des nulls
@@ -85,17 +111,19 @@ class ApiService {
   /// Créer une offre
   Future<OfferData> createOffer(OfferData offerData) async {
     final body = {
-      'title': offerData.title,
-      'description': offerData.description,
-      'offerType': offerData.offerType,
-      'duration': offerData.duration,
-      'salary': offerData.salary,
-      'workLocationType': offerData.workLocationType,
-      'skills': offerData.skills,
-      'benefits': offerData.benefits,
-      'educationLevel': offerData.educationLevel,
-      'userId': offerData.userid,
-      'status': offerData.status,
+      'offerInput': {
+        'userId': offerData.userid,
+        'title': offerData.title,
+        'description': offerData.description,
+        'status': OfferEnumMapper.mapStatusToBackend(offerData.status),
+        'offerType': OfferEnumMapper.mapOfferTypeToBackend(offerData.offerType),
+        'duration': offerData.duration.isNotEmpty ? int.tryParse(offerData.duration) : null,
+        'salary': offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
+        'workLocationType': OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
+        'skills': offerData.skills,
+        'benefits': offerData.benefits,
+        'educationLevel': offerData.educationLevel.isNotEmpty ? int.tryParse(offerData.educationLevel) : null,
+      }
     };
 
     final response = await client.post(ApiEndpoints.offers, body: body);
@@ -105,25 +133,60 @@ class ApiService {
   /// Mettre à jour une offre
   Future<OfferData> updateOffer(String id, OfferData offerData) async {
     final body = {
-      'title': offerData.title,
-      'description': offerData.description,
-      'offerType': offerData.offerType,
-      'duration': offerData.duration,
-      'salary': offerData.salary,
-      'workLocationType': offerData.workLocationType,
-      'skills': offerData.skills,
-      'benefits': offerData.benefits,
-      'educationLevel': offerData.educationLevel,
-      'status': offerData.status,
+      'offerInput': {
+        'title': offerData.title,
+        'description': offerData.description,
+        'status': OfferEnumMapper.mapStatusToBackend(offerData.status),
+        'offerType': OfferEnumMapper.mapOfferTypeToBackend(offerData.offerType),
+        'duration': offerData.duration.isNotEmpty ? int.tryParse(offerData.duration) : null,
+        'salary': offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
+        'workLocationType': OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
+        'skills': offerData.skills,
+        'benefits': offerData.benefits,
+        'educationLevel': offerData.educationLevel.isNotEmpty ? int.tryParse(offerData.educationLevel) : null,
+      }
     };
 
-    final response = await client.put(ApiEndpoints.updateOffer(id), body: body);
-    return _createOfferDataFromJson(response);
+    try {
+      // Utiliser la méthode PATCH qui est généralement utilisée pour les mises à jour partielles
+      final response = await client.patch(ApiEndpoints.updateOffer(id), body: body);
+      return _createOfferDataFromJson(response);
+    } catch (e) {
+      // Si l'erreur est liée à la méthode HTTP (par exemple si PATCH n'est pas supportée), essayer PUT
+      if (e is RestApiException) {
+        // Log l'erreur pour aider au débogage
+        print('Erreur lors de la mise à jour de l\'offre: ${e.message}');
+        
+        // Si l'erreur est 404, cela peut signifier que l'endpoint n'est pas disponible
+        if (e.statusCode == 404) {
+          print('Endpoint non trouvé, essai avec URL alternative');
+          
+          // Essayer avec une URL alternative
+          final String alternativeEndpoint = '/offers/$id';
+          final response = await client.put(alternativeEndpoint, body: body);
+          return _createOfferDataFromJson(response);
+        }
+      }
+      
+      // Pour les autres erreurs, simplement les propager
+      rethrow;
+    }
   }
 
   /// Supprimer une offre
-  Future<void> deleteOffer(String id) async {
-    await client.delete(ApiEndpoints.deleteOffer(id));
+  Future<bool> deleteOffer(String id) async {
+    try {
+      final response = await client.delete(ApiEndpoints.deleteOffer(id));
+      return response['isSuccessful'] ?? false;
+    } catch (e) {
+      // Si l'erreur est liée aux permissions (403) ou que l'offre n'existe pas (404)
+      // on retourne false pour indiquer l'échec de l'opération
+      if (e is RestApiException && (e.statusCode == 403 || e.statusCode == 404)) {
+        return false;
+      }
+      // Pour les autres types d'erreurs, on les propage
+      rethrow;
+    }
   }
 
   // ************ UTILISATEURS ************
