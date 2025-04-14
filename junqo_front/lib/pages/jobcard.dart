@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:junqo_front/shared/widgets/navbar.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/core/client.dart';
 
 class CardData {
   final String companyName;
@@ -39,8 +41,11 @@ class CardData {
   });
 }
 
+//
 class JobCardSwipe extends StatefulWidget {
-  const JobCardSwipe({super.key});
+  final RestClient client = GetIt.instance<RestClient>();
+
+  JobCardSwipe({super.key});
 
   @override
   State<JobCardSwipe> createState() => _JobCardSwipeState();
@@ -48,6 +53,17 @@ class JobCardSwipe extends StatefulWidget {
 
 class _JobCardSwipeState extends State<JobCardSwipe> {
   late CardData cardData;
+  late final ApiService _apiService;
+  late final RestClient client;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiService = GetIt.instance<ApiService>();
+    client = widget.client;
+    _initCardData();
+  }
+
   List<CardData> cardDataList = [
     CardData(
       companyName: 'Company PlaceHolder Inc. 1',
@@ -88,12 +104,6 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
   int currentIndex = 0;
   int offsetIndex = 0;
   bool outOfData = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initCardData();
-  }
 
   Future<void> _initCardData() async {
     final data = await setCardData();
@@ -186,6 +196,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       return;
     }
     debugPrint('Postulating for offer with ID: $id');
+    _apiService.postulateOffer(id);
     //Postulate to offer
   }
 
@@ -194,8 +205,6 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       initialized = true;
       cardDataList = await getOfferQuery(0);
       if (cardDataList.isEmpty) {
-        //should correctly display error message
-        // print("Initialized with empty data");
         outOfData = true;
         currentIndex = 0;
         return placeholderCardData()[0];
@@ -282,8 +291,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       };
 
       //Should be replaced with ApiService.getAllOffersQuery
-      // final List<OfferData> offers = await getAllOffersQuery(query);
-      final List<OfferData> offers = await fakeAllOffersQuery();
+      final List<OfferData> offers = await _apiService.getAllOffersQuery(query);
+      // final List<OfferData> offers = await fakeAllOffersQuery();
 
       // Transform each OfferData into CardData
       final List<CardData> cardDataList = transformOffersToCards(offers);

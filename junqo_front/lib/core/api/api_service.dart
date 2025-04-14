@@ -125,6 +125,20 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> postulateOffer(String offerId) async {
+    try {
+      final response = await client.post(ApiEndpoints.postulateOffer(offerId));
+      return response;
+    } catch (e) {
+      if (e is RestApiException &&
+          (e.statusCode == 403 || e.statusCode == 404)) {
+        // Peut-être que l'utilisateur n'est pas un étudiant ou l'offre n'existe pas
+        return {'error': e.message};
+      }
+      rethrow;
+    }
+  }
+
   /// Récupérer une offre par son ID
   Future<OfferData> getOfferById(String id) async {
     final response = await client.get(ApiEndpoints.getOfferById(id));
