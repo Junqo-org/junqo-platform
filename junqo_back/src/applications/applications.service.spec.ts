@@ -140,7 +140,10 @@ describe('ApplicationsService', () => {
       );
       expect(cannotMockFn).toHaveBeenLastCalledWith(
         Actions.READ,
-        plainToInstance(ApplicationResource, {}),
+        plainToInstance(
+          ApplicationResource,
+          applications[applications.length - 1],
+        ),
       );
     });
 
@@ -157,10 +160,6 @@ describe('ApplicationsService', () => {
       expect(applicationsRepository.findByQuery).toHaveBeenCalled();
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
-      );
-      expect(cannotMockFn).toHaveBeenLastCalledWith(
-        Actions.READ,
-        plainToInstance(ApplicationResource, {}),
       );
     });
 
@@ -188,7 +187,10 @@ describe('ApplicationsService', () => {
       );
       expect(cannotMockFnRev).toHaveBeenLastCalledWith(
         Actions.READ,
-        plainToInstance(ApplicationResource, {}),
+        plainToInstance(
+          ApplicationResource,
+          applications[applications.length - 1],
+        ),
       );
     });
   });
