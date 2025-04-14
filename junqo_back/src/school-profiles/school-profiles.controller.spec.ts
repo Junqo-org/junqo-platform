@@ -82,7 +82,7 @@ describe('SchoolProfilesController', () => {
       },
     );
 
-    it('should return every student profiles if no query', async () => {
+    it('should return every school profiles if no query', async () => {
       const expectedQueryResult: SchoolProfileQueryOutputDTO = {
         rows: schoolProfiles,
         count: schoolProfiles.length,
@@ -98,7 +98,7 @@ describe('SchoolProfilesController', () => {
       );
     });
 
-    it('should return every student profiles corresponding to given query', async () => {
+    it('should return every school profiles corresponding to given query', async () => {
       const expectedQueryResult: SchoolProfileQueryOutputDTO = {
         rows: schoolProfiles,
         count: schoolProfiles.length,
@@ -114,7 +114,7 @@ describe('SchoolProfilesController', () => {
       );
     });
 
-    it('should return empty if no student profiles correspond to given query', async () => {
+    it('should return empty if no school profiles correspond to given query', async () => {
       schoolProfilesService.findByQuery.mockResolvedValue({
         rows: [],
         count: 0,
@@ -130,7 +130,7 @@ describe('SchoolProfilesController', () => {
       );
     });
 
-    it("should throw ForbiddenException if user don't have rights to read student profile", async () => {
+    it("should throw ForbiddenException if user don't have rights to read school profile", async () => {
       schoolProfilesService.findByQuery.mockImplementation(async () => {
         throw new ForbiddenException();
       });
