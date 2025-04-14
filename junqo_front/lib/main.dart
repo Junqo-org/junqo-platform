@@ -12,6 +12,8 @@ import 'package:junqo_front/shared/theme.dart';
 import 'package:junqo_front/services/offer_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:junqo_front/core/api/api_service.dart';
+import 'package:junqo_front/core/student_profile_service.dart';
+import 'package:junqo_front/core/company_profile_service.dart';
 
 void main() async {
   try {
@@ -38,6 +40,10 @@ void main() async {
     GetIt.instance.registerSingleton<AuthService>(authService);
     GetIt.instance.registerSingleton<UserService>(userService);
     GetIt.instance.registerSingleton<OfferService>(offerService);
+    
+    // Register profile services
+    GetIt.instance.registerLazySingleton<StudentProfileService>(() => StudentProfileService());
+    GetIt.instance.registerLazySingleton<CompanyProfileService>(() => CompanyProfileService());
     
     runApp(const JunqoApp());
   } catch (e) {
