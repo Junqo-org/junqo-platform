@@ -225,9 +225,7 @@ describe('Applications E2E Tests', () => {
 
     it('should validate update data', async () => {
       const invalidUpdateData = {
-        applicationInput: {
-          status: 'INVALID_STATUS',
-        },
+        status: 'INVALID_STATUS',
       };
 
       await request(testEnv.app.getHttpServer())

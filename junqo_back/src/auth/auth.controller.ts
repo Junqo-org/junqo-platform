@@ -17,9 +17,9 @@ import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
-  ApiHeader,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
@@ -90,11 +90,7 @@ export class AuthController {
   @Public()
   @Get('is-logged-in')
   @ApiOperation({ summary: 'Check if user is logged in' })
-  @ApiHeader({
-    name: 'Authorization',
-    description: 'JWT token with Bearer prefix',
-    required: false,
-  })
+  @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Login status',
     schema: {
