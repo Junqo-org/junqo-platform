@@ -204,15 +204,28 @@ describe('StudentProfilesRepository', () => {
   });
 
   describe('create', () => {
-    const createStudentProfile: CreateStudentProfileDTO = studentProfiles[0];
+    const createStudentProfile: CreateStudentProfileDTO = plainToInstance(
+      CreateStudentProfileDTO,
+      studentProfiles[0],
+      { excludeExtraneousValues: true },
+    );
 
     it('should create a new student profile', async () => {
-      mockStudentProfileModel.create.mockResolvedValue(studentProfileModels[0]);
+      const expectedOutput: StudentProfileDTO = plainToInstance(
+        StudentProfileDTO,
+        studentProfileModels[0],
+        { excludeExtraneousValues: true },
+      );
+      const studentProfileModel = {
+        ...studentProfileModels[0],
+        experiences: [],
+      };
+      mockStudentProfileModel.create.mockResolvedValue(studentProfileModel);
 
       const result = await repository.create(createStudentProfile);
-      expect(result).toEqual(studentProfiles[0]);
+      expect(result).toEqual(expectedOutput);
       expect(mockStudentProfileModel.create).toHaveBeenCalledWith(
-        studentProfiles[0],
+        createStudentProfile,
         {
           include: expect.any(Array),
         },

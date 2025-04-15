@@ -36,6 +36,7 @@ export async function AppSetup(app: INestApplication<any>) {
   });
 
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('Junqo API')
     .setDescription('The Junqo project API')
     .setVersion('1.0')

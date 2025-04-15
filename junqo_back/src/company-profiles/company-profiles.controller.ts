@@ -16,7 +16,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -35,10 +34,6 @@ export class CompanyProfilesController {
 
   @Get()
   @ApiOperation({ summary: 'Get company profiles by query parameters' })
-  @ApiQuery({
-    type: CompanyProfileQueryDTO,
-    description: 'Query parameters for filtering company profiles',
-  })
   @ApiOkResponse({
     description: 'Company profiles retrieved successfully',
     type: CompanyProfileQueryOutputDTO,

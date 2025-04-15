@@ -223,16 +223,6 @@ describe('Student Profiles E2E Tests', () => {
       const updateRequest = {
         avatar: 'https://picsum.photos/200/400',
         skills: ['JavaScript', 'TypeScript', 'React'],
-        experiences: [
-          {
-            title: 'experience1',
-            company: 'junqo',
-            startDate: '2022-01-01',
-            endDate: '2022-03-01',
-            description: 'experience description',
-            skills: ['TypeScript'],
-          },
-        ],
       };
 
       const response = await request(testEnv.app.getHttpServer())

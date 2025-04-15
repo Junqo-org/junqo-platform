@@ -28,7 +28,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -42,10 +41,6 @@ export class OffersController {
 
   @Get()
   @ApiOperation({ summary: 'Get offers by query parameters' })
-  @ApiQuery({
-    type: OfferQueryDTO,
-    description: 'Query parameters for filtering offers',
-  })
   @ApiOkResponse({
     description: 'List of offers retrieved successfully',
     type: OfferQueryOutputDTO,
@@ -161,7 +156,7 @@ export class OffersController {
   public async updateOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id') id: string,
-    @Body('offerInput') offerInput: UpdateOfferDTO,
+    @Body() offerInput: UpdateOfferDTO,
   ): Promise<OfferDTO> {
     const offer: OfferDTO = await this.offersService.updateOffer(
       currentUser,

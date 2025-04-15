@@ -20,7 +20,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -35,10 +34,6 @@ export class StudentProfilesController {
 
   @Get()
   @ApiOperation({ summary: 'Get student profiles by query parameters' })
-  @ApiQuery({
-    type: StudentProfileQueryDTO,
-    description: 'Query parameters for filtering student profiles',
-  })
   @ApiOkResponse({
     description: 'Student profiles retrieved successfully',
     type: StudentProfileQueryOutputDTO,

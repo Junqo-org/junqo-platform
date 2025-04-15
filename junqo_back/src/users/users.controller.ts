@@ -15,7 +15,9 @@ import { StudentProfilesService } from '../student-profiles/student-profiles.ser
 import { CompanyProfilesService } from '../company-profiles/company-profiles.service';
 import { SchoolProfilesService } from '../school-profiles/school-profiles.service';
 import { UserType } from './dto/user-type.enum';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(

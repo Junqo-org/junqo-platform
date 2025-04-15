@@ -131,9 +131,6 @@ export class StudentProfilesRepository {
             name: createStudentProfileDto.name,
             avatar: createStudentProfileDto.avatar,
             skills: createStudentProfileDto.skills,
-            ...(createStudentProfileDto.experiences != undefined && {
-              experiences: createStudentProfileDto.experiences,
-            }),
           },
           {
             include: [ExperienceModel],
@@ -187,9 +184,6 @@ export class StudentProfilesRepository {
                 }),
                 ...(updateStudentProfileDto.skills != undefined && {
                   skills: updateStudentProfileDto.skills,
-                }),
-                ...(updateStudentProfileDto.experiences != undefined && {
-                  experiences: updateStudentProfileDto.experiences,
                 }),
               },
               {

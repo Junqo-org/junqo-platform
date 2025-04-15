@@ -23,9 +23,6 @@ export class ExperienceModel extends Model {
     primaryKey: true,
     unique: true,
     allowNull: false,
-    validate: {
-      notEmpty: true,
-    },
   })
   id: string;
 
