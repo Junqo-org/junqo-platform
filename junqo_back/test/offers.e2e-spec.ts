@@ -219,14 +219,12 @@ describe('Offers E2E Tests', () => {
 
     it('should validate offer data', async () => {
       const invalidOfferData = {
-        offerInput: {
-          userId: companyUserId,
-          title: '',
-          description: '',
-          status: 'INVALID_STATUS',
-          skills: [],
-          offerType: 'INVALID_TYPE',
-        },
+        userId: companyUserId,
+        title: '',
+        description: '',
+        status: 'INVALID_STATUS',
+        skills: [],
+        offerType: 'INVALID_TYPE',
       };
 
       await request(testEnv.app.getHttpServer())
@@ -240,11 +238,9 @@ describe('Offers E2E Tests', () => {
   describe('Update Offer', () => {
     it('should update an offer as the company who created it', async () => {
       const updateData = {
-        offerInput: {
-          title: 'Updated Software Engineer Intern',
-          description: 'Updated description',
-          status: OfferStatus.INACTIVE,
-        },
+        title: 'Updated Software Engineer Intern',
+        description: 'Updated description',
+        status: OfferStatus.INACTIVE,
       };
 
       const response = await request(testEnv.app.getHttpServer())
@@ -263,9 +259,7 @@ describe('Offers E2E Tests', () => {
 
     it('should allow admins to update any offer', async () => {
       const updateData = {
-        offerInput: {
-          title: 'Admin Updated Title',
-        },
+        title: 'Admin Updated Title',
       };
 
       const response = await request(testEnv.app.getHttpServer())
@@ -282,9 +276,7 @@ describe('Offers E2E Tests', () => {
 
     it('should prevent students from updating offers', async () => {
       const updateData = {
-        offerInput: {
-          title: 'Student Hack Attempt',
-        },
+        title: 'Student Hack Attempt',
       };
 
       await request(testEnv.app.getHttpServer())
@@ -296,9 +288,7 @@ describe('Offers E2E Tests', () => {
 
     it('should validate update data', async () => {
       const invalidUpdateData = {
-        offerInput: {
-          status: 'INVALID_STATUS',
-        },
+        status: 'INVALID_STATUS',
       };
 
       await request(testEnv.app.getHttpServer())

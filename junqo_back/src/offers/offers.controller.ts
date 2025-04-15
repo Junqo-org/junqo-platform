@@ -156,7 +156,7 @@ export class OffersController {
   public async updateOffer(
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id') id: string,
-    @Body('offerInput') offerInput: UpdateOfferDTO,
+    @Body() offerInput: UpdateOfferDTO,
   ): Promise<OfferDTO> {
     const offer: OfferDTO = await this.offersService.updateOffer(
       currentUser,
