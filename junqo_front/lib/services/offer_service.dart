@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
-import 'package:junqo_front/core/auth_service.dart';
 
 class OfferService {
   final RestClient client;

@@ -25,7 +25,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
   final AuthService authService = GetIt.instance<AuthService>();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String _workLocationType = 'Sur place'; // Valeurs possibles: 'Sur place', 'Distanciel'
+  String _workLocationType =
+      'Sur place'; // Valeurs possibles: 'Sur place', 'Distanciel'
   DateTime? _expirationDate;
   bool _isEditMode = false;
 
@@ -80,30 +81,31 @@ class _JobOfferFormState extends State<JobOfferForm> {
         _addBenefitFromController();
       }
     });
-    
+
     if (widget.existingOffer != null) {
       _isEditMode = true;
       _initializeFormWithExistingOffer();
     }
   }
-  
+
   void _initializeFormWithExistingOffer() {
     final offer = widget.existingOffer!;
-    
+
     _titleController.text = offer.title;
     _descriptionController.text = offer.description;
-    
+
     _offerType = _convertOfferTypeFromBackend(offer.offerType);
-    _workLocationType = _convertWorkLocationTypeFromBackend(offer.workLocationType);
-    
+    _workLocationType =
+        _convertWorkLocationTypeFromBackend(offer.workLocationType);
+
     _durationController.text = offer.duration;
     _salaryController.text = offer.salary;
     _educationLevel = _convertEducationLevelFromBackend(offer.educationLevel);
-    
+
     _selectedSkills = List<String>.from(offer.skills);
     _selectedBenefits = List<String>.from(offer.benefits);
   }
-  
+
   String _convertOfferTypeFromBackend(String backendType) {
     switch (backendType.toUpperCase()) {
       case 'INTERNSHIP':
@@ -114,7 +116,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         return 'Stage';
     }
   }
-  
+
   String _convertWorkLocationTypeFromBackend(String backendType) {
     switch (backendType.toUpperCase()) {
       case 'ON_SITE':
@@ -129,12 +131,12 @@ class _JobOfferFormState extends State<JobOfferForm> {
   String _convertEducationLevelFromBackend(String backendLevel) {
     // Normaliser le niveau d'éducation pour assurer qu'il correspond à une des options disponibles
     String normalized = backendLevel.trim();
-    
+
     // Vérifier si la valeur existe déjà dans la liste des options
     if (_educationLevels.contains(normalized)) {
       return normalized;
     }
-    
+
     // Si la valeur n'est pas dans la liste, retourner une valeur par défaut
     return 'Bac+3';
   }
@@ -237,13 +239,16 @@ class _JobOfferFormState extends State<JobOfferForm> {
 
         OfferData resultOffer;
         String successMessage;
-        
+
         if (_isEditMode) {
-          resultOffer = await offerService.updateOffer(widget.existingOffer!.id!, jobOffer);
-          successMessage = "Votre offre « $titleValue » a été mise à jour avec succès !";
+          resultOffer = await offerService.updateOffer(
+              widget.existingOffer!.id!, jobOffer);
+          successMessage =
+              "Votre offre « $titleValue » a été mise à jour avec succès !";
         } else {
           resultOffer = await offerService.createOffer(jobOffer);
-          successMessage = "Votre offre « $titleValue » a été créée avec succès !";
+          successMessage =
+              "Votre offre « $titleValue » a été créée avec succès !";
         }
 
         if (!mounted) return;
@@ -287,9 +292,9 @@ class _JobOfferFormState extends State<JobOfferForm> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                _isEditMode 
-                                  ? "Offre de ${_offerType.toLowerCase()} mise à jour !" 
-                                  : "Offre de ${_offerType.toLowerCase()} créée !",
+                                _isEditMode
+                                    ? "Offre de ${_offerType.toLowerCase()} mise à jour !"
+                                    : "Offre de ${_offerType.toLowerCase()} créée !",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -321,7 +326,8 @@ class _JobOfferFormState extends State<JobOfferForm> {
                                 ElevatedButton(
                                   onPressed: () {
                                     Navigator.of(dialogContext).pop();
-                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop(
+                                        true); // Pass result indicating success
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF6366F1),
@@ -354,10 +360,11 @@ class _JobOfferFormState extends State<JobOfferForm> {
         });
       } catch (e) {
         if (!mounted) return;
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur lors de la création de l\'offre: ${e.toString()}'),
+            content:
+                Text('Erreur lors de la création de l\'offre: ${e.toString()}'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
             action: SnackBarAction(

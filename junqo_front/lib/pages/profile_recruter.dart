@@ -743,7 +743,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: const Color(0xFF94A3B8)),
+            hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
             prefixIcon: Icon(icon, color: const Color(0xFF64748B)),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),

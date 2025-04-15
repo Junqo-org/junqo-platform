@@ -1,4 +1,3 @@
-import 'package:junqo_front/shared/enums/user_type.dart';
 
 class StudentProfile {
   final String userId;

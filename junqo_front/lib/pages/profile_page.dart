@@ -295,10 +295,10 @@ class ProfilePageState extends State<ProfilePage> {
     } else if (userType == UserType.COMPANY) {
       return Scaffold(
         backgroundColor: Colors.grey[100],
-        body: Column(
+        body: const Column(
           children: [
-            const Navbar(currentIndex: 4),
-            const Expanded(
+            Navbar(currentIndex: 4),
+            Expanded(
               child: CompanyProfile(),
             ),
           ],
@@ -1339,7 +1339,7 @@ class ProfilePageState extends State<ProfilePage> {
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: const Color(0xFF94A3B8)),
+            hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
             prefixIcon: Icon(icon, color: const Color(0xFF64748B)),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
