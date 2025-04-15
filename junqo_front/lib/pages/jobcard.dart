@@ -4,6 +4,7 @@ import 'package:junqo_front/core/api/api_service.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/client.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CardData {
   final String companyName;
@@ -52,9 +53,17 @@ class JobCardSwipe extends StatefulWidget {
 }
 
 class _JobCardSwipeState extends State<JobCardSwipe> {
-  late CardData cardData;
+  // Change from late to nullable and provide a default placeholder
+  CardData? cardData;
   late final ApiService _apiService;
   late final RestClient client;
+  bool isLoading = true;
+
+  bool initialized = false;
+  List<CardData> cardDataList = [];
+  bool outOfData = false;
+  int currentIndex = 0;
+  int offsetIndex = 0;
 
   @override
   void initState() {
@@ -64,52 +73,23 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
     _initCardData();
   }
 
-  List<CardData> cardDataList = [
-    CardData(
-      companyName: 'Company PlaceHolder Inc. 1',
-      companyLogo: 'assets/company_a.png',
-      jobTitle: 'Software PlaceHolder',
-      contractType: 'Full-time PlaceHolder',
-      duration: '6 months PlaceHolder',
-      location: 'Remote',
-      salary: '60,000€ - 80,000€',
-      benefits: ['Gym Membership'],
-      technicalSkills: ['Flutter', 'Dart', 'REST API'],
-      details:
-          'If you see this placeholder it means that there is either no more data or that the data is not yet available.1',
-      id: '1',
-      userid: '1',
-      status: 'active',
-      isPlaceHolder: true,
-    ),
-    CardData(
-      companyName: 'Company PlaceHolder Inc. 2',
-      companyLogo: 'assets/company_a.png',
-      jobTitle: 'Software PlaceHolder',
-      contractType: 'Full-time PlaceHolder',
-      duration: '6 months PlaceHolder',
-      location: 'Remote',
-      salary: '60,000€ - 80,000€',
-      benefits: ['Gym Membership'],
-      technicalSkills: ['Flutter', 'Dart', 'REST API'],
-      details:
-          'If you see this placeholder it means that there is either no more data or that the data is not yet available.2',
-      id: '1',
-      userid: '1',
-      status: 'active',
-      isPlaceHolder: true,
-    )
-  ];
-  bool initialized = false;
-  int currentIndex = 0;
-  int offsetIndex = 0;
-  bool outOfData = false;
-
   Future<void> _initCardData() async {
-    final data = await setCardData();
-    setState(() {
-      cardData = data;
-    });
+    try {
+      final data = await setCardData();
+      setState(() {
+        cardData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        cardData = placeholderCardData()[0];
+        isLoading = false;
+      });
+      debugPrint('Error initializing card data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load job data: ${e.toString()}')),
+      );
+    }
   }
 
   @override
@@ -120,38 +100,62 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
         children: [
           const Navbar(currentIndex: 0),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildActionButton(
-                  onTap: () async {
-                    final newData = await setCardData();
-                    setState(() {
-                      cardData = newData;
-                    });
-                  },
-                  color: Colors.red,
-                  icon: Icons.close,
-                ),
-                const SizedBox(width: 16),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: JobCard(data: cardData),
-                ),
-                const SizedBox(width: 16),
-                _buildActionButton(
-                  onTap: () async {
-                    postulate(cardData.id);
-                    final newData = await setCardData();
-                    setState(() {
-                      cardData = newData;
-                    });
-                  },
-                  color: Colors.green,
-                  icon: Icons.check,
-                ),
-              ],
-            ),
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildActionButton(
+                        onTap: () async {
+                          setState(() => isLoading = true);
+                          try {
+                            final newData = await setCardData();
+                            setState(() {
+                              cardData = newData;
+                              isLoading = false;
+                            });
+                          } catch (e) {
+                            setState(() => isLoading = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Error loading next job: ${e.toString()}')),
+                            );
+                          }
+                        },
+                        color: Colors.red,
+                        icon: Icons.close,
+                      ),
+                      const SizedBox(width: 16),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: JobCard(data: cardData!),
+                      ),
+                      const SizedBox(width: 16),
+                      _buildActionButton(
+                        onTap: () async {
+                          postulate(cardData!.id);
+                          setState(() => isLoading = true);
+                          try {
+                            final newData = await setCardData();
+                            setState(() {
+                              cardData = newData;
+                              isLoading = false;
+                            });
+                          } catch (e) {
+                            setState(() => isLoading = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Error loading next job: ${e.toString()}')),
+                            );
+                          }
+                        },
+                        color: Colors.green,
+                        icon: Icons.check,
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),
@@ -191,13 +195,27 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
 
   void postulate(String id) {
     // Implement the postulate logic here
-    if (cardData.isPlaceHolder) {
+    if (cardData!.isPlaceHolder) {
       debugPrint('Cannot postulate for placeholder data');
       return;
     }
     debugPrint('Postulating for offer with ID: $id');
-    _apiService.postulateOffer(id);
-    //Postulate to offer
+    _apiService.postulateOffer(id).then((response) {
+      if (response == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully applied to the job!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Failed to apply to the job. Please try again.')),
+        );
+      }
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${error.toString()}')),
+      );
+    });
   }
 
   Future<CardData> setCardData() async {
@@ -335,7 +353,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
     return [
       CardData(
         companyName: 'Company PlaceHolder Inc.',
-        companyLogo: 'assets/company_a.png',
+        companyLogo: 'assets/images/image_placeholder.svg',
         jobTitle: 'Software PlaceHolder',
         contractType: 'Full-time PlaceHolder',
         duration: '6 months PlaceHolder',
@@ -352,7 +370,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       ),
       CardData(
         companyName: 'Company PlaceHolder Inc.',
-        companyLogo: 'assets/company_a.png',
+        companyLogo: 'assets/images/image_placeholder.svg',
         jobTitle: 'Software PlaceHolder',
         contractType: 'Full-time PlaceHolder',
         duration: '6 months PlaceHolder',
@@ -400,17 +418,17 @@ class JobCard extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                Image.asset(
-                  data.companyLogo,
-                  height: 24,
-                  fit: BoxFit.contain,
-                ),
+                // Replace Image.asset with a more reliable widget that handles errors
+                _buildCompanyLogo(data.companyLogo),
                 const SizedBox(width: 8),
-                Text(
-                  data.companyName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Text(
+                    data.companyName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -578,6 +596,73 @@ class JobCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildCompanyLogo(String logoPath) {
+    return Container(
+      height: 32, // Increased height
+      width: 32, // Increased width
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Center(
+        // Ensures the logo is centered
+        child: _getLogoWidget(logoPath),
+      ),
+    );
+  }
+
+  Widget _getLogoWidget(String logoPath) {
+    // Check if it's a network image (starts with http:// or https://)
+    if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
+      if (logoPath.toLowerCase().endsWith('.svg')) {
+        // Network SVG image
+        return SvgPicture.network(
+          logoPath,
+          placeholderBuilder: (context) =>
+              const Icon(Icons.business, size: 20, color: Colors.grey),
+          height: 24,
+          width: 24,
+          fit: BoxFit.contain,
+        );
+      } else {
+        // Regular network image
+        return Image.network(
+          logoPath,
+          height: 24,
+          width: 24,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.business, size: 20, color: Colors.grey);
+          },
+        );
+      }
+    }
+
+    // Local asset
+    if (logoPath.toLowerCase().endsWith('.svg')) {
+      // Local SVG asset
+      return SvgPicture.asset(
+        logoPath,
+        placeholderBuilder: (context) =>
+            const Icon(Icons.business, size: 20, color: Colors.grey),
+        height: 24,
+        width: 24,
+        fit: BoxFit.contain,
+      );
+    } else {
+      // Regular asset image
+      return Image.asset(
+        logoPath,
+        height: 24,
+        width: 24,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.business, size: 20, color: Colors.grey);
+        },
+      );
+    }
   }
 
   void _showDetailsDialog(BuildContext context, String details) {
