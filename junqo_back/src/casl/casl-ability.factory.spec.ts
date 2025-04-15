@@ -138,15 +138,26 @@ describe('CaslAbilityFactory', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
       expect(
-        ability.can(Actions.CREATE, new StudentProfileResource()),
+        ability.can(Actions.CREATE, new StudentProfileResource(studentUser.id)),
       ).toBeTruthy();
+    });
+
+    it('should not allow student user to create other student profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(
+        ability.can(
+          Actions.CREATE,
+          new StudentProfileResource(studentUser2.id),
+        ),
+      ).toBeFalsy();
     });
 
     it('should not allow company user to create student profile resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
       expect(
-        ability.can(Actions.CREATE, new StudentProfileResource()),
+        ability.can(Actions.CREATE, new StudentProfileResource(companyUser.id)),
       ).toBeFalsy();
     });
 
@@ -154,7 +165,7 @@ describe('CaslAbilityFactory', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
       expect(
-        ability.can(Actions.CREATE, new StudentProfileResource()),
+        ability.can(Actions.CREATE, new StudentProfileResource(schoolUser.id)),
       ).toBeFalsy();
     });
 
@@ -244,15 +255,26 @@ describe('CaslAbilityFactory', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
       expect(
-        ability.can(Actions.CREATE, new CompanyProfileResource()),
+        ability.can(Actions.CREATE, new CompanyProfileResource(companyUser.id)),
       ).toBeTruthy();
+    });
+
+    it('should not allow company user to create other company profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(
+        ability.can(
+          Actions.CREATE,
+          new CompanyProfileResource(companyUser2.id),
+        ),
+      ).toBeFalsy();
     });
 
     it('should not allow student user to create company profile resource', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
       expect(
-        ability.can(Actions.CREATE, new CompanyProfileResource()),
+        ability.can(Actions.CREATE, new CompanyProfileResource(studentUser.id)),
       ).toBeFalsy();
     });
 
@@ -260,7 +282,7 @@ describe('CaslAbilityFactory', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
       expect(
-        ability.can(Actions.CREATE, new CompanyProfileResource()),
+        ability.can(Actions.CREATE, new CompanyProfileResource(schoolUser.id)),
       ).toBeFalsy();
     });
 
@@ -350,15 +372,23 @@ describe('CaslAbilityFactory', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
       expect(
-        ability.can(Actions.CREATE, new SchoolProfileResource()),
+        ability.can(Actions.CREATE, new SchoolProfileResource(schoolUser.id)),
       ).toBeTruthy();
+    });
+
+    it('should not allow school user to create other school profile resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+
+      expect(
+        ability.can(Actions.CREATE, new SchoolProfileResource(schoolUser2.id)),
+      ).toBeFalsy();
     });
 
     it('should not allow company user to create school profile resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
       expect(
-        ability.can(Actions.CREATE, new SchoolProfileResource()),
+        ability.can(Actions.CREATE, new SchoolProfileResource(companyUser.id)),
       ).toBeFalsy();
     });
 
@@ -366,7 +396,7 @@ describe('CaslAbilityFactory', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
       expect(
-        ability.can(Actions.CREATE, new SchoolProfileResource()),
+        ability.can(Actions.CREATE, new SchoolProfileResource(studentUser.id)),
       ).toBeFalsy();
     });
 
@@ -455,19 +485,33 @@ describe('CaslAbilityFactory', () => {
     it('should allow company user to create offer resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
-      expect(ability.can(Actions.CREATE, new OfferResource())).toBeTruthy();
+      expect(
+        ability.can(Actions.CREATE, new OfferResource(companyUser.id)),
+      ).toBeTruthy();
+    });
+
+    it('should not allow company user to create other company offer resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(
+        ability.can(Actions.CREATE, new OfferResource(companyUser2.id)),
+      ).toBeFalsy();
     });
 
     it('should not allow student user to create offer resource', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
-      expect(ability.can(Actions.CREATE, new OfferResource())).toBeFalsy();
+      expect(
+        ability.can(Actions.CREATE, new OfferResource(schoolUser.id)),
+      ).toBeFalsy();
     });
 
     it('should not allow school user to create offer resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
-      expect(ability.can(Actions.CREATE, new OfferResource())).toBeFalsy();
+      expect(
+        ability.can(Actions.CREATE, new OfferResource(schoolUser.id)),
+      ).toBeFalsy();
     });
 
     it('should allow company user to manage offer resource with same userId', () => {
@@ -548,15 +592,26 @@ describe('CaslAbilityFactory', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
       expect(
-        ability.can(Actions.CREATE, new ApplicationResource()),
+        ability.can(Actions.CREATE, new ApplicationResource(studentUser.id)),
       ).toBeTruthy();
+    });
+
+    it('should not allow student user to create other student application resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(
+        ability.can(Actions.CREATE, new ApplicationResource(studentUser2.id)),
+      ).toBeFalsy();
     });
 
     it('should not allow company user to create application resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
       expect(
-        ability.can(Actions.CREATE, new ApplicationResource()),
+        ability.can(
+          Actions.CREATE,
+          new ApplicationResource(undefined, companyUser.id),
+        ),
       ).toBeFalsy();
     });
 
@@ -564,7 +619,10 @@ describe('CaslAbilityFactory', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
       expect(
-        ability.can(Actions.CREATE, new ApplicationResource()),
+        ability.can(
+          Actions.CREATE,
+          new ApplicationResource(undefined, undefined),
+        ),
       ).toBeFalsy();
     });
 
