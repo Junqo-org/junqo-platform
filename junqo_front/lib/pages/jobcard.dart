@@ -308,10 +308,9 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
         'offset': offset.toString(),
       };
 
-      //Should be replaced with ApiService.getAllOffersQuery
-      final List<OfferData> offers = await _apiService.getAllOffersQuery(query);
-      // final List<OfferData> offers = await fakeAllOffersQuery();
-
+      final response = await _apiService.getAllOffersQuery(query);
+      final List<OfferData> offers = response['rows'];
+      
       // Transform each OfferData into CardData
       final List<CardData> cardDataList = transformOffersToCards(offers);
       if (cardDataList.isEmpty) {

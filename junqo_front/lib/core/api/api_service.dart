@@ -71,30 +71,26 @@ class ApiService {
     }
   }
 
-  Future<List<OfferData>> getAllOffersQuery(Map<String, dynamic>? query) async {
+  Future<Map<String, dynamic>> getAllOffersQuery(Map<String, String> query) async {
     try {
       final response = await client.getQuery(ApiEndpoints.offers, query: query);
+      // The response is already a Map, no need to access .data
+      final rows = response['rows'] as List<dynamic>;
+      final count = response['count'] ?? 0;
 
-      if (response is List) {
-        return response
-            .map((offerJson) =>
-                OfferData.fromJson(offerJson as Map<String, dynamic>))
-            .toList();
-      } else if (response is Map<String, dynamic> &&
-          response.containsKey('offers')) {
-        final List<dynamic> offersJson = response['offers'];
-        return offersJson
-            .map((offerJson) =>
-                OfferData.fromJson(offerJson as Map<String, dynamic>))
-            .toList();
-      } else {
-        return [];
-      }
+      // Convert each row to an OfferData object
+      final offers = rows.map((item) => OfferData.fromJson(item)).toList();
+
+      return {
+        'rows': offers,
+        'count': count,
+      };
     } catch (e) {
-      if (e is RestApiException && e.statusCode == 404) {
-        return [];
-      }
-      rethrow;
+      print('Error fetching offers: $e');
+      return {
+        'rows': <OfferData>[],
+        'count': 0,
+      };
     }
   }
 
