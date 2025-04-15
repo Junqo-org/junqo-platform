@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -19,7 +20,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../users/users.decorator';
@@ -31,16 +31,13 @@ import {
   ApplicationQueryOutputDTO,
 } from './dto/application-query.dto';
 
+@ApiBearerAuth()
 @Controller('applications')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get applications by query parameters' })
-  @ApiQuery({
-    type: ApplicationQueryDTO,
-    description: 'Query parameters for filtering applications',
-  })
   @ApiOkResponse({
     description: 'Applications retrieved successfully',
     type: ApplicationQueryOutputDTO,
@@ -60,10 +57,10 @@ export class ApplicationsController {
   @Get('my')
   @ApiOperation({
     summary: `If the logged in user is of type STUDENT:
-Return applications that the logged in user has applied to.
+    Return applications that the logged in user has applied to.
 
-If the logged in user is of type COMPANY:
-Return applications linked to the company profile`,
+    If the logged in user is of type COMPANY:
+    Return applications linked to the company profile`,
   })
   @ApiOkResponse({
     description: 'List of application retrieved successfully',

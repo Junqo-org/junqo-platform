@@ -183,6 +183,9 @@ export class OffersService {
     currentUser: AuthUserDTO,
     createOfferDto: CreateOfferDTO,
   ): Promise<OfferDTO> {
+    if (createOfferDto.userId == null) {
+      createOfferDto.userId = currentUser.id;
+    }
     const ability = this.caslAbilityFactory.createForUser(currentUser);
     const offerResource: OfferResource = plainToInstance(
       OfferResource,

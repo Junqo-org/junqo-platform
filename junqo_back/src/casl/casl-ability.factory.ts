@@ -58,20 +58,20 @@ export class CaslAbilityFactory {
     can(Actions.CREATE, UserResource, { type: { $ne: UserType.ADMIN } });
 
     if (user.type === UserType.STUDENT) {
-      can(Actions.CREATE, StudentProfileResource);
+      can(Actions.CREATE, StudentProfileResource, { userId: user.id });
       can(Actions.MANAGE, StudentProfileResource, { userId: user.id });
       can(Actions.READ, OfferResource);
       can(Actions.READ, SchoolProfileResource);
       can(Actions.READ, CompanyProfileResource);
-      can(Actions.CREATE, ApplicationResource);
+      can(Actions.CREATE, ApplicationResource, { studentId: user.id });
       can([Actions.READ, Actions.DELETE], ApplicationResource, {
         studentId: user.id,
       });
     }
     if (user.type === UserType.COMPANY) {
-      can(Actions.CREATE, CompanyProfileResource);
+      can(Actions.CREATE, CompanyProfileResource, { userId: user.id });
       can(Actions.MANAGE, CompanyProfileResource, { userId: user.id });
-      can(Actions.CREATE, OfferResource);
+      can(Actions.CREATE, OfferResource, { userId: user.id });
       can(Actions.MANAGE, OfferResource, { userId: user.id });
       can(Actions.READ, StudentProfileResource);
       can(Actions.READ, SchoolProfileResource);
@@ -80,7 +80,7 @@ export class CaslAbilityFactory {
       });
     }
     if (user.type === UserType.SCHOOL) {
-      can(Actions.CREATE, SchoolProfileResource);
+      can(Actions.CREATE, SchoolProfileResource, { userId: user.id });
       can(Actions.MANAGE, SchoolProfileResource, { userId: user.id });
       can(Actions.READ, OfferResource);
       can(Actions.READ, StudentProfileResource);
