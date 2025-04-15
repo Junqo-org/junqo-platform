@@ -120,6 +120,14 @@ class ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       debugPrint('Error fetching user type: $e');
       if (!mounted) return;
+      RegExpMatch? match = RegExp(r'.*not\s*found').firstMatch(e.toString());
+
+      if (match != null) {
+        final navigatorContext = context;
+        await authService.logout();
+        Navigator.pushReplacementNamed(navigatorContext, '/login');
+        return;
+      }
       showErrorDialog(e.toString(), context);
     }
   }

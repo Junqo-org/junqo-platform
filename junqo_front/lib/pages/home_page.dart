@@ -42,11 +42,12 @@ class _HomePageState extends State<HomePage> {
       debugPrint('Error fetching user type: $e');
       if (!mounted) return;
 
-      RegExpMatch? match = RegExp(r'GetUserById\s*failed:\s*User.*not\s*found')
-          .firstMatch(e.toString());
+      RegExpMatch? match = RegExp(r'.*not\s*found').firstMatch(e.toString());
 
       if (match != null) {
-        authService.logout();
+        final navigatorContext = context;
+        await authService.logout();
+        Navigator.pushReplacementNamed(navigatorContext, '/login');
         return;
       }
       showErrorDialog(e.toString(), context);
