@@ -23,13 +23,15 @@ class ApiEndpoints {
   static String updateApplication(String id) => '/applications/$id';
   static String postulateOffer(String id) => '/applications/apply/$id';
 
-  // Entreprises
-  static const String companies = '/company-profiles';
-  static String getCompanyById(String id) => '/company-profiles/$id';
-  static String updateCompany(String id) => '/company-profiles/my';
+  // Profils d'entreprises
+  static const String companyProfiles = '/company-profiles';
+  static const String myCompanyProfile = '/company-profiles/my';
+  static String getCompanyProfileById(String id) => '/company-profiles/$id';
+  static String updateMyCompanyProfile = '/company-profiles/my';
 
-  // Étudiants
-  static const String students = '/student-profiles';
-  static String getStudentById(String id) => '/student-profiles/$id';
-  static String updateStudent(String id) => '/student-profiles/me';
+  // Profils d'étudiants
+  static const String studentProfiles = '/student-profiles';
+  static const String myStudentProfile = '/student-profiles/my';
+  static String getStudentProfileById(String id) => '/student-profiles/$id';
+  static String updateMyStudentProfile = '/student-profiles/my';
 }

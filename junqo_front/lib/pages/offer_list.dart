@@ -38,7 +38,7 @@ class _OfferListState extends State<OfferList> {
       });
 
       final offers = await _offerService.getMyOffers();
-      
+
       setState(() {
         _myOffers = offers;
         _isLoading = false;
@@ -46,14 +46,17 @@ class _OfferListState extends State<OfferList> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        
+
         // Vérifier si c'est une erreur d'autorisation (403)
-        if (e.toString().contains('403') || e.toString().contains('permission')) {
+        if (e.toString().contains('403') ||
+            e.toString().contains('permission')) {
           _isPermissionError = true;
-          _errorMessage = "Vous n'avez pas les permissions nécessaires pour accéder aux offres. "
+          _errorMessage =
+              "Vous n'avez pas les permissions nécessaires pour accéder aux offres. "
               "Seuls les utilisateurs de type COMPANY peuvent accéder à cette fonctionnalité.";
         } else {
-          _errorMessage = 'Erreur lors du chargement des offres: ${e.toString()}';
+          _errorMessage =
+              'Erreur lors du chargement des offres: ${e.toString()}';
         }
       });
     }
@@ -62,7 +65,7 @@ class _OfferListState extends State<OfferList> {
   void _toggleOfferStatus(OfferData offer) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         final bool isActivating = offer.status.toLowerCase() == 'inactive';
         return AlertDialog(
           title: Text(
@@ -83,7 +86,7 @@ class _OfferListState extends State<OfferList> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               child: const Text(
                 "Annuler",
@@ -94,13 +97,16 @@ class _OfferListState extends State<OfferList> {
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.of(context).pop();
-                
+                Navigator.of(dialogContext).pop();
+
                 try {
+                  // Store a reference to the outer BuildContext
+                  final scaffoldContext = context;
+
                   setState(() => _isLoading = true);
-                  
+
                   final String newStatus = isActivating ? 'ACTIVE' : 'INACTIVE';
-                  
+
                   // Mettre à jour l'offre avec le nouveau statut
                   final updatedOffer = OfferData(
                     id: offer.id,
@@ -116,28 +122,30 @@ class _OfferListState extends State<OfferList> {
                     educationLevel: offer.educationLevel,
                     status: newStatus,
                   );
-                  
+
                   await _offerService.updateOffer(offer.id!, updatedOffer);
-                  
+
                   // Recharger les offres après la mise à jour
                   await _loadMyOffers();
-                  
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        isActivating 
-                            ? "L'offre a été activée avec succès" 
-                            : "L'offre a été désactivée avec succès"
+
+                  // Use the stored context for ScaffoldMessenger
+                  if (mounted) {
+                    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+                      SnackBar(
+                        content: Text(isActivating
+                            ? "L'offre a été activée avec succès"
+                            : "L'offre a été désactivée avec succès"),
+                        backgroundColor: const Color(0xFF10B981), // Emerald 500
                       ),
-                      backgroundColor: const Color(0xFF10B981), // Emerald 500
-                    ),
-                  );
+                    );
+                  }
                 } catch (e) {
                   setState(() {
                     _isLoading = false;
-                    _errorMessage = "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
+                    _errorMessage =
+                        "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
                   });
-                  
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text("Erreur: ${e.toString()}"),
@@ -172,9 +180,14 @@ class _OfferListState extends State<OfferList> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
+              builder: (context) =>
+                  JobOfferForm(client: GetIt.instance<RestClient>()),
             ),
-          ).then((_) => _loadMyOffers()); // Recharger les offres après création
+          ).then((result) {
+            if (result == true || result == null) {
+              _loadMyOffers();
+            }
+          }); // Recharger les offres après création
         },
         backgroundColor: const Color(0xFF6366F1), // Indigo
         label: const Text(
@@ -188,23 +201,24 @@ class _OfferListState extends State<OfferList> {
       ),
       body: Column(
         children: [
-          const NavbarCompany(currentIndex: 1), // Mettre l'index qui correspond à cette page
+          const NavbarCompany(
+              currentIndex: 1), // Mettre l'index qui correspond à cette page
           Expanded(
-            child: _isLoading 
-              ? _buildLoadingIndicator()
-              : _errorMessage != null 
-                ? _buildErrorMessage()
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(),
-                        const SizedBox(height: 24),
-                        _buildOfferList(),
-                      ],
-                    ),
-                  ),
+            child: _isLoading
+                ? _buildLoadingIndicator()
+                : _errorMessage != null
+                    ? _buildErrorMessage()
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeader(),
+                            const SizedBox(height: 24),
+                            _buildOfferList(),
+                          ],
+                        ),
+                      ),
           ),
         ],
       ),
@@ -253,14 +267,15 @@ class _OfferListState extends State<OfferList> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: _isPermissionError 
+            onPressed: _isPermissionError
                 ? () {
                     // Rediriger vers une page accessible
                     Navigator.of(context).pushReplacementNamed('/profile');
                   }
                 : _loadMyOffers,
             icon: Icon(_isPermissionError ? Icons.person : Icons.refresh),
-            label: Text(_isPermissionError ? "Aller à mon profil" : "Réessayer"),
+            label:
+                Text(_isPermissionError ? "Aller à mon profil" : "Réessayer"),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6366F1), // Indigo
               foregroundColor: Colors.white,
@@ -321,9 +336,14 @@ class _OfferListState extends State<OfferList> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
+                      builder: (context) =>
+                          JobOfferForm(client: GetIt.instance<RestClient>()),
                     ),
-                  );
+                  ).then((result) {
+                    if (result == true || result == null) {
+                      _loadMyOffers();
+                    }
+                  });
                 },
                 icon: const Icon(Icons.add_circle_outline),
                 label: const Text("Créer une offre"),
@@ -393,9 +413,14 @@ class _OfferListState extends State<OfferList> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
+                  builder: (context) =>
+                      JobOfferForm(client: GetIt.instance<RestClient>()),
                 ),
-              );
+              ).then((result) {
+                if (result == true || result == null) {
+                  _loadMyOffers();
+                }
+              });
             },
             icon: const Icon(Icons.add),
             label: const Text("Nouvelle offre"),
@@ -424,10 +449,12 @@ class _OfferListState extends State<OfferList> {
     }
 
     // Filtrer les offres par statut (gérer les deux formats possibles de statut: 'active'/'ACTIVE' et 'inactive'/'INACTIVE')
-    final List<OfferData> activeOffers =
-        _myOffers.where((offer) => offer.status.toLowerCase() == 'active').toList();
-    final List<OfferData> inactiveOffers =
-        _myOffers.where((offer) => offer.status.toLowerCase() == 'inactive').toList();
+    final List<OfferData> activeOffers = _myOffers
+        .where((offer) => offer.status.toLowerCase() == 'active')
+        .toList();
+    final List<OfferData> inactiveOffers = _myOffers
+        .where((offer) => offer.status.toLowerCase() == 'inactive')
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -443,8 +470,8 @@ class _OfferListState extends State<OfferList> {
 
         // Section des offres inactives
         if (inactiveOffers.isNotEmpty) ...[
-          _buildSectionHeader("Offres inactives", Icons.block_outlined,
-              inactiveOffers.length),
+          _buildSectionHeader(
+              "Offres inactives", Icons.block_outlined, inactiveOffers.length),
           const SizedBox(height: 16),
           ...inactiveOffers.map((offer) => _buildOfferCard(offer)),
         ],
@@ -504,9 +531,14 @@ class _OfferListState extends State<OfferList> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()),
+                  builder: (context) =>
+                      JobOfferForm(client: GetIt.instance<RestClient>()),
                 ),
-              ).then((_) => _loadMyOffers());
+              ).then((result) {
+                if (result == true || result == null) {
+                  _loadMyOffers();
+                }
+              });
             },
             icon: const Icon(Icons.add),
             label: const Text("Créer ma première offre"),
@@ -703,7 +735,8 @@ class _OfferListState extends State<OfferList> {
                               existingOffer: offer,
                             ),
                           ),
-                        ).then((_) => _loadMyOffers()); // Recharger les offres après modification
+                        ).then((_) =>
+                            _loadMyOffers()); // Recharger les offres après modification
                       },
                       icon: const Icon(Icons.edit_outlined),
                       label: const Text("Modifier"),
@@ -726,8 +759,9 @@ class _OfferListState extends State<OfferList> {
                             ? Icons.toggle_off_outlined
                             : Icons.toggle_on_outlined,
                       ),
-                      label: Text(
-                          offer.status.toLowerCase() == 'active' ? "Désactiver" : "Activer"),
+                      label: Text(offer.status.toLowerCase() == 'active'
+                          ? "Désactiver"
+                          : "Activer"),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: offer.status.toLowerCase() == 'active'
                             ? const Color(0xFFEF4444) // Rouge pour désactiver
@@ -836,14 +870,12 @@ class _OfferListState extends State<OfferList> {
 
   Widget _buildStatusTag(String status) {
     final bool isActive = status.toLowerCase() == 'active';
-    
+
     return Container(
       margin: const EdgeInsets.only(left: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: isActive
-            ? const Color(0xFF6366F1)
-            : const Color(0xFFE2E8F0),
+        color: isActive ? const Color(0xFF6366F1) : const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(

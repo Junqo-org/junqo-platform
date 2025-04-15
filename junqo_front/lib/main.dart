@@ -12,6 +12,8 @@ import 'package:junqo_front/shared/theme.dart';
 import 'package:junqo_front/services/offer_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:junqo_front/core/api/api_service.dart';
+import 'package:junqo_front/core/student_profile_service.dart';
+import 'package:junqo_front/core/company_profile_service.dart';
 
 void main() async {
   try {
@@ -23,11 +25,11 @@ void main() async {
     final client = RestClient();
     await client.initialize();
     GetIt.instance.registerSingleton<RestClient>(client);
-    
+
     // Create and register API service second
     final apiService = ApiService(client);
     GetIt.instance.registerSingleton<ApiService>(apiService);
-    
+
     // Then initialize all other services that depend on the API service
     final authService = AuthService(client);
     await authService.initialize();
@@ -38,7 +40,13 @@ void main() async {
     GetIt.instance.registerSingleton<AuthService>(authService);
     GetIt.instance.registerSingleton<UserService>(userService);
     GetIt.instance.registerSingleton<OfferService>(offerService);
-    
+
+    // Register profile services
+    GetIt.instance.registerLazySingleton<StudentProfileService>(
+        () => StudentProfileService());
+    GetIt.instance.registerLazySingleton<CompanyProfileService>(
+        () => CompanyProfileService());
+
     runApp(const JunqoApp());
   } catch (e) {
     LogService.error('Failed to initialize application: $e');

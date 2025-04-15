@@ -144,6 +144,7 @@ class RestClient {
     final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
 
     debugPrint('PATCH request to: $url');
+    debugPrint('PATCH headers to: $_headers');
     debugPrint('PATCH body: $body');
 
     try {

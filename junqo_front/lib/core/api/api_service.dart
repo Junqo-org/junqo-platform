@@ -4,6 +4,8 @@ import 'package:junqo_front/shared/dto/offer_data.dart';
 import 'package:junqo_front/shared/dto/user_data.dart';
 import 'package:junqo_front/shared/enums/user_type.dart';
 import 'package:junqo_front/shared/enums/offer_enums.dart';
+import 'package:junqo_front/shared/dto/student_profile.dart';
+import 'package:junqo_front/shared/dto/company_profile.dart';
 
 /// Service centralisé pour effectuer des appels API REST
 class ApiService {
@@ -46,7 +48,7 @@ class ApiService {
       final response = await client.get(ApiEndpoints.offers);
 
       if (response is List) {
-        return (response as List)
+        return (response)
             .map((offerJson) =>
                 OfferData.fromJson(offerJson as Map<String, dynamic>))
             .toList();
@@ -69,30 +71,26 @@ class ApiService {
     }
   }
 
-  Future<List<OfferData>> getAllOffersQuery(Map<String, dynamic>? query) async {
+  Future<Map<String, dynamic>> getAllOffersQuery(Map<String, String> query) async {
     try {
       final response = await client.getQuery(ApiEndpoints.offers, query: query);
+      // The response is already a Map, no need to access .data
+      final rows = response['rows'] as List<dynamic>;
+      final count = response['count'] ?? 0;
 
-      if (response is List) {
-        return response
-            .map((offerJson) =>
-                OfferData.fromJson(offerJson as Map<String, dynamic>))
-            .toList();
-      } else if (response is Map<String, dynamic> &&
-          response.containsKey('offers')) {
-        final List<dynamic> offersJson = response['offers'];
-        return offersJson
-            .map((offerJson) =>
-                OfferData.fromJson(offerJson as Map<String, dynamic>))
-            .toList();
-      } else {
-        return [];
-      }
+      // Convert each row to an OfferData object
+      final offers = rows.map((item) => OfferData.fromJson(item)).toList();
+
+      return {
+        'rows': offers,
+        'count': count,
+      };
     } catch (e) {
-      if (e is RestApiException && e.statusCode == 404) {
-        return [];
-      }
-      rethrow;
+      print('Error fetching offers: $e');
+      return {
+        'rows': <OfferData>[],
+        'count': 0,
+      };
     }
   }
 
@@ -102,7 +100,7 @@ class ApiService {
       final response = await client.get(ApiEndpoints.myOffers);
 
       if (response is List) {
-        return (response as List)
+        return (response)
             .map((offerJson) =>
                 OfferData.fromJson(offerJson as Map<String, dynamic>))
             .toList();
@@ -162,25 +160,23 @@ class ApiService {
   /// Créer une offre
   Future<OfferData> createOffer(OfferData offerData) async {
     final body = {
-      'offerInput': {
-        'userId': offerData.userid,
-        'title': offerData.title,
-        'description': offerData.description,
-        'status': OfferEnumMapper.mapStatusToBackend(offerData.status),
-        'offerType': OfferEnumMapper.mapOfferTypeToBackend(offerData.offerType),
-        'duration': offerData.duration.isNotEmpty
-            ? int.tryParse(offerData.duration)
-            : null,
-        'salary':
-            offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
-        'workLocationType':
-            OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
-        'skills': offerData.skills,
-        'benefits': offerData.benefits,
-        'educationLevel': offerData.educationLevel.isNotEmpty
-            ? int.tryParse(offerData.educationLevel)
-            : null,
-      }
+      'userId': offerData.userid,
+      'title': offerData.title,
+      'description': offerData.description,
+      'status': OfferEnumMapper.mapStatusToBackend(offerData.status),
+      'offerType': OfferEnumMapper.mapOfferTypeToBackend(offerData.offerType),
+      'duration': offerData.duration.isNotEmpty
+          ? int.tryParse(offerData.duration)
+          : null,
+      'salary':
+          offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
+      'workLocationType':
+          OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
+      'skills': offerData.skills,
+      'benefits': offerData.benefits,
+      'educationLevel': offerData.educationLevel.isNotEmpty
+          ? int.tryParse(offerData.educationLevel)
+          : null,
     };
 
     final response = await client.post(ApiEndpoints.offers, body: body);
@@ -190,24 +186,22 @@ class ApiService {
   /// Mettre à jour une offre
   Future<OfferData> updateOffer(String id, OfferData offerData) async {
     final body = {
-      'offerInput': {
-        'title': offerData.title,
-        'description': offerData.description,
-        'status': OfferEnumMapper.mapStatusToBackend(offerData.status),
-        'offerType': OfferEnumMapper.mapOfferTypeToBackend(offerData.offerType),
-        'duration': offerData.duration.isNotEmpty
-            ? int.tryParse(offerData.duration)
-            : null,
-        'salary':
-            offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
-        'workLocationType':
-            OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
-        'skills': offerData.skills,
-        'benefits': offerData.benefits,
-        'educationLevel': offerData.educationLevel.isNotEmpty
-            ? int.tryParse(offerData.educationLevel)
-            : null,
-      }
+      'title': offerData.title,
+      'description': offerData.description,
+      'status': OfferEnumMapper.mapStatusToBackend(offerData.status),
+      'offerType': OfferEnumMapper.mapOfferTypeToBackend(offerData.offerType),
+      'duration': offerData.duration.isNotEmpty
+          ? int.tryParse(offerData.duration)
+          : null,
+      'salary':
+          offerData.salary.isNotEmpty ? int.tryParse(offerData.salary) : null,
+      'workLocationType':
+          OfferEnumMapper.mapWorkContextToBackend(offerData.workLocationType),
+      'skills': offerData.skills,
+      'benefits': offerData.benefits,
+      'educationLevel': offerData.educationLevel.isNotEmpty
+          ? int.tryParse(offerData.educationLevel)
+          : null,
     };
 
     try {
@@ -301,5 +295,386 @@ class ApiService {
       email: response['email'],
       type: userType,
     );
+  }
+
+  // ************ PROFILS ÉTUDIANTS ************
+
+  /// Récupérer des profils étudiants avec filtrage
+  Future<Map<String, dynamic>> getStudentProfiles({
+    List<String>? skills,
+    String mode = 'any',
+    int? offset,
+    int? limit,
+  }) async {
+    final Map<String, dynamic> queryParams = {};
+
+    if (skills != null && skills.isNotEmpty) {
+      queryParams['skills'] = skills.join(',');
+    }
+
+    if (mode == 'all' || mode == 'any') {
+      queryParams['mode'] = mode;
+    }
+
+    if (offset != null) {
+      queryParams['offset'] = offset.toString();
+    }
+
+    if (limit != null) {
+      queryParams['limit'] = limit.toString();
+    }
+
+    String endpoint = ApiEndpoints.studentProfiles;
+    if (queryParams.isNotEmpty) {
+      final queryString = queryParams.entries
+          .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+      endpoint = '$endpoint?$queryString';
+    }
+
+    final response = await client.get(endpoint);
+
+    if (response is Map<String, dynamic>) {
+      final List<dynamic> rows = response['rows'] ?? [];
+      final count = response['count'] ?? 0;
+
+      final studentProfiles = rows
+          .map((profile) =>
+              StudentProfile.fromJson(profile as Map<String, dynamic>))
+          .toList();
+
+      return {
+        'rows': studentProfiles,
+        'count': count,
+      };
+    }
+
+    return {
+      'rows': <StudentProfile>[],
+      'count': 0,
+    };
+  }
+
+  /// Récupérer mon profil étudiant
+  Future<StudentProfile> getMyStudentProfile() async {
+    try {
+      final response = await client.get(ApiEndpoints.myStudentProfile);
+
+      // Handle case when response is a List instead of a Map
+      if (response is List && response.isNotEmpty) {
+        // If the first item is a Map containing student profile data, use it
+        if (response[0] is Map<String, dynamic>) {
+          return StudentProfile.fromJson(response[0] as Map<String, dynamic>);
+        }
+        // Otherwise throw an error about unexpected response format
+        throw const FormatException(
+            'Unexpected response format: Expected a Map or a List containing a Map');
+      }
+
+      return StudentProfile.fromJson(response);
+    } catch (e) {
+      // Re-throw with clearer error message
+      if (e is TypeError) {
+        throw FormatException('Error parsing API response: ${e.toString()}');
+      }
+      rethrow;
+    }
+  }
+
+  /// Récupérer un profil étudiant par son ID
+  Future<StudentProfile> getStudentProfileById(String id) async {
+    try {
+      final response = await client.get(ApiEndpoints.getStudentProfileById(id));
+
+      // Handle case when response is a List instead of a Map
+      if (response is List && response.isNotEmpty) {
+        // If the first item is a Map containing student profile data, use it
+        if (response[0] is Map<String, dynamic>) {
+          return StudentProfile.fromJson(response[0] as Map<String, dynamic>);
+        }
+        // Otherwise throw an error about unexpected response format
+        throw const FormatException(
+            'Unexpected response format: Expected a Map or a List containing a Map');
+      }
+
+      return StudentProfile.fromJson(response);
+    } catch (e) {
+      // Re-throw with clearer error message
+      if (e is TypeError) {
+        throw FormatException('Error parsing API response: ${e.toString()}');
+      }
+      rethrow;
+    }
+  }
+
+  /// Mettre à jour mon profil étudiant
+  Future<StudentProfile> updateMyStudentProfile(
+      Map<String, dynamic> profileData) async {
+    dynamic apiResponse;
+    try {
+      // Préparer les données du profil pour le backend
+      var requestData = Map<String, dynamic>.from(profileData);
+
+      // Filtrer les compétences vides ou templates
+      if (requestData.containsKey('skills')) {
+        var skills = requestData['skills'];
+        if (skills is List) {
+          // Filtrer les compétences non vides
+          var filteredSkills = skills
+              .map((s) => s.toString().trim())
+              .where((s) => s.isNotEmpty && s != 'Nouvelle compétence')
+              .toList();
+
+          // Ne mettre à jour les compétences que si la liste n'est pas vide
+          if (filteredSkills.isNotEmpty) {
+            requestData['skills'] = filteredSkills;
+          } else {
+            // Si toutes les compétences sont vides ou des templates, supprimer la clé
+            requestData.remove('skills');
+          }
+        }
+      }
+
+      // Filtrer les formations vides ou templates
+      if (requestData.containsKey('education')) {
+        var education = requestData['education'];
+        if (education is List) {
+          // Filtrer les formations avec au moins une vraie valeur
+          var filteredEducation = education
+              .map((edu) {
+                if (edu is Map) {
+                  // Filtrer les champs vides
+                  return Map<String, dynamic>.from(edu)
+                    ..removeWhere((key, value) =>
+                        value == null ||
+                        (value is String && value.trim().isEmpty) ||
+                        value == 'Nouvelle formation');
+                } else if (edu is Education) {
+                  var eduJson = edu.toJson();
+                  // Filtrer les champs vides
+                  eduJson.removeWhere((key, value) =>
+                      value == null ||
+                      (value is String && value.trim().isEmpty) ||
+                      value == 'Nouvelle formation');
+                  return eduJson;
+                } else {
+                  var val = edu.toString().trim();
+                  return val.isNotEmpty && val != 'Nouvelle formation'
+                      ? {'school': val}
+                      : <String, dynamic>{};
+                }
+              })
+              .where((edu) => edu.isNotEmpty)
+              .toList();
+
+          // Ne mettre à jour les formations que si la liste n'est pas vide
+          if (filteredEducation.isNotEmpty) {
+            requestData['education'] = filteredEducation;
+          } else {
+            // Si toutes les formations sont vides ou des templates, supprimer la clé
+            requestData.remove('education');
+          }
+        }
+      }
+
+      // Debug info
+      print('Sending filtered student profile data: $requestData');
+
+      apiResponse = await client.patch(ApiEndpoints.updateMyStudentProfile,
+          body: requestData);
+
+      // Handle case when response is a List instead of a Map
+      if (apiResponse is List) {
+        if (apiResponse.isEmpty) {
+          throw const FormatException('Empty response from API');
+        }
+
+        var firstItem = apiResponse[0];
+        if (firstItem is Map<String, dynamic>) {
+          return StudentProfile.fromJson(firstItem);
+        } else {
+          // Create a minimal profile with available data
+          return StudentProfile(
+            userId: profileData['userId'] ?? '',
+            name: profileData['name'] ?? 'Unknown',
+          );
+        }
+      }
+
+      return StudentProfile.fromJson(apiResponse);
+    } catch (e) {
+      // Re-throw with clearer error message
+      if (e is TypeError || e is FormatException) {
+        // Print detailed debug info
+        print('Error in updateMyStudentProfile: ${e.toString()}');
+        print('Response type: ${apiResponse?.runtimeType}');
+        print('Response data: $apiResponse');
+        print('Request data: $profileData');
+
+        // For dev debugging only: return a dummy profile to prevent app crash
+        return StudentProfile(
+          userId: profileData['userId'] ?? '',
+          name: profileData['name'] ?? 'Error Profile',
+          description: 'Error occurred: ${e.toString()}',
+        );
+      }
+      rethrow;
+    }
+  }
+
+  // ************ PROFILS ENTREPRISES ************
+
+  /// Récupérer des profils d'entreprises avec filtrage
+  Future<Map<String, dynamic>> getCompanyProfiles({
+    List<String>? skills,
+    String mode = 'any',
+    int? offset,
+    int? limit,
+  }) async {
+    final Map<String, dynamic> queryParams = {};
+
+    if (skills != null && skills.isNotEmpty) {
+      queryParams['skills'] = skills.join(',');
+    }
+
+    if (mode == 'all' || mode == 'any') {
+      queryParams['mode'] = mode;
+    }
+
+    if (offset != null) {
+      queryParams['offset'] = offset.toString();
+    }
+
+    if (limit != null) {
+      queryParams['limit'] = limit.toString();
+    }
+
+    String endpoint = ApiEndpoints.companyProfiles;
+    if (queryParams.isNotEmpty) {
+      final queryString = queryParams.entries
+          .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+      endpoint = '$endpoint?$queryString';
+    }
+
+    final response = await client.get(endpoint);
+
+    if (response is Map<String, dynamic>) {
+      final List<dynamic> rows = response['rows'] ?? [];
+      final count = response['count'] ?? 0;
+
+      final companyProfiles = rows
+          .map((profile) =>
+              CompanyProfile.fromJson(profile as Map<String, dynamic>))
+          .toList();
+
+      return {
+        'rows': companyProfiles,
+        'count': count,
+      };
+    }
+
+    return {
+      'rows': <CompanyProfile>[],
+      'count': 0,
+    };
+  }
+
+  /// Récupérer mon profil entreprise
+  Future<CompanyProfile> getMyCompanyProfile() async {
+    try {
+      final response = await client.get(ApiEndpoints.myCompanyProfile);
+
+      // Handle case when response is a List instead of a Map
+      if (response is List && response.isNotEmpty) {
+        // If the first item is a Map containing company profile data, use it
+        if (response[0] is Map<String, dynamic>) {
+          return CompanyProfile.fromJson(response[0] as Map<String, dynamic>);
+        }
+        // Otherwise throw an error about unexpected response format
+        throw const FormatException(
+            'Unexpected response format: Expected a Map or a List containing a Map');
+      }
+
+      return CompanyProfile.fromJson(response);
+    } catch (e) {
+      // Re-throw with clearer error message
+      if (e is TypeError) {
+        throw FormatException('Error parsing API response: ${e.toString()}');
+      }
+      rethrow;
+    }
+  }
+
+  /// Récupérer un profil entreprise par son ID
+  Future<CompanyProfile> getCompanyProfileById(String id) async {
+    try {
+      final response = await client.get(ApiEndpoints.getCompanyProfileById(id));
+
+      // Handle case when response is a List instead of a Map
+      if (response is List && response.isNotEmpty) {
+        // If the first item is a Map containing company profile data, use it
+        if (response[0] is Map<String, dynamic>) {
+          return CompanyProfile.fromJson(response[0] as Map<String, dynamic>);
+        }
+        // Otherwise throw an error about unexpected response format
+        throw const FormatException(
+            'Unexpected response format: Expected a Map or a List containing a Map');
+      }
+
+      return CompanyProfile.fromJson(response);
+    } catch (e) {
+      // Re-throw with clearer error message
+      if (e is TypeError) {
+        throw FormatException('Error parsing API response: ${e.toString()}');
+      }
+      rethrow;
+    }
+  }
+
+  /// Mettre à jour mon profil entreprise
+  Future<CompanyProfile> updateMyCompanyProfile(
+      Map<String, dynamic> profileData) async {
+    dynamic apiResponse;
+    try {
+      apiResponse = await client.patch(ApiEndpoints.updateMyCompanyProfile,
+          body: profileData);
+
+      // Handle case when response is a List instead of a Map
+      if (apiResponse is List) {
+        if (apiResponse.isEmpty) {
+          throw const FormatException('Empty response from API');
+        }
+
+        var firstItem = apiResponse[0];
+        if (firstItem is Map<String, dynamic>) {
+          return CompanyProfile.fromJson(firstItem);
+        } else {
+          // Create a minimal profile with available data
+          return CompanyProfile(
+            userId: profileData['userId'] ?? '',
+            name: profileData['name'] ?? 'Unknown',
+          );
+        }
+      }
+
+      return CompanyProfile.fromJson(apiResponse);
+    } catch (e) {
+      // Re-throw with clearer error message
+      if (e is TypeError || e is FormatException) {
+        // Print detailed debug info
+        print('Error in updateMyCompanyProfile: ${e.toString()}');
+        print('Response type: ${apiResponse?.runtimeType}');
+        print('Response data: $apiResponse');
+
+        // For dev debugging only: return a dummy profile to prevent app crash
+        return CompanyProfile(
+          userId: profileData['userId'] ?? '',
+          name: profileData['name'] ?? 'Error Profile',
+          description: 'Error occurred: ${e.toString()}',
+        );
+      }
+      rethrow;
+    }
   }
 }
