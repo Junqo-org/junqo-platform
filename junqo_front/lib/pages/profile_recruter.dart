@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/company_profile_service.dart';
-import 'package:junqo_front/shared/dto/company_profile.dart' as dto;
 
 class CompanyProfile extends StatefulWidget {
   const CompanyProfile({super.key});
@@ -19,9 +18,10 @@ class _CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController _websiteController = TextEditingController();
   bool _isLoading = false;
   bool _isEditing = false;
-  
+
   final AuthService authService = GetIt.instance<AuthService>();
-  final CompanyProfileService companyProfileService = GetIt.instance<CompanyProfileService>();
+  final CompanyProfileService companyProfileService =
+      GetIt.instance<CompanyProfileService>();
 
   @override
   void initState() {
@@ -87,19 +87,21 @@ class _CompanyProfileState extends State<CompanyProfile> {
 
     try {
       // Mettre à jour le profil via le service
-      companyProfileService.updateMyProfile(
+      companyProfileService
+          .updateMyProfile(
         name: _nameController.text,
         industry: _industryController.text,
         location: _locationController.text,
         description: _descriptionController.text,
         websiteUrl: _websiteController.text,
-      ).then((_) {
+      )
+          .then((_) {
         if (mounted) {
           setState(() {
             _isLoading = false;
             _isEditing = false;
           });
-          
+
           showDialog(
             context: context,
             builder: (context) => Dialog(
@@ -183,7 +185,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
           setState(() {
             _isLoading = false;
           });
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Erreur lors de la mise à jour du profil: $e'),
@@ -197,7 +199,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
         setState(() {
           _isLoading = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur lors de la mise à jour du profil: $e'),
@@ -224,10 +226,12 @@ class _CompanyProfileState extends State<CompanyProfile> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6366F1)))
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF6366F1)))
           : SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 800),
@@ -281,7 +285,9 @@ class _CompanyProfileState extends State<CompanyProfile> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isEditing ? const Color(0xFF475569) : const Color(0xFF6366F1),
+                backgroundColor: _isEditing
+                    ? const Color(0xFF475569)
+                    : const Color(0xFF6366F1),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -416,7 +422,8 @@ class _CompanyProfileState extends State<CompanyProfile> {
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('La fonction de téléchargement d\'image n\'est pas disponible actuellement'),
+                      content: Text(
+                          'La fonction de téléchargement d\'image n\'est pas disponible actuellement'),
                       backgroundColor: Color(0xFFF59E0B),
                     ),
                   );
@@ -509,7 +516,9 @@ class _CompanyProfileState extends State<CompanyProfile> {
             else
               _buildDisplayField(
                 label: 'Nom de l\'entreprise',
-                value: _nameController.text.isEmpty ? 'Non renseigné' : _nameController.text,
+                value: _nameController.text.isEmpty
+                    ? 'Non renseigné'
+                    : _nameController.text,
                 icon: Icons.business_center,
               ),
             const SizedBox(height: 16),
@@ -523,7 +532,9 @@ class _CompanyProfileState extends State<CompanyProfile> {
             else
               _buildDisplayField(
                 label: 'Secteur d\'activité',
-                value: _industryController.text.isEmpty ? 'Non renseigné' : _industryController.text,
+                value: _industryController.text.isEmpty
+                    ? 'Non renseigné'
+                    : _industryController.text,
                 icon: Icons.category,
               ),
             const SizedBox(height: 16),
@@ -537,7 +548,9 @@ class _CompanyProfileState extends State<CompanyProfile> {
             else
               _buildDisplayField(
                 label: 'Localisation',
-                value: _locationController.text.isEmpty ? 'Non renseigné' : _locationController.text,
+                value: _locationController.text.isEmpty
+                    ? 'Non renseigné'
+                    : _locationController.text,
                 icon: Icons.location_on,
               ),
             const SizedBox(height: 16),
@@ -551,7 +564,9 @@ class _CompanyProfileState extends State<CompanyProfile> {
             else
               _buildDisplayField(
                 label: 'Site web',
-                value: _websiteController.text.isEmpty ? 'Non renseigné' : _websiteController.text,
+                value: _websiteController.text.isEmpty
+                    ? 'Non renseigné'
+                    : _websiteController.text,
                 icon: Icons.language,
               ),
           ],
@@ -662,7 +677,8 @@ class _CompanyProfileState extends State<CompanyProfile> {
                 ),
                 decoration: InputDecoration(
                   labelText: "Description détaillée *",
-                  hintText: 'Décrivez votre entreprise, sa mission, ses valeurs...',
+                  hintText:
+                      'Décrivez votre entreprise, sa mission, ses valeurs...',
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
                   border: OutlineInputBorder(
@@ -701,8 +717,8 @@ class _CompanyProfileState extends State<CompanyProfile> {
                   ),
                 ),
                 child: Text(
-                  _descriptionController.text.isEmpty 
-                      ? 'Aucune description disponible' 
+                  _descriptionController.text.isEmpty
+                      ? 'Aucune description disponible'
                       : _descriptionController.text,
                   style: const TextStyle(
                     color: Color(0xFF1E293B),
@@ -716,7 +732,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
       ),
     );
   }
-  
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -747,7 +763,8 @@ class _CompanyProfileState extends State<CompanyProfile> {
             prefixIcon: Icon(icon, color: const Color(0xFF64748B)),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -814,7 +831,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
       ),
     );
   }
-  
+
   Widget _buildLogoutButton() {
     return Container(
       decoration: BoxDecoration(

@@ -6,6 +6,7 @@ import 'package:junqo_front/core/student_profile_service.dart';
 import 'package:junqo_front/pages/profile_recruter.dart';
 import 'package:junqo_front/shared/enums/user_type.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
+import 'package:junqo_front/shared/widgets/navbar_company.dart';
 import '../shared/widgets/navbar.dart';
 import 'package:junqo_front/shared/dto/student_profile.dart';
 
@@ -19,30 +20,36 @@ class ProfilePage extends StatefulWidget {
 class ProfilePageState extends State<ProfilePage> {
   final AuthService authService = GetIt.instance<AuthService>();
   final UserService userService = GetIt.instance<UserService>();
-  final StudentProfileService studentProfileService = GetIt.instance<StudentProfileService>();
+  final StudentProfileService studentProfileService =
+      GetIt.instance<StudentProfileService>();
   UserType? userType;
-  
+
   // Contrôleurs pour le profil étudiant
-  final TextEditingController _nameController = TextEditingController(text: 'Laura');
-  final TextEditingController _ageController = TextEditingController(text: '22');
-  final TextEditingController _titleController = TextEditingController(text: 'Étudiante en marketing');
-  final TextEditingController _schoolController = TextEditingController(text: 'Toulouse Business School');
+  final TextEditingController _nameController =
+      TextEditingController(text: 'Laura');
+  final TextEditingController _ageController =
+      TextEditingController(text: '22');
+  final TextEditingController _titleController =
+      TextEditingController(text: 'Étudiante en marketing');
+  final TextEditingController _schoolController =
+      TextEditingController(text: 'Toulouse Business School');
   final TextEditingController _descriptionController = TextEditingController(
-    text: 'Je m\'appelle Laura, j\'ai 22 ans et je suis actuellement étudiante en marketing à TBS, une école de management réputée. Passionnée par les stratégies digitales et la communication, j\'ai choisi cette voie pour mieux comprendre les dynamiques qui façonnent le comportement des consommateurs. Mon parcours académique m\'a permis de développer des compétences solides en marketing stratégique, en gestion de projets et en analyse de données.',
+    text:
+        'Je m\'appelle Laura, j\'ai 22 ans et je suis actuellement étudiante en marketing à TBS, une école de management réputée. Passionnée par les stratégies digitales et la communication, j\'ai choisi cette voie pour mieux comprendre les dynamiques qui façonnent le comportement des consommateurs. Mon parcours académique m\'a permis de développer des compétences solides en marketing stratégique, en gestion de projets et en analyse de données.',
   );
   bool _isLoading = false;
   bool _isEditing = false;
-  
+
   // Ajout des contrôleurs pour les nouvelles compétences et formations
   final TextEditingController _newSkillController = TextEditingController();
   final TextEditingController _schoolNameController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
   final TextEditingController _programController = TextEditingController();
-  
+
   // Listes pour stocker les compétences et formations modifiables
   List<String> skills = [];
-  
+
   List<Map<String, String>> education = [];
 
   @override
@@ -50,7 +57,7 @@ class ProfilePageState extends State<ProfilePage> {
     super.initState();
     getUserType();
   }
-  
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -78,7 +85,7 @@ class ProfilePageState extends State<ProfilePage> {
       setState(() {
         userType = userService.userData?.type;
       });
-      
+
       // Chargement du profil si l'utilisateur est un étudiant
       if (userType == UserType.STUDENT) {
         _isLoading = true;
@@ -91,18 +98,20 @@ class ProfilePageState extends State<ProfilePage> {
               _titleController.text = studentProfile.title ?? '';
               _schoolController.text = studentProfile.schoolName ?? '';
               _descriptionController.text = studentProfile.description ?? '';
-              
+
               if (studentProfile.skills != null) {
                 skills = List<String>.from(studentProfile.skills!);
               }
-              
+
               if (studentProfile.education != null) {
-                education = studentProfile.education!.map((edu) => {
-                  'school': edu.school ?? '',
-                  'year': edu.year ?? '',
-                  'duration': edu.duration ?? '',
-                  'program': edu.program ?? '',
-                }).toList();
+                education = studentProfile.education!
+                    .map((edu) => {
+                          'school': edu.school ?? '',
+                          'year': edu.year ?? '',
+                          'duration': edu.duration ?? '',
+                          'program': edu.program ?? '',
+                        })
+                    .toList();
               }
             });
           }
@@ -131,7 +140,7 @@ class ProfilePageState extends State<ProfilePage> {
       showErrorDialog(e.toString(), context);
     }
   }
-  
+
   void _saveProfile() {
     if (_nameController.text.isEmpty ||
         _ageController.text.isEmpty ||
@@ -153,15 +162,18 @@ class ProfilePageState extends State<ProfilePage> {
 
     try {
       // Convertir les données du formulaire en format Education
-      final List<Education> educationList = education.map((edu) => Education(
-        school: edu['school'],
-        year: edu['year'],
-        duration: edu['duration'],
-        program: edu['program'],
-      )).toList();
-      
+      final List<Education> educationList = education
+          .map((edu) => Education(
+                school: edu['school'],
+                year: edu['year'],
+                duration: edu['duration'],
+                program: edu['program'],
+              ))
+          .toList();
+
       // Mettre à jour le profil via le service
-      studentProfileService.updateMyProfile(
+      studentProfileService
+          .updateMyProfile(
         name: _nameController.text,
         age: int.tryParse(_ageController.text),
         title: _titleController.text,
@@ -169,13 +181,14 @@ class ProfilePageState extends State<ProfilePage> {
         description: _descriptionController.text,
         skills: skills,
         education: educationList,
-      ).then((_) {
+      )
+          .then((_) {
         if (mounted) {
           setState(() {
             _isLoading = false;
             _isEditing = false;
           });
-          
+
           showDialog(
             context: context,
             builder: (context) => Dialog(
@@ -259,7 +272,7 @@ class ProfilePageState extends State<ProfilePage> {
           setState(() {
             _isLoading = false;
           });
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Erreur lors de la mise à jour du profil: $e'),
@@ -273,7 +286,7 @@ class ProfilePageState extends State<ProfilePage> {
         setState(() {
           _isLoading = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur lors de la mise à jour du profil: $e'),
@@ -297,7 +310,7 @@ class ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.grey[100],
         body: const Column(
           children: [
-            Navbar(currentIndex: 4),
+            NavbarCompany(currentIndex: 4),
             Expanded(
               child: CompanyProfile(),
             ),
@@ -305,7 +318,7 @@ class ProfilePageState extends State<ProfilePage> {
         ),
       );
     }
-    
+
     // Profil étudiant
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -314,44 +327,46 @@ class ProfilePageState extends State<ProfilePage> {
           const Navbar(currentIndex: 4),
           Expanded(
             child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Color(0xFF6366F1)))
-              : SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 800),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildHeader(),
-                            const SizedBox(height: 32),
-                            _buildToggleEditButton(),
-                            const SizedBox(height: 16),
-                            _buildStudentDetailsCard(),
-                            const SizedBox(height: 24),
-                            _buildAboutMeCard(),
-                            const SizedBox(height: 24),
-                            _buildSkillsCard(),
-                            const SizedBox(height: 24),
-                            _buildEducationCard(),
-                            const SizedBox(height: 32),
-                            if (_isEditing) _buildSaveButton(),
-                            const SizedBox(height: 16),
-                            _buildLogoutButton(),
-                            const SizedBox(height: 40),
-                          ],
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF6366F1)))
+                : SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 800),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildHeader(),
+                              const SizedBox(height: 32),
+                              _buildToggleEditButton(),
+                              const SizedBox(height: 16),
+                              _buildStudentDetailsCard(),
+                              const SizedBox(height: 24),
+                              _buildAboutMeCard(),
+                              const SizedBox(height: 24),
+                              _buildSkillsCard(),
+                              const SizedBox(height: 24),
+                              _buildEducationCard(),
+                              const SizedBox(height: 32),
+                              if (_isEditing) _buildSaveButton(),
+                              const SizedBox(height: 16),
+                              _buildLogoutButton(),
+                              const SizedBox(height: 40),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,7 +421,8 @@ class ProfilePageState extends State<ProfilePage> {
           ),
           child: const Row(
             children: [
-              Icon(Icons.info_outline_rounded, color: Color(0xFF3B82F6)), // Blue 500
+              Icon(Icons.info_outline_rounded,
+                  color: Color(0xFF3B82F6)), // Blue 500
               SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -450,7 +466,9 @@ class ProfilePageState extends State<ProfilePage> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isEditing ? const Color(0xFF475569) : const Color(0xFF6366F1),
+                backgroundColor: _isEditing
+                    ? const Color(0xFF475569)
+                    : const Color(0xFF6366F1),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -512,7 +530,8 @@ class ProfilePageState extends State<ProfilePage> {
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('La fonction de téléchargement d\'image n\'est pas disponible actuellement'),
+                    content: Text(
+                        'La fonction de téléchargement d\'image n\'est pas disponible actuellement'),
                     backgroundColor: Color(0xFFF59E0B),
                   ),
                 );
@@ -758,7 +777,8 @@ class ProfilePageState extends State<ProfilePage> {
                 ),
                 decoration: InputDecoration(
                   labelText: "Description détaillée *",
-                  hintText: 'Parlez de votre parcours, vos passions et vos objectifs professionnels...',
+                  hintText:
+                      'Parlez de votre parcours, vos passions et vos objectifs professionnels...',
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
                   border: OutlineInputBorder(
@@ -868,13 +888,17 @@ class ProfilePageState extends State<ProfilePage> {
                     fontSize: 14,
                   ),
                   backgroundColor: const Color(0xFF6366F1),
-                  deleteIconColor: _isEditing ? Colors.white : Colors.transparent,
-                  onDeleted: _isEditing ? () {
-                    setState(() {
-                      skills.remove(skill);
-                    });
-                  } : null,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  deleteIconColor:
+                      _isEditing ? Colors.white : Colors.transparent,
+                  onDeleted: _isEditing
+                      ? () {
+                          setState(() {
+                            skills.remove(skill);
+                          });
+                        }
+                      : null,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -1042,7 +1066,8 @@ class ProfilePageState extends State<ProfilePage> {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                                  color:
+                                      const Color(0xFF6366F1).withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
@@ -1090,7 +1115,8 @@ class ProfilePageState extends State<ProfilePage> {
                               ),
                               if (_isEditing)
                                 IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
                                   onPressed: () {
                                     setState(() {
                                       education.removeAt(index);
@@ -1117,7 +1143,7 @@ class ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-  
+
   Widget _buildAddEducationForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1343,7 +1369,8 @@ class ProfilePageState extends State<ProfilePage> {
             prefixIcon: Icon(icon, color: const Color(0xFF64748B)),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -1410,7 +1437,7 @@ class ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-  
+
   Widget _buildLogoutButton() {
     return Container(
       decoration: BoxDecoration(

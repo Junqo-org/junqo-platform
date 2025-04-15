@@ -60,7 +60,7 @@ class AuthService {
       if (userId != null) {
         await _userBox.put('user', userId);
       }
-      
+
       if (token != null) {
         await client.saveToken(token);
         _isLoggedIn = true;
@@ -92,7 +92,7 @@ class AuthService {
       if (userId != null) {
         await _userBox.put('user', userId);
       }
-      
+
       if (token != null) {
         await client.saveToken(token);
         _isLoggedIn = true;
@@ -125,10 +125,9 @@ class AuthService {
       return false;
     }
 
-    if (_isLoggedIn == false) {
-      return false;
+    if (_isLoggedIn != null) {
+      return _isLoggedIn ?? false;
     }
-
     try {
       final result = await _apiService.isLoggedIn();
       _isLoggedIn = result;
