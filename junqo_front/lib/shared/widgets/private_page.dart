@@ -55,9 +55,12 @@ class PrivatePageState extends State<PrivatePage> {
 
         if (snapshot.hasError || snapshot.data == false) {
           if (!mounted) return const SizedBox();
+          // Stocker une référence au contexte actuel
+          final currentContext = context;
           Future.microtask(() {
             if (!mounted) return;
-            Navigator.pushReplacementNamed(context, '/login'); //Don't use 'BuildContext' across async gaps problem to resolve
+            // Utiliser le contexte stocké
+            Navigator.pushReplacementNamed(currentContext, '/login');
           });
           return const SizedBox();
         }

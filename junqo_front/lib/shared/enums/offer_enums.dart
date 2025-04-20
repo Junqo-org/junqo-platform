@@ -1,23 +1,23 @@
 // Énumération des statuts possibles d'une offre
 enum OfferStatus {
-  ACTIVE,
-  INACTIVE,
-  DELETED
+  active,
+  inactive,
+  deleted
 }
 
 // Énumération des types d'offres
 enum OfferType {
-  INTERNSHIP,     // Stage
-  APPRENTICESHIP, // Alternance
-  PART_TIME,      // Temps partiel
-  FULL_TIME       // Temps plein
+  internship,     // Stage
+  apprenticeship, // Alternance
+  partTime,       // Temps partiel
+  fullTime        // Temps plein
 }
 
 // Énumération des contextes de travail
-enum WorkContext {
-  ON_SITE,      // Sur place
-  HYBRID,       // Hybride
-  TELEWORKING   // Distanciel/Télétravail
+enum OfferLocation {
+  onSite,      // Sur place
+  hybrid,      // Hybride
+  teleworking  // Distanciel/Télétravail
 }
 
 // Conversion des étiquettes d'interface utilisateur vers les valeurs d'énumération backend
@@ -26,15 +26,15 @@ class OfferEnumMapper {
   static String mapOfferTypeToBackend(String uiOfferType) {
     switch (uiOfferType.toLowerCase()) {
       case 'stage':
-        return OfferType.INTERNSHIP.toString().split('.').last;
+        return OfferType.internship.toString().split('.').last;
       case 'alternance':
-        return OfferType.APPRENTICESHIP.toString().split('.').last;
+        return OfferType.apprenticeship.toString().split('.').last;
       case 'temps partiel':
-        return OfferType.PART_TIME.toString().split('.').last;
+        return OfferType.partTime.toString().split('.').last;
       case 'temps plein':
-        return OfferType.FULL_TIME.toString().split('.').last;
+        return OfferType.fullTime.toString().split('.').last;
       default:
-        return OfferType.INTERNSHIP.toString().split('.').last;
+        return OfferType.internship.toString().split('.').last;
     }
   }
 
@@ -42,14 +42,14 @@ class OfferEnumMapper {
   static String mapWorkContextToBackend(String uiWorkContext) {
     switch (uiWorkContext.toLowerCase()) {
       case 'sur place':
-        return WorkContext.ON_SITE.toString().split('.').last;
+        return OfferLocation.onSite.toString().split('.').last;
       case 'hybride':
-        return WorkContext.HYBRID.toString().split('.').last;
+        return OfferLocation.hybrid.toString().split('.').last;
       case 'distanciel':
       case 'télétravail':
-        return WorkContext.TELEWORKING.toString().split('.').last;
+        return OfferLocation.teleworking.toString().split('.').last;
       default:
-        return WorkContext.ON_SITE.toString().split('.').last;
+        return OfferLocation.onSite.toString().split('.').last;
     }
   }
 
@@ -58,15 +58,15 @@ class OfferEnumMapper {
     switch (uiStatus.toLowerCase()) {
       case 'active':
       case 'actif':
-        return OfferStatus.ACTIVE.toString().split('.').last;
+        return OfferStatus.active.toString().split('.').last;
       case 'inactive':
       case 'inactif':
-        return OfferStatus.INACTIVE.toString().split('.').last;
+        return OfferStatus.inactive.toString().split('.').last;
       case 'deleted':
       case 'supprimé':
-        return OfferStatus.DELETED.toString().split('.').last;
+        return OfferStatus.deleted.toString().split('.').last;
       default:
-        return OfferStatus.ACTIVE.toString().split('.').last;
+        return OfferStatus.active.toString().split('.').last;
     }
   }
 } 

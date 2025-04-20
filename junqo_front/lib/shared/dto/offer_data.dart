@@ -103,12 +103,4 @@ class OfferData {
       status: status,
     );
   }
-
-  static List<String> _parseStringList(dynamic value) {
-    if (value == null) return [];
-    if (value is List) {
-      return value.map((item) => item.toString()).toList();
-    }
-    return [];
-  }
 }

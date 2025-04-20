@@ -6,6 +6,7 @@ import 'package:junqo_front/shared/enums/user_type.dart';
 import 'package:junqo_front/shared/enums/offer_enums.dart';
 import 'package:junqo_front/shared/dto/student_profile.dart';
 import 'package:junqo_front/shared/dto/company_profile.dart';
+import 'package:flutter/foundation.dart';
 
 /// Service centralisé pour effectuer des appels API REST
 class ApiService {
@@ -86,7 +87,7 @@ class ApiService {
         'count': count,
       };
     } catch (e) {
-      print('Error fetching offers: $e');
+      debugPrint('Error fetching offers: $e');
       return {
         'rows': <OfferData>[],
         'count': 0,
@@ -148,15 +149,6 @@ class ApiService {
     return OfferData.fromJson(json);
   }
 
-  /// Convertir un objet en List<String> avec gestion des nulls
-  List<String> _parseStringList(dynamic value) {
-    if (value == null) return [];
-    if (value is List) {
-      return value.map((item) => item.toString()).toList();
-    }
-    return [];
-  }
-
   /// Créer une offre
   Future<OfferData> createOffer(OfferData offerData) async {
     final body = {
@@ -213,11 +205,11 @@ class ApiService {
       // Si l'erreur est liée à la méthode HTTP (par exemple si PATCH n'est pas supportée), essayer PUT
       if (e is RestApiException) {
         // Log l'erreur pour aider au débogage
-        print('Erreur lors de la mise à jour de l\'offre: ${e.message}');
+        debugPrint('Erreur lors de la mise à jour de l\'offre: ${e.message}');
 
         // Si l'erreur est 404, cela peut signifier que l'endpoint n'est pas disponible
         if (e.statusCode == 404) {
-          print('Endpoint non trouvé, essai avec URL alternative');
+          debugPrint('Endpoint non trouvé, essai avec URL alternative');
 
           // Essayer avec une URL alternative
           final String alternativeEndpoint = '/offers/$id';
@@ -478,7 +470,7 @@ class ApiService {
       }
 
       // Debug info
-      print('Sending filtered student profile data: $requestData');
+      debugPrint('Sending filtered student profile data: $requestData');
 
       apiResponse = await client.patch(ApiEndpoints.updateMyStudentProfile,
           body: requestData);
@@ -506,10 +498,10 @@ class ApiService {
       // Re-throw with clearer error message
       if (e is TypeError || e is FormatException) {
         // Print detailed debug info
-        print('Error in updateMyStudentProfile: ${e.toString()}');
-        print('Response type: ${apiResponse?.runtimeType}');
-        print('Response data: $apiResponse');
-        print('Request data: $profileData');
+        debugPrint('Error in updateMyStudentProfile: ${e.toString()}');
+        debugPrint('Response type: ${apiResponse?.runtimeType}');
+        debugPrint('Response data: $apiResponse');
+        debugPrint('Request data: $profileData');
 
         // For dev debugging only: return a dummy profile to prevent app crash
         return StudentProfile(
@@ -663,9 +655,9 @@ class ApiService {
       // Re-throw with clearer error message
       if (e is TypeError || e is FormatException) {
         // Print detailed debug info
-        print('Error in updateMyCompanyProfile: ${e.toString()}');
-        print('Response type: ${apiResponse?.runtimeType}');
-        print('Response data: $apiResponse');
+        debugPrint('Error in updateMyCompanyProfile: ${e.toString()}');
+        debugPrint('Response type: ${apiResponse?.runtimeType}');
+        debugPrint('Response data: $apiResponse');
 
         // For dev debugging only: return a dummy profile to prevent app crash
         return CompanyProfile(

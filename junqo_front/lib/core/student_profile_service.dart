@@ -86,7 +86,7 @@ class StudentProfileService {
         return _studentProfile;
       }
 
-      print('Sending filtered profile data from service: $profileData');
+      debugPrint('Sending filtered profile data from service: $profileData');
       _studentProfile = await _apiService.updateMyStudentProfile(profileData);
       return _studentProfile;
     } catch (e) {
