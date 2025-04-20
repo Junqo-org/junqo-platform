@@ -396,9 +396,12 @@ class _OfferDetailState extends State<OfferDetail> {
                                       final offerService = GetIt.instance<OfferService>();
                                       final bool success = await offerService.deleteOffer(widget.offer.id!);
                                       
+                                      if (!mounted) return;
+                                      
                                       if (success) {
                                         // Retourner à la liste des offres avec un message de succès
                                         Navigator.of(context).pop(true);
+                                        if (!mounted) return;
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(
                                             content: Text("L'offre a été supprimée avec succès"),
@@ -407,6 +410,7 @@ class _OfferDetailState extends State<OfferDetail> {
                                         );
                                       } else {
                                         // Afficher un message d'erreur
+                                        if (!mounted) return;
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(
                                             content: Text("Échec de la suppression de l'offre"),
@@ -416,6 +420,7 @@ class _OfferDetailState extends State<OfferDetail> {
                                       }
                                     } catch (e) {
                                       // Afficher un message d'erreur
+                                      if (!mounted) return;
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text("Erreur: ${e.toString()}"),
@@ -536,9 +541,5 @@ class _OfferDetailState extends State<OfferDetail> {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }

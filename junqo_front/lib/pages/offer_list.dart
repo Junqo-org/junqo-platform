@@ -6,7 +6,6 @@ import 'package:junqo_front/pages/offer_creation.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/services/offer_service.dart';
-import 'package:junqo_front/core/auth_service.dart';
 
 class OfferList extends StatefulWidget {
   const OfferList({super.key});
@@ -17,7 +16,6 @@ class OfferList extends StatefulWidget {
 
 class _OfferListState extends State<OfferList> {
   final OfferService _offerService = GetIt.instance<OfferService>();
-  final AuthService _authService = GetIt.instance<AuthService>();
   List<OfferData> _myOffers = [];
   bool _isLoading = true;
   String? _errorMessage;
@@ -146,6 +144,9 @@ class _OfferListState extends State<OfferList> {
                         "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
                   });
 
+                  // Vérifier que le widget est toujours monté
+                  if (!mounted) return;
+                  
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text("Erreur: ${e.toString()}"),
@@ -887,9 +888,5 @@ class _OfferListState extends State<OfferList> {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }

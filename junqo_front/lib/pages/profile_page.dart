@@ -134,6 +134,7 @@ class ProfilePageState extends State<ProfilePage> {
       if (match != null) {
         final navigatorContext = context;
         await authService.logout();
+        if (!mounted) return;
         Navigator.pushReplacementNamed(navigatorContext, '/login');
         return;
       }

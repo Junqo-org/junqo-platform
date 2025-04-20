@@ -27,7 +27,6 @@ class _JobOfferFormState extends State<JobOfferForm> {
   bool _isLoading = false;
   String _workLocationType =
       'Sur place'; // Valeurs possibles: 'Sur place', 'Distanciel'
-  DateTime? _expirationDate;
   bool _isEditMode = false;
 
   // Type d'offre
@@ -171,50 +170,6 @@ class _JobOfferFormState extends State<JobOfferForm> {
     });
   }
 
-  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: isStartDate
-          ? _expirationDate ?? DateTime.now().add(const Duration(days: 14))
-          : _expirationDate ??
-              (_expirationDate?.add(const Duration(days: 90)) ??
-                  DateTime.now().add(const Duration(days: 104))),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 730)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF6366F1), // Indigo
-              onPrimary: Colors.white,
-              onSurface: Color(0xFF1E293B), // Slate 800
-            ),
-            dialogBackgroundColor: Colors.white,
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      if (!mounted) return;
-      setState(() {
-        if (isStartDate) {
-          _expirationDate = picked;
-          if (_expirationDate != null && _expirationDate!.isBefore(picked)) {
-            _expirationDate = picked.add(const Duration(days: 90));
-          }
-        } else {
-          _expirationDate = picked;
-        }
-      });
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-  }
-
   void _submitJobOffer() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
@@ -237,16 +192,15 @@ class _JobOfferFormState extends State<JobOfferForm> {
           status: _isEditMode ? widget.existingOffer!.status : 'ACTIVE',
         );
 
-        OfferData resultOffer;
         String successMessage;
 
         if (_isEditMode) {
-          resultOffer = await offerService.updateOffer(
+          await offerService.updateOffer(
               widget.existingOffer!.id!, jobOffer);
           successMessage =
               "Votre offre « $titleValue » a été mise à jour avec succès !";
         } else {
-          resultOffer = await offerService.createOffer(jobOffer);
+          await offerService.createOffer(jobOffer);
           successMessage =
               "Votre offre « $titleValue » a été créée avec succès !";
         }

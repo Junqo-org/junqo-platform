@@ -58,7 +58,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
   late final ApiService _apiService;
   late final RestClient client;
   bool isLoading = true;
-
+  
   bool initialized = false;
   List<CardData> cardDataList = [];
   bool outOfData = false;
@@ -134,7 +134,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
                       const SizedBox(width: 16),
                       _buildActionButton(
                         onTap: () async {
-                          postulate(cardData!.id);
+                          _postulate(cardData!.id);
                           setState(() => isLoading = true);
                           try {
                             final newData = await setCardData();
@@ -193,27 +193,36 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
     );
   }
 
-  void postulate(String id) {
-    // Implement the postulate logic here
+  void _postulate(String id) {
     if (cardData!.isPlaceHolder) {
       debugPrint('Cannot postulate for placeholder data');
       return;
     }
+    
     debugPrint('Postulating for offer with ID: $id');
     _apiService.postulateOffer(id).then((response) {
-      if (response == true) {
+      if (!mounted) return;
+      
+      if (response['isSuccessful'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Successfully applied to the job!')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Failed to apply to the job. Please try again.')),
+            content: Text('Failed to apply to the job. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }).catchError((error) {
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${error.toString()}')),
+        SnackBar(
+          content: Text('Error: ${error.toString()}'),
+          backgroundColor: Colors.red,
+        ),
       );
     });
   }
