@@ -22,6 +22,7 @@ class ApiEndpoints {
   static String getApplicationById(String id) => '/applications/$id';
   static String updateApplication(String id) => '/applications/$id';
   static String postulateOffer(String id) => '/applications/apply/$id';
+  static String getMyApplicationss() => '/applications/my';
 
   // Profils d'entreprises
   static const String companyProfiles = '/company-profiles';

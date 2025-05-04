@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import '../shared/widgets/navbar_company.dart';
+//Import the getMyApplications function from the api_service.dart file
+import '../core/api/api_service.dart';
+import 'package:get_it/get_it.dart';
+import 'package:junqo_front/core/client.dart';
+// import 'package:flutter_svg/flutter_svg.dart'; //????
 
 class RecruiterDashboard extends StatefulWidget {
-  const RecruiterDashboard({super.key});
+  final RestClient client = GetIt.instance<RestClient>();
+
+  RecruiterDashboard({super.key});
 
   @override
   RecruiterDashboardState createState() => RecruiterDashboardState();
@@ -36,6 +43,8 @@ class DateFormat {
 
 class RecruiterDashboardState extends State<RecruiterDashboard> {
   List<Activity> _activities = [];
+  late final ApiService _apiService;
+  late final RestClient client;
 
   List<Color> gradientColors = [
     const Color(0xff23b6e6),
@@ -46,6 +55,8 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
   void initState() {
     super.initState();
     _fetchActivities();
+    _apiService = GetIt.instance<ApiService>();
+    client = widget.client;
   }
 
   Future<void> _fetchActivities() async {
@@ -90,6 +101,8 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
                   _buildActivityChart(),
                   const SizedBox(height: 24),
                   _buildActivityTable(),
+                  const SizedBox(height: 24),
+                  _buildApplicationsData(),
                 ],
               ),
             ),
@@ -202,6 +215,46 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
                   DataCell(Text(activity.interviews.toString())),
                 ]);
               }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApplicationsData() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              "Données des candidatures",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            FutureBuilder(
+              future: _apiService.getMyApplications(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData) {
+                  return const Center(
+                      child: Text('No applications data available.'));
+                } else {
+                  // Raw data returned from getMyApplications
+                  final data = snapshot.data;
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(data.toString()), // Display raw data as string
+                  );
+                }
+              },
             ),
           ],
         ),

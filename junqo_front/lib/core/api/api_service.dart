@@ -7,6 +7,7 @@ import 'package:junqo_front/shared/enums/offer_enums.dart';
 import 'package:junqo_front/shared/dto/student_profile.dart';
 import 'package:junqo_front/shared/dto/company_profile.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:convert'; // To be removed when getmyapplications is implemented correctly
 
 /// Service centralisé pour effectuer des appels API REST
 class ApiService {
@@ -72,7 +73,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> getAllOffersQuery(Map<String, String> query) async {
+  Future<Map<String, dynamic>> getAllOffersQuery(
+      Map<String, String> query) async {
     try {
       final response = await client.getQuery(ApiEndpoints.offers, query: query);
       // The response is already a Map, no need to access .data
@@ -666,6 +668,37 @@ class ApiService {
           description: 'Error occurred: ${e.toString()}',
         );
       }
+      rethrow;
+    }
+  }
+
+  bool isTestClient(int id) {
+    //Should not be pushed , this is a test function
+    if (id == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getMyApplications() async {
+    try {
+      final response = await client.get(ApiEndpoints.getMyApplicationss());
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        // Format each item into a Map<String, dynamic>
+        final List<Map<String, dynamic>> applications =
+            data.map((item) => Map<String, dynamic>.from(item)).toList();
+
+        return applications;
+      } else {
+        throw Exception(
+          'Failed to fetch applications: ${response.statusCode} ${response.reasonPhrase}',
+        );
+      }
+    } catch (e) {
+      debugPrint(' Error in getMyApplications: $e');
       rethrow;
     }
   }

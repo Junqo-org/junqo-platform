@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     } else if (userType == UserType.COMPANY) {
-      return const RecruiterDashboard();
+      return RecruiterDashboard();
     } else if (userType == UserType.STUDENT) {
       return JobCardSwipe();
     }
