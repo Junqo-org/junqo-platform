@@ -672,15 +672,6 @@ class ApiService {
     }
   }
 
-  bool isTestClient(int id) {
-    //Should not be pushed , this is a test function
-    if (id == 1) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   Future<List<Map<String, dynamic>>> getMyApplications() async {
     try {
       final response = await client.get(ApiEndpoints.getMyApplicationss());
