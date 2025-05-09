@@ -609,7 +609,6 @@ class ApiService {
       // Parse and return the response
       return CompanyProfile.fromJson(response);
     } catch (e) {
-      // Log the error
       debugPrint('Error updating company profile: $e');
       rethrow;
     }

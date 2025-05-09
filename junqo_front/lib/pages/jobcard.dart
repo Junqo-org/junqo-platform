@@ -449,7 +449,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
               ),
               _buildActionButton(
                 onPressed: isLoading ? null : () => _handleAction(true),
-                        icon: Icons.check,
+                icon: Icons.check,
                 label: "Accepter", 
                 color: Colors.green.shade400,
                 compact: true,
