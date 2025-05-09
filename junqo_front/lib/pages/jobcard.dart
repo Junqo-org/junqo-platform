@@ -52,8 +52,7 @@ class JobCardSwipe extends StatefulWidget {
   State<JobCardSwipe> createState() => _JobCardSwipeState();
 }
 
-class _JobCardSwipeState extends State<JobCardSwipe> {
-  // Change from late to nullable and provide a default placeholder
+class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderStateMixin {
   CardData? cardData;
   late final ApiService _apiService;
   late final RestClient client;
@@ -64,132 +63,461 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
   bool outOfData = false;
   int currentIndex = 0;
   int offsetIndex = 0;
+  
+  // Animation controller for card transitions
+  late final AnimationController _animationController;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _opacityAnimation;
+  
+  // App theme colors
+  static const Color _indigoColor = Color(0xFF6366F1);
+  static const Color _indigoLight = Color(0xFFEEF2FF);
+  static const Color _slate800 = Color(0xFF1E293B);
+  static const Color _slate500 = Color(0xFF64748B);
+  static const Color _slate50 = Color(0xFFF8FAFC);
 
   @override
   void initState() {
     super.initState();
     _apiService = GetIt.instance<ApiService>();
     client = widget.client;
+    
+    // Setup animation controller
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    
+    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic)
+    );
+    
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut)
+    );
+    
     _initCardData();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _initCardData() async {
     try {
       final data = await setCardData();
+      if (mounted) {
       setState(() {
         cardData = data;
         isLoading = false;
       });
+        // Start animation when card is loaded
+        _animationController.forward(from: 0.0);
+      }
     } catch (e) {
+      if (mounted) {
       setState(() {
         cardData = placeholderCardData()[0];
         isLoading = false;
       });
-      debugPrint('Error initializing card data: $e');
+        // Still animate for placeholder
+        _animationController.forward(from: 0.0);
+        
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load job data: ${e.toString()}')),
-      );
+          SnackBar(
+            content: Text('Failed to load job data: ${e.toString()}'),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(8),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleAction(bool accepted) async {
+    // Animate out current card
+    await _animationController.reverse();
+    
+                          setState(() => isLoading = true);
+    
+    // Handle action for current card if it's not a placeholder
+    if (cardData != null && !cardData!.isPlaceHolder) {
+      if (accepted) {
+        _postulate(cardData!.id);
+      } else {
+        debugPrint('Rejected offer with ID: ${cardData!.id}');
+      }
+    }
+    
+                          try {
+                            final newData = await setCardData();
+      if (mounted) {
+                            setState(() {
+                              cardData = newData;
+                              isLoading = false;
+                            });
+        // Animate in new card
+        _animationController.forward(from: 0.0);
+      }
+                          } catch (e) {
+      if (mounted) {
+        setState(() {
+          cardData = placeholderCardData()[0];
+          isLoading = false;
+        });
+        // Animate in placeholder
+        _animationController.forward(from: 0.0);
+        
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+            content: Text('Error loading next job: ${e.toString()}'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final bool isWideScreen = screenSize.width > 1000;
+    final bool isMediumScreen = screenSize.width > 650 && screenSize.width <= 1000;
+    
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: _slate50,
       body: Column(
         children: [
           const Navbar(currentIndex: 0),
           Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildActionButton(
-                        onTap: () async {
-                          setState(() => isLoading = true);
-                          try {
-                            final newData = await setCardData();
-                            setState(() {
-                              cardData = newData;
-                              isLoading = false;
-                            });
-                          } catch (e) {
-                            setState(() => isLoading = false);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Error loading next job: ${e.toString()}')),
-                            );
-                          }
-                        },
-                        color: Colors.red,
-                        icon: Icons.close,
-                      ),
-                      const SizedBox(width: 16),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: JobCard(data: cardData!),
-                      ),
-                      const SizedBox(width: 16),
-                      _buildActionButton(
-                        onTap: () async {
-                          _postulate(cardData!.id);
-                          setState(() => isLoading = true);
-                          try {
-                            final newData = await setCardData();
-                            setState(() {
-                              cardData = newData;
-                              isLoading = false;
-                            });
-                          } catch (e) {
-                            setState(() => isLoading = false);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Error loading next job: ${e.toString()}')),
-                            );
-                          }
-                        },
-                        color: Colors.green,
-                        icon: Icons.check,
-                      ),
-                    ],
-                  ),
+            child: isWideScreen 
+                ? _buildWideLayout() 
+                : isMediumScreen 
+                    ? _buildMediumLayout()
+                    : _buildMobileLayout(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton({
-    required VoidCallback onTap,
-    required Color color,
-    required IconData icon,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+  Widget _buildWideLayout() {
+    return Row(
+      children: [
+        // Left side panel - can add stats or help text here
+        Expanded(
+          flex: 1,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: _indigoLight,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: _indigoColor.withOpacity(0.2)),
+                  ),
+                  child: const Column(
+                    children: [
+                      Icon(Icons.swipe, size: 50, color: _indigoColor),
+                      SizedBox(height: 16),
+                      Text(
+                        "Découvrez de nouvelles opportunités",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _slate800,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        "Balayez à droite pour accepter ou à gauche pour rejeter",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _slate500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildActionButton(
+                  onPressed: isLoading ? null : () => _handleAction(false),
+                        icon: Icons.close,
+                  label: "Rejeter",
+                  color: Colors.red.shade400,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 30,
+        
+        // Center panel - card
+        Expanded(
+          flex: 2,
+          child: Center(
+            child: isLoading
+                ? _buildLoadingIndicator()
+                : _buildAnimatedCard(),
+          ),
         ),
+        
+        // Right side panel
+        Expanded(
+          flex: 1,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(Icons.check_circle_outline, size: 50, color: Colors.green.shade600),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Postuler en un clic",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _slate800,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        "Votre profil sera automatiquement envoyé à l'employeur",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _slate500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildActionButton(
+                  onPressed: isLoading ? null : () => _handleAction(true),
+                  icon: Icons.check,
+                  label: "Accepter",
+                  color: Colors.green.shade400,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMediumLayout() {
+    return Column(
+      children: [
+        // Top section - instructions
+                      Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Card(
+                  elevation: 0,
+                  color: _indigoLight,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: _indigoColor),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "Découvrez des offres adaptées à votre profil. Acceptez ou passez selon vos préférences.",
+                            style: TextStyle(color: _slate800),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Center section - card
+        Expanded(
+          child: Center(
+            child: isLoading
+                ? _buildLoadingIndicator()
+                : _buildAnimatedCard(),
+          ),
+        ),
+        
+        // Bottom section - action buttons
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+                      _buildActionButton(
+                onPressed: isLoading ? null : () => _handleAction(false),
+                icon: Icons.close,
+                label: "Rejeter",
+                color: Colors.red.shade400,
+              ),
+              const SizedBox(width: 48),
+              _buildActionButton(
+                onPressed: isLoading ? null : () => _handleAction(true),
+                icon: Icons.check,
+                label: "Accepter",
+                color: Colors.green.shade400,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout() {
+    return Column(
+      children: [
+        // Top info card
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: _indigoLight,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.swipe, size: 20, color: _indigoColor),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    "Balayez pour découvrir des offres",
+                    style: TextStyle(color: _slate800, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        // Card section
+        Expanded(
+          child: Center(
+            child: isLoading
+                ? _buildLoadingIndicator()
+                : _buildAnimatedCard(),
+          ),
+        ),
+        
+        // Action buttons
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildActionButton(
+                onPressed: isLoading ? null : () => _handleAction(false),
+                icon: Icons.close,
+                label: "Rejeter",
+                color: Colors.red.shade400,
+                compact: true,
+              ),
+              _buildActionButton(
+                onPressed: isLoading ? null : () => _handleAction(true),
+                        icon: Icons.check,
+                label: "Accepter", 
+                color: Colors.green.shade400,
+                compact: true,
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+    );
+  }
+
+  Widget _buildAnimatedCard() {
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: Opacity(
+            opacity: _opacityAnimation.value,
+            child: child,
+          ),
+        );
+      },
+      child: JobCard(data: cardData!),
+    );
+  }
+
+  Widget _buildActionButton({
+    required VoidCallback? onPressed,
+    required IconData icon,
+    required String label,
+    required Color color,
+    bool compact = false,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: color,
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? 16 : 24,
+          vertical: compact ? 12 : 16,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: color.withOpacity(0.5)),
+        ),
+        elevation: 2,
+        shadowColor: color.withOpacity(0.3),
       ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return const Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(_indigoColor),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          "Chargement des offres...",
+          style: TextStyle(color: _slate500, fontSize: 16),
+        ),
+      ],
     );
   }
 
@@ -205,13 +533,24 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       
       if (response['isSuccessful'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Successfully applied to the job!')),
+          SnackBar(
+            content: const Text('Candidature envoyée avec succès !'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green.shade400,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to apply to the job. Please try again.'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text('Échec de la candidature. Veuillez réessayer.'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red.shade400,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -220,8 +559,12 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: ${error.toString()}'),
-          backgroundColor: Colors.red,
+          content: Text('Erreur: ${error.toString()}'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red.shade400,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     });
@@ -250,7 +593,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
         return placeholderCardData()[0];
       }
     }
-    //rest of code
+    
     currentIndex++;
     debugPrint('Current index: $currentIndex');
     debugPrint('Card data list length: ${cardDataList.length}');
@@ -270,60 +613,18 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
     return cardDataList[currentIndex];
   }
 
-  fakeAllOffersQuery() {
-    return [
-      OfferData(
-        id: '1',
-        title: 'Software Engineer',
-        offerType: 'Full-time',
-        duration: '6 months',
-        salary: '60,000€ - 80,000€',
-        benefits: ['Gym Membership'],
-        skills: ['Flutter', 'Dart', 'REST API'],
-        educationLevel: 'Bachelor\'s Degree',
-        description: 'Job description goes here.',
-        status: 'active',
-      ),
-      OfferData(
-        id: '2',
-        title: 'Data Scientist',
-        offerType: 'Part-time',
-        duration: '3 months',
-        salary: '50,000€ - 70,000€',
-        benefits: ['Health Insurance'],
-        skills: ['Python', 'Machine Learning'],
-        educationLevel: 'Master\'s Degree',
-        description: 'Job description goes here.',
-        status: 'active',
-      ),
-      OfferData(
-        id: '3',
-        title: 'Product Manager',
-        offerType: 'Contract',
-        duration: '12 months',
-        salary: '80,000€ - 100,000€',
-        benefits: ['Remote Work'],
-        skills: ['Agile', 'Scrum'],
-        educationLevel: 'Master\'s Degree',
-        description: 'Job description goes here.',
-        status: 'active',
-      ),
-    ];
-  }
-
   Future<List<CardData>> getOfferQuery(int offset) async {
     try {
       final query = {
         'offset': offset.toString(),
+        'limit': '10', // Add limit for pagination
       };
 
       final response = await _apiService.getAllOffersQuery(query);
       final List<OfferData> offers = response['rows'];
       
-      // Transform each OfferData into CardData
       final List<CardData> cardDataList = transformOffersToCards(offers);
       if (cardDataList.isEmpty) {
-        // If no data is returned, return the placeholder data
         return placeholderCardData();
       }
 
@@ -334,19 +635,30 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
   }
 
   CardData transformOfferToCard(OfferData offer) {
+    // Properly handle nullable lists and strings
+    final List<String> benefitsList = offer.benefits != null ? List<String>.from(offer.benefits) : [];
+    if (offer.workLocationType != null && offer.workLocationType!.isNotEmpty) {
+      benefitsList.add(offer.workLocationType!);
+    }
+
+    final List<String> skillsList = offer.skills != null ? List<String>.from(offer.skills) : [];
+    if (offer.educationLevel != null && offer.educationLevel!.isNotEmpty) {
+      skillsList.add(offer.educationLevel!);
+    }
+
     return CardData(
       id: offer.id ?? '',
-      userid: offer.userid,
-      jobTitle: offer.title,
-      contractType: offer.offerType,
-      duration: offer.duration,
-      salary: offer.salary,
-      benefits: [...offer.benefits, offer.workLocationType],
-      technicalSkills: [...offer.skills, offer.educationLevel],
-      details: offer.description,
-      status: offer.status,
+      userid: offer.userid ?? '',
+      jobTitle: offer.title ?? 'Sans titre',
+      contractType: offer.offerType ?? '-',
+      duration: offer.duration ?? '-',
+      salary: offer.salary ?? '-',
+      benefits: benefitsList,
+      technicalSkills: skillsList,
+      details: offer.description ?? 'Pas de description disponible.',
+      status: offer.status ?? '',
       companyName: 'Company name currently not available',
-      companyLogo: 'Company logo currently not available',
+      companyLogo: '',
       location: 'Location currently not available',
       showDetails: false,
       isPlaceHolder: false,
@@ -360,81 +672,110 @@ class _JobCardSwipeState extends State<JobCardSwipe> {
   List<CardData> placeholderCardData() {
     return [
       CardData(
-        companyName: 'Company PlaceHolder Inc.',
-        companyLogo: 'assets/images/image_placeholder.svg',
-        jobTitle: 'Software PlaceHolder',
-        contractType: 'Full-time PlaceHolder',
-        duration: '6 months PlaceHolder',
-        location: 'Remote',
-        salary: '60,000€ - 80,000€',
-        benefits: ['Gym Membership'],
-        technicalSkills: ['Flutter', 'Dart', 'REST API'],
-        details:
-            'If you see this placeholder it means that there is either no more data or that the data is not yet available.4',
-        id: '1',
-        userid: '1',
-        status: 'active',
+        companyName: 'Fin des offres',
+        companyLogo: '',
+        jobTitle: 'Aucune offre disponible',
+        contractType: '-',
+        duration: '-',
+        location: '-',
+        salary: '-',
+        benefits: const [],
+        technicalSkills: const [],
+        details: 'Il n\'y a plus d\'offres disponibles pour le moment.',
+        id: 'placeholder_1',
+        userid: 'placeholder',
+        status: 'placeholder',
         isPlaceHolder: true,
       ),
       CardData(
-        companyName: 'Company PlaceHolder Inc.',
-        companyLogo: 'assets/images/image_placeholder.svg',
-        jobTitle: 'Software PlaceHolder',
-        contractType: 'Full-time PlaceHolder',
-        duration: '6 months PlaceHolder',
-        location: 'Remote',
-        salary: '60,000€ - 80,000€',
-        benefits: ['Gym Membership'],
-        technicalSkills: ['Flutter', 'Dart', 'REST API'],
-        details:
-            'If you see this placeholder it means that there is either no more data or that the data is not yet available.5',
-        id: '1',
-        userid: '1',
-        status: 'active',
+        companyName: 'Recherchez plus tard',
+        companyLogo: '',
+        jobTitle: 'Revenez bientôt',
+        contractType: '-',
+        duration: '-',
+        location: '-',
+        salary: '-',
+        benefits: const [],
+        technicalSkills: const [],
+        details: 'De nouvelles offres seront bientôt disponibles.',
+        id: 'placeholder_2',
+        userid: 'placeholder',
+        status: 'placeholder',
         isPlaceHolder: true,
       )
     ];
   }
 }
 
-class JobCard extends StatelessWidget {
+// Enhance the JobCard to use consistent theming and better styling
+class JobCard extends StatefulWidget {
   final CardData data;
 
   const JobCard({super.key, required this.data});
 
   @override
+  State<JobCard> createState() => _JobCardState();
+}
+
+class _JobCardState extends State<JobCard> {
+  bool _showFullDetails = false;
+  
+  // App theme colors
+  static const Color _indigoColor = Color(0xFF6366F1);
+  static const Color _indigoLight = Color(0xFFEEF2FF);
+  static const Color _slate800 = Color(0xFF1E293B);
+  static const Color _slate600 = Color(0xFF475569);
+  static const Color _slate500 = Color(0xFF64748B);
+  static const Color _slate200 = Color(0xFFE2E8F0);
+  static const Color _slate50 = Color(0xFFF8FAFC);
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      width: 340,
+      width: 480,
+      constraints: const BoxConstraints(
+        minHeight: 350,
+        maxHeight: 680,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: _slate500.withOpacity(0.15),
+            spreadRadius: 0,
+            blurRadius: 20,
+            offset: const Offset(0, 6),
           ),
         ],
+        border: Border.all(color: _slate200),
       ),
+      child: SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with logo
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+            // Header with logo and company name
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: _indigoLight,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(18),
+                ),
+              ),
             child: Row(
               children: [
-                // Replace Image.asset with a more reliable widget that handles errors
-                _buildCompanyLogo(data.companyLogo),
-                const SizedBox(width: 8),
+                  _buildCompanyLogo(widget.data.companyLogo),
+                  const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    data.companyName,
+                      widget.data.companyName,
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: _slate800,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -443,284 +784,328 @@ class JobCard extends StatelessWidget {
             ),
           ),
 
-          // Job Title
+            // Job title
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
               child: Text(
-                data.jobTitle,
+                widget.data.jobTitle,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                ),
+                  color: _slate800,
               ),
             ),
           ),
 
-          // Contract Info Row
+            // Main info grid (2x2)
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
               children: [
                 Expanded(
-                  child: _buildInfoChip(
+                        child: _buildInfoItem(
                     icon: Icons.work_outline,
-                    text: data.contractType,
-                    backgroundColor: Colors.grey.shade100,
+                          label: "Type",
+                          value: widget.data.contractType,
                   ),
                 ),
-                const SizedBox(width: 8),
+                      const SizedBox(width: 16),
                 Expanded(
-                  child: _buildInfoChip(
+                        child: _buildInfoItem(
                     icon: Icons.calendar_today,
-                    text: data.duration,
-                    backgroundColor: Colors.grey.shade100,
+                          label: "Durée",
+                          value: widget.data.duration,
                   ),
                 ),
               ],
             ),
-          ),
-
-          // Location and Salary Row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
+                  const SizedBox(height: 16),
+                  Row(
               children: [
                 Expanded(
-                  child: _buildInfoChip(
+                        child: _buildInfoItem(
                     icon: Icons.location_on_outlined,
-                    text: data.location,
-                    backgroundColor: Colors.grey.shade100,
+                          label: "Lieu",
+                          value: widget.data.location,
                   ),
                 ),
-                const SizedBox(width: 8),
+                      const SizedBox(width: 16),
                 Expanded(
-                  child: _buildInfoChip(
+                        child: _buildInfoItem(
                     icon: Icons.euro_outlined,
-                    text: data.salary,
-                    backgroundColor: Colors.grey.shade100,
+                          label: "Salaire",
+                          value: widget.data.salary,
                   ),
+                      ),
+                    ],
                 ),
               ],
             ),
           ),
 
-          // Benefits Section
+            // Skills section
+            if (widget.data.technicalSkills.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.pink.shade50,
-                borderRadius: BorderRadius.circular(12),
-              ),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.star_border, color: Colors.pink.shade300),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: data.benefits
-                              .map(
-                                (benefit) => _buildInfoChip(
-                                  text: benefit,
-                                  backgroundColor: Colors.white,
-                                  iconColor: Colors.pink.shade300,
-                                  icon: Icons.check,
-                                ),
-                              )
-                              .toList(),
-                        ),
+                    const Text(
+                      "Compétences requises",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: _slate800,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Technical Skills Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.computer, color: Colors.green.shade300),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: data.technicalSkills
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: widget.data.technicalSkills
                               .map(
-                                (skill) => _buildInfoChip(
-                                  text: skill,
-                                  backgroundColor: Colors.white,
-                                  iconColor: Colors.green.shade300,
+                            (skill) => Chip(
+                              label: Text(
+                                skill,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: _indigoColor,
                                 ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Show Details Button
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                _showDetailsDialog(context, data.details);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade100,
-                foregroundColor: Colors.blue.shade900,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                              ),
+                              backgroundColor: _indigoLight,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                side: BorderSide(
+                                  color: _indigoColor.withOpacity(0.3),
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.comfortable,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
                 ),
-                minimumSize: const Size(double.infinity, 40),
               ),
-              child: const Text('Afficher les détails'),
+
+            // Benefits section
+            if (widget.data.benefits.isNotEmpty)
+          Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                    const Text(
+                      "Avantages",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: _slate800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: widget.data.benefits
+                              .map(
+                            (benefit) => Chip(
+                              avatar: const Icon(
+                                Icons.check_circle_outline,
+                                size: 18,
+                                color: Colors.green,
+                              ),
+                              label: Text(
+                                benefit,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: _slate600,
+                                ),
+                              ),
+                              backgroundColor: _slate50,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                side: const BorderSide(
+                                  color: _slate200,
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.comfortable,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Description
+            if (widget.data.details.isNotEmpty)
+          Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Description",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: _slate800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showFullDetails = !_showFullDetails;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: _slate50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: _slate200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.data.details,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: _slate600,
+                                height: 1.6,
+                              ),
+                              maxLines: _showFullDetails ? null : 4,
+                              overflow: _showFullDetails
+                                  ? TextOverflow.visible
+                                  : TextOverflow.ellipsis,
+                            ),
+                            if (widget.data.details.length > 150)
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+              onPressed: () {
+                                    setState(() {
+                                      _showFullDetails = !_showFullDetails;
+                                    });
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: _indigoColor,
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    _showFullDetails ? "Voir moins" : "Voir plus",
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
             ),
           ),
         ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildCompanyLogo(String logoPath) {
     return Container(
-      height: 32, // Increased height
-      width: 32, // Increased width
+      height: 50,
+      width: 50,
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(4),
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: _slate500.withOpacity(0.1),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Center(
-        // Ensures the logo is centered
-        child: _getLogoWidget(logoPath),
+        child: logoPath.isEmpty || logoPath.contains('placeholder')
+            ? const Icon(Icons.business, size: 24, color: _slate500)
+            : _getLogoWidget(logoPath),
       ),
     );
   }
 
   Widget _getLogoWidget(String logoPath) {
-    // Check if it's a network image (starts with http:// or https://)
-    if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
+    try {
       if (logoPath.toLowerCase().endsWith('.svg')) {
-        // Network SVG image
-        return SvgPicture.network(
-          logoPath,
-          placeholderBuilder: (context) =>
-              const Icon(Icons.business, size: 20, color: Colors.grey),
-          height: 24,
-          width: 24,
-          fit: BoxFit.contain,
-        );
-      } else {
-        // Regular network image
-        return Image.network(
-          logoPath,
-          height: 24,
-          width: 24,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.business, size: 20, color: Colors.grey);
-          },
-        );
-      }
-    }
-
-    // Local asset
-    if (logoPath.toLowerCase().endsWith('.svg')) {
-      // Local SVG asset
       return SvgPicture.asset(
         logoPath,
-        placeholderBuilder: (context) =>
-            const Icon(Icons.business, size: 20, color: Colors.grey),
-        height: 24,
-        width: 24,
-        fit: BoxFit.contain,
+          placeholderBuilder: (context) => const Icon(Icons.business, size: 24, color: _slate500),
+          height: 30,
+          width: 30,
       );
     } else {
-      // Regular asset image
       return Image.asset(
         logoPath,
-        height: 24,
-        width: 24,
-        fit: BoxFit.contain,
+          height: 30,
+          width: 30,
         errorBuilder: (context, error, stackTrace) {
-          return const Icon(Icons.business, size: 20, color: Colors.grey);
+            return const Icon(Icons.business, size: 24, color: _slate500);
         },
       );
     }
+    } catch (e) {
+      return const Icon(Icons.business, size: 24, color: _slate500);
+    }
   }
 
-  void _showDetailsDialog(BuildContext context, String details) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Détails'),
-          content: Text(details),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Fermer'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildInfoChip({
-    IconData? icon,
-    required String text,
-    required Color backgroundColor,
-    Color? iconColor,
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String label,
+    required String value,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(20),
+        color: _slate50,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _slate200),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 16, color: iconColor ?? Colors.grey.shade700),
-            const SizedBox(width: 4),
-          ],
-          Flexible(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade700,
+          Row(
+            children: [
+              Icon(icon, size: 16, color: _slate500),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: _slate500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: _slate800,
               ),
               overflow: TextOverflow.ellipsis,
-            ),
           ),
         ],
       ),
