@@ -101,9 +101,11 @@ class _NavbarState extends State<Navbar> {
     _notificationOverlay?.remove();
     _notificationOverlay = null;
     
-    setState(() {
-      _isNotificationVisible = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isNotificationVisible = false;
+      });
+    }
   }
 
   Widget _buildNavItem(int index, {bool showLabel = false}) {

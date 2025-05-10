@@ -196,20 +196,36 @@ class RestClient {
       return decoded;
     } else {
       Map<String, dynamic> errorBody = {};
+      String errorMessage = 'Unknown API error occurred';
+      dynamic errorDetails;
 
       try {
         if (response.body.isNotEmpty) {
           errorBody = jsonDecode(response.body) as Map<String, dynamic>;
+          // Extract message more robustly
+          if (errorBody.containsKey('message')) {
+              var msgData = errorBody['message'];
+              if (msgData is List) {
+                 errorMessage = msgData.join(', '); // Join list elements
+              } else if (msgData is String) {
+                 errorMessage = msgData;
+              }
+          } else if (errorBody.containsKey('error')) {
+              // Fallback to 'error' field if 'message' is missing
+              errorMessage = errorBody['error'].toString();
+          }
+          errorDetails = errorBody['errors']; // Keep the original errors if they exist
         }
       } catch (e) {
-        // En cas d'erreur de parsing, on utilise un corps d'erreur vide
-        debugPrint('Error parsing error response: $e');
+        // If JSON parsing fails, use the raw response body as message
+        errorMessage = response.body;
+        debugPrint('Error parsing error response body: $e');
       }
 
       throw RestApiException(
         statusCode: response.statusCode,
-        message: errorBody['message'] ?? 'Unknown error occurred',
-        errors: errorBody['errors'],
+        message: errorMessage, // Use the parsed or fallback message
+        errors: errorDetails,
       );
     }
   }
