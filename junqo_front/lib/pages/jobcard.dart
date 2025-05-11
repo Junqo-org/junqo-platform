@@ -82,6 +82,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
   static const Color _slate500 = Color(0xFF64748B);
   static const Color _slate50 = Color(0xFFF8FAFC);
 
+  bool _actionLocked = false;
+
   @override
   void initState() {
     super.initState();
@@ -449,7 +451,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
     bool compact = false,
   }) {
     return ElevatedButton.icon(
-      onPressed: onPressed,
+      onPressed: (isLoading || _actionLocked) ? null : onPressed,
       icon: Icon(icon),
       label: Text(label),
       style: ElevatedButton.styleFrom(
@@ -531,7 +533,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
     // Animate out current card
     await _animationController.reverse();
     
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      _actionLocked = true;
+    });
     
     // Handle action for current card if it's not a placeholder
     if (cardData != null && !cardData!.isPlaceHolder) {
@@ -553,6 +558,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       setState(() {
         cardData = newData;
         isLoading = false;
+        _actionLocked = false;
       });
       // Animate in new card
       _animationController.forward(from: 0.0);
@@ -562,6 +568,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       setState(() {
         cardData = placeholderCardData()[0];
         isLoading = false;
+        _actionLocked = false;
       });
       // Animate in placeholder
       _animationController.forward(from: 0.0);
