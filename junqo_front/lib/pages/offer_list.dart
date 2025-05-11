@@ -97,10 +97,9 @@ class _OfferListState extends State<OfferList> {
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
 
-                try {
-                  // Store a reference to the outer BuildContext
-                  final scaffoldContext = context;
+                if (!mounted) return;
 
+                try {
                   setState(() => _isLoading = true);
 
                   final String newStatus = isActivating ? 'ACTIVE' : 'INACTIVE';
@@ -123,36 +122,40 @@ class _OfferListState extends State<OfferList> {
 
                   await _offerService.updateOffer(offer.id!, updatedOffer);
 
+                  if (!mounted) return;
+
                   // Recharger les offres après la mise à jour
                   await _loadMyOffers();
 
-                  // Use the stored context for ScaffoldMessenger
-                  if (mounted) {
-                    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-                      SnackBar(
-                        content: Text(isActivating
-                            ? "L'offre a été activée avec succès"
-                            : "L'offre a été désactivée avec succès"),
-                        backgroundColor: const Color(0xFF10B981), // Emerald 500
-                      ),
-                    );
-                  }
+                  if (!mounted) return;
+
+                  // Afficher le message de succès
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(isActivating
+                          ? "L'offre a été activée avec succès"
+                          : "L'offre a été désactivée avec succès"),
+                      backgroundColor: const Color(0xFF10B981), // Emerald 500
+                    ),
+                  );
                 } catch (e) {
+                  if (!mounted) return;
+
                   setState(() {
                     _isLoading = false;
-                    _errorMessage =
-                        "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
+                    _errorMessage = "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
                   });
 
-                  // Vérifier que le widget est toujours monté
-                  if (!mounted) return;
-                  
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text("Erreur: ${e.toString()}"),
                       backgroundColor: Colors.red,
                     ),
                   );
+                } finally {
+                  if (mounted) {
+                    setState(() => _isLoading = false);
+                  }
                 }
               },
               style: ElevatedButton.styleFrom(

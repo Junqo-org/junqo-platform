@@ -194,7 +194,7 @@ class ProfilePageState extends State<ProfilePage> {
     try {
       // Update profile data - Reverting: Removing 'name' again as it might cause 400 error
       // Backend might not expect 'name' property in this specific update request
-      final updatedProfile = await studentProfileService.updateMyProfile(
+      await studentProfileService.updateMyProfile(
         avatar: _avatarUrl,
         skills: skills,
         // Experiences are managed separately via add/removeExperience

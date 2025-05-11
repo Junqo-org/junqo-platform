@@ -7,7 +7,6 @@ import 'package:junqo_front/shared/enums/offer_enums.dart';
 import 'package:junqo_front/shared/dto/student_profile.dart';
 import 'package:junqo_front/shared/dto/company_profile.dart';
 import 'package:flutter/foundation.dart';
-import 'package:junqo_front/shared/dto/company_profile_dto.dart';
 
 /// Service centralisé pour effectuer des appels API REST
 class ApiService {
@@ -483,10 +482,7 @@ class ApiService {
         body: experienceData,
       );
       // Assuming the backend returns the created experience object
-      if (response is Map<String, dynamic>) {
-        return ExperienceDTO.fromJson(response);
-      }
-      throw const FormatException('Unexpected response format creating experience');
+      return ExperienceDTO.fromJson(response);
     } catch (e) {
       debugPrint('API Error during createExperience: $e');
       throw Exception('Failed to create experience: $e');
