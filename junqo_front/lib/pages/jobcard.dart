@@ -636,27 +636,27 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
 
   CardData transformOfferToCard(OfferData offer) {
     // Properly handle nullable lists and strings
-    final List<String> benefitsList = offer.benefits != null ? List<String>.from(offer.benefits) : [];
-    if (offer.workLocationType != null && offer.workLocationType!.isNotEmpty) {
-      benefitsList.add(offer.workLocationType!);
+    final List<String> benefitsList = offer.benefits.isNotEmpty ? List<String>.from(offer.benefits) : [];
+    if (offer.workLocationType.isNotEmpty) {
+      benefitsList.add(offer.workLocationType);
     }
 
-    final List<String> skillsList = offer.skills != null ? List<String>.from(offer.skills) : [];
-    if (offer.educationLevel != null && offer.educationLevel!.isNotEmpty) {
-      skillsList.add(offer.educationLevel!);
+    final List<String> skillsList = offer.skills.isNotEmpty ? List<String>.from(offer.skills) : [];
+    if (offer.educationLevel.isNotEmpty) {
+      skillsList.add(offer.educationLevel);
     }
 
     return CardData(
       id: offer.id ?? '',
-      userid: offer.userid ?? '',
-      jobTitle: offer.title ?? 'Sans titre',
-      contractType: offer.offerType ?? '-',
-      duration: offer.duration ?? '-',
-      salary: offer.salary ?? '-',
+      userid: offer.userid,
+      jobTitle: offer.title,
+      contractType: offer.offerType,
+      duration: offer.duration,
+      salary: offer.salary,
       benefits: benefitsList,
       technicalSkills: skillsList,
-      details: offer.description ?? 'Pas de description disponible.',
-      status: offer.status ?? '',
+      details: offer.description,
+      status: offer.status,
       companyName: 'Company name currently not available',
       companyLogo: '',
       location: 'Location currently not available',
