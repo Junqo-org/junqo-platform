@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { InterviewSimulationService } from './interview-simulation.service';
 import { InterviewSimulationRequestDto, InterviewSimulationResponseDto } from './dto/interview-simulation.dto';
