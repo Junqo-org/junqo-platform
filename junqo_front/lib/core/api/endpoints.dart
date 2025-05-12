@@ -23,6 +23,12 @@ class ApiEndpoints {
   static String updateApplication(String id) => '/applications/$id';
   static String postulateOffer(String id) => '/applications/apply/$id';
 
+  // Simulation d'entretien
+  static const String interviewSimulation = '/interview-simulation';
+
+  // Amélioration CV
+  static const String analyzeCv = '/cv-improvement/analyze';
+
   // Profils d'entreprises
   static const String companyProfiles = '/company-profiles';
   static const String myCompanyProfile = '/company-profiles/my';
@@ -48,4 +54,7 @@ class ApiEndpoints {
   // static String createExperience = '/experiences'; // Replaced by createMyExperience
   // static String updateExperience(String id) => '/experiences/$id'; // Replaced by updateMyExperience
   // static String deleteExperience(String id) => '/experiences/$id'; // Replaced by deleteMyExperience
+
+  // New endpoint
+  static const String cvAnalysis = '/cv-improvement/analyze';
 }

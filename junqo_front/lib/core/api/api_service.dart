@@ -240,6 +240,27 @@ class ApiService {
     }
   }
 
+  // ************ SIMULATION D'ENTRETIEN ************
+
+  /// Appel à l'API de simulation d'entretien pour générer une réponse
+  Future<Map<String, dynamic>> simulateInterview({
+    required String message,
+    String? context,
+  }) async {
+    final body = {
+      'message': message,
+      if (context != null) 'context': context,
+    };
+
+    try {
+      final response = await client.post(ApiEndpoints.interviewSimulation, body: body);
+      return response;
+    } catch (e) {
+      debugPrint('Erreur lors de la simulation d\'entretien: $e');
+      rethrow;
+    }
+  }
+
   // ************ UTILISATEURS ************
 
   /// Récupérer un utilisateur par son ID
@@ -606,6 +627,50 @@ class ApiService {
       return CompanyProfile.fromJson(response);
     } catch (e) {
       debugPrint('Error updating company profile: $e');
+      rethrow;
+    }
+  }
+
+  // ************ INTERVIEW SIMULATION ************
+
+  /// Envoyer un message à la simulation d'entretien
+  Future<Map<String, dynamic>> sendInterviewMessage(List<Map<String, String>> conversationHistory, String? context) async {
+    return await client.post(ApiEndpoints.interviewSimulation, body: {
+      'conversation': conversationHistory,
+      'context': context,
+    });
+  }
+
+  // ************ CV IMPROVEMENT ************
+
+  /// Envoyer un CV pour analyse
+  Future<Map<String, dynamic>> analyzeCv(String filePath) async {
+    try {
+      // Use the multipartRequest method from the RestClient
+      final response = await client.multipartRequest(
+        ApiEndpoints.analyzeCv, 
+        filePath, 
+        'cv' // This is the field name expected by the backend
+      );
+      return response;
+    } catch (e) {
+      debugPrint('Error analyzing CV in ApiService: $e');
+      rethrow;
+    }
+  }
+
+  /// Envoyer un CV (depuis bytes) pour analyse (Web)
+  Future<Map<String, dynamic>> analyzeCvFromBytes(Uint8List fileBytes, String filename) async {
+    try {
+      final response = await client.multipartRequestFromBytes(
+        ApiEndpoints.analyzeCv, 
+        fileBytes, 
+        filename, 
+        'cv' // Backend field name
+      );
+      return response;
+    } catch (e) {
+      debugPrint('Error analyzing CV (from bytes) in ApiService: $e');
       rethrow;
     }
   }

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:junqo_front/core/config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 
 /// Client HTTP pour les appels à l'API REST
 class RestClient {
@@ -227,6 +228,76 @@ class RestClient {
         message: errorMessage, // Use the parsed or fallback message
         errors: errorDetails,
       );
+    }
+  }
+
+  /// Envoie une requête multipart (pour les uploads de fichiers)
+  Future<Map<String, dynamic>> multipartRequest(
+    String endpoint,
+    String filePath,
+    String fieldName,
+  ) async {
+    final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
+    debugPrint('Multipart POST request (from path) to: $url');
+
+    try {
+      var request = http.MultipartRequest('POST', url);
+      request.files.add(await http.MultipartFile.fromPath(
+        fieldName,
+        filePath,
+        filename: p.basename(filePath), // Use path.basename here
+      ));
+
+      _headers.forEach((key, value) {
+        request.headers[key] = value;
+      });
+
+      final streamedResponse = await _httpClient.send(request).timeout(AppConfig.httpTimeout);
+      final response = await http.Response.fromStream(streamedResponse);
+
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('Error during multipart POST request (from path): $e');
+      rethrow;
+    }
+  }
+
+  /// Envoie une requête multipart (pour les uploads de fichiers depuis bytes - WEB)
+  Future<Map<String, dynamic>> multipartRequestFromBytes(
+    String endpoint,
+    Uint8List fileBytes,
+    String filename,
+    String fieldName,
+  ) async {
+    final url = Uri.parse('${AppConfig.apiUrl}$endpoint');
+    debugPrint('Multipart POST request (from bytes) to: $url for file: $filename');
+
+    try {
+      var request = http.MultipartRequest('POST', url);
+      request.files.add(http.MultipartFile.fromBytes(
+        fieldName,
+        fileBytes,
+        filename: filename,
+      ));
+
+      _headers.forEach((key, value) {
+        // For web, Content-Type for multipart/form-data is handled by the browser
+        // if (key.toLowerCase() != 'content-type') {
+           request.headers[key] = value;
+        // }
+      });
+      // Crucially, for web, do not set Content-Type manually here for the overall request,
+      // as the browser needs to set it with the correct boundary.
+      // Let http.MultipartRequest handle it or the browser.
+      // If there are issues, this might be a place to check.
+
+      final streamedResponse = await _httpClient.send(request).timeout(AppConfig.httpTimeout);
+      final response = await http.Response.fromStream(streamedResponse);
+
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('Error during multipart POST request (from bytes): $e');
+      rethrow;
     }
   }
 
