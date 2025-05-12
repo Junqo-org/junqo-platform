@@ -13,6 +13,7 @@ import { ExperiencesModule } from './experiences/experiences.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApplicationsModule } from './applications/applications.module';
+import { InterviewSimulationModule } from './interview-simulation/interview-simulation.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ApplicationsModule } from './applications/applications.module';
     SchoolProfilesModule,
     ExperiencesModule,
     ApplicationsModule,
+    InterviewSimulationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
