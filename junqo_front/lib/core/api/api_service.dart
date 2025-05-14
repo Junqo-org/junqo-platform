@@ -640,37 +640,40 @@ class ApiService {
       'context': context,
     });
   }
-
-  // ************ CV IMPROVEMENT ************
-
-  /// Envoyer un CV pour analyse
-  Future<Map<String, dynamic>> analyzeCv(String filePath) async {
+  
+  // ************ AMÉLIORATION CV ************
+  
+  /// Analyser un CV et obtenir des recommandations d'amélioration
+  Future<Map<String, dynamic>> analyzeCv(String cvContent, {String? jobContext}) async {
     try {
-      // Use the multipartRequest method from the RestClient
-      final response = await client.multipartRequest(
-        ApiEndpoints.analyzeCv, 
-        filePath, 
-        'cv' // This is the field name expected by the backend
-      );
-      return response;
+      debugPrint('API Service: Préparation de la requête pour l\'analyse du CV');
+      
+      // Créer un objet de requête simple et conforme aux attentes du backend
+      final Map<String, dynamic> requestData = {
+        'cvContent': cvContent,
+      };
+      
+      // Ajouter le jobContext uniquement s'il est spécifié
+      if (jobContext != null && jobContext.isNotEmpty) {
+        requestData['jobContext'] = jobContext;
+      }
+      
+      debugPrint('API Service: Envoi de la requête, taille du contenu: ${cvContent.length} caractères');
+      
+      try {
+        // S'assurer que l'endpoint est correct
+        final response = await client.post(ApiEndpoints.analyzeCv, body: requestData);
+        debugPrint('API Service: Réponse reçue avec succès');
+        return response;
+      } catch (e) {
+        debugPrint('API Service: Erreur lors de la requête POST: $e');
+        if (e is RestApiException && e.statusCode == 500) {
+          debugPrint('API Service: Erreur 500 détectée, détails: ${e.message}');
+        }
+        rethrow;
+      }
     } catch (e) {
-      debugPrint('Error analyzing CV in ApiService: $e');
-      rethrow;
-    }
-  }
-
-  /// Envoyer un CV (depuis bytes) pour analyse (Web)
-  Future<Map<String, dynamic>> analyzeCvFromBytes(Uint8List fileBytes, String filename) async {
-    try {
-      final response = await client.multipartRequestFromBytes(
-        ApiEndpoints.analyzeCv, 
-        fileBytes, 
-        filename, 
-        'cv' // Backend field name
-      );
-      return response;
-    } catch (e) {
-      debugPrint('Error analyzing CV (from bytes) in ApiService: $e');
+      debugPrint('API Service: Erreur d\'analyse du CV: $e');
       rethrow;
     }
   }

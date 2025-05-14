@@ -14,6 +14,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApplicationsModule } from './applications/applications.module';
 import { InterviewSimulationModule } from './interview-simulation/interview-simulation.module';
+import { CvImprovementModule } from './cv-improvement/cv-improvement.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { InterviewSimulationModule } from './interview-simulation/interview-simu
     ExperiencesModule,
     ApplicationsModule,
     InterviewSimulationModule,
+    CvImprovementModule,
   ],
   controllers: [AppController],
   providers: [AppService],

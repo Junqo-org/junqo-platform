@@ -54,7 +54,4 @@ class ApiEndpoints {
   // static String createExperience = '/experiences'; // Replaced by createMyExperience
   // static String updateExperience(String id) => '/experiences/$id'; // Replaced by updateMyExperience
   // static String deleteExperience(String id) => '/experiences/$id'; // Replaced by deleteMyExperience
-
-  // New endpoint
-  static const String cvAnalysis = '/cv-improvement/analyze';
 }

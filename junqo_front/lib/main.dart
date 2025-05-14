@@ -14,6 +14,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'package:junqo_front/core/student_profile_service.dart';
 import 'package:junqo_front/core/company_profile_service.dart';
+import 'package:junqo_front/core/cv_improvement_service.dart';
+import 'package:junqo_front/services/pdf_processing_service.dart';
 
 void main() async {
   try {
@@ -46,6 +48,14 @@ void main() async {
         () => StudentProfileService());
     GetIt.instance.registerLazySingleton<CompanyProfileService>(
         () => CompanyProfileService());
+        
+    // Register CV improvement service
+    GetIt.instance.registerLazySingleton<CvImprovementService>(
+        () => CvImprovementService());
+        
+    // Register PDF processing service
+    GetIt.instance.registerLazySingleton<PdfProcessingService>(
+        () => PdfProcessingService());
 
     runApp(const JunqoApp());
   } catch (e) {
