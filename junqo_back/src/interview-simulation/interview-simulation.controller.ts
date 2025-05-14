@@ -35,8 +35,11 @@ export class InterviewSimulationController {
       
       return { response };
     } catch (error) {
+      // Log the original error for more detailed debugging on the server side
+      console.error('Error in generateInterviewResponse:', error);
       throw new HttpException(
-        'Failed to generate interview response',
+        // Include error message in the response for better client-side info (optional)
+        `Failed to generate interview response: ${error.message || error.toString()}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
