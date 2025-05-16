@@ -63,7 +63,12 @@ export class CaslAbilityFactory {
     can(Actions.MANAGE, ConversationResource, {
       participantsIds: { $elemMatch: { $eq: user.id } },
     });
-    can(Actions.MANAGE, MessageResource, { senderId: user.id });
+    can([Actions.CREATE, Actions.READ], MessageResource, {
+      conversationParticipantsIds: { $elemMatch: { $eq: user.id } },
+    });
+    can([Actions.READ, Actions.UPDATE, Actions.DELETE], MessageResource, {
+      senderId: user.id,
+    });
 
     if (user.type === UserType.STUDENT) {
       can(Actions.CREATE, StudentProfileResource, { userId: user.id });

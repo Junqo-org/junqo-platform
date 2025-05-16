@@ -155,9 +155,10 @@ export class ConversationsRepository {
       }
 
       if (updateData.lastMessageId) {
-        await conversation.$set('lastMessageId', updateData.lastMessageId, {
-          transaction,
-        });
+        await conversation.update(
+          { lastMessageId: updateData.lastMessageId },
+          { transaction },
+        );
       }
 
       const updatedConversation = await this.conversationModel.findByPk(id, {

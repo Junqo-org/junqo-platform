@@ -140,7 +140,7 @@ export class ConversationsController {
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<void> {
-    return this.conversationsService.remove(currentUser, id);
+    return this.conversationsService.delete(currentUser, id);
   }
 
   @Post(':id/participants')
@@ -337,36 +337,5 @@ export class ConversationsController {
       conversationId: id,
       ...createMessageDto,
     });
-  }
-
-  @Delete(':id/messages/:messageId')
-  @ApiOperation({
-    summary: 'Delete a message from a conversation',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'ID of the conversation',
-    type: String,
-    required: true,
-  })
-  @ApiParam({
-    name: 'messageId',
-    description: 'ID of the message to delete',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({ description: 'Message deleted successfully' })
-  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({
-    description: 'User not authorized to delete this message',
-  })
-  @ApiNotFoundResponse({ description: 'Message or conversation not found' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  async deleteMessage(
-    @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-    @Param('messageId') messageId: string,
-  ): Promise<void> {
-    return this.messagesService.delete(currentUser, messageId);
   }
 }

@@ -10,6 +10,7 @@ import {
   ConversationDTO,
   AddParticipantsDTO,
   RemoveParticipantsDTO,
+  UpdateConversationDTO,
 } from './dto/conversation.dto';
 import { SetConversationTitleDTO } from './dto/user-conversation-title.dto';
 import { UserConversationTitleDTO } from './dto/user-conversation-title.dto';
@@ -29,6 +30,56 @@ export class ConversationsService {
     private readonly conversationsRepository: ConversationsRepository,
     private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
+
+  async findByQuery(
+    currentUser: AuthUserDTO,
+    query: ConversationQueryDTO,
+  ): Promise<ConversationQueryOutputDTO> {
+    const queryResult: ConversationQueryOutputDTO =
+      await this.conversationsRepository.findByQuery(query, currentUser.id);
+
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+    queryResult.rows.forEach((conversation) => {
+      const conversationResource = plainToInstance(
+        ConversationResource,
+        conversation,
+      );
+
+      if (ability.cannot(Actions.READ, conversationResource)) {
+        queryResult.rows.splice(queryResult.rows.indexOf(conversation), 1);
+        queryResult.count--;
+      }
+    });
+
+    return queryResult;
+  }
+
+  async findOneById(
+    currentUser: AuthUserDTO,
+    id: string,
+  ): Promise<ConversationDTO> {
+    const conversation: ConversationDTO =
+      await this.conversationsRepository.findOneById(id);
+
+    if (!conversation) {
+      throw new NotFoundException(`Conversation with ID ${id} not found`);
+    }
+
+    // Check if current user has permission
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+    const conversationResource = plainToInstance(
+      ConversationResource,
+      conversation,
+    );
+
+    if (ability.cannot(Actions.READ, conversationResource)) {
+      throw new ForbiddenException(
+        'You are not authorized to view this conversation',
+      );
+    }
+
+    return conversation;
+  }
 
   async create(
     currentUser: AuthUserDTO,
@@ -63,53 +114,31 @@ export class ConversationsService {
     );
   }
 
-  async findByQuery(
-    currentUser: AuthUserDTO,
-    query: ConversationQueryDTO,
-  ): Promise<ConversationQueryOutputDTO> {
-    const queryResult: ConversationQueryOutputDTO =
-      await this.conversationsRepository.findByQuery(query, currentUser.id);
-
-    const ability = this.caslAbilityFactory.createForUser(currentUser);
-    queryResult.rows.forEach((conversation) => {
-      const conversationResource = plainToInstance(
-        ConversationResource,
-        conversation,
-      );
-
-      if (ability.cannot(Actions.READ, conversationResource)) {
-        queryResult.rows.splice(queryResult.rows.indexOf(conversation), 1);
-        queryResult.count--;
-      }
-    });
-
-    return queryResult;
-  }
-
-  async findOneById(
+  async update(
     currentUser: AuthUserDTO,
     id: string,
+    updateData: UpdateConversationDTO,
   ): Promise<ConversationDTO> {
-    const conversation = await this.conversationsRepository.findOneById(id);
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    const conversation = await this.findOneById(currentUser, id);
 
     if (!conversation) {
-      throw new NotFoundException(`Conversation with ID ${id} not found`);
+      throw new NotFoundException('Conversation not found');
     }
 
-    // Check if current user has permission
-    const ability = this.caslAbilityFactory.createForUser(currentUser);
     const conversationResource = plainToInstance(
       ConversationResource,
       conversation,
     );
 
-    if (ability.cannot(Actions.READ, conversationResource)) {
+    if (ability.cannot(Actions.UPDATE, conversationResource)) {
       throw new ForbiddenException(
-        'You are not authorized to view this conversation',
+        'You do not have permission to update this conversation',
       );
     }
 
-    return conversation;
+    return this.conversationsRepository.update(id, updateData);
   }
 
   async addParticipants(
@@ -206,7 +235,7 @@ export class ConversationsService {
     }
   }
 
-  async remove(currentUser: AuthUserDTO, id: string): Promise<void> {
+  async delete(currentUser: AuthUserDTO, id: string): Promise<void> {
     // First retrieve the conversation to check if it exists
     const conversation = await this.conversationsRepository.findOneById(id);
 

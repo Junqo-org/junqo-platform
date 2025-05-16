@@ -305,7 +305,7 @@ describe('ConversationsService', () => {
       jest.spyOn(repository, 'findOneById').mockResolvedValue(conversation);
       jest.spyOn(repository, 'remove').mockResolvedValue(undefined);
 
-      await service.remove(currentUser, id);
+      await service.delete(currentUser, id);
       expect(repository.remove).toHaveBeenCalledWith(id);
     });
   });

@@ -13,8 +13,8 @@ import {
 } from '../dto/message.dto';
 import { MessageReadStatusDTO } from '../dto/message-read-status.dto';
 import { ForeignKeyConstraintError, Includeable, Op } from 'sequelize';
-import { ConversationsRepository } from '../../conversations/repository/conversations.repository';
 import { InjectModel } from '@nestjs/sequelize';
+import { MessageQueryDTO } from '../dto/message-query.dto';
 
 @Injectable()
 export class MessagesRepository {
@@ -23,7 +23,6 @@ export class MessagesRepository {
     private readonly messageModel: typeof MessageModel,
     @InjectModel(MessageReadStatusModel)
     private readonly messageReadStatusModel: typeof MessageReadStatusModel,
-    private readonly conversationRepository: ConversationsRepository,
   ) {}
 
   private includeOptions: Includeable[] = [
@@ -61,13 +60,13 @@ export class MessagesRepository {
    * Retrieves messages from a specific conversation with optional pagination
    *
    * @param conversationId - The ID of the conversation to fetch messages from
-   * @param options - Optional parameters for pagination (limit, before timestamp)
+   * @param query - Optional parameters for pagination (limit, before timestamp)
    * @returns Promise resolving to an array of MessageDTO objects in chronological order
    * @throws InternalServerErrorException if there's a problem fetching the messages
    */
   async findByConversationId(
     conversationId: string,
-    options?: { limit?: number; before?: Date },
+    query?: MessageQueryDTO,
   ): Promise<MessageDTO[]> {
     try {
       const queryOptions: any = {
@@ -76,12 +75,12 @@ export class MessagesRepository {
         include: this.includeOptions,
       };
 
-      if (options?.before) {
-        queryOptions.where.createdAt = { [Op.lt]: options.before };
+      if (query?.before) {
+        queryOptions.where.createdAt = { [Op.lt]: query.before };
       }
 
-      if (options?.limit) {
-        queryOptions.limit = options.limit;
+      if (query?.limit) {
+        queryOptions.limit = query.limit;
       }
 
       const messages = await this.messageModel.findAll(queryOptions);
@@ -109,37 +108,11 @@ export class MessagesRepository {
     createMessageDto: CreateMessageDTO,
   ): Promise<MessageDTO> {
     try {
-      const conversation = await this.conversationRepository.findOneById(
-        createMessageDto.conversationId,
-      );
-
-      if (!conversation) {
-        throw new NotFoundException(
-          `Conversation #${createMessageDto.conversationId} not found`,
-        );
-      }
-
-      const isParticipant = conversation.participantsIds.includes(senderId);
-
-      if (!isParticipant) {
-        throw new InternalServerErrorException(
-          'User is not a participant in this conversation',
-        );
-      }
-
       const newMessage = await this.messageModel.create({
         conversationId: createMessageDto.conversationId,
         senderId: senderId,
         content: createMessageDto.content,
       });
-
-      await this.conversationRepository.update(
-        conversation.id,
-        {
-          lastMessageId: newMessage.id,
-        },
-        senderId,
-      );
 
       return newMessage.toMessageDTO();
     } catch (error) {
@@ -148,32 +121,6 @@ export class MessagesRepository {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to create message: ${error.message}`,
-      );
-    }
-  }
-
-  /**
-   * Deletes a message by its ID
-   *
-   * @param id - The unique identifier of the message to delete
-   * @returns Promise resolving to true if deletion was successful
-   * @throws NotFoundException if the message with the given ID is not found
-   * @throws InternalServerErrorException if there's a problem deleting the message
-   */
-  async delete(id: string): Promise<boolean> {
-    try {
-      const message = await this.messageModel.findByPk(id);
-
-      if (!message) {
-        throw new NotFoundException(`Message #${id} not found`);
-      }
-
-      await message.destroy();
-      return true;
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(
-        `Failed to delete message: ${error.message}`,
       );
     }
   }
@@ -207,6 +154,32 @@ export class MessagesRepository {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to update message: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Deletes a message by its ID
+   *
+   * @param id - The unique identifier of the message to delete
+   * @returns Promise resolving to true if deletion was successful
+   * @throws NotFoundException if the message with the given ID is not found
+   * @throws InternalServerErrorException if there's a problem deleting the message
+   */
+  async delete(id: string): Promise<boolean> {
+    try {
+      const message = await this.messageModel.findByPk(id);
+
+      if (!message) {
+        throw new NotFoundException(`Message #${id} not found`);
+      }
+
+      await message.destroy();
+      return true;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to delete message: ${error.message}`,
       );
     }
   }

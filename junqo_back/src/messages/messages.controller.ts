@@ -4,8 +4,8 @@ import {
   Body,
   Patch,
   Param,
-  Query,
   ParseUUIDPipe,
+  Delete,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
@@ -24,34 +24,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import {
-  MessageQueryDTO,
-  MessageQueryOutputDTO,
-} from './dto/message-query.dto';
 
 @ApiTags('messages')
 @ApiBearerAuth()
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
-
-  //   @Get()
-  //   @ApiOperation({ summary: 'Get message by query parameters' })
-  //   @ApiOkResponse({
-  //     description: 'Message retrieved successfully',
-  //     type: MessageQueryOutputDTO,
-  //   })
-  //   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  //   @ApiForbiddenResponse({
-  //     description: 'User not authorized to view message',
-  //   })
-  //   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  //   public async findByQuery(
-  //     @CurrentUser() currentUser: AuthUserDTO,
-  //     @Query() query: MessageQueryDTO,
-  //   ): Promise<MessageQueryOutputDTO> {
-  //     return this.messagesService.findByQuery(currentUser, query);
-  //   } // TODO
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a message by ID' })
@@ -98,11 +76,33 @@ export class MessagesController {
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   @ApiNotFoundResponse({ description: 'Message not found' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  public async updateMy(
+  public async updateOne(
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateMessageDto: UpdateMessageDTO,
   ) {
     return this.messagesService.update(currentUser, id, updateMessageDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete message by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the message',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({ description: 'Message deleted successfully' })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to delete this message',
+  })
+  @ApiNotFoundResponse({ description: 'Message not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async deleteOne(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.messagesService.delete(currentUser, id);
   }
 }

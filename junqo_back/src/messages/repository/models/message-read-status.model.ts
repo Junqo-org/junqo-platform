@@ -7,6 +7,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  Index,
 } from 'sequelize-typescript';
 import { UserModel } from '../../../users/repository/models/user.model';
 import { MessageModel } from './message.model';
@@ -28,6 +29,7 @@ export class MessageReadStatusModel extends Model {
   })
   id: string;
 
+  @Index
   @ForeignKey(() => MessageModel)
   @Column({
     type: DataType.UUID,
@@ -41,6 +43,7 @@ export class MessageReadStatusModel extends Model {
   @BelongsTo(() => MessageModel, 'messageId')
   message: MessageModel;
 
+  @Index
   @ForeignKey(() => UserModel)
   @Column({
     type: DataType.UUID,

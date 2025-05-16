@@ -148,7 +148,7 @@ describe('ConversationsController', () => {
       jest.spyOn(service, 'remove').mockResolvedValue(undefined);
 
       await controller.remove(currentUser, id);
-      expect(service.remove).toHaveBeenCalledWith(currentUser, id);
+      expect(service.delete).toHaveBeenCalledWith(currentUser, id);
     });
   });
 });

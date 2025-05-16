@@ -10,14 +10,12 @@ import {
   ConversationDTO,
   CreateConversationDTO,
 } from '../src/conversations/dto/conversation.dto';
-import { title } from 'process';
 import { ConversationQueryDTO } from '../src/conversations/dto/conversation-query.dto';
-import { RandomUuid } from 'testcontainers';
 import { AuthUserDTO } from '../src/shared/dto/auth-user.dto';
-import { CreateMessageDTO } from '../src/messages/dto/message.dto';
+import { CreateMessageDTO, MessageDTO } from '../src/messages/dto/message.dto';
+import { MessagesService } from '../src/messages/messages.service';
 
 const baseRoute = '/api/v1/conversations';
-const messagesRoute = '/api/v1/messages';
 
 // Test users data
 const adminUser = {
@@ -56,6 +54,8 @@ describe('Messaging System E2E Tests', () => {
     tearDown: () => Promise<void>;
   };
   let conversationsService: ConversationsService;
+  let messagesService: MessagesService;
+
   let adminUserAuth: AuthUserDTO;
   let adminToken: string;
   let adminUserId: string;
@@ -65,7 +65,8 @@ describe('Messaging System E2E Tests', () => {
   let companyUserId: string;
   let anotherStudentToken: string;
   let anotherStudentUserId: string;
-  let testConversation;
+  let testConversation: ConversationDTO;
+  let testMessage: MessageDTO;
 
   beforeAll(async () => {
     testEnv = await createTestingEnvironment();
@@ -73,6 +74,7 @@ describe('Messaging System E2E Tests', () => {
     const usersRepository = testEnv.app.get(UsersRepository);
     const authService = testEnv.app.get(AuthService);
     conversationsService = testEnv.app.get(ConversationsService);
+    messagesService = testEnv.app.get(MessagesService);
 
     // Create users and get tokens
     await usersRepository.create({
@@ -134,6 +136,14 @@ describe('Messaging System E2E Tests', () => {
       createConversationDto,
     );
 
+    const createMessageDto: CreateMessageDTO = {
+      conversationId: testConversation.id,
+      senderId: adminUserId,
+      content: 'Test message',
+    };
+
+    testMessage = await messagesService.create(adminUserAuth, createMessageDto);
+
     const createSecondConversationDto: CreateConversationDTO = {
       participantsIds: [anotherStudentUserId, companyUserId],
       title: 'Second conversation title',
@@ -149,7 +159,7 @@ describe('Messaging System E2E Tests', () => {
     await testEnv.tearDown();
   });
 
-  describe.only('Create Conversation', () => {
+  describe('Create Conversation', () => {
     it('should create a new conversation and include current user as participant', async () => {
       const createDto: CreateConversationDTO = {
         participantsIds: [studentUserId, companyUserId],
@@ -199,7 +209,45 @@ describe('Messaging System E2E Tests', () => {
     });
   });
 
-  describe.only('Get Conversations', () => {
+  describe('Delete Conversation', () => {
+    let tempConversation;
+
+    beforeEach(async () => {
+      // Create a temporary conversation to delete
+      const createDto = {
+        participantsIds: [studentUserId, companyUserId],
+      };
+
+      const response = await request(testEnv.app.getHttpServer())
+        .post(`${baseRoute}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(createDto);
+
+      tempConversation = response.body;
+    });
+
+    it('should delete conversation as admin', async () => {
+      await request(testEnv.app.getHttpServer())
+        .delete(`${baseRoute}/${tempConversation.id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(HttpStatus.OK);
+
+      // Verify deletion
+      await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}/${tempConversation.id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(HttpStatus.NOT_FOUND);
+    });
+
+    it('should reject conversation deletion without proper permissions', async () => {
+      await request(testEnv.app.getHttpServer())
+        .delete(`${baseRoute}/${tempConversation.id}`)
+        .set('Authorization', `Bearer ${anotherStudentToken}`)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+  });
+
+  describe('Get Conversations', () => {
     it('should get all conversations for authenticated user', async () => {
       const response = await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}`)
@@ -242,7 +290,7 @@ describe('Messaging System E2E Tests', () => {
     });
   });
 
-  describe.only('Get Specific Conversation', () => {
+  describe('Get Specific Conversation', () => {
     it('should get a specific conversation by ID', async () => {
       const response = await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}/${testConversation.id}`)
@@ -275,7 +323,7 @@ describe('Messaging System E2E Tests', () => {
     });
   });
 
-  describe.only('Add Participants', () => {
+  describe('Add Participants', () => {
     let localTestConversation: ConversationDTO;
     let localTestConversation2: ConversationDTO;
 
@@ -323,7 +371,7 @@ describe('Messaging System E2E Tests', () => {
     });
   });
 
-  describe.only('Remove Participants', () => {
+  describe('Remove Participants', () => {
     let localTestConversation: ConversationDTO;
     let localTestConversation2: ConversationDTO;
 
@@ -371,7 +419,7 @@ describe('Messaging System E2E Tests', () => {
     });
   });
 
-  describe.only('Set Conversation Title', () => {
+  describe('Set Conversation Title', () => {
     it('should set custom title for conversation', async () => {
       const setTitleDto = {
         title: 'Test Conversation Title',
@@ -404,7 +452,7 @@ describe('Messaging System E2E Tests', () => {
     });
   });
 
-  describe.only('Get Conversation Title', () => {
+  describe('Get Conversation Title', () => {
     it('should get custom title for conversation', async () => {
       const response = await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}/${testConversation.id}/title`)
@@ -427,7 +475,7 @@ describe('Messaging System E2E Tests', () => {
     });
   });
 
-  describe.only('Delete Conversation Title', () => {
+  describe('Delete Conversation Title', () => {
     it('should delete custom title for conversation', async () => {
       await request(testEnv.app.getHttpServer())
         .delete(`${baseRoute}/${testConversation.id}/title`)
@@ -460,9 +508,9 @@ describe('Messaging System E2E Tests', () => {
       const response = await request(testEnv.app.getHttpServer())
         .post(`${baseRoute}/${testConversation.id}/messages`)
         .set('Authorization', `Bearer ${studentToken}`)
-        .send(messageDto);
-      // .expect(HttpStatus.CREATED);
-      console.log('body is ' + JSON.stringify(response.body));
+        .send(messageDto)
+        .expect(HttpStatus.CREATED);
+
       expect(response.body).toHaveProperty('id');
       expect(response.body).toHaveProperty('content', messageDto.content);
       expect(response.body).toHaveProperty('senderId', studentUserId);
@@ -487,7 +535,6 @@ describe('Messaging System E2E Tests', () => {
     it('should reject empty messages', async () => {
       const invalidMessageDto = {
         content: '',
-        attachments: [],
       };
 
       await request(testEnv.app.getHttpServer())
@@ -524,111 +571,6 @@ describe('Messaging System E2E Tests', () => {
     it('should reject message retrieval by non-participants', async () => {
       await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}/${testConversation.id}/messages`)
-        .set('Authorization', `Bearer ${anotherStudentToken}`)
-        .expect(HttpStatus.FORBIDDEN);
-    });
-  });
-
-  describe('Delete Message', () => {
-    let testMessage;
-
-    beforeAll(async () => {
-      // Create a message to delete
-      const messageDto = {
-        content: 'Message to be deleted',
-        attachments: [],
-      };
-
-      const response = await request(testEnv.app.getHttpServer())
-        .post(`${baseRoute}/${testConversation.id}/messages`)
-        .set('Authorization', `Bearer ${studentToken}`)
-        .send(messageDto);
-
-      testMessage = response.body;
-    });
-
-    it('should delete a message by its sender', async () => {
-      await request(testEnv.app.getHttpServer())
-        .delete(
-          `${baseRoute}/${testConversation.id}/messages/${testMessage.id}`,
-        )
-        .set('Authorization', `Bearer ${studentToken}`)
-        .expect(HttpStatus.OK);
-
-      // Verify message is deleted
-      const messagesResponse = await request(testEnv.app.getHttpServer())
-        .get(`${baseRoute}/${testConversation.id}/messages`)
-        .set('Authorization', `Bearer ${studentToken}`);
-
-      const messageExists = messagesResponse.body.rows.some(
-        (msg) => msg.id === testMessage.id,
-      );
-      expect(messageExists).toBe(false);
-    });
-
-    it('should reject message deletion by non-sender', async () => {
-      // Create another message first
-      const messageDto = {
-        content: 'Message that company user cannot delete',
-        attachments: [],
-      };
-
-      const response = await request(testEnv.app.getHttpServer())
-        .post(`${baseRoute}/${testConversation.id}/messages`)
-        .set('Authorization', `Bearer ${studentToken}`)
-        .send(messageDto);
-
-      const anotherMessage = response.body;
-
-      await request(testEnv.app.getHttpServer())
-        .delete(
-          `${baseRoute}/${testConversation.id}/messages/${anotherMessage.id}`,
-        )
-        .set('Authorization', `Bearer ${companyToken}`)
-        .expect(HttpStatus.FORBIDDEN);
-    });
-
-    it('should return 404 for non-existent message', async () => {
-      await request(testEnv.app.getHttpServer())
-        .delete(`${baseRoute}/${testConversation.id}/messages/non-existent-id`)
-        .set('Authorization', `Bearer ${studentToken}`)
-        .expect(HttpStatus.NOT_FOUND);
-    });
-  });
-
-  describe.only('Delete Conversation', () => {
-    let tempConversation;
-
-    beforeAll(async () => {
-      // Create a temporary conversation to delete
-      const createDto = {
-        participantsIds: [studentUserId, companyUserId],
-      };
-
-      const response = await request(testEnv.app.getHttpServer())
-        .post(`${baseRoute}`)
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(createDto);
-
-      tempConversation = response.body;
-    });
-
-    it('should delete conversation as admin', async () => {
-      await request(testEnv.app.getHttpServer())
-        .delete(`${baseRoute}/${tempConversation.id}`)
-        .set('Authorization', `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK);
-
-      // Verify deletion
-      await request(testEnv.app.getHttpServer())
-        .get(`${baseRoute}/${tempConversation.id}`)
-        .set('Authorization', `Bearer ${adminToken}`)
-        .expect(HttpStatus.NOT_FOUND);
-    });
-
-    it('should reject conversation deletion without proper permissions', async () => {
-      await request(testEnv.app.getHttpServer())
-        .delete(`${baseRoute}/${testConversation.id}`)
         .set('Authorization', `Bearer ${anotherStudentToken}`)
         .expect(HttpStatus.FORBIDDEN);
     });

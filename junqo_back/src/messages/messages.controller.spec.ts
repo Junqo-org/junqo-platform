@@ -214,7 +214,7 @@ describe('MessagesController', () => {
       });
       messagesService.update.mockResolvedValue(mockProfile);
 
-      expect(await controller.updateMy(currentUser, messageInput)).toEqual(
+      expect(await controller.updateOne(currentUser, messageInput)).toEqual(
         mockProfile,
       );
       expect(messagesService.update).toHaveBeenCalledWith(
@@ -229,7 +229,7 @@ describe('MessagesController', () => {
       });
 
       await expect(
-        controller.updateMy(currentUser, messageInput),
+        controller.updateOne(currentUser, messageInput),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -239,7 +239,7 @@ describe('MessagesController', () => {
       });
 
       await expect(
-        controller.updateMy(currentUser, messageInput),
+        controller.updateOne(currentUser, messageInput),
       ).rejects.toThrow(ForbiddenException);
     });
   });
