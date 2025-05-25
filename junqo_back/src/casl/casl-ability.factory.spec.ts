@@ -21,7 +21,7 @@ describe('CaslAbilityFactory', () => {
   let schoolUser2: AuthUserDTO;
   let adminUser: AuthUserDTO;
 
-  beforeEach(() => {
+  beforeAll(() => {
     caslAbilityFactory = new CaslAbilityFactory();
     studentUser = plainToInstance(AuthUserDTO, {
       id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -756,17 +756,17 @@ describe('CaslAbilityFactory', () => {
   });
 
   describe('Message resource casl', () => {
-    const studentConversationResource = new ConversationResource([
-      studentUser.id,
-    ]);
-    const companyConversationResource = new ConversationResource([
-      companyUser.id,
-    ]);
-    const schoolConversationResource = new ConversationResource([
-      schoolUser.id,
-    ]);
+    let studentConversationResource: ConversationResource;
+    let companyConversationResource: ConversationResource;
+    let schoolConversationResource: ConversationResource;
 
-    it('should allow student user to create message resource', () => {
+    beforeAll(() => {
+      studentConversationResource = new ConversationResource([studentUser.id]);
+      companyConversationResource = new ConversationResource([companyUser.id]);
+      schoolConversationResource = new ConversationResource([schoolUser.id]);
+    });
+
+    it('should allow student user to create and read message resource', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
       expect(
@@ -775,9 +775,15 @@ describe('CaslAbilityFactory', () => {
           new MessageResource(studentUser.id, studentConversationResource),
         ),
       ).toBeTruthy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(studentUser.id, studentConversationResource),
+        ),
+      ).toBeTruthy();
     });
 
-    it('should not allow student user to create other student message resource', () => {
+    it('should not allow student user to create but read other student message resource', () => {
       const ability = caslAbilityFactory.createForUser(studentUser);
 
       expect(
@@ -786,9 +792,15 @@ describe('CaslAbilityFactory', () => {
           new MessageResource(studentUser2.id, studentConversationResource),
         ),
       ).toBeFalsy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(studentUser2.id, studentConversationResource),
+        ),
+      ).toBeTruthy();
     });
 
-    it('should allow company user to create message resource', () => {
+    it('should allow company user to create and read message resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
       expect(
@@ -797,9 +809,15 @@ describe('CaslAbilityFactory', () => {
           new MessageResource(companyUser.id, companyConversationResource),
         ),
       ).toBeTruthy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(companyUser.id, companyConversationResource),
+        ),
+      ).toBeTruthy();
     });
 
-    it('should not allow company user to create other company message resource', () => {
+    it('should not allow company user to create but read other company message resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
       expect(
@@ -808,9 +826,15 @@ describe('CaslAbilityFactory', () => {
           new MessageResource(companyUser2.id, companyConversationResource),
         ),
       ).toBeFalsy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(companyUser2.id, companyConversationResource),
+        ),
+      ).toBeTruthy();
     });
 
-    it('should allow school user to create message resource', () => {
+    it('should allow school user to create and read message resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
       expect(
@@ -819,9 +843,15 @@ describe('CaslAbilityFactory', () => {
           new MessageResource(schoolUser.id, schoolConversationResource),
         ),
       ).toBeTruthy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(schoolUser.id, schoolConversationResource),
+        ),
+      ).toBeTruthy();
     });
 
-    it('should not allow school user to create other school message resource', () => {
+    it('should not allow school user to create but read other school message resource', () => {
       const ability = caslAbilityFactory.createForUser(schoolUser);
 
       expect(
@@ -830,6 +860,12 @@ describe('CaslAbilityFactory', () => {
           new MessageResource(schoolUser2.id, schoolConversationResource),
         ),
       ).toBeFalsy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(schoolUser2.id, schoolConversationResource),
+        ),
+      ).toBeTruthy();
     });
 
     it('should allow student user to read, update and delete message resource with same userId', () => {
