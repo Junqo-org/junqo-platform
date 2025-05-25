@@ -5,12 +5,14 @@ import { MessagesRepositoryModule } from './repository/messages.repository.modul
 import { MessagesController } from './messages.controller';
 import { CaslModule } from '../casl/casl.module';
 import { ConversationsModule } from '../conversations/conversations.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     MessagesRepositoryModule,
     forwardRef(() => ConversationsModule),
     CaslModule,
+    AuthModule,
   ],
   controllers: [MessagesController],
   providers: [MessagesService, MessagesGateway],

@@ -10,6 +10,7 @@ import { AuthController } from './auth.controller';
 import { StudentProfilesModule } from '../student-profiles/student-profiles.module';
 import { CompanyProfilesModule } from '../company-profiles/company-profiles.module';
 import { SchoolProfilesModule } from '../school-profiles/school-profiles.module';
+import { WsAuthGuard } from './ws-auth.guard';
 
 if (jwtConstants.secret === undefined) {
   throw new Error('JWT_SECRET is not defined, please set it in .env file');
@@ -46,6 +47,7 @@ if (bcryptConstants.saltOrRounds === undefined) {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    WsAuthGuard,
   ],
   exports: [AuthService],
   controllers: [AuthController],

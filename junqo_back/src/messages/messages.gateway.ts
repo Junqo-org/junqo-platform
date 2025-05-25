@@ -4,6 +4,7 @@ import {
   WebSocketServer,
   MessageBody,
   ConnectedSocket,
+  OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
   WsException,
@@ -14,16 +15,17 @@ import { CurrentUser } from '../users/users.decorator';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CreateMessageDTO } from './dto/message.dto';
 import { SocketValidationPipe } from '../shared/websockets/socket-validation-pipe';
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { MessageQueryDTO } from './dto/message-query.dto';
+import { WsAuthGuard } from '../auth/ws-auth.guard';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
-// TODO
-@WebSocketGateway({
-  cors: {
-    origin: '*', // In production, restrict to your domains
-  },
-})
+@ApiTags('messages')
+@WebSocketGateway()
+@UseGuards(WsAuthGuard)
 export class MessagesGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   @WebSocketServer()
   server: Server;
@@ -36,26 +38,30 @@ export class MessagesGateway
   private readonly userSockets = new Map<string, string[]>();
   private readonly typingUsers = new Map<string, Set<string>>();
 
-  constructor(private readonly messagesService: MessagesService) {}
+  constructor(
+    private readonly messagesService: MessagesService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  afterInit(server: Server) {
+    const engine = server.engine as any;
+    const originalHandleConnection = engine.handleConnection.bind(engine);
+
+    engine.handleConnection = async (socket: any, ...args: any[]) => {
+      try {
+        return originalHandleConnection(socket, ...args);
+      } catch (error) {
+        this.logger.error(`Connection error: ${error.message}`);
+        socket.disconnect(true);
+      }
+    };
+  }
 
   async handleConnection(client: Socket) {
     try {
-      // Authenticate user (assuming token is passed in handshake)
-      const token = client.handshake.auth.token;
-      if (!token) {
-        throw new WsException('Authentication failed - token missing');
-      }
+      const userId = client.data.userId;
 
-      // In a real implementation, verify the token and extract user info
-      // For now, using a simple mock example
-      const userId =
-        client.handshake.auth.userId ||
-        'guest-' + Math.random().toString(36).substr(2, 9);
-
-      // Store connection information
-      client.data.userId = userId;
-
-      // Add to connected users map
+      // Now that auth is handled by guard, just manage the connection
       if (!this.userSockets.has(userId)) {
         this.userSockets.set(userId, []);
       }
@@ -119,6 +125,7 @@ export class MessagesGateway
     }
   }
 
+  @ApiOperation({ summary: 'Send a message to a conversation' })
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @ConnectedSocket() client: Socket,
@@ -153,6 +160,7 @@ export class MessagesGateway
     }
   }
 
+  @ApiOperation({ summary: 'Join a room/conversation' })
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
     @ConnectedSocket() client: Socket,
@@ -194,6 +202,7 @@ export class MessagesGateway
     }
   }
 
+  @ApiOperation({ summary: 'Leave a room/conversation' })
   @SubscribeMessage('leaveRoom')
   async handleLeaveRoom(
     @ConnectedSocket() client: Socket,
@@ -233,39 +242,50 @@ export class MessagesGateway
     }
   }
 
-  // @SubscribeMessage('getMessageHistory')
-  // async handleGetMessageHistory(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody()
-  //   payload: { conversationId: string; limit?: number; before?: Date },
-  // ) {
-  //   try {
-  //     const { conversationId, limit = 50, before } = payload;
+  @ApiOperation({ summary: 'Get message history for a conversation' })
+  @SubscribeMessage('getMessageHistory')
+  async handleGetMessageHistory(
+    @ConnectedSocket() client: Socket,
+    @CurrentUser() currentUser: AuthUserDTO,
+    @MessageBody()
+    payload: { conversationId: string; limit?: number; before?: Date },
+  ) {
+    try {
+      const { conversationId, limit = 50, before } = payload;
 
-  //     // Get message history from service
-  //     const messages = await this.messagesService.findAll({
-  //       conversationId,
-  //       limit,
-  //       before,
-  //     });
+      // Create query from payload
+      const query: MessageQueryDTO = {
+        limit,
+        before,
+      };
 
-  //     // Send message history back to the client
-  //     client.emit('messageHistory', {
-  //       conversationId,
-  //       messages,
-  //       timestamp: new Date(),
-  //     });
+      // Get message history from service
+      const messageQueryResult =
+        await this.messagesService.findByConversationId(
+          currentUser,
+          conversationId,
+          query,
+        );
 
-  //     return { success: true };
-  //   } catch (error) {
-  //     client.emit('messageHistoryError', {
-  //       message: 'Failed to fetch message history',
-  //       error: error.message,
-  //     });
-  //     return { success: false, error: error.message };
-  //   }
-  // }
+      // Send message history back to the client
+      client.emit('messageHistory', {
+        conversationId,
+        messages: messageQueryResult.rows,
+        count: messageQueryResult.count,
+        timestamp: new Date(),
+      });
 
+      return { success: true };
+    } catch (error) {
+      client.emit('messageHistoryError', {
+        message: 'Failed to fetch message history',
+        error: error.message,
+      });
+      return { success: false, error: error.message };
+    }
+  }
+
+  @ApiOperation({ summary: 'Get unread messages count for a conversation' })
   @SubscribeMessage('startTyping')
   handleStartTyping(
     @ConnectedSocket() client: Socket,
@@ -299,6 +319,7 @@ export class MessagesGateway
     }
   }
 
+  @ApiOperation({ summary: 'Stop typing in a conversation' })
   @SubscribeMessage('stopTyping')
   handleStopTyping(
     @ConnectedSocket() client: Socket,
@@ -330,6 +351,7 @@ export class MessagesGateway
     }
   }
 
+  @ApiOperation({ summary: 'Mark a message as read' })
   @SubscribeMessage('markMessageRead')
   async handleMarkMessageRead(
     @ConnectedSocket() client: Socket,
@@ -365,6 +387,7 @@ export class MessagesGateway
     }
   }
 
+  @ApiOperation({ summary: 'Get online users in a conversation or globally' })
   @SubscribeMessage('getOnlineUsers')
   handleGetOnlineUsers(
     @ConnectedSocket() client: Socket,
