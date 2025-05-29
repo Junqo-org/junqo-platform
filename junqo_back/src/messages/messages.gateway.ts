@@ -16,7 +16,6 @@ import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CreateMessageDTO } from './dto/message.dto';
 import { SocketValidationPipe } from '../shared/websockets/socket-validation-pipe';
 import { Logger, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { MessageQueryDTO } from './dto/message-query.dto';
 import { WsAuthGuard } from '../auth/ws-auth.guard';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -25,7 +24,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 @WebSocketGateway()
 @UseGuards(WsAuthGuard)
 export class MessagesGateway
-  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
+  implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server: Server;
@@ -38,24 +37,7 @@ export class MessagesGateway
   private readonly userSockets = new Map<string, string[]>();
   private readonly typingUsers = new Map<string, Set<string>>();
 
-  constructor(
-    private readonly messagesService: MessagesService,
-    private readonly jwtService: JwtService,
-  ) {}
-
-  afterInit(server: Server) {
-    const engine = server.engine as any;
-    const originalHandleConnection = engine.handleConnection.bind(engine);
-
-    engine.handleConnection = async (socket: any, ...args: any[]) => {
-      try {
-        return originalHandleConnection(socket, ...args);
-      } catch (error) {
-        this.logger.error(`Connection error: ${error.message}`);
-        socket.disconnect(true);
-      }
-    };
-  }
+  constructor(private readonly messagesService: MessagesService) {}
 
   async handleConnection(client: Socket) {
     try {

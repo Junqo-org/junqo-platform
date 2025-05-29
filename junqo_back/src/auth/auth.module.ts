@@ -49,7 +49,7 @@ if (bcryptConstants.saltOrRounds === undefined) {
     },
     WsAuthGuard,
   ],
-  exports: [AuthService],
+  exports: [AuthService, WsAuthGuard, JwtModule],
   controllers: [AuthController],
 })
 export class AuthModule {}
