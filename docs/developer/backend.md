@@ -18,6 +18,12 @@ nav_order: 2
 - [Messaging System Architecture](#messaging-system-architecture)
   - [Message Flow Diagram](#message-flow-diagram)
   - [Conversation Management Flow](#conversation-management-flow)
+- [Socket.IO Authentication Middleware](#socketio-authentication-middleware)
+  - [Usage](#usage)
+    - [Option 1: Auth Object (Recommended)](#option-1-auth-object-recommended)
+    - [Option 2: Query Parameters](#option-2-query-parameters)
+    - [Option 3: Authorization Header](#option-3-authorization-header)
+  - [Error Handling](#error-handling)
 - [Technologies](#technologies)
 
 ## Getting started
@@ -247,6 +253,48 @@ flowchart TD
     D --> W[Delete conversation]
     W --> X[End]
 ```
+
+## Socket.IO Authentication Middleware
+
+### Usage
+
+#### Option 1: Auth Object (Recommended)
+
+```javascript
+const socket = io('http://localhost:3000', {
+  auth: {
+    token: 'your-jwt-token-here'
+  }
+});
+```
+
+#### Option 2: Query Parameters
+
+```javascript
+const socket = io('http://localhost:3000', {
+  query: {
+    token: 'your-jwt-token-here'
+  }
+});
+```
+
+#### Option 3: Authorization Header
+
+```javascript
+const socket = io('http://localhost:3000', {
+  extraHeaders: {
+    'Authorization': 'Bearer your-jwt-token-here'
+  }
+});
+```
+
+### Error Handling
+
+The middleware provides detailed error messages:
+
+- `Authentication failed - token missing`: No token found in any location
+- `Authentication failed - invalid token payload`: Token decoded but missing required fields
+- `Authentication failed - invalid token`: Token verification failed (expired, malformed, etc.)
 
 ## Technologies
 

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as request from 'supertest';
+import * as crypto from 'crypto';
 import { createTestingEnvironment } from './test-setup';
 import { UserType } from '../src/users/dto/user-type.enum';
 import { HttpStatus, INestApplication } from '@nestjs/common';

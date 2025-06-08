@@ -109,40 +109,38 @@ export class MessagesService {
   ): Promise<MessageDTO> {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    const message = await this.messagesRepository.findOneById(id);
-    if (!message) {
-      throw new NotFoundException(`Message ${id} not found`);
-    }
+    try {
+      const message = await this.messagesRepository.findOneById(id);
+      if (!message) {
+        throw new NotFoundException(`Message ${id} not found`);
+      }
 
-    if (ability.cannot(Actions.READ, message)) {
-      throw new ForbiddenException(
-        'You do not have permission to view this message',
+      // Get the conversation to properly construct MessageResource for CASL
+      const conversation = await this.conversationService.findOneById(
+        currentUser,
+        message.conversationId,
+      );
+
+      // Create MessageResource with conversation data for proper CASL authorization
+      const messageResource = plainToInstance(MessageResource, {
+        ...message,
+        conversation,
+      });
+
+      if (ability.cannot(Actions.READ, messageResource)) {
+        throw new ForbiddenException(
+          'You do not have permission to view this message',
+        );
+      }
+      return message;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof ForbiddenException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to retrieve message ${id}: ${error.message}`,
       );
     }
-    return message;
   }
-
-  // TODO
-  // /**
-  //  * Retrieves messages based on a query.
-  //  *
-  //  * @param currentUser - The authenticated user requesting the messages
-  //  * @param query - The query parameters for filtering messages
-  //  * @returns A list of messages matching the query
-  //  * @throws InternalServerErrorException if retrieval fails
-  //  */
-  // public async findByQuery(
-  //   currentUser: AuthUserDTO,
-  //   query: MessageQueryDTO,
-  // ): Promise<MessageQueryOutputDTO> {
-  //   try {
-  //     return await this.messagesRepository.findByQuery(query);
-  //   } catch (error) {
-  //     throw new InternalServerErrorException(
-  //       `Failed to retrieve messages: ${error.message}`,
-  //     );
-  //   }
-  // }
 
   /**
    * Creates a new message in a conversation.
@@ -230,11 +228,14 @@ export class MessagesService {
 
     try {
       const message = await this.messagesRepository.findOneById(messageId);
+
       if (!message) {
         throw new NotFoundException(`Message ${messageId} not found`);
       }
 
-      if (ability.cannot(Actions.UPDATE, message)) {
+      const messageResource = plainToInstance(MessageResource, message);
+
+      if (ability.cannot(Actions.UPDATE, messageResource)) {
         throw new ForbiddenException(
           'You do not have permission to update this message',
         );
@@ -274,7 +275,9 @@ export class MessagesService {
         throw new NotFoundException(`Message ${messageId} not found`);
       }
 
-      if (ability.cannot(Actions.DELETE, message)) {
+      const messageResource = plainToInstance(MessageResource, message);
+
+      if (ability.cannot(Actions.DELETE, messageResource)) {
         throw new ForbiddenException(
           'You do not have permission to delete this message',
         );
@@ -305,20 +308,18 @@ export class MessagesService {
    * @throws InternalServerErrorException if marking as read fails
    */
   async markAsRead(messageId: string, userId: string): Promise<void> {
-    const message = await this.messagesRepository.findOneById(messageId);
+    try {
+      const message = await this.messagesRepository.findOneById(messageId);
 
-    if (!message) {
-      throw new NotFoundException(`Message ${messageId} not found`);
-    }
+      if (!message) {
+        throw new NotFoundException(`Message ${messageId} not found`);
+      }
 
-    const isUpdated = await this.messagesRepository.markAsRead(
-      messageId,
-      userId,
-    );
-
-    if (!isUpdated) {
+      await this.messagesRepository.markAsRead(messageId, userId);
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
-        `Failed to mark message ${messageId} as read`,
+        `Failed to mark message as read: ${error.message}`,
       );
     }
   }

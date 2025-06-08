@@ -79,8 +79,13 @@ export class ConversationsRepository {
     currentUserId: string,
     createConversationDto: CreateConversationDTO,
   ): Promise<ConversationDTO> {
+    const transaction = await this.conversationModel.sequelize.transaction();
+
     try {
-      const conversation = await this.conversationModel.create();
+      const conversation = await this.conversationModel.create(
+        {},
+        { transaction },
+      );
 
       if (
         createConversationDto.participantsIds &&
@@ -89,26 +94,35 @@ export class ConversationsRepository {
         await conversation.$set(
           'participants',
           createConversationDto.participantsIds,
+          { transaction },
         );
       }
 
       if (createConversationDto.title && currentUserId) {
-        await this.userConversationTitleModel.create({
-          userId: currentUserId,
-          conversationId: conversation.id,
-          title: createConversationDto.title,
-        });
+        await this.userConversationTitleModel.create(
+          {
+            userId: currentUserId,
+            conversationId: conversation.id,
+            title: createConversationDto.title,
+          },
+          { transaction },
+        );
       }
+
+      await conversation.save({ transaction });
 
       const createdConversation = await this.conversationModel.findByPk(
         conversation.id,
         {
           include: this.getIncludeOptions(currentUserId),
+          transaction,
         },
       );
 
+      await transaction.commit();
       return createdConversation.toConversationDTO(currentUserId);
     } catch (error) {
+      await transaction.rollback();
       if (error instanceof Sequelize.ForeignKeyConstraintError)
         throw new BadRequestException('Referenced ID does not exist');
       this.logger.error(
@@ -173,10 +187,14 @@ export class ConversationsRepository {
       await transaction.rollback();
       if (error instanceof Sequelize.ForeignKeyConstraintError)
         throw new BadRequestException('Referenced ID does not exist');
-      this.logger.error(
-        `Error updating conversation ${id}: ${error.message}`,
-        error.stack,
-      );
+
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error updating conversation ${id}: ${error.message}`,
+          error.stack,
+        );
+      }
       throw error;
     }
   }
@@ -297,10 +315,13 @@ export class ConversationsRepository {
 
       await conversation.destroy();
     } catch (error) {
-      this.logger.error(
-        `Error removing conversation ${id}: ${error.message}`,
-        error.stack,
-      );
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error removing conversation ${id}: ${error.message}`,
+          error.stack,
+        );
+      }
       throw error;
     }
   }
@@ -350,10 +371,13 @@ export class ConversationsRepository {
         title: userTitle.title,
       });
     } catch (error) {
-      this.logger.error(
-        `Error setting conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
-        error.stack,
-      );
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error setting conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
+          error.stack,
+        );
+      }
       throw error;
     }
   }
@@ -387,10 +411,13 @@ export class ConversationsRepository {
         title: userTitle.title,
       });
     } catch (error) {
-      this.logger.error(
-        `Error getting conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
-        error.stack,
-      );
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error getting conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
+          error.stack,
+        );
+      }
       throw error;
     }
   }
@@ -419,10 +446,13 @@ export class ConversationsRepository {
         );
       }
     } catch (error) {
-      this.logger.error(
-        `Error removing conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
-        error.stack,
-      );
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error removing conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
+          error.stack,
+        );
+      }
       throw error;
     }
   }

@@ -39,19 +39,21 @@ export class ConversationsService {
       await this.conversationsRepository.findByQuery(query, currentUser.id);
 
     const ability = this.caslAbilityFactory.createForUser(currentUser);
-    queryResult.rows.forEach((conversation) => {
+
+    // Filter conversations that the user can read
+    const filteredRows = queryResult.rows.filter((conversation) => {
       const conversationResource = plainToInstance(
         ConversationResource,
         conversation,
       );
 
-      if (ability.cannot(Actions.READ, conversationResource)) {
-        queryResult.rows.splice(queryResult.rows.indexOf(conversation), 1);
-        queryResult.count--;
-      }
+      return ability.cannot(Actions.READ, conversationResource) === false;
     });
 
-    return queryResult;
+    return {
+      rows: filteredRows,
+      count: filteredRows.length,
+    };
   }
 
   async findOneById(

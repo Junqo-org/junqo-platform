@@ -85,8 +85,8 @@ export class MessagesRepository {
 
       const messages = await this.messageModel.findAll(queryOptions);
 
-      // Return in chronological order (oldest first)
-      return messages.map((msg) => msg.toMessageDTO()).reverse();
+      // Return in reverse chronological order (newest first)
+      return messages.map((msg) => msg.toMessageDTO());
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to fetch messages: ${error.message}`,

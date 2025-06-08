@@ -4,27 +4,42 @@ import {
   WebSocketServer,
   MessageBody,
   ConnectedSocket,
-  OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  WsException,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { MessagesService } from './messages.service';
 import { Server, Socket } from 'socket.io';
-import { CurrentUser } from '../users/users.decorator';
+import { WsCurrentUser } from '../users/users.ws-decorator';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CreateMessageDTO } from './dto/message.dto';
+import {
+  UpdateMessageWebSocketDTO,
+  JoinRoomWebSocketDTO,
+  LeaveRoomWebSocketDTO,
+  GetMessageHistoryWebSocketDTO,
+  StartTypingWebSocketDTO,
+  StopTypingWebSocketDTO,
+  MarkMessageReadWebSocketDTO,
+  GetOnlineUsersWebSocketDTO,
+  DeleteMessageWebSocketDTO,
+} from './dto/websocket-message.dto';
 import { SocketValidationPipe } from '../shared/websockets/socket-validation-pipe';
-import { Logger, UseGuards } from '@nestjs/common';
+import { WsExceptionFilter } from '../shared/websockets/ws-exception.filter';
+import { Logger, UseFilters, NotFoundException } from '@nestjs/common';
 import { MessageQueryDTO } from './dto/message-query.dto';
-import { WsAuthGuard } from '../auth/ws-auth.guard';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { SocketAuthMiddleware } from '../auth/socket-auth.middleware';
 
 @ApiTags('messages')
-@WebSocketGateway()
-@UseGuards(WsAuthGuard)
+@UseFilters(new WsExceptionFilter())
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
 export class MessagesGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   @WebSocketServer()
   server: Server;
@@ -37,13 +52,32 @@ export class MessagesGateway
   private readonly userSockets = new Map<string, string[]>();
   private readonly typingUsers = new Map<string, Set<string>>();
 
-  constructor(private readonly messagesService: MessagesService) {}
+  constructor(
+    private readonly messagesService: MessagesService,
+    private readonly socketAuthMiddleware: SocketAuthMiddleware,
+  ) {}
+
+  afterInit(server: Server) {
+    // Apply authentication middleware to all socket connections
+    server.use(this.socketAuthMiddleware.createAuthMiddleware());
+    this.logger.log('Socket.IO authentication middleware initialized');
+  }
 
   async handleConnection(client: Socket) {
     try {
-      const userId = client.data.userId;
+      // Authentication is now handled by the middleware during handshake
+      // So we can trust that the client is authenticated at this point
+      const userId = SocketAuthMiddleware.getUserId(client);
 
-      // Now that auth is handled by guard, just manage the connection
+      if (!userId) {
+        this.logger.error(
+          `Connection failed - no user ID found for client ${client.id}`,
+        );
+        client.disconnect(true);
+        return;
+      }
+
+      // Manage the connection
       if (!this.userSockets.has(userId)) {
         this.userSockets.set(userId, []);
       }
@@ -63,7 +97,9 @@ export class MessagesGateway
 
       this.logger.log(`Client connected: ${client.id}, userId: ${userId}`);
     } catch (error) {
-      this.logger.error(`Connection error: ${error.message}`);
+      this.logger.error(
+        `Connection error for client ${client.id}: ${error.message}`,
+      );
       client.disconnect(true);
     }
   }
@@ -111,307 +147,304 @@ export class MessagesGateway
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @ConnectedSocket() client: Socket,
-    @CurrentUser() currentUser: AuthUserDTO,
-    @MessageBody(new SocketValidationPipe()) payload: CreateMessageDTO,
+    @WsCurrentUser() currentUser: AuthUserDTO,
+    @MessageBody(new SocketValidationPipe('sendMessage'))
+    payload: CreateMessageDTO,
   ) {
-    try {
-      // Save the message using the service
-      const savedMessage = await this.messagesService.create(
-        currentUser,
-        payload,
-      );
+    // Save the message using the service
+    const savedMessage = await this.messagesService.create(
+      currentUser,
+      payload,
+    );
 
-      // Emit to the specific room/conversation instead of broadcasting to everyone
-      if (payload.conversationId) {
-        this.server
-          .to(payload.conversationId)
-          .emit('receiveMessage', savedMessage);
-      } else {
-        // Fallback to the old behavior
-        this.server.emit('receiveMessage', savedMessage);
-      }
-
-      // Clear typing indicator for this user when they send a message
-      this.handleStopTyping(client, { conversationId: payload.conversationId });
-    } catch (error) {
-      // Send error back to the client who sent the message
-      client.emit('messageError', {
-        message: 'Invalid message format',
-        error: error.message,
-      });
+    // Emit to the specific room/conversation instead of broadcasting to everyone
+    if (payload.conversationId) {
+      this.server
+        .to(payload.conversationId)
+        .emit('receiveMessage', savedMessage);
+    } else {
+      // Fallback to the old behavior
+      this.server.emit('receiveMessage', savedMessage);
     }
+
+    // Clear typing indicator for this user when they send a message
+    this.handleStopTyping(client, { conversationId: payload.conversationId });
   }
 
   @ApiOperation({ summary: 'Join a room/conversation' })
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { conversationId: string },
+    @MessageBody(new SocketValidationPipe('joinRoom'))
+    payload: JoinRoomWebSocketDTO,
   ) {
-    try {
-      const { conversationId } = payload;
-      const userInfo = this.connectedUsers.get(client.id);
+    const { conversationId } = payload;
+    const userInfo = this.connectedUsers.get(client.id);
 
-      if (!userInfo) {
-        throw new WsException('User not found');
-      }
-
-      // Join the room
-      await client.join(conversationId);
-
-      // Update user's rooms
-      if (!userInfo.rooms.includes(conversationId)) {
-        userInfo.rooms.push(conversationId);
-        this.connectedUsers.set(client.id, userInfo);
-      }
-
-      // Notify room of new participant
-      this.server.to(conversationId).emit('userJoinRoom', {
-        userId: userInfo.userId,
-        conversationId,
-        timestamp: new Date(),
-      });
-
-      client.emit('joinRoomSuccess', { conversationId });
-
-      return { success: true, conversationId };
-    } catch (error) {
-      client.emit('joinRoomError', {
-        message: 'Failed to join room',
-        error: error.message,
-      });
-      return { success: false, error: error.message };
+    if (!userInfo) {
+      throw new NotFoundException('User not found');
     }
+
+    // Join the room
+    await client.join(conversationId);
+
+    // Update user's rooms
+    if (!userInfo.rooms.includes(conversationId)) {
+      userInfo.rooms.push(conversationId);
+      this.connectedUsers.set(client.id, userInfo);
+    }
+
+    // Notify room of new participant
+    this.server.to(conversationId).emit('userJoinRoom', {
+      userId: userInfo.userId,
+      conversationId,
+      timestamp: new Date(),
+    });
+
+    client.emit('joinRoomSuccess', { conversationId });
+
+    return { success: true, conversationId };
   }
 
   @ApiOperation({ summary: 'Leave a room/conversation' })
   @SubscribeMessage('leaveRoom')
   async handleLeaveRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { conversationId: string },
+    @MessageBody(new SocketValidationPipe('leaveRoom'))
+    payload: LeaveRoomWebSocketDTO,
   ) {
-    try {
-      const { conversationId } = payload;
-      const userInfo = this.connectedUsers.get(client.id);
+    const { conversationId } = payload;
+    const userInfo = this.connectedUsers.get(client.id);
 
-      if (!userInfo) {
-        throw new WsException('User not found');
-      }
-
-      // Leave the room
-      await client.leave(conversationId);
-
-      // Update user's rooms
-      userInfo.rooms = userInfo.rooms.filter((room) => room !== conversationId);
-      this.connectedUsers.set(client.id, userInfo);
-
-      // Notify room of leaving participant
-      this.server.to(conversationId).emit('userLeaveRoom', {
-        userId: userInfo.userId,
-        conversationId,
-        timestamp: new Date(),
-      });
-
-      client.emit('leaveRoomSuccess', { conversationId });
-
-      return { success: true, conversationId };
-    } catch (error) {
-      client.emit('leaveRoomError', {
-        message: 'Failed to leave room',
-        error: error.message,
-      });
-      return { success: false, error: error.message };
+    if (!userInfo) {
+      throw new NotFoundException('User not found');
     }
+
+    // Leave the room
+    await client.leave(conversationId);
+
+    // Update user's rooms
+    userInfo.rooms = userInfo.rooms.filter((room) => room !== conversationId);
+    this.connectedUsers.set(client.id, userInfo);
+
+    // Notify room of leaving participant
+    this.server.to(conversationId).emit('userLeaveRoom', {
+      userId: userInfo.userId,
+      conversationId,
+      timestamp: new Date(),
+    });
+
+    client.emit('leaveRoomSuccess', { conversationId });
+
+    return { success: true, conversationId };
   }
 
   @ApiOperation({ summary: 'Get message history for a conversation' })
   @SubscribeMessage('getMessageHistory')
   async handleGetMessageHistory(
     @ConnectedSocket() client: Socket,
-    @CurrentUser() currentUser: AuthUserDTO,
-    @MessageBody()
-    payload: { conversationId: string; limit?: number; before?: Date },
+    @WsCurrentUser() currentUser: AuthUserDTO,
+    @MessageBody(new SocketValidationPipe('getMessageHistory'))
+    payload: GetMessageHistoryWebSocketDTO,
   ) {
-    try {
-      const { conversationId, limit = 50, before } = payload;
+    const { conversationId, limit = 50, before } = payload;
 
-      // Create query from payload
-      const query: MessageQueryDTO = {
-        limit,
-        before,
-      };
+    // Create query from payload
+    const query: MessageQueryDTO = {
+      limit,
+      before,
+    };
 
-      // Get message history from service
-      const messageQueryResult =
-        await this.messagesService.findByConversationId(
-          currentUser,
-          conversationId,
-          query,
-        );
+    // Get message history from service
+    const messageQueryResult = await this.messagesService.findByConversationId(
+      currentUser,
+      conversationId,
+      query,
+    );
 
-      // Send message history back to the client
-      client.emit('messageHistory', {
-        conversationId,
-        messages: messageQueryResult.rows,
-        count: messageQueryResult.count,
-        timestamp: new Date(),
-      });
+    // Send message history back to the client
+    client.emit('messageHistory', {
+      conversationId,
+      messages: messageQueryResult.rows,
+      count: messageQueryResult.count,
+      timestamp: new Date(),
+    });
 
-      return { success: true };
-    } catch (error) {
-      client.emit('messageHistoryError', {
-        message: 'Failed to fetch message history',
-        error: error.message,
-      });
-      return { success: false, error: error.message };
-    }
+    return { success: true };
   }
 
   @ApiOperation({ summary: 'Get unread messages count for a conversation' })
   @SubscribeMessage('startTyping')
   handleStartTyping(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { conversationId: string },
+    @MessageBody(new SocketValidationPipe('startTyping'))
+    payload: StartTypingWebSocketDTO,
   ) {
-    try {
-      const { conversationId } = payload;
-      const userInfo = this.connectedUsers.get(client.id);
+    const { conversationId } = payload;
+    const userInfo = this.connectedUsers.get(client.id);
 
-      if (!userInfo) {
-        throw new WsException('User not found');
-      }
-
-      // Add user to typing set for this conversation
-      if (!this.typingUsers.has(conversationId)) {
-        this.typingUsers.set(conversationId, new Set());
-      }
-
-      this.typingUsers.get(conversationId).add(userInfo.userId);
-
-      // Notify others in the room
-      client.to(conversationId).emit('userTyping', {
-        userId: userInfo.userId,
-        conversationId,
-        timestamp: new Date(),
-      });
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
+    if (!userInfo) {
+      throw new NotFoundException('User not found');
     }
+
+    // Add user to typing set for this conversation
+    if (!this.typingUsers.has(conversationId)) {
+      this.typingUsers.set(conversationId, new Set());
+    }
+
+    this.typingUsers.get(conversationId).add(userInfo.userId);
+
+    // Notify others in the room
+    client.to(conversationId).emit('userStartTyping', {
+      userId: userInfo.userId,
+      conversationId,
+      timestamp: new Date(),
+    });
+
+    return { success: true };
   }
 
   @ApiOperation({ summary: 'Stop typing in a conversation' })
   @SubscribeMessage('stopTyping')
   handleStopTyping(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { conversationId: string },
+    @MessageBody(new SocketValidationPipe('stopTyping'))
+    payload: StopTypingWebSocketDTO,
   ) {
-    try {
-      const { conversationId } = payload;
-      const userInfo = this.connectedUsers.get(client.id);
+    const { conversationId } = payload;
+    const userInfo = this.connectedUsers.get(client.id);
 
-      if (!userInfo) {
-        throw new WsException('User not found');
-      }
-
-      // Remove user from typing set for this conversation
-      if (this.typingUsers.has(conversationId)) {
-        this.typingUsers.get(conversationId).delete(userInfo.userId);
-      }
-
-      // Notify others in the room
-      client.to(conversationId).emit('userStoppedTyping', {
-        userId: userInfo.userId,
-        conversationId,
-        timestamp: new Date(),
-      });
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
+    if (!userInfo) {
+      throw new NotFoundException('User not found');
     }
+
+    // Remove user from typing set for this conversation
+    if (this.typingUsers.has(conversationId)) {
+      this.typingUsers.get(conversationId).delete(userInfo.userId);
+    }
+
+    // Notify others in the room
+    client.to(conversationId).emit('userStopTyping', {
+      userId: userInfo.userId,
+      conversationId,
+      timestamp: new Date(),
+    });
+
+    return { success: true };
   }
 
   @ApiOperation({ summary: 'Mark a message as read' })
   @SubscribeMessage('markMessageRead')
   async handleMarkMessageRead(
     @ConnectedSocket() client: Socket,
-    @CurrentUser() currentUser: AuthUserDTO,
-    @MessageBody() payload: { messageId: string; conversationId: string },
+    @WsCurrentUser() currentUser: AuthUserDTO,
+    @MessageBody(new SocketValidationPipe('markMessageRead'))
+    payload: MarkMessageReadWebSocketDTO,
   ) {
-    try {
-      const { messageId, conversationId } = payload;
-      const userInfo = this.connectedUsers.get(client.id);
+    const { messageId, conversationId } = payload;
+    const userInfo = this.connectedUsers.get(client.id);
 
-      if (!userInfo) {
-        throw new WsException('User not found');
-      }
-
-      // Update message read status via service
-      await this.messagesService.markAsRead(messageId, userInfo.userId);
-
-      // Notify conversation members about read status
-      this.server.to(conversationId).emit('messageRead', {
-        messageId,
-        userId: userInfo.userId,
-        conversationId,
-        timestamp: new Date(),
-      });
-
-      return { success: true };
-    } catch (error) {
-      client.emit('markReadError', {
-        message: 'Failed to mark message as read',
-        error: error.message,
-      });
-      return { success: false, error: error.message };
+    if (!userInfo) {
+      throw new NotFoundException('User not found');
     }
+
+    // Update message read status via service
+    await this.messagesService.markAsRead(messageId, userInfo.userId);
+
+    // Notify conversation members about read status
+    this.server.to(conversationId).emit('messageRead', {
+      messageId,
+      userId: userInfo.userId,
+      conversationId,
+      timestamp: new Date(),
+    });
+
+    return { success: true };
   }
 
   @ApiOperation({ summary: 'Get online users in a conversation or globally' })
   @SubscribeMessage('getOnlineUsers')
   handleGetOnlineUsers(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { conversationId?: string },
+    @MessageBody(new SocketValidationPipe('getOnlineUsers'))
+    payload: GetOnlineUsersWebSocketDTO,
   ) {
-    try {
-      const { conversationId } = payload;
-      const userIds = new Set<string>();
+    const { conversationId } = payload;
+    const userIds = new Set<string>();
 
-      if (conversationId) {
-        // Get online users in a specific conversation
-        const roomSockets =
-          this.server.sockets.adapter.rooms.get(conversationId);
+    if (conversationId) {
+      // Get online users in a specific conversation
+      const roomSockets = this.server.sockets.adapter.rooms.get(conversationId);
 
-        if (roomSockets) {
-          for (const socketId of roomSockets) {
-            const userInfo = this.connectedUsers.get(socketId);
-            if (userInfo) {
-              userIds.add(userInfo.userId);
-            }
+      if (roomSockets) {
+        for (const socketId of roomSockets) {
+          const userInfo = this.connectedUsers.get(socketId);
+          if (userInfo) {
+            userIds.add(userInfo.userId);
           }
         }
-      } else {
-        // Get all online users
-        for (const userInfo of this.connectedUsers.values()) {
-          userIds.add(userInfo.userId);
-        }
       }
+    } else {
+      // Get all online users
+      for (const userInfo of this.connectedUsers.values()) {
+        userIds.add(userInfo.userId);
+      }
+    }
 
-      client.emit('onlineUsers', {
-        users: Array.from(userIds),
-        conversationId,
+    client.emit('onlineUsers', {
+      users: Array.from(userIds),
+      conversationId,
+      timestamp: new Date(),
+    });
+
+    return { success: true };
+  }
+
+  @ApiOperation({ summary: 'Update a message' })
+  @SubscribeMessage('updateMessage')
+  async handleUpdateMessage(
+    @ConnectedSocket() client: Socket,
+    @WsCurrentUser() currentUser: AuthUserDTO,
+    @MessageBody(new SocketValidationPipe('updateMessage'))
+    payload: UpdateMessageWebSocketDTO,
+  ) {
+    const updatedMessage = await this.messagesService.update(
+      currentUser,
+      payload.messageId,
+      { content: payload.content },
+    );
+
+    // Emit to the specific room/conversation
+    if (payload.conversationId) {
+      this.server
+        .to(payload.conversationId)
+        .emit('messageUpdated', updatedMessage);
+    }
+
+    client.emit('updateMessageSuccess', { messageId: payload.messageId });
+    return { success: true };
+  }
+
+  @ApiOperation({ summary: 'Delete a message' })
+  @SubscribeMessage('deleteMessage')
+  async handleDeleteMessage(
+    @ConnectedSocket() client: Socket,
+    @WsCurrentUser() currentUser: AuthUserDTO,
+    @MessageBody(new SocketValidationPipe('deleteMessage'))
+    payload: DeleteMessageWebSocketDTO,
+  ) {
+    await this.messagesService.delete(currentUser, payload.messageId);
+
+    // Emit to the specific room/conversation
+    if (payload.conversationId) {
+      this.server.to(payload.conversationId).emit('messageDeleted', {
+        messageId: payload.messageId,
+        deletedBy: currentUser.id,
         timestamp: new Date(),
       });
-
-      return { success: true };
-    } catch (error) {
-      client.emit('onlineUsersError', {
-        message: 'Failed to get online users',
-        error: error.message,
-      });
-      return { success: false, error: error.message };
     }
+
+    client.emit('deleteMessageSuccess', { messageId: payload.messageId });
+    return { success: true };
   }
 }
