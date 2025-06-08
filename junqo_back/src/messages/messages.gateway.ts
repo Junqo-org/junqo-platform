@@ -169,6 +169,8 @@ export class MessagesGateway
 
     // Clear typing indicator for this user when they send a message
     this.handleStopTyping(client, { conversationId: payload.conversationId });
+
+    return { success: true };
   }
 
   @ApiOperation({ summary: 'Join a room/conversation' })

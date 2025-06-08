@@ -204,16 +204,15 @@ describe('MessagesGateway', () => {
     it('should handle send message error', async () => {
       messagesService.create.mockRejectedValue(new Error('Service error'));
 
-      await gateway.handleSendMessage(
-        mockSocket as Socket,
-        mockUser,
-        createMessageDto,
-      );
-
-      expect(mockSocket.emit).toHaveBeenCalledWith('messageError', {
-        message: 'Invalid message format',
-        error: 'Service error',
-      });
+      // Since the exception will be caught by WsExceptionFilter, we won't get a return value
+      // Instead, we need to mock the filter behavior or test that the exception is thrown
+      await expect(
+        gateway.handleSendMessage(
+          mockSocket as Socket,
+          mockUser,
+          createMessageDto,
+        ),
+      ).rejects.toThrow('Service error');
     });
   });
 
@@ -247,16 +246,9 @@ describe('MessagesGateway', () => {
     it('should handle join room error for unknown user', async () => {
       gateway['connectedUsers'].delete(mockSocket.id);
 
-      const result = await gateway.handleJoinRoom(
-        mockSocket as Socket,
-        payload,
-      );
-
-      expect(mockSocket.emit).toHaveBeenCalledWith('joinRoomError', {
-        message: 'Failed to join room',
-        error: 'User not found',
-      });
-      expect(result).toEqual({ success: false, error: 'User not found' });
+      await expect(
+        gateway.handleJoinRoom(mockSocket as Socket, payload),
+      ).rejects.toThrow('User not found');
     });
   });
 
@@ -291,16 +283,9 @@ describe('MessagesGateway', () => {
     it('should handle leave room error for unknown user', async () => {
       gateway['connectedUsers'].delete(mockSocket.id);
 
-      const result = await gateway.handleLeaveRoom(
-        mockSocket as Socket,
-        payload,
-      );
-
-      expect(mockSocket.emit).toHaveBeenCalledWith('leaveRoomError', {
-        message: 'Failed to leave room',
-        error: 'User not found',
-      });
-      expect(result).toEqual({ success: false, error: 'User not found' });
+      await expect(
+        gateway.handleLeaveRoom(mockSocket as Socket, payload),
+      ).rejects.toThrow('User not found');
     });
   });
 
@@ -351,17 +336,13 @@ describe('MessagesGateway', () => {
         new Error('Service error'),
       );
 
-      const result = await gateway.handleGetMessageHistory(
-        mockSocket as Socket,
-        mockUser,
-        payload,
-      );
-
-      expect(mockSocket.emit).toHaveBeenCalledWith('messageHistoryError', {
-        message: 'Failed to fetch message history',
-        error: 'Service error',
-      });
-      expect(result).toEqual({ success: false, error: 'Service error' });
+      await expect(
+        gateway.handleGetMessageHistory(
+          mockSocket as Socket,
+          mockUser,
+          payload,
+        ),
+      ).rejects.toThrow('Service error');
     });
   });
 
@@ -385,9 +366,9 @@ describe('MessagesGateway', () => {
     it('should handle start typing error for unknown user', () => {
       gateway['connectedUsers'].delete(mockSocket.id);
 
-      const result = gateway.handleStartTyping(mockSocket as Socket, payload);
-
-      expect(result).toEqual({ success: false, error: 'User not found' });
+      expect(() => {
+        gateway.handleStartTyping(mockSocket as Socket, payload);
+      }).toThrow('User not found');
     });
   });
 
@@ -412,9 +393,9 @@ describe('MessagesGateway', () => {
     it('should handle stop typing error for unknown user', () => {
       gateway['connectedUsers'].delete(mockSocket.id);
 
-      const result = gateway.handleStopTyping(mockSocket as Socket, payload);
-
-      expect(result).toEqual({ success: false, error: 'User not found' });
+      expect(() => {
+        gateway.handleStopTyping(mockSocket as Socket, payload);
+      }).toThrow('User not found');
     });
   });
 
@@ -454,29 +435,17 @@ describe('MessagesGateway', () => {
     it('should handle mark message as read error', async () => {
       messagesService.markAsRead.mockRejectedValue(new Error('Service error'));
 
-      const result = await gateway.handleMarkMessageRead(
-        mockSocket as Socket,
-        mockUser,
-        payload,
-      );
-
-      expect(mockSocket.emit).toHaveBeenCalledWith('markReadError', {
-        message: 'Failed to mark message as read',
-        error: 'Service error',
-      });
-      expect(result).toEqual({ success: false, error: 'Service error' });
+      await expect(
+        gateway.handleMarkMessageRead(mockSocket as Socket, mockUser, payload),
+      ).rejects.toThrow('Service error');
     });
 
     it('should handle mark message as read error for unknown user', async () => {
       gateway['connectedUsers'].delete(mockSocket.id);
 
-      const result = await gateway.handleMarkMessageRead(
-        mockSocket as Socket,
-        mockUser,
-        payload,
-      );
-
-      expect(result).toEqual({ success: false, error: 'User not found' });
+      await expect(
+        gateway.handleMarkMessageRead(mockSocket as Socket, mockUser, payload),
+      ).rejects.toThrow('User not found');
     });
   });
 
@@ -534,19 +503,12 @@ describe('MessagesGateway', () => {
       };
       (gateway as any)['connectedUsers'] = brokenConnectedUsers;
 
-      const result = gateway.handleGetOnlineUsers(
-        mockSocket as Socket,
-        payload,
-      );
+      expect(() => {
+        gateway.handleGetOnlineUsers(mockSocket as Socket, payload);
+      }).toThrow('Test error');
 
       // Restore the original
       (gateway as any)['connectedUsers'] = originalConnectedUsers;
-
-      expect(mockSocket.emit).toHaveBeenCalledWith('onlineUsersError', {
-        message: 'Failed to get online users',
-        error: 'Test error',
-      });
-      expect(result).toEqual({ success: false, error: 'Test error' });
     });
   });
 });
