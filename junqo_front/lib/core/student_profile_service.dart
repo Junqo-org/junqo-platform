@@ -38,55 +38,31 @@ class StudentProfileService {
     String? avatar,
     List<String>? skills,
     List<Education>? education,
+    List<ExperienceDTO>? experiences,
     String? description,
     String? title,
     String? schoolName,
     int? age,
   }) async {
     try {
-      // Préparer les données du profil
+      // Préparer les données du profil pour l'API Service
+      // Only include fields expected by the backend endpoint via ApiService
       final profileData = {
         if (name != null) 'name': name,
         if (avatar != null) 'avatar': avatar,
-        if (description != null) 'description': description,
-        if (title != null) 'title': title,
-        if (schoolName != null) 'schoolName': schoolName,
-        if (age != null) 'age': age,
+        // Skills are passed directly; ApiService might filter them if needed
+        if (skills != null) 'skills': skills,
       };
 
-      // Traitement spécifique pour skills (compétences)
-      if (skills != null) {
-        // Filtrer les compétences vides ou templates
-        var filteredSkills = skills
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty && s != 'Nouvelle compétence')
-            .toList();
-        
-        if (filteredSkills.isNotEmpty) {
-          profileData['skills'] = filteredSkills;
-        }
-      }
-
-      // Traitement spécifique pour education (formations)
-      if (education != null) {
-        // Filtrer les formations vides ou templates
-        var filteredEducation = education.where((edu) {
-          // Vérifier si l'éducation a au moins un champ non vide et non template
-          return edu.school != null && 
-                 edu.school!.trim().isNotEmpty && 
-                 edu.school != 'Nouvelle formation';
-        }).map((e) => e.toJson()).toList();
-        
-        if (filteredEducation.isNotEmpty) {
-          profileData['education'] = filteredEducation;
-        }
-      }
+      // Removed local filtering for skills, education, experiences
+      // ApiService handles specific formatting/filtering if required before the HTTP call
 
       if (profileData.isEmpty) {
+        // Nothing to update
         return _studentProfile;
       }
 
-      debugPrint('Sending filtered profile data from service: $profileData');
+      debugPrint('Sending profile update data to ApiService: $profileData');
       _studentProfile = await _apiService.updateMyStudentProfile(profileData);
       return _studentProfile;
     } catch (e) {
@@ -112,6 +88,42 @@ class StudentProfileService {
     } catch (e) {
       debugPrint('Error searching student profiles: $e');
       rethrow;
+    }
+  }
+
+  // ************ EXPERIENCES ************
+
+  /// Ajoute une nouvelle expérience via l'API
+  Future<ExperienceDTO> addExperience(ExperienceDTO newExperience) async {
+    try {
+      // Convert ExperienceDTO (without ID) to Map for API
+      final experienceData = newExperience.toJson();
+      experienceData.remove('id'); // Ensure ID is not sent for creation
+
+      final createdExperience = await _apiService.createExperience(experienceData);
+
+      // Optionally update the local profile state if needed immediately
+      _studentProfile?.experiences?.add(createdExperience);
+
+      return createdExperience;
+    } catch (e) {
+      debugPrint('Error adding experience in StudentProfileService: $e');
+      rethrow; // Rethrow to be handled by the UI
+    }
+  }
+
+  /// Supprime une expérience via l'API
+  Future<bool> removeExperience(String experienceId) async {
+    try {
+      final success = await _apiService.deleteExperience(experienceId);
+      if (success) {
+        // Optionally update the local profile state if needed immediately
+        _studentProfile?.experiences?.removeWhere((exp) => exp.id == experienceId);
+      }
+      return success;
+    } catch (e) {
+      debugPrint('Error removing experience in StudentProfileService: $e');
+      rethrow; // Rethrow to be handled by the UI
     }
   }
 } 

@@ -12,8 +12,6 @@ class CompanyProfile extends StatefulWidget {
 
 class _CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _industryController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
   bool _isLoading = false;
@@ -39,8 +37,6 @@ class _CompanyProfileState extends State<CompanyProfile> {
       if (companyProfile != null && mounted) {
         setState(() {
           _nameController.text = companyProfile.name;
-          _industryController.text = companyProfile.industry ?? '';
-          _locationController.text = companyProfile.location ?? '';
           _descriptionController.text = companyProfile.description ?? '';
           _websiteController.text = companyProfile.websiteUrl ?? '';
         });
@@ -60,48 +56,39 @@ class _CompanyProfileState extends State<CompanyProfile> {
   @override
   void dispose() {
     _nameController.dispose();
-    _industryController.dispose();
-    _locationController.dispose();
     _descriptionController.dispose();
     _websiteController.dispose();
     super.dispose();
   }
 
   void _saveProfile() {
-    if (_nameController.text.isEmpty ||
-        _industryController.text.isEmpty ||
-        _locationController.text.isEmpty ||
-        _descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tous les champs sont obligatoires'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Mettre à jour le profil via le service
+      // Add debug logging
+      debugPrint('Saving profile: description=${_descriptionController.text}, website=${_websiteController.text}');
+      
       companyProfileService
           .updateMyProfile(
-        name: _nameController.text,
-        industry: _industryController.text,
-        location: _locationController.text,
         description: _descriptionController.text,
         websiteUrl: _websiteController.text,
       )
-          .then((_) {
+          .then((updatedProfile) {
         if (mounted) {
           setState(() {
             _isLoading = false;
             _isEditing = false;
+            
+            // Update local fields to match what came back from API
+            if (updatedProfile != null) {
+              _descriptionController.text = updatedProfile.description ?? '';
+              _websiteController.text = updatedProfile.websiteUrl ?? '';
+            }
           });
 
+          // Success dialog
           showDialog(
             context: context,
             builder: (context) => Dialog(
@@ -280,9 +267,16 @@ class _CompanyProfileState extends State<CompanyProfile> {
             height: 50,
             child: ElevatedButton(
               onPressed: () {
-                setState(() {
-                  _isEditing = !_isEditing;
-                });
+                if (_isEditing) {
+                  // When finishing edit mode, save the profile
+                  _saveProfile();
+                  // _isEditing will be set to false in _saveProfile's then() handler
+                } else {
+                  // Just toggle to edit mode
+                  setState(() {
+                    _isEditing = true;
+                  });
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isEditing
@@ -506,53 +500,13 @@ class _CompanyProfileState extends State<CompanyProfile> {
             const SizedBox(height: 24),
             _buildCompanyLogo(),
             const SizedBox(height: 24),
-            if (_isEditing)
-              _buildTextField(
-                controller: _nameController,
-                label: 'Nom de l\'entreprise',
-                hint: 'Ex: Acme Corporation',
-                icon: Icons.business_center,
-              )
-            else
-              _buildDisplayField(
-                label: 'Nom de l\'entreprise',
-                value: _nameController.text.isEmpty
-                    ? 'Non renseigné'
-                    : _nameController.text,
-                icon: Icons.business_center,
-              ),
-            const SizedBox(height: 16),
-            if (_isEditing)
-              _buildTextField(
-                controller: _industryController,
-                label: 'Secteur d\'activité',
-                hint: 'Ex: Technologie, Finance, Marketing...',
-                icon: Icons.category,
-              )
-            else
-              _buildDisplayField(
-                label: 'Secteur d\'activité',
-                value: _industryController.text.isEmpty
-                    ? 'Non renseigné'
-                    : _industryController.text,
-                icon: Icons.category,
-              ),
-            const SizedBox(height: 16),
-            if (_isEditing)
-              _buildTextField(
-                controller: _locationController,
-                label: 'Localisation',
-                hint: 'Ex: Paris, France',
-                icon: Icons.location_on,
-              )
-            else
-              _buildDisplayField(
-                label: 'Localisation',
-                value: _locationController.text.isEmpty
-                    ? 'Non renseigné'
-                    : _locationController.text,
-                icon: Icons.location_on,
-              ),
+            _buildDisplayField(
+              label: 'Nom de l\'entreprise',
+              value: _nameController.text.isEmpty
+                  ? 'Non renseigné'
+                  : _nameController.text,
+              icon: Icons.business_center,
+            ),
             const SizedBox(height: 16),
             if (_isEditing)
               _buildTextField(

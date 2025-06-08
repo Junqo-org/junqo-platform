@@ -26,15 +26,15 @@ class OfferEnumMapper {
   static String mapOfferTypeToBackend(String uiOfferType) {
     switch (uiOfferType.toLowerCase()) {
       case 'stage':
-        return OfferType.internship.toString().split('.').last;
+        return OfferType.internship.name.toUpperCase();
       case 'alternance':
-        return OfferType.apprenticeship.toString().split('.').last;
+        return OfferType.apprenticeship.name.toUpperCase();
       case 'temps partiel':
-        return OfferType.partTime.toString().split('.').last;
+        return OfferType.partTime.name.toUpperCase();
       case 'temps plein':
-        return OfferType.fullTime.toString().split('.').last;
+        return OfferType.fullTime.name.toUpperCase();
       default:
-        return OfferType.internship.toString().split('.').last;
+        return OfferType.internship.name.toUpperCase();
     }
   }
 
@@ -42,14 +42,14 @@ class OfferEnumMapper {
   static String mapWorkContextToBackend(String uiWorkContext) {
     switch (uiWorkContext.toLowerCase()) {
       case 'sur place':
-        return OfferLocation.onSite.toString().split('.').last;
+        return 'ON_SITE';
       case 'hybride':
-        return OfferLocation.hybrid.toString().split('.').last;
+        return OfferLocation.hybrid.name.toUpperCase();
       case 'distanciel':
       case 'télétravail':
-        return OfferLocation.teleworking.toString().split('.').last;
+        return OfferLocation.teleworking.name.toUpperCase();
       default:
-        return OfferLocation.onSite.toString().split('.').last;
+        return 'ON_SITE';
     }
   }
 
@@ -58,15 +58,15 @@ class OfferEnumMapper {
     switch (uiStatus.toLowerCase()) {
       case 'active':
       case 'actif':
-        return OfferStatus.active.toString().split('.').last;
+        return OfferStatus.active.name.toUpperCase();
       case 'inactive':
       case 'inactif':
-        return OfferStatus.inactive.toString().split('.').last;
+        return OfferStatus.inactive.name.toUpperCase();
       case 'deleted':
       case 'supprimé':
-        return OfferStatus.deleted.toString().split('.').last;
+        return OfferStatus.deleted.name.toUpperCase();
       default:
-        return OfferStatus.active.toString().split('.').last;
+        return OfferStatus.active.name.toUpperCase();
     }
   }
 } 
