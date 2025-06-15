@@ -35,7 +35,14 @@ import { MessagesService } from './messages.service';
 @ApiTags('messages')
 @UseFilters(new WsExceptionFilter())
 @WebSocketGateway({
-  cors: true, // We'll configure this dynamically in afterInit
+  cors: {
+    origin: function (origin, callback) {
+      // This function validates origins during handshake
+      // We'll properly configure allowed origins in afterInit
+      callback(null, true);
+    },
+    credentials: true,
+  },
 })
 export class MessagesGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
@@ -51,31 +58,28 @@ export class MessagesGateway
   private readonly userSockets = new Map<string, string[]>();
   private readonly typingUsers = new Map<string, Set<string>>();
   private readonly typingTimeouts = new Map<string, NodeJS.Timeout>();
+  private corsOrigins: string | string[];
 
   constructor(
     private readonly messagesService: MessagesService,
     private readonly socketAuthMiddleware: SocketAuthMiddleware,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    // Get CORS origins from configuration
+    this.corsOrigins = this.configService.get('app.corsOrigins');
+  }
 
   afterInit(server: Server) {
-    // Apply the same CORS configuration as in app.setup.ts
-    const corsOrigins = this.configService.get('app.corsOrigins');
+    const corsOrigins = this.corsOrigins;
 
-    // Configure CORS on the Socket.IO server
-    server.engine.on('initial_headers', (headers, request) => {
-      const origin = request.headers.origin;
-      if (
-        corsOrigins === '*' ||
-        (Array.isArray(corsOrigins) && corsOrigins.includes(origin)) ||
-        corsOrigins === origin
-      ) {
-        headers['Access-Control-Allow-Origin'] = origin || '*';
-        headers['Access-Control-Allow-Methods'] = 'GET, POST';
-        headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
-        headers['Access-Control-Allow-Credentials'] = 'true';
-      }
-    });
+    // Configure CORS enforcement directly on the Socket.IO server
+    // Override the origin validation function with proper configuration
+    if (server.engine && server.engine.opts) {
+      server.engine.opts.cors = {
+        origin: corsOrigins,
+        credentials: true,
+      };
+    }
 
     // Apply authentication middleware to all socket connections
     server.use(this.socketAuthMiddleware.createAuthMiddleware());
