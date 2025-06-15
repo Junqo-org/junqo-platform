@@ -216,7 +216,7 @@ export class ConversationsRepository {
         `EXISTS (
           SELECT 1 FROM "ConversationParticipants" AS "cp1"
           WHERE "cp1"."conversationId" = "ConversationModel"."id"
-          AND "cp1"."userId" = '${currentUserId}'
+          AND "cp1"."userId" = :currentUserId
         )`,
       );
       whereCondition = { [Sequelize.Op.and]: [conversationsWithCurrentUser] };
@@ -226,7 +226,7 @@ export class ConversationsRepository {
           `EXISTS (
             SELECT 1 FROM "ConversationParticipants" AS "cp2"
             WHERE "cp2"."conversationId" = "ConversationModel"."id"
-            AND "cp2"."userId" = '${query.participantId}'
+            AND "cp2"."userId" = :participantId
           )`,
         );
         whereCondition[Sequelize.Op.and].push(conversationsWithParticipant);
@@ -249,6 +249,10 @@ export class ConversationsRepository {
         limit: query.limit,
         offset: query.offset,
         subQuery: false,
+        replacements: {
+          currentUserId,
+          ...(query.participantId && { participantId: query.participantId }),
+        },
       });
 
       const queryOutput: ConversationQueryOutputDTO = {

@@ -154,6 +154,23 @@ export class MessagesGateway
           status: 'offline',
           timestamp: new Date(),
         });
+
+        // Clear all typing timeouts for this user to prevent memory leaks
+        const timeoutKeysToDelete: string[] = [];
+        this.typingTimeouts.forEach((timeout, key) => {
+          if (key.endsWith(`:${userId}`)) {
+            clearTimeout(timeout);
+            timeoutKeysToDelete.push(key);
+          }
+        });
+        timeoutKeysToDelete.forEach((key) => {
+          this.typingTimeouts.delete(key);
+        });
+
+        // Remove user from all typing users sets
+        this.typingUsers.forEach((typingSet) => {
+          typingSet.delete(userId);
+        });
       } else {
         this.userSockets.set(userId, updatedSocketIds);
       }
@@ -366,6 +383,13 @@ export class MessagesGateway
     // Remove user from typing set for this conversation
     if (this.typingUsers.has(conversationId)) {
       this.typingUsers.get(conversationId).delete(userInfo.userId);
+    }
+
+    // Clear any existing timeout for this user in this conversation
+    const timeoutKey = `${conversationId}:${userInfo.userId}`;
+    if (this.typingTimeouts.has(timeoutKey)) {
+      clearTimeout(this.typingTimeouts.get(timeoutKey));
+      this.typingTimeouts.delete(timeoutKey);
     }
 
     // Notify others in the room

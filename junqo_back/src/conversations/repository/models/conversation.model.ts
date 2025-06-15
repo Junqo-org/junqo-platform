@@ -1,21 +1,20 @@
 import {
+  BelongsTo,
+  BelongsToMany,
   Column,
+  CreatedAt,
   DataType,
   Default,
+  ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
-  BelongsToMany,
-  CreatedAt,
   UpdatedAt,
-  HasOne,
-  ForeignKey,
-  HasMany,
-  BelongsTo,
 } from 'sequelize-typescript';
-import { ConversationDTO } from '../../dto/conversation.dto';
-import { UserModel } from '../../../users/repository/models/user.model';
 import { MessageModel } from '../../../messages/repository/models/message.model';
+import { UserModel } from '../../../users/repository/models/user.model';
+import { ConversationDTO } from '../../dto/conversation.dto';
 import { UserConversationTitleModel } from './user-conversation-title.model';
 
 @Table({ tableName: 'Conversations', timestamps: true, paranoid: true })
