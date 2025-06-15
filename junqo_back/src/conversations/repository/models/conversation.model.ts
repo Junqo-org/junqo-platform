@@ -11,6 +11,7 @@ import {
   HasOne,
   ForeignKey,
   HasMany,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { ConversationDTO } from '../../dto/conversation.dto';
 import { UserModel } from '../../../users/repository/models/user.model';
@@ -40,7 +41,11 @@ export class ConversationModel extends Model {
   })
   lastMessageId?: string;
 
-  @HasOne(() => MessageModel)
+  @BelongsTo(() => MessageModel, {
+    foreignKey: 'lastMessageId',
+    targetKey: 'id',
+    as: 'lastMessage',
+  })
   lastMessage?: MessageModel;
 
   @HasMany(() => MessageModel)
@@ -64,20 +69,18 @@ export class ConversationModel extends Model {
   userTitles: UserConversationTitleModel[];
 
   public toConversationDTO(userId?: string): ConversationDTO {
-    let title: string = undefined;
+    let title: string | undefined;
 
     // If userId is provided and userTitles is loaded, find the title for that user
     if (userId && this.userTitles) {
       const userTitle = this.userTitles.find((ut) => ut.userId === userId);
-      if (userTitle) {
-        title = userTitle.title;
-      }
+      title = userTitle?.title;
     }
 
     return new ConversationDTO({
       id: this.id,
       participantsIds: this.participants?.map((p) => p.id) || [],
-      lastMessage: this.lastMessage ? this.lastMessage.toMessageDTO() : null,
+      lastMessage: this.lastMessage?.toMessageDTO() || null,
       title: title,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

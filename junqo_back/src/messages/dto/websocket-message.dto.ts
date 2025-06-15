@@ -1,4 +1,13 @@
-import { IsString, IsUUID, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsUUID,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+  IsDateString,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
@@ -47,6 +56,9 @@ export class GetMessageHistoryWebSocketDTO {
   })
   @Expose()
   @IsOptional()
+  @IsInt({ message: 'Limit must be an integer' })
+  @Min(1, { message: 'Limit must be at least 1' })
+  @Max(100, { message: 'Limit must not exceed 100' })
   limit?: number;
 
   @ApiPropertyOptional({
@@ -55,6 +67,7 @@ export class GetMessageHistoryWebSocketDTO {
   })
   @Expose()
   @IsOptional()
+  @IsDateString({}, { message: 'Before must be a valid date string' })
   before?: Date;
 }
 

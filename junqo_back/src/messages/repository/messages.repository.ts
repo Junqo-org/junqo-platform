@@ -129,11 +129,10 @@ export class MessagesRepository {
    * Updates a message by its ID
    *
    * @param id - The unique identifier of the message to update
-   * @param userId - The ID of the user attempting to update the message
    * @param updateData - The data to update the message with
    * @returns Promise resolving to the updated MessageDTO
    * @throws NotFoundException if the message with the given ID is not found
-   * @throws InternalServerErrorException if the user is not the sender or if there's a problem updating the message
+   * @throws InternalServerErrorException if there's a problem updating the message
    */
   async update(id: string, updateData: UpdateMessageDTO): Promise<MessageDTO> {
     try {

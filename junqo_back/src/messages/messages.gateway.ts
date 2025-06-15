@@ -1,42 +1,41 @@
+import { Logger, NotFoundException, UseFilters } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
-  WebSocketGateway,
-  SubscribeMessage,
-  WebSocketServer,
-  MessageBody,
   ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { MessagesService } from './messages.service';
 import { Server, Socket } from 'socket.io';
-import { WsCurrentUser } from '../users/users.ws-decorator';
+import { SocketAuthMiddleware } from '../auth/socket-auth.middleware';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
-import { CreateMessageDTO } from './dto/message.dto';
-import {
-  UpdateMessageWebSocketDTO,
-  JoinRoomWebSocketDTO,
-  LeaveRoomWebSocketDTO,
-  GetMessageHistoryWebSocketDTO,
-  StartTypingWebSocketDTO,
-  StopTypingWebSocketDTO,
-  MarkMessageReadWebSocketDTO,
-  GetOnlineUsersWebSocketDTO,
-  DeleteMessageWebSocketDTO,
-} from './dto/websocket-message.dto';
 import { SocketValidationPipe } from '../shared/websockets/socket-validation-pipe';
 import { WsExceptionFilter } from '../shared/websockets/ws-exception.filter';
-import { Logger, UseFilters, NotFoundException } from '@nestjs/common';
+import { WsCurrentUser } from '../users/users.ws-decorator';
 import { MessageQueryDTO } from './dto/message-query.dto';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { SocketAuthMiddleware } from '../auth/socket-auth.middleware';
+import { CreateMessageDTO } from './dto/message.dto';
+import {
+  DeleteMessageWebSocketDTO,
+  GetMessageHistoryWebSocketDTO,
+  GetOnlineUsersWebSocketDTO,
+  JoinRoomWebSocketDTO,
+  LeaveRoomWebSocketDTO,
+  MarkMessageReadWebSocketDTO,
+  StartTypingWebSocketDTO,
+  StopTypingWebSocketDTO,
+  UpdateMessageWebSocketDTO,
+} from './dto/websocket-message.dto';
+import { MessagesService } from './messages.service';
 
 @ApiTags('messages')
 @UseFilters(new WsExceptionFilter())
 @WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
+  cors: true, // We'll configure this dynamically in afterInit
 })
 export class MessagesGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
@@ -51,16 +50,39 @@ export class MessagesGateway
   >();
   private readonly userSockets = new Map<string, string[]>();
   private readonly typingUsers = new Map<string, Set<string>>();
+  private readonly typingTimeouts = new Map<string, NodeJS.Timeout>();
 
   constructor(
     private readonly messagesService: MessagesService,
     private readonly socketAuthMiddleware: SocketAuthMiddleware,
+    private readonly configService: ConfigService,
   ) {}
 
   afterInit(server: Server) {
+    // Apply the same CORS configuration as in app.setup.ts
+    const corsOrigins = this.configService.get('app.corsOrigins');
+
+    // Configure CORS on the Socket.IO server
+    server.engine.on('initial_headers', (headers, request) => {
+      const origin = request.headers.origin;
+      if (
+        corsOrigins === '*' ||
+        (Array.isArray(corsOrigins) && corsOrigins.includes(origin)) ||
+        corsOrigins === origin
+      ) {
+        headers['Access-Control-Allow-Origin'] = origin || '*';
+        headers['Access-Control-Allow-Methods'] = 'GET, POST';
+        headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+        headers['Access-Control-Allow-Credentials'] = 'true';
+      }
+    });
+
     // Apply authentication middleware to all socket connections
     server.use(this.socketAuthMiddleware.createAuthMiddleware());
     this.logger.log('Socket.IO authentication middleware initialized');
+    this.logger.log(
+      `Socket.IO CORS configured with origins: ${JSON.stringify(corsOrigins)}`,
+    );
   }
 
   async handleConnection(client: Socket) {
@@ -296,6 +318,27 @@ export class MessagesGateway
 
     this.typingUsers.get(conversationId).add(userInfo.userId);
 
+    // Clear any existing timeout
+    const timeoutKey = `${conversationId}:${userInfo.userId}`;
+    if (this.typingTimeouts.has(timeoutKey)) {
+      clearTimeout(this.typingTimeouts.get(timeoutKey));
+    }
+
+    // Set new timeout (5 seconds)
+    const timeout = setTimeout(() => {
+      this.typingUsers.get(conversationId)?.delete(userInfo.userId);
+      this.typingTimeouts.delete(timeoutKey);
+
+      // Notify room about stopped typing
+      this.server.to(conversationId).emit('userStopTyping', {
+        userId: userInfo.userId,
+        conversationId,
+        timestamp: new Date(),
+      });
+    }, 5000);
+
+    this.typingTimeouts.set(timeoutKey, timeout);
+
     // Notify others in the room
     client.to(conversationId).emit('userStartTyping', {
       userId: userInfo.userId,
@@ -351,7 +394,7 @@ export class MessagesGateway
     }
 
     // Update message read status via service
-    await this.messagesService.markAsRead(messageId, userInfo.userId);
+    await this.messagesService.markAsRead(messageId, currentUser.id);
 
     // Notify conversation members about read status
     this.server.to(conversationId).emit('messageRead', {

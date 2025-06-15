@@ -74,8 +74,6 @@ export class MessageModel extends Model {
       senderId: this.senderId,
       conversationId: this.conversationId,
       content: this.content,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
       readStatus:
         this.readStatus?.map((status) => status.toMessageReadStatusDTO()) || [],
     });

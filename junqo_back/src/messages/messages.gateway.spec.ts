@@ -87,10 +87,11 @@ describe('MessagesGateway', () => {
   });
 
   afterEach(() => {
-    // Clear internal maps between tests
-    (gateway as any)['connectedUsers'].clear();
-    (gateway as any)['userSockets'].clear();
-    (gateway as any)['typingUsers'].clear();
+    const gw = gateway as any;
+    // Safely clear maps if they exist
+    if (gw.connectedUsers instanceof Map) gw.connectedUsers.clear();
+    if (gw.userSockets instanceof Map) gw.userSockets.clear();
+    if (gw.typingUsers instanceof Map) gw.typingUsers.clear();
   });
 
   it('should be defined', () => {
@@ -509,6 +510,99 @@ describe('MessagesGateway', () => {
 
       // Restore the original
       (gateway as any)['connectedUsers'] = originalConnectedUsers;
+    });
+  });
+
+  describe('handleUpdateMessage', () => {
+    const payload = {
+      messageId: mockMessagesList[0].id,
+      conversationId: 'c69cc25b-0cc4-4032-83c2-0d34c84318ba',
+      content: 'Updated content',
+    };
+
+    beforeEach(async () => {
+      await gateway.handleConnection(mockSocket as Socket);
+    });
+
+    it('should handle update message successfully', async () => {
+      const updatedMessage = {
+        ...mockMessagesList[0],
+        content: payload.content,
+      };
+      messagesService.update.mockResolvedValue(updatedMessage);
+
+      const result = await gateway.handleUpdateMessage(
+        mockSocket as Socket,
+        mockUser,
+        payload,
+      );
+
+      expect(messagesService.update).toHaveBeenCalledWith(
+        mockUser,
+        payload.messageId,
+        { content: payload.content },
+      );
+      expect(mockServer.to).toHaveBeenCalledWith(payload.conversationId);
+      expect(mockServer.emit).toHaveBeenCalledWith(
+        'messageUpdated',
+        updatedMessage,
+      );
+      expect(mockSocket.emit).toHaveBeenCalledWith('updateMessageSuccess', {
+        messageId: payload.messageId,
+      });
+      expect(result).toEqual({ success: true });
+    });
+
+    it('should handle update message error', async () => {
+      messagesService.update.mockRejectedValue(new Error('Service error'));
+
+      await expect(
+        gateway.handleUpdateMessage(mockSocket as Socket, mockUser, payload),
+      ).rejects.toThrow('Service error');
+    });
+  });
+
+  describe('handleDeleteMessage', () => {
+    const payload = {
+      messageId: mockMessagesList[0].id,
+      conversationId: 'c69cc25b-0cc4-4032-83c2-0d34c84318ba',
+    };
+
+    beforeEach(async () => {
+      await gateway.handleConnection(mockSocket as Socket);
+    });
+
+    it('should handle delete message successfully', async () => {
+      messagesService.delete.mockResolvedValue();
+
+      const result = await gateway.handleDeleteMessage(
+        mockSocket as Socket,
+        mockUser,
+        payload,
+      );
+
+      expect(messagesService.delete).toHaveBeenCalledWith(
+        mockUser,
+        payload.messageId,
+      );
+      expect(mockServer.to).toHaveBeenCalledWith(payload.conversationId);
+      expect(mockServer.emit).toHaveBeenCalledWith('messageDeleted', {
+        messageId: payload.messageId,
+        deletedBy: mockUser.id,
+        timestamp: expect.any(Date),
+      });
+      expect(mockSocket.emit).toHaveBeenCalledWith('deleteMessageSuccess', {
+        messageId: payload.messageId,
+      });
+      expect(result).toEqual({ success: true });
+    });
+
+    it('should handle delete message error', async () => {
+      messagesService.delete.mockRejectedValue(new Error('Service error'));
+
+      await expect(
+        gateway.handleDeleteMessage(mockSocket as Socket, mockUser, payload),
+      ).rejects.toThrow('Service error');
     });
   });
 });

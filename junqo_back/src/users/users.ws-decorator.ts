@@ -33,8 +33,9 @@ export const WsCurrentUser = createParamDecorator(
       await validateOrReject(authUser);
       return authUser;
     } catch (errors) {
+      logger.error('WebSocket authentication validation failed', errors);
       throw new BadRequestException(
-        [new Error('WebSocket authentication validation error')] + errors,
+        `WebSocket authentication validation error: ${Array.isArray(errors) ? errors.map((e) => e.toString()).join(', ') : errors}`,
       );
     }
   },

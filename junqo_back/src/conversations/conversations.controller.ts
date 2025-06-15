@@ -147,6 +147,17 @@ export class ConversationsController {
   @ApiOperation({
     summary: 'Add participants to a conversation',
   })
+  @ApiOkResponse({
+    description: 'Participants added successfully',
+    type: ConversationDTO,
+  })
+  @ApiBadRequestResponse({ description: 'Invalid request data' })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to add participants to this conversation',
+  })
+  @ApiNotFoundResponse({ description: 'Conversation not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   async addParticipants(
     @CurrentUser() currentUser: AuthUserDTO,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

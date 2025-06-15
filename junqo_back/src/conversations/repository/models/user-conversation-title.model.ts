@@ -45,7 +45,7 @@ export class UserConversationTitleModel extends Model {
     allowNull: false,
     validate: {
       notEmpty: true,
-      len: [0, MAX_CONVERSATION_TITLE_LENGTH],
+      len: [1, MAX_CONVERSATION_TITLE_LENGTH],
     },
   })
   title: string;

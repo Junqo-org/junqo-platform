@@ -42,7 +42,12 @@ export class ConversationDTO {
 
   @ApiPropertyOptional({
     description: 'Optional last message in the conversation',
-    example: 'Let me know your thoughts on this',
+    example: {
+      id: '123e4567-e89b-12d3-a456-426614174000',
+      senderId: '123e4567-e89b-12d3-a456-426614174000',
+      conversationId: '123e4567-e89b-12d3-a456-426614174000',
+      content: 'Let me know your thoughts on this',
+    },
     type: MessageDTO,
   })
   @Expose()
@@ -72,8 +77,13 @@ export class ConversationDTO {
   @ApiPropertyOptional({
     description: 'Custom title for the conversation (personalized per user)',
     example: 'Project Discussion with Marketing Team',
+    maxLength: MAX_CONVERSATION_TITLE_LENGTH,
   })
   @Expose()
+  @IsString({ message: 'Title must be a string' })
+  @MaxLength(MAX_CONVERSATION_TITLE_LENGTH, {
+    message: `The title length must be shorter than ${MAX_CONVERSATION_TITLE_LENGTH}`,
+  })
   @IsOptional()
   title?: string;
 

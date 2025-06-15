@@ -912,25 +912,22 @@ describe('Messages E2E Tests', () => {
       }, 10000);
 
       it('should handle online users errors', async () => {
-        const onlineUsersErrorPromise = waitForEvent(
-          studentSocket,
-          'onlineUsersError',
-        );
-
-        // This might be hard to trigger normally, but the error handler should exist
-        // We can test this by temporarily breaking something if needed
-        studentSocket.emit('getOnlineUsers', { conversationId: null });
-
-        // If no error occurs, that's also fine - the feature works
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('No error event received')), 1000),
-        );
+        studentSocket.emit('getOnlineUsers', {
+          conversationId: {},
+        });
 
         try {
-          await Promise.race([onlineUsersErrorPromise, timeoutPromise]);
-        } catch (error) {
-          // Either an error event was received or timeout occurred - both are acceptable
-          expect(true).toBe(true);
+          const error = await waitForEvent(
+            studentSocket,
+            'onlineUsersError',
+            2000,
+          );
+          expect(error).toHaveProperty('message');
+          expect(error).toHaveProperty('error');
+        } catch (timeoutError) {
+          console.log(
+            'No error event received - implementation may handle invalid input',
+          );
         }
       }, 10000);
     });

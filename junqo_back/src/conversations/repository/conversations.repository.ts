@@ -160,8 +160,6 @@ export class ConversationsRepository {
         throw new NotFoundException(`Conversation with ID ${id} not found`);
       }
 
-      await conversation.save({ transaction });
-
       if (updateData.participantsIds) {
         await conversation.$set('participants', updateData.participantsIds, {
           transaction,

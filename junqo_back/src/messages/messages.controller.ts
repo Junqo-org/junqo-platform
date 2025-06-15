@@ -74,6 +74,9 @@ export class MessagesController {
   })
   @ApiBadRequestResponse({ description: 'Invalid request data' })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to update this message',
+  })
   @ApiNotFoundResponse({ description: 'Message not found' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async updateOne(

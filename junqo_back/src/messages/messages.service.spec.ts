@@ -105,7 +105,6 @@ describe('MessagesService', () => {
   describe('findByConversationId', () => {
     const query: MessageQueryDTO = plainToInstance(MessageQueryDTO, {
       limit: 10,
-      offset: 0,
     });
 
     it('should return messages from a conversation', async () => {
