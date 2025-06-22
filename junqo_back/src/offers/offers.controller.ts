@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -197,5 +199,30 @@ export class OffersController {
       throw new InternalServerErrorException(`While deleting offer ${id}`);
     }
     return { isSuccessful: isSuccess };
+  }
+
+  @Post('view/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Mark an offer as viewed' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the offer to mark as viewed',
+    type: String,
+    required: true,
+  })
+  @ApiNoContentResponse({
+    description: 'Offer marked as viewed successfully',
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to mark this offer as viewed',
+  })
+  @ApiNotFoundResponse({ description: 'Offer not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async markOfferAsViewed(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.offersService.markOfferAsViewed(currentUser, id);
   }
 }
