@@ -15,6 +15,8 @@ import { OfferResource } from './dto/offer-resource.dto';
 import { SchoolProfileResource } from './dto/school-profile-resource.dto';
 import { CompanyProfileResource } from './dto/company-profile-resource.dto';
 import { ApplicationResource } from './dto/application-resource.dto';
+import { ConversationResource } from './dto/conversation-resource.dto';
+import { MessageResource } from './dto/message-resource.dto';
 
 // Describes what user can actually do in the application
 export enum Actions {
@@ -36,6 +38,8 @@ type Subjects =
       | typeof SchoolProfileResource
       | typeof OfferResource
       | typeof ApplicationResource
+      | typeof ConversationResource
+      | typeof MessageResource
     >
   | 'all'; // `all` is a special keyword in CASL which represents "any" resource
 
@@ -56,6 +60,19 @@ export class CaslAbilityFactory {
     can(Actions.MANAGE, UserResource, { id: user.id });
     cannot(Actions.CREATE, UserResource, { type: { $exists: false } });
     can(Actions.CREATE, UserResource, { type: { $ne: UserType.ADMIN } });
+    can(Actions.MANAGE, ConversationResource, {
+      participantsIds: { $elemMatch: { $eq: user.id } },
+    });
+    can([Actions.CREATE], MessageResource, {
+      senderId: user.id,
+      conversationParticipantsIds: { $elemMatch: { $eq: user.id } },
+    });
+    can([Actions.READ], MessageResource, {
+      conversationParticipantsIds: { $elemMatch: { $eq: user.id } },
+    });
+    can([Actions.READ, Actions.UPDATE, Actions.DELETE], MessageResource, {
+      senderId: user.id,
+    });
 
     if (user.type === UserType.STUDENT) {
       can(Actions.CREATE, StudentProfileResource, { userId: user.id });

@@ -140,7 +140,7 @@ export class ApplicationsController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async update(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() applicationInput: UpdateApplicationDTO,
   ): Promise<ApplicationDTO> {
     return this.applicationsService.update(currentUser, id, applicationInput);

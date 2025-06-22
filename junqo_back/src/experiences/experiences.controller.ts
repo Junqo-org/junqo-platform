@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ExperiencesService } from './experiences.service';
 import {
@@ -128,7 +129,7 @@ export class ExperiencesController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   async findOne(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<ExperienceDTO> {
     return this.experiencesService.findOneById(currentUser, id);
   }
@@ -158,7 +159,7 @@ export class ExperiencesController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   async update(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateExperienceDto: UpdateExperienceDTO,
   ): Promise<ExperienceDTO> {
     return this.experiencesService.update(currentUser, id, updateExperienceDto);
@@ -183,7 +184,7 @@ export class ExperiencesController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   async delete(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<{ isSuccessful: boolean }> {
     const isSuccess = await this.experiencesService.delete(currentUser, id);
 

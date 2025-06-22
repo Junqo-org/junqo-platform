@@ -13,6 +13,8 @@ import { ExperiencesModule } from './experiences/experiences.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApplicationsModule } from './applications/applications.module';
+import { MessagesModule } from './messages/messages.module';
+import { ConversationsModule } from './conversations/conversations.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { ApplicationsModule } from './applications/applications.module';
     SchoolProfilesModule,
     ExperiencesModule,
     ApplicationsModule,
+    ConversationsModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

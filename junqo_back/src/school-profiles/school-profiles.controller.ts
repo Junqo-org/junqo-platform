@@ -1,4 +1,12 @@
-import { Controller, Get, Body, Patch, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { SchoolProfilesService } from './school-profiles.service';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { CurrentUser } from '../users/users.decorator';
@@ -81,7 +89,7 @@ export class SchoolProfilesController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async findOne(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
     return this.schoolProfilesService.findOneById(currentUser, id);
   }

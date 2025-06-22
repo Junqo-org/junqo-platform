@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -92,7 +93,7 @@ export class OffersController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async getOne(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<OfferDTO> {
     const offer: OfferDTO = await this.offersService.findOneById(
       currentUser,
@@ -155,7 +156,7 @@ export class OffersController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async updateOffer(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() offerInput: UpdateOfferDTO,
   ): Promise<OfferDTO> {
     const offer: OfferDTO = await this.offersService.updateOffer(
@@ -185,7 +186,7 @@ export class OffersController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async deleteOffer(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<{ isSuccessful: boolean }> {
     const isSuccess: boolean = await this.offersService.deleteOffer(
       currentUser,
