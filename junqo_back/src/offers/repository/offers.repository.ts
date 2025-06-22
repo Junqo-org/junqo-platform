@@ -304,12 +304,16 @@ export class OffersRepository {
       }
 
       await this.offerModel.sequelize.transaction(async (transaction) => {
-        await this.offerSeenModel.findOrCreate({
+        const [, created] = await this.offerSeenModel.findOrCreate({
           where: { userId, offerId },
           defaults: { userId, offerId },
           transaction,
         });
-        await offer.increment('viewCount', { by: 1, transaction });
+
+        // Only increment view count if this is the first time the user views this offer
+        if (created) {
+          await offer.increment('viewCount', { by: 1, transaction });
+        }
       });
     } catch (error) {
       if (error instanceof NotFoundException) throw error;

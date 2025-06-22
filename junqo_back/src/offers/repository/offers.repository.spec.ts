@@ -57,6 +57,7 @@ describe('OffersRepository', () => {
     mockOfferSeenModel = {
       create: jest.fn(),
       findOne: jest.fn(),
+      findOrCreate: jest.fn(),
       destroy: jest.fn(),
     };
 
@@ -224,7 +225,7 @@ describe('OffersRepository', () => {
   });
 
   describe('markOfferAsViewed', () => {
-    it('should mark an offer as viewed', async () => {
+    it('should mark an offer as viewed and increment view count for first view', async () => {
       const offerId = 'e42cc25b-0cc4-4032-83c2-0d34c84318ba';
       const userId = 'e69cc25b-0cc4-4032-83c2-0d34c84318ba';
       const expectedOffer: OfferDTO = offers[0];
@@ -235,21 +236,53 @@ describe('OffersRepository', () => {
       };
 
       mockOfferModel.findByPk.mockResolvedValue(offerModel);
-      mockOfferSeenModel.create.mockResolvedValue({
-        userId,
-        offerId,
-      });
+      // Mock findOrCreate to return [instance, true] indicating a new record was created
+      mockOfferSeenModel.findOrCreate.mockResolvedValue([
+        { userId, offerId },
+        true, // created = true
+      ]);
 
       await offersRepository.markOfferAsViewed(userId, offerId);
+
       expect(mockOfferModel.findByPk).toHaveBeenCalledWith(offerId);
-      expect(mockOfferSeenModel.create).toHaveBeenCalledWith(
-        { userId, offerId },
-        { transaction: undefined },
-      );
+      expect(mockOfferSeenModel.findOrCreate).toHaveBeenCalledWith({
+        where: { userId, offerId },
+        defaults: { userId, offerId },
+        transaction: undefined,
+      });
       expect(offerModel.increment).toHaveBeenCalledWith('viewCount', {
         by: 1,
         transaction: undefined,
       });
+    });
+
+    it('should mark an offer as viewed but not increment view count for repeated view', async () => {
+      const offerId = 'e42cc25b-0cc4-4032-83c2-0d34c84318ba';
+      const userId = 'e69cc25b-0cc4-4032-83c2-0d34c84318ba';
+      const expectedOffer: OfferDTO = offers[0];
+      const offerModel: OfferModel = {
+        ...offers[0],
+        ...mockOfferModel,
+        toOfferDTO: jest.fn().mockResolvedValue(expectedOffer),
+      };
+
+      mockOfferModel.findByPk.mockResolvedValue(offerModel);
+      // Mock findOrCreate to return [instance, false] indicating record already existed
+      mockOfferSeenModel.findOrCreate.mockResolvedValue([
+        { userId, offerId },
+        false, // created = false
+      ]);
+
+      await offersRepository.markOfferAsViewed(userId, offerId);
+
+      expect(mockOfferModel.findByPk).toHaveBeenCalledWith(offerId);
+      expect(mockOfferSeenModel.findOrCreate).toHaveBeenCalledWith({
+        where: { userId, offerId },
+        defaults: { userId, offerId },
+        transaction: undefined,
+      });
+      // View count should NOT be incremented for repeated views
+      expect(offerModel.increment).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if the offer does not exist', async () => {
