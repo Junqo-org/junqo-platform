@@ -9,6 +9,7 @@ import { OffersService } from '../src/offers/offers.service';
 import { OfferStatus } from '../src/offers/dto/offer-status.enum';
 import { OfferType } from '../src/offers/dto/offer-type.enum';
 import { WorkContext } from '../src/offers/dto/work-context.enum';
+import { RandomUuid } from 'testcontainers';
 
 const baseRoute = '/api/v1/offers';
 const authBaseRoute = '/api/v1/auth';
@@ -231,7 +232,7 @@ describe('Offers E2E Tests', () => {
 
     it('should throw not found error for non-existent offer ID', async () => {
       await request(testEnv.app.getHttpServer())
-        .get(`${baseRoute}/00000000-0000-0000-0000-000000000000`)
+        .get(`${baseRoute}/${crypto.randomUUID()}`)
         .set('Authorization', `Bearer ${studentToken}`)
         .expect(HttpStatus.NOT_FOUND);
     });
@@ -427,7 +428,7 @@ describe('Offers E2E Tests', () => {
 
     it('should return error for non-existent offer ID', async () => {
       await request(testEnv.app.getHttpServer())
-        .delete(`${baseRoute}/00000000-0000-0000-0000-000000000000`)
+        .delete(`${baseRoute}/${crypto.randomUUID()}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(HttpStatus.NOT_FOUND);
     });

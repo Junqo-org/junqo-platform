@@ -7,8 +7,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OfferQueryDTO, OfferQueryOutputDTO } from '../dto/offer-query.dto';
-import { Op } from 'sequelize';
 import { OfferSeenModel } from './models/offer-seen.model';
+import { ForeignKeyConstraintError, Op } from 'sequelize';
 
 export class OffersRepository {
   constructor(
@@ -186,6 +186,8 @@ export class OffersRepository {
 
       return newOffer;
     } catch (error) {
+      if (error instanceof ForeignKeyConstraintError)
+        throw new BadRequestException('Referenced ID does not exist');
       throw new InternalServerErrorException(
         `Failed to create Offer: ${error.message}`,
       );
