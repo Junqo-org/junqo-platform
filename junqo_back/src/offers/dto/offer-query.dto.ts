@@ -139,9 +139,9 @@ export class OfferQueryDTO {
 
   @ApiPropertyOptional({
     description: 'Filter by seen status',
-    enum: ['all', 'true', 'false'],
-    default: 'all',
-    example: 'all',
+    enum: ['any', 'true', 'false'],
+    default: 'any',
+    example: 'any',
   })
   @Expose()
   @IsOptional()
