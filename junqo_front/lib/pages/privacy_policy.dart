@@ -33,7 +33,7 @@ Les données sont conservées aussi longtemps que nécessaire ou selon la loi.
 Des mesures techniques et organisationnelles sont mises en place pour protéger vos données. En cas de faille, vous serez notifié(e).
 
 7. Vos droits (RGPD)
-Vous pouvez exercer vos droits d’accès, de rectification, d’effacement, d’opposition, de portabilité, ou retirer votre consentement à tout moment via Junqo.solution@protonmail.com
+Vous pouvez exercer vos droits d’accès, de rectification, d’effacement, d’opposition, de portabilité, ou retirer votre consentement à tout moment via junqo-project@junqo.fr
 
 8. Données des mineurs
 Notre Service n’est pas destiné aux enfants de moins de 13 ans.
@@ -45,7 +45,7 @@ Si des données sont transférées en dehors de l’UE, des garanties juridiques
 Nous nous réservons le droit de modifier cette politique. Vous serez notifié(e) en cas de changement important.
 
 11. Contact
-Pour toute question ou réclamation, veuillez nous contacter à : Junqo.solution@protonmail.com
+Pour toute question ou réclamation, veuillez nous contacter à : junqo-project@junqo.fr
 ''';
 
 class PrivacyPolicy extends StatelessWidget {
