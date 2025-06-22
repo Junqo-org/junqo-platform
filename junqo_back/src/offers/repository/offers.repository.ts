@@ -304,13 +304,11 @@ export class OffersRepository {
       }
 
       await this.offerModel.sequelize.transaction(async (transaction) => {
-        await this.offerSeenModel.create(
-          {
-            userId,
-            offerId,
-          },
-          { transaction },
-        );
+        await this.offerSeenModel.findOrCreate({
+          where: { userId, offerId },
+          defaults: { userId, offerId },
+          transaction,
+        });
         await offer.increment('viewCount', { by: 1, transaction });
       });
     } catch (error) {
