@@ -8,11 +8,14 @@ import {
 } from '@nestjs/common';
 import { OfferQueryDTO, OfferQueryOutputDTO } from '../dto/offer-query.dto';
 import { Op } from 'sequelize';
+import { OfferSeenModel } from './models/offer-seen.model';
 
 export class OffersRepository {
   constructor(
     @InjectModel(OfferModel)
     private readonly offerModel: typeof OfferModel,
+    @InjectModel(OfferSeenModel)
+    private readonly offerSeenModel: typeof OfferSeenModel,
   ) {}
 
   public async findAll(): Promise<OfferDTO[]> {
@@ -45,6 +48,7 @@ export class OffersRepository {
    */
   public async findByQuery(
     query: OfferQueryDTO = {},
+    currentUserId?: string,
   ): Promise<OfferQueryOutputDTO> {
     const {
       userId,
@@ -57,6 +61,7 @@ export class OffersRepository {
       workLocationType,
       benefits,
       educationLevel,
+      seen = 'any',
       mode = 'any',
       offset = 0,
       limit = 10,
@@ -98,6 +103,20 @@ export class OffersRepository {
     }
 
     try {
+      if (seen !== 'any' && currentUserId) {
+        const seenOffers = await this.offerSeenModel.findAll({
+          where: { userId: currentUserId },
+          attributes: ['offerId'],
+        });
+        const seenOfferIds = seenOffers.map((offer) => offer.offerId);
+
+        if (seen === 'true') {
+          whereClause.id = { [Op.in]: seenOfferIds };
+        } else if (seen === 'false') {
+          whereClause.id = { [Op.notIn]: seenOfferIds };
+        }
+      }
+
       const { rows, count } = await this.offerModel.findAndCountAll({
         where: whereClause,
         offset,
@@ -269,6 +288,35 @@ export class OffersRepository {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to delete offer: ${error.message}`,
+      );
+    }
+  }
+
+  public async markOfferAsViewed(
+    userId: string,
+    offerId: string,
+  ): Promise<void> {
+    try {
+      const offer = await this.offerModel.findByPk(offerId);
+
+      if (!offer) {
+        throw new NotFoundException(`Offer #${offerId} not found`);
+      }
+
+      await this.offerModel.sequelize.transaction(async (transaction) => {
+        await this.offerSeenModel.create(
+          {
+            userId,
+            offerId,
+          },
+          { transaction },
+        );
+        await offer.increment('viewCount', { by: 1, transaction });
+      });
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to mark offer as viewed: ${error.message}`,
       );
     }
   }

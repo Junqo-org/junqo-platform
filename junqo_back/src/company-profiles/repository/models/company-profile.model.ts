@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   Model,
@@ -11,6 +12,7 @@ import {
 } from '../../../shared/user-validation-constants';
 import { CompanyProfileDTO } from '../../dto/company-profile.dto';
 import { plainToInstance } from 'class-transformer';
+import { UserModel } from '../../../users/repository/models/user.model';
 
 @Table({ tableName: 'CompanyProfiles', timestamps: true, paranoid: true })
 export class CompanyProfileModel extends Model {
@@ -25,6 +27,12 @@ export class CompanyProfileModel extends Model {
     },
   })
   userId: string;
+
+  @BelongsTo(() => UserModel, {
+    foreignKey: 'userId',
+    onDelete: 'CASCADE',
+  })
+  user: UserModel;
 
   @Column({
     type: DataType.STRING,

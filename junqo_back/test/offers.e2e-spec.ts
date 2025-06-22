@@ -48,6 +48,19 @@ const testOfferData = {
   workLocationType: WorkContext.HYBRID,
 };
 
+const secondTestOfferData = {
+  title: 'Backend Developer Intern',
+  description: 'Backend development opportunity',
+  status: OfferStatus.ACTIVE,
+  skills: ['Python', 'Django'],
+  offerType: OfferType.INTERNSHIP,
+  duration: 3,
+  salary: 500,
+  benefits: ['Flexible Hours'],
+  educationLevel: 3,
+  workLocationType: WorkContext.ON_SITE,
+};
+
 describe('Offers E2E Tests', () => {
   let testEnv: {
     app: INestApplication;
@@ -62,6 +75,7 @@ describe('Offers E2E Tests', () => {
   let companyToken: string;
   let companyUserId: string;
   let testOffer;
+  let secondTestOffer;
 
   beforeAll(async () => {
     testEnv = await createTestingEnvironment();
@@ -93,6 +107,13 @@ describe('Offers E2E Tests', () => {
     studentUserId = studentPayload.user.id;
     studentToken = studentPayload.token;
 
+    const studentUserAuth = {
+      id: studentUserId,
+      name: studentUser.name,
+      email: studentUser.email,
+      type: UserType.STUDENT,
+    };
+
     const companyPayload = await authService.signUp({
       name: companyUser.name,
       email: companyUser.email,
@@ -113,6 +134,13 @@ describe('Offers E2E Tests', () => {
       ...testOfferData,
       userId: companyUserId,
     });
+
+    secondTestOffer = await offersService.createOffer(companyUserAuth, {
+      ...secondTestOfferData,
+      userId: companyUserId,
+    });
+
+    await offersService.markOfferAsViewed(studentUserAuth, testOffer.id);
   }, 60000);
 
   afterAll(async () => {
@@ -145,6 +173,45 @@ describe('Offers E2E Tests', () => {
       expect(response.body.count).toBeGreaterThanOrEqual(1);
     });
 
+    it('should filter offers by seen status - all offers (default)', async () => {
+      const response = await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .query('seen=any')
+        .expect(HttpStatus.OK);
+
+      expect(response.body.rows).toBeInstanceOf(Array);
+      expect(response.body.rows.length).toBeGreaterThanOrEqual(2);
+      expect(response.body.count).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should filter offers by seen status - unseen offers only', async () => {
+      const response = await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .query('seen=false')
+        .expect(HttpStatus.OK);
+
+      expect(response.body.rows).toBeInstanceOf(Array);
+      expect(response.body.rows.length).toBe(1);
+      expect(response.body.count).toBe(1);
+    });
+
+    it('should filter offers by seen status - seen offers only', async () => {
+      const response = await request(testEnv.app.getHttpServer())
+        .get(`${baseRoute}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .query('seen=true')
+        .expect(HttpStatus.OK);
+
+      expect(response.body.rows).toBeInstanceOf(Array);
+      expect(response.body.rows.length).toBe(1);
+      expect(response.body.count).toBe(1);
+      expect(response.body.rows[0].id).toBe(testOffer.id);
+    });
+  });
+
+  describe('Get Offer by ID', () => {
     it('should get offer by ID', async () => {
       const response = await request(testEnv.app.getHttpServer())
         .get(`${baseRoute}/${testOffer.id}`)
@@ -375,6 +442,35 @@ describe('Offers E2E Tests', () => {
 
       expect(response.body).toBeInstanceOf(Array);
       expect(response.body.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('Mark Offer as Viewed', () => {
+    it('should mark an offer as viewed by student', async () => {
+      await request(testEnv.app.getHttpServer())
+        .post(`${baseRoute}/view/${secondTestOffer.id}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(HttpStatus.NO_CONTENT);
+    });
+
+    it('should not allow company to mark an offer as viewed', async () => {
+      await request(testEnv.app.getHttpServer())
+        .post(`${baseRoute}/view/${testOffer.id}`)
+        .set('Authorization', `Bearer ${companyToken}`)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it('should return error for non-existent offer ID when marking as viewed', async () => {
+      await request(testEnv.app.getHttpServer())
+        .post(`${baseRoute}/view/00000000-0000-0000-0000-000000000000`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(HttpStatus.NOT_FOUND);
+    });
+
+    it('should require authentication to mark offer as viewed', async () => {
+      await request(testEnv.app.getHttpServer())
+        .post(`${baseRoute}/view/${testOffer.id}`)
+        .expect(HttpStatus.UNAUTHORIZED);
     });
   });
 });

@@ -9,6 +9,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { OfferSeenModel } from './models/offer-seen.model';
 
 const offers: OfferDTO[] = [
   plainToInstance(OfferDTO, {
@@ -36,6 +37,7 @@ const offers: OfferDTO[] = [
 describe('OffersRepository', () => {
   let offersRepository: OffersRepository;
   let mockOfferModel: any;
+  let mockOfferSeenModel: any;
 
   beforeEach(async () => {
     mockOfferModel = {
@@ -44,11 +46,18 @@ describe('OffersRepository', () => {
       findOne: jest.fn(),
       findByPk: jest.fn(),
       update: jest.fn(),
+      increment: jest.fn(),
       destroy: jest.fn(),
       toOfferDTO: jest.fn(),
       sequelize: {
         transaction: jest.fn((transaction) => transaction()),
       },
+    };
+
+    mockOfferSeenModel = {
+      create: jest.fn(),
+      findOne: jest.fn(),
+      destroy: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -57,6 +66,10 @@ describe('OffersRepository', () => {
         {
           provide: getModelToken(OfferModel),
           useValue: mockOfferModel,
+        },
+        {
+          provide: getModelToken(OfferSeenModel),
+          useValue: mockOfferSeenModel,
         },
       ],
     }).compile();
@@ -208,5 +221,46 @@ describe('OffersRepository', () => {
     });
 
     it('should throw InternalServerErrorException if delete fails', async () => {});
+  });
+
+  describe('markOfferAsViewed', () => {
+    it('should mark an offer as viewed', async () => {
+      const offerId = 'e42cc25b-0cc4-4032-83c2-0d34c84318ba';
+      const userId = 'e69cc25b-0cc4-4032-83c2-0d34c84318ba';
+      const expectedOffer: OfferDTO = offers[0];
+      const offerModel: OfferModel = {
+        ...offers[0],
+        ...mockOfferModel,
+        toOfferDTO: jest.fn().mockResolvedValue(expectedOffer),
+      };
+
+      mockOfferModel.findByPk.mockResolvedValue(offerModel);
+      mockOfferSeenModel.create.mockResolvedValue({
+        userId,
+        offerId,
+      });
+
+      await offersRepository.markOfferAsViewed(userId, offerId);
+      expect(mockOfferModel.findByPk).toHaveBeenCalledWith(offerId);
+      expect(mockOfferSeenModel.create).toHaveBeenCalledWith(
+        { userId, offerId },
+        { transaction: undefined },
+      );
+      expect(offerModel.increment).toHaveBeenCalledWith('viewCount', {
+        by: 1,
+        transaction: undefined,
+      });
+    });
+
+    it('should throw NotFoundException if the offer does not exist', async () => {
+      const offerId = 'bad id';
+      const userId = 'e69cc25b-0cc4-4032-83c2-0d34c84318ba';
+
+      mockOfferModel.findByPk.mockResolvedValue(null);
+
+      await expect(
+        offersRepository.markOfferAsViewed(offerId, userId),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
   });
 });

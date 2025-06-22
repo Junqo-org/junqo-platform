@@ -11,6 +11,7 @@ import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { OfferResource } from '../casl/dto/offer-resource.dto';
 import { plainToInstance } from 'class-transformer';
 import { OfferQueryDTO, OfferQueryOutputDTO } from './dto/offer-query.dto';
+import { UserType } from '../users/dto/user-type.enum';
 
 @Injectable()
 export class OffersService {
@@ -72,7 +73,7 @@ export class OffersService {
 
     try {
       const queryResult: OfferQueryOutputDTO =
-        await this.offersRepository.findByQuery(query);
+        await this.offersRepository.findByQuery(query, currentUser.id);
 
       if (!queryResult || queryResult.count === 0) {
         throw new NotFoundException(`No offers found matching query: ${query}`);
@@ -310,6 +311,37 @@ export class OffersService {
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to delete offer: ${error.message}`,
+      );
+    }
+  }
+
+  public async markOfferAsViewed(
+    currentUser: AuthUserDTO,
+    offerId: string,
+  ): Promise<void> {
+    const canMarkAsViewed =
+      currentUser.type === UserType.STUDENT ||
+      currentUser.type === UserType.ADMIN;
+
+    if (!canMarkAsViewed) {
+      throw new ForbiddenException(
+        'Only students or admins can mark offers as viewed',
+      );
+    }
+
+    try {
+      const offer: OfferDTO = await this.findOneById(currentUser, offerId);
+
+      if (!offer) {
+        throw new NotFoundException(`Offer ${offerId} not found`);
+      }
+
+      await this.offersRepository.markOfferAsViewed(currentUser.id, offerId);
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof ForbiddenException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to mark offer as viewed: ${error.message}`,
       );
     }
   }

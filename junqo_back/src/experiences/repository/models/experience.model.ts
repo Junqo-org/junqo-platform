@@ -75,7 +75,10 @@ export class ExperienceModel extends Model {
   })
   studentProfileId: string;
 
-  @BelongsTo(() => StudentProfileModel)
+  @BelongsTo(() => StudentProfileModel, {
+    foreignKey: 'studentProfileId',
+    onDelete: 'CASCADE',
+  })
   studentProfile: StudentProfileModel;
 
   @CreatedAt
