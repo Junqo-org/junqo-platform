@@ -259,7 +259,7 @@ describe('OffersRepository', () => {
       mockOfferModel.findByPk.mockResolvedValue(null);
 
       await expect(
-        offersRepository.markOfferAsViewed(offerId, userId),
+        offersRepository.markOfferAsViewed(userId, offerId),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
   });

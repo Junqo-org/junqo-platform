@@ -336,7 +336,7 @@ export class OffersService {
         throw new NotFoundException(`Offer ${offerId} not found`);
       }
 
-      await this.offersRepository.markOfferAsViewed(currentUser.id, offerId);
+      await this.offersRepository.markOfferAsViewed(currentUser.id, offer.id);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       if (error instanceof ForbiddenException) throw error;
