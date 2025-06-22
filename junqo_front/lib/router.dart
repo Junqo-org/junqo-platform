@@ -18,6 +18,7 @@ import 'package:junqo_front/pages/welcome.dart';
 import 'package:junqo_front/shared/widgets/private_page.dart';
 import 'package:junqo_front/pages/offer_creation.dart';
 import 'package:junqo_front/pages/offer_list.dart';
+import 'package:junqo_front/pages/recruiter_recruiting.dart';
 
 class AppRouter {
   // Fonction pour générer les routes de l'application
@@ -57,6 +58,9 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => PrivatePage(
                 child: JobOfferForm(client: GetIt.instance<RestClient>())));
+      case '/swiping':
+        return MaterialPageRoute(
+            builder: (_) => PrivatePage(child: RecruiterRecruiting()));
       case '/register':
         final userType = settings.arguments;
 

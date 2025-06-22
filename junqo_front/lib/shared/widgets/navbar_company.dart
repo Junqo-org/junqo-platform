@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'notification.dart';
 
+const navbarItemCount =
+    6; // Nombre total d'éléments dans la barre de navigation
+
 class NavbarCompany extends StatefulWidget {
   final int currentIndex;
   const NavbarCompany({super.key, required this.currentIndex});
@@ -25,22 +28,22 @@ class _NavbarCompanyState extends State<NavbarCompany> {
   void dispose() {
     // Marquer comme disposé avant de fermer la notification
     _isDisposed = true;
-    
+
     // Fermer la notification sans appeler setState
     if (_notificationOverlay != null) {
       _notificationOverlay!.remove();
       _notificationOverlay = null;
     }
-    
+
     super.dispose();
   }
 
   void _navigateToPage(BuildContext context, int index) {
     if (_selectedIndex == index) return;
-    
+
     // Ne pas naviguer si c'est l'index des notifications
     if (index == 2) return;
-    
+
     // Vérifier si le widget n'est pas disposé avant de mettre à jour l'état
     if (!_isDisposed) {
       setState(() {
@@ -61,6 +64,9 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         break;
       case 4:
         routeName = '/profile';
+        break;
+      case 5:
+        routeName = '/swiping';
         break;
       default:
         return;
@@ -83,12 +89,13 @@ class _NavbarCompanyState extends State<NavbarCompany> {
   void _showNotificationPopup(BuildContext context, GlobalKey buttonKey) {
     // Vérifier si le widget est disposé
     if (_isDisposed) return;
-    
+
     final buttonContext = buttonKey.currentContext;
     if (buttonContext == null) return;
-    
+
     final RenderBox button = buttonContext.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
     final buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
 
     _notificationOverlay = OverlayEntry(
@@ -122,7 +129,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
       _notificationOverlay?.remove();
       _notificationOverlay = null;
     }
-    
+
     // Vérifier si le widget n'est pas disposé avant de mettre à jour l'état
     if (!_isDisposed && mounted) {
       setState(() {
@@ -133,8 +140,9 @@ class _NavbarCompanyState extends State<NavbarCompany> {
 
   Widget _buildNavItem(int index, {bool showLabel = false}) {
     final isSelected = _selectedIndex == index;
-    final iconColor = isSelected ? const Color(0xFF2563EB) : Colors.grey.shade600;
-    
+    final iconColor =
+        isSelected ? const Color(0xFF2563EB) : Colors.grey.shade600;
+
     // Si c'est l'index des notifications
     if (index == 2) {
       final notificationKey = GlobalKey();
@@ -155,7 +163,9 @@ class _NavbarCompanyState extends State<NavbarCompany> {
                 Icon(
                   Icons.notifications_outlined,
                   size: 24,
-                  color: _isNotificationVisible ? const Color(0xFF2563EB) : Colors.grey.shade600,
+                  color: _isNotificationVisible
+                      ? const Color(0xFF2563EB)
+                      : Colors.grey.shade600,
                 ),
                 if (showLabel) ...[
                   const SizedBox(width: 6),
@@ -164,7 +174,8 @@ class _NavbarCompanyState extends State<NavbarCompany> {
                     style: TextStyle(
                       fontSize: 14,
                       color: iconColor,
-                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.w500 : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -196,7 +207,8 @@ class _NavbarCompanyState extends State<NavbarCompany> {
                       style: TextStyle(
                         fontSize: 14,
                         color: iconColor,
-                        fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.w500 : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -236,7 +248,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var i = 0; i < 5; i++) ...[
+            for (var i = 0; i < navbarItemCount; i++) ...[
               if (i > 0) const SizedBox(width: 16),
               _buildNavItem(i),
             ],
@@ -260,7 +272,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var i = 0; i < 5; i++) ...[
+            for (var i = 0; i < navbarItemCount; i++) ...[
               if (i > 0) const SizedBox(width: 24),
               _buildNavItem(i, showLabel: true),
             ],
@@ -282,6 +294,8 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         return Icons.message_outlined;
       case 4:
         return Icons.person_outline;
+      case 5:
+        return Icons.people_outline;
       default:
         return Icons.home_outlined;
     }
@@ -299,6 +313,8 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         return 'Messagerie';
       case 4:
         return 'Profil';
+      case 5:
+        return 'Recrutement';
       default:
         return '';
     }
