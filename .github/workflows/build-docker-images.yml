@@ -39,8 +39,10 @@ jobs:
 
       - name: Determine image tag
         id: get_tag
+        env:
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
-          if [[ "${{ github.event.workflow_run.head_branch }}" == "dev" ]]; then
+          if [[ "$HEAD_BRANCH" == "dev" ]]; then
             echo "tag_suffix=dev" >> $GITHUB_ENV
           else
             echo "tag_suffix=latest" >> $GITHUB_ENV
