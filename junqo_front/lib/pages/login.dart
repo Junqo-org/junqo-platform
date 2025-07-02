@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:get_it/get_it.dart';
@@ -32,11 +33,16 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
   String? _passwordError;
   bool _isSubmitHovered = false;
   bool _rememberMe = false;
+  bool _isLoading = false;
 
   // Authentication
   final authService = GetIt.instance<AuthService>();
 
   Future<void> _logIn() async {
+    if (!_validateFields()) return;
+    
+    setState(() => _isLoading = true);
+    
     final String email = _emailController.text;
     final String password = _passwordController.text;
 
@@ -45,11 +51,13 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
     } on RestApiException catch (e) {
       LogService.error('API Error: ${e.message}');
       if (!mounted) return;
+      setState(() => _isLoading = false);
       showErrorDialog(e.message, context);
       return;
     } catch (e) {
       LogService.error(e.toString());
       if (!mounted) return;
+      setState(() => _isLoading = false);
       showErrorDialog(
           'Une erreur inattendue s\'est produite. Veuillez réessayer.',
           context);
@@ -216,7 +224,9 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                               ),
                             ],
                           ),
-                        ),
+                        ).animate()
+                            .fadeIn(duration: 400.ms)
+                            .slideY(begin: -0.1, end: 0),
                         Expanded(
                           child: Center(
                             child: Container(
@@ -259,7 +269,14 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                 borderRadius:
                                                     BorderRadius.circular(2),
                                               ),
-                                            ),
+                                            ).animate()
+                                                .scaleY(
+                                                  delay: 200.ms,
+                                                  duration: 400.ms,
+                                                  begin: 0,
+                                                  end: 1,
+                                                  alignment: Alignment.center,
+                                                ),
                                             const Text(
                                               'Connexion',
                                               style: TextStyle(
@@ -268,7 +285,9 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                 color: Color(0xFF1A1A1A),
                                                 height: 1.2,
                                               ),
-                                            ),
+                                            ).animate()
+                                                .fadeIn(delay: 300.ms, duration: 500.ms)
+                                                .slideX(begin: -0.1, end: 0),
                                           ],
                                         ),
                                         const SizedBox(height: 16),
@@ -279,7 +298,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                             color: Colors.grey.shade600,
                                             height: 1.5,
                                           ),
-                                        ),
+                                        ).animate()
+                                            .fadeIn(delay: 400.ms, duration: 500.ms),
                                       ],
                                     ),
                                   ),
@@ -292,7 +312,9 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                     keyboardType: TextInputType.emailAddress,
                                     isError: _emailError != null,
                                     errorText: _emailError,
-                                  ),
+                                  ).animate()
+                                      .fadeIn(delay: 500.ms, duration: 500.ms)
+                                      .slideY(begin: 0.1, end: 0),
                                   const SizedBox(height: 24),
 
                                   _buildTextField(
@@ -305,7 +327,9 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                         () => _isPasswordVisible = value),
                                     isError: _passwordError != null,
                                     errorText: _passwordError,
-                                  ),
+                                  ).animate()
+                                      .fadeIn(delay: 600.ms, duration: 500.ms)
+                                      .slideY(begin: 0.1, end: 0),
                                   const SizedBox(height: 16),
 
                                   // Remember me and Forgot password
@@ -356,11 +380,15 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                         ),
                                       ),
                                     ],
-                                  ),
+                                  ).animate()
+                                      .fadeIn(delay: 700.ms, duration: 500.ms),
                                   const SizedBox(height: 26),
 
                                   // Submit button
-                                  _buildSubmitButton(_logIn),
+                                  _buildSubmitButton(_logIn)
+                                      .animate()
+                                      .fadeIn(delay: 800.ms, duration: 500.ms)
+                                      .scale(begin: const Offset(0.95, 0.95)),
                                   const SizedBox(height: 24),
 
                                   // Sign up link
@@ -397,7 +425,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                         ),
                                       ],
                                     ),
-                                  ),
+                                  ).animate()
+                                      .fadeIn(delay: 900.ms, duration: 500.ms),
                                   const SizedBox(height: 20),
 
                                   // Terms
@@ -453,10 +482,16 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                         ],
                                       ),
                                     ),
-                                  ),
+                                  ).animate()
+                                      .fadeIn(delay: 1000.ms, duration: 500.ms),
                                 ],
                               ),
-                            ),
+                            ).animate()
+                                .fadeIn(delay: 100.ms, duration: 600.ms)
+                                .scale(
+                                  begin: const Offset(0.95, 0.95),
+                                  curve: Curves.easeOutCubic,
+                                ),
                           ),
                         ),
                       ],

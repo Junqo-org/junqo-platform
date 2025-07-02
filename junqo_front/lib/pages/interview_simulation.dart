@@ -20,9 +20,12 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
   final ApiService _apiService = GetIt.instance<ApiService>();
   
   bool _isLoading = false;
-  List<Map<String, String>> _conversation = [];
+  bool _isLoadingTip = false;
+  List<Map<String, dynamic>> _conversation = [];
   int _questionCount = 0;
   bool _isFirstMessage = true;
+  String _lastAiQuestion = '';
+  String _lastUserAnswer = '';
 
   // Animation controller for typing indicator dots
   late AnimationController _dotAnimationController;
@@ -34,8 +37,8 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
     // Improved welcome message
     _conversation.add({
       'role': 'assistant',
-      'content':
-          'Bonjour! Prêt à simuler votre entretien?\nIndiquez le poste ou le contexte ci-dessus, puis envoyez votre première réponse ou question.'
+      'content': 'Bonjour! Prêt à simuler votre entretien?\nIndiquez le poste ou le contexte ci-dessus, puis envoyez votre première réponse ou question.',
+      'showTipButton': false,
     });
 
     // Initialize animation controller for typing dots
@@ -53,9 +56,6 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
         curve: Interval(index * 0.15, (index * 0.15) + 0.7, curve: Curves.easeInOut),
       ));
     });
-
-    // Start dot animation only when loading
-    // _dotAnimationController.repeat(); // We'll control this based on _isLoading
   }
 
   @override
@@ -84,10 +84,13 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
       _conversation.add({
         'role': 'user',
         'content': userMessage,
+        'showTipButton': !_isFirstMessage, // Show tip button for user responses (except first)
+        'tip': null, // Will be filled when tip is requested
       });
       _messageController.clear();
       if (!_isFirstMessage) {
         _questionCount++;
+        _lastUserAnswer = userMessage; // Store user answer for tip generation
       }
     });
 
@@ -104,17 +107,18 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
         context: context, // Pass context for better AI responses
       );
 
+      final aiResponse = response['response'] ?? 'Désolé, je n\'ai pas pu générer de réponse.';
+
       setState(() {
         _isLoading = false;
         _dotAnimationController.stop(); // Stop dot animation
         _conversation.add({
           'role': 'assistant',
-          'content': response['response'] ?? 'Désolé, je n\'ai pas pu générer de réponse.',
+          'content': aiResponse,
+          'showTipButton': false,
         });
         _isFirstMessage = false; // Mark that the first message cycle is complete
-        // Increment question count here if the AI asked a question
-        // (Requires parsing AI response or assuming it asks one)
-        // For simplicity, we increment based on user responses after the first.
+        _lastAiQuestion = aiResponse; // Store AI question for tip generation
       });
 
       _scrollToBottom();
@@ -125,6 +129,7 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
         _conversation.add({
           'role': 'assistant',
           'content': 'Erreur: Impossible de contacter l\'assistant. Veuillez réessayer.',
+          'showTipButton': false,
         });
       });
 
@@ -141,12 +146,81 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
     }
   }
 
+  Future<void> _getTip(int messageIndex) async {
+    if (_isLoadingTip) return;
+
+    setState(() {
+      _isLoadingTip = true;
+    });
+
+    try {
+      final userMessage = _conversation[messageIndex];
+      final userAnswer = userMessage['content'] as String;
+      
+      // Find the AI question that preceded this user answer
+      String aiQuestion = '';
+      for (int i = messageIndex - 1; i >= 0; i--) {
+        if (_conversation[i]['role'] == 'assistant') {
+          aiQuestion = _conversation[i]['content'] as String;
+          break;
+        }
+      }
+
+      final context = _contextController.text.trim().isNotEmpty
+          ? _contextController.text
+          : "entretien général";
+
+      // Create a specific prompt for generating tips
+      final tipPrompt = '''
+Analyse cette réponse d'entretien et donne des conseils d'amélioration spécifiques et constructifs.
+
+Contexte du poste: $context
+Question posée: $aiQuestion
+Réponse du candidat: $userAnswer
+
+Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en français. Sois bienveillant mais précis sur les points d'amélioration.
+''';
+
+      final response = await _apiService.simulateInterview(
+        message: tipPrompt,
+        context: "conseiller en recrutement expert",
+      );
+
+      final tip = response['response'] ?? 'Conseil non disponible pour le moment.';
+
+      setState(() {
+        _conversation[messageIndex]['tip'] = tip;
+        _isLoadingTip = false;
+      });
+
+      HapticFeedback.lightImpact();
+      _scrollToBottom();
+      
+    } catch (e) {
+      setState(() {
+        _conversation[messageIndex]['tip'] = 'Erreur lors de la génération du conseil. Veuillez réessayer.';
+        _isLoadingTip = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la génération du conseil: ${e.toString()}'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   void _resetSimulation() {
     setState(() {
       _conversation = [
         {
           'role': 'assistant',
           'content': 'Simulation réinitialisée. Indiquez le contexte et commencez quand vous êtes prêt.',
+          'showTipButton': false,
         }
       ];
       _isFirstMessage = true;
@@ -154,6 +228,9 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
       _contextController.clear();
       _messageController.clear();
       _isLoading = false;
+      _isLoadingTip = false;
+      _lastAiQuestion = '';
+      _lastUserAnswer = '';
       _dotAnimationController.stop(); // Stop animation on reset
     });
      HapticFeedback.mediumImpact();
@@ -401,61 +478,178 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
     );
   }
 
-  Widget _buildMessageBubble(Map<String, String> item, bool isUser) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Row(
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end, // Align avatars to bottom
-        children: [
-          // AI Avatar
-          if (!isUser)
-            CircleAvatar(
-              backgroundColor: Colors.indigo.shade50,
-              radius: 16, // Consistent smaller avatar
-              child: Icon(Icons.smart_toy_outlined, color: Colors.indigo.shade600, size: 18),
-            ),
-          if (!isUser) const SizedBox(width: 8), // Reduced space
+  Widget _buildMessageBubble(Map<String, dynamic> item, bool isUser) {
+    final messageIndex = _conversation.indexOf(item);
+    final showTipButton = item['showTipButton'] == true;
+    final tip = item['tip'] as String?;
 
-          // Message Content Bubble
-          Flexible( // Allow bubble to expand but not overflow
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Adjusted padding
-              decoration: BoxDecoration(
-                color: isUser ? Colors.indigo.shade600 : Colors.grey.shade200, // Lighter grey for AI
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(14),
-                  topRight: const Radius.circular(14),
-                  bottomLeft: Radius.circular(isUser ? 14 : 4),
-                  bottomRight: Radius.circular(isUser ? 4 : 14),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Column(
+        crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          // Main message row
+          Row(
+            mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // AI Avatar
+              if (!isUser)
+                CircleAvatar(
+                  backgroundColor: Colors.indigo.shade50,
+                  radius: 16,
+                  child: Icon(Icons.smart_toy_outlined, color: Colors.indigo.shade600, size: 18),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04), // Softer shadow
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
-                  )
-                ]
-              ),
-              child: SelectableText( // Make text selectable
-                item['content'] ?? '',
-                style: TextStyle(
-                  fontSize: 14.5, // Slightly smaller font
-                  color: isUser ? Colors.white : Colors.black.withOpacity(0.85), // Good contrast for AI
-                  height: 1.35,
+              if (!isUser) const SizedBox(width: 8),
+
+              // Message Content Bubble
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isUser ? Colors.indigo.shade600 : Colors.grey.shade200,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(14),
+                      topRight: const Radius.circular(14),
+                      bottomLeft: Radius.circular(isUser ? 14 : 4),
+                      bottomRight: Radius.circular(isUser ? 4 : 14),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      )
+                    ]
+                  ),
+                  child: SelectableText(
+                    item['content'] ?? '',
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      color: isUser ? Colors.white : Colors.black.withOpacity(0.85),
+                      height: 1.35,
+                    ),
+                  ),
                 ),
               ),
-            ),
+
+              // User Avatar
+              if (isUser) const SizedBox(width: 8),
+              if (isUser)
+                 CircleAvatar(
+                   backgroundColor: Colors.indigo.shade600,
+                   radius: 16,
+                  child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
+                 ),
+            ],
           ),
 
-          // User Avatar
-          if (isUser) const SizedBox(width: 8),
-          if (isUser)
-             CircleAvatar(
-               backgroundColor: Colors.indigo.shade600,
-               radius: 16,
-              child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
-             ),
+          // Tip button and tip display (only for user messages)
+          if (showTipButton) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (tip == null) ...[
+                  // Show tip button
+                  Container(
+                    margin: const EdgeInsets.only(right: 40), // Account for avatar space
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoadingTip ? null : () => _getTip(messageIndex),
+                      icon: _isLoadingTip 
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade600),
+                            ),
+                          )
+                        : Icon(Icons.lightbulb_outline, size: 16, color: Colors.orange.shade600),
+                      label: Text(
+                        _isLoadingTip ? "Génération..." : "Conseil",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.orange.shade600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange.shade50,
+                        foregroundColor: Colors.orange.shade600,
+                        elevation: 1,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: Colors.orange.shade200, width: 1),
+                        ),
+                        minimumSize: const Size(0, 32),
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  // Show tip content
+                  Flexible(
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 40), // Account for avatar space
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.orange.shade50,
+                            Colors.orange.shade100,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.orange.shade200, width: 1),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.1),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.lightbulb,
+                                size: 16,
+                                color: Colors.orange.shade600,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                "Conseil d'amélioration",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          SelectableText(
+                            tip,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.orange.shade800,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
     );

@@ -9,5 +9,6 @@ import { ApplicationsService } from './applications.service';
   controllers: [ApplicationsController],
   providers: [ApplicationsService],
   imports: [ApplicationsRepositoryModule, CaslModule, OffersModule],
+  exports: [ApplicationsService],
 })
 export class ApplicationsModule {}

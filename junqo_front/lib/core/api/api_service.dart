@@ -7,6 +7,8 @@ import 'package:junqo_front/shared/enums/offer_enums.dart';
 import 'package:junqo_front/shared/dto/student_profile.dart';
 import 'package:junqo_front/shared/dto/company_profile.dart';
 import 'package:flutter/foundation.dart';
+import 'package:junqo_front/shared/dto/application_data.dart';
+import 'package:junqo_front/shared/dto/application_query_result_data.dart';
 
 /// Service centralisé pour effectuer des appels API REST
 class ApiService {
@@ -236,6 +238,54 @@ class ApiService {
         return false;
       }
       // Pour les autres types d'erreurs, on les propage
+      rethrow;
+    }
+  }
+
+  // ************ CANDIDATURES (APPLICATIONS) ************
+
+  /// Récupérer toutes les candidatures pour une offre spécifique (pour l'entreprise propriétaire)
+  Future<ApplicationQueryResultData> getApplicationsForOffer(String offerId, {int offset = 0, int limit = 10}) async {
+    try {
+      final Map<String, String> queryParams = {
+        'offerId': offerId,
+        'offset': offset.toString(),
+        'limit': limit.toString(),
+      };
+      final response = await client.getQuery(
+        ApiEndpoints.getApplicationsForOffer,
+        query: queryParams,
+      );
+      // Assuming the response is directly the JSON for ApplicationQueryResultData
+      return ApplicationQueryResultData.fromJson(response);
+    } catch (e) {
+      debugPrint('Error getting applications for offer $offerId: $e');
+      // Return an empty result on error or rethrow based on how you handle errors
+      if (e is RestApiException && e.statusCode == 404) {
+         return ApplicationQueryResultData(rows: [], count: 0);
+      }
+      rethrow;
+    }
+  }
+
+  /// Mettre à jour le statut d'une candidature
+  Future<ApplicationData> updateApplicationStatus(String applicationId, String newStatus) async {
+    try {
+      final requestData = {
+        'status': newStatus,
+      };
+      
+      debugPrint('Updating application $applicationId with status: $newStatus');
+      
+      final response = await client.patch(
+        ApiEndpoints.updateApplication(applicationId),
+        body: requestData,
+      );
+      
+      debugPrint('Application status updated successfully');
+      return ApplicationData.fromJson(response);
+    } catch (e) {
+      debugPrint('Error updating application status: $e');
       rethrow;
     }
   }

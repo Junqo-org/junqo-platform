@@ -22,6 +22,7 @@ class ApiEndpoints {
   static String getApplicationById(String id) => '/applications/$id';
   static String updateApplication(String id) => '/applications/$id';
   static String postulateOffer(String id) => '/applications/apply/$id';
+  static const String getApplicationsForOffer = '/applications';
 
   // Simulation d'entretien
   static const String interviewSimulation = '/interview-simulation';

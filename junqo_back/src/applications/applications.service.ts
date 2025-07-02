@@ -66,11 +66,7 @@ export class ApplicationsService {
       const queryResult: ApplicationQueryOutputDTO =
         await this.applicationsRepository.findByQuery(query);
 
-      if (!queryResult || queryResult.count === 0) {
-        throw new NotFoundException(
-          `No applications found matching query: ${query}`,
-        );
-      }
+      // Verify permissions for each application (extra security layer)
       queryResult.rows.forEach((application) => {
         const applicationResource = plainToInstance(
           ApplicationResource,
@@ -86,7 +82,6 @@ export class ApplicationsService {
 
       return queryResult;
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch applications: ${error.message}`,

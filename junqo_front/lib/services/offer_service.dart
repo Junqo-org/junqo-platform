@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
+import 'package:junqo_front/shared/dto/application_query_result_data.dart';
 
 class OfferService {
   final RestClient client;
@@ -67,6 +68,18 @@ class OfferService {
     } catch (e) {
       debugPrint('Error deleting offer: $e');
       rethrow;
+    }
+  }
+
+  /// Récupère les candidatures pour une offre spécifique
+  Future<ApplicationQueryResultData> getApplicationsForOffer(String offerId, {int offset = 0, int limit = 10}) async {
+    try {
+      return await _apiService.getApplicationsForOffer(offerId, offset: offset, limit: limit);
+    } catch (e) {
+      debugPrint('Error in OfferService getting applications for offer $offerId: $e');
+      // Depending on your error handling strategy, you might return an empty list or rethrow
+      // For consistency, let's rethrow or return a default empty object
+      return ApplicationQueryResultData(rows: [], count: 0); // Or rethrow
     }
   }
 }
