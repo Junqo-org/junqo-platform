@@ -41,12 +41,14 @@ jobs:
       - name: Run functional tests
         env:
           DOTENV_CONFIG_PATH: "./.env.ci"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         working-directory: junqo_back
         run: npm test
 
       - name: Run e2e tests
         env:
           DOTENV_CONFIG_PATH: "./.env.ci"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         working-directory: junqo_back
         run: npm run test:e2e
 
