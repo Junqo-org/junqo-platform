@@ -86,6 +86,7 @@ export class ApplicationsService {
 
       return queryResult;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch applications: ${error.message}`,
