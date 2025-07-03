@@ -41,7 +41,10 @@ export class ApplicationModel extends Model {
   })
   studentId: string;
 
-  @BelongsTo(() => StudentProfileModel, 'studentId')
+  @BelongsTo(() => StudentProfileModel, {
+    foreignKey: 'studentId',
+    onDelete: 'CASCADE',
+  })
   student: StudentProfileModel;
 
   @ForeignKey(() => CompanyProfileModel)
@@ -54,7 +57,10 @@ export class ApplicationModel extends Model {
   })
   companyId: string;
 
-  @BelongsTo(() => CompanyProfileModel, 'companyId')
+  @BelongsTo(() => CompanyProfileModel, {
+    foreignKey: 'companyId',
+    onDelete: 'CASCADE',
+  })
   company: CompanyProfileModel;
 
   @ForeignKey(() => OfferModel)
@@ -67,7 +73,10 @@ export class ApplicationModel extends Model {
   })
   offerId: string;
 
-  @BelongsTo(() => OfferModel, 'offerId')
+  @BelongsTo(() => OfferModel, {
+    foreignKey: 'offerId',
+    onDelete: 'CASCADE',
+  })
   offer: OfferModel;
 
   @Column({ type: DataType.ENUM(...Object.values(ApplicationStatus)) })
