@@ -66,6 +66,10 @@ export class ApplicationsService {
       const queryResult: ApplicationQueryOutputDTO =
         await this.applicationsRepository.findByQuery(query);
 
+      if (!queryResult.rows || queryResult.rows.length === 0) {
+        throw new NotFoundException('No applications found matching the query');
+      }
+
       // Verify permissions for each application (extra security layer)
       queryResult.rows.forEach((application) => {
         const applicationResource = plainToInstance(
