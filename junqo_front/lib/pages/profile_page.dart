@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
 import 'package:junqo_front/core/auth_service.dart';
 import 'package:junqo_front/core/user_service.dart';
@@ -8,6 +9,8 @@ import 'package:junqo_front/shared/dto/student_profile.dart';
 import 'package:junqo_front/shared/enums/user_type.dart';
 import 'package:junqo_front/shared/errors/show_error_dialog.dart';
 import 'package:junqo_front/shared/widgets/navbar_company.dart';
+import 'package:junqo_front/shared/widgets/animated_widgets.dart';
+import 'package:junqo_front/shared/theme/app_theme.dart';
 import '../shared/widgets/navbar.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -332,175 +335,227 @@ class ProfilePageState extends State<ProfilePage> {
 
     // Profil étudiant
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: Column(
-        children: [
-          const Navbar(currentIndex: 4),
-          Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF6366F1)))
-                : SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 32),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 800),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildHeader(),
-                              const SizedBox(height: 32),
-                              _buildToggleEditButton(),
-                              const SizedBox(height: 16),
-                              _buildStudentDetailsCard(),
-                              const SizedBox(height: 24),
-                              _buildSkillsCard(),
-                              const SizedBox(height: 24),
-                              _buildExperiencesCard(),
-                              const SizedBox(height: 24),
-                              if (_isEditing) _buildSaveButton(),
-                              const SizedBox(height: 16),
-                              _buildLogoutButton(),
-                              const SizedBox(height: 40),
-                            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFF8FAFC),
+              Color(0xFFE2E8F0),
+              Color(0xFFF1F5F9),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Floating particles background
+            const FloatingParticles(
+              numberOfParticles: 10,
+              color: AppTheme.primaryColor,
+              maxSize: 4.0,
+            ),
+            
+            Column(
+              children: [
+                const Navbar(currentIndex: 4),
+                Expanded(
+                  child: _isLoading
+                      ? Container(
+                          decoration: const BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
+                          ),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 4,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                ),
+                                SizedBox(height: 24),
+                                Text(
+                                  'Chargement de votre profil...',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 32),
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 800),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    _buildHeader().animate()
+                                        .fadeIn(duration: 600.ms)
+                                        .slideY(begin: -0.2, end: 0),
+                                    const SizedBox(height: 32),
+                                    AnimatedCard(
+                                      delay: 200.ms,
+                                      child: _buildToggleEditButton(),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    AnimatedCard(
+                                      delay: 300.ms,
+                                      child: _buildStudentDetailsCard(),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    AnimatedCard(
+                                      delay: 400.ms,
+                                      child: _buildSkillsCard(),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    AnimatedCard(
+                                      delay: 500.ms,
+                                      child: _buildExperiencesCard(),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    if (_isEditing) 
+                                      AnimatedCard(
+                                        delay: 600.ms,
+                                        child: _buildSaveButton(),
+                                      ),
+                                    const SizedBox(height: 16),
+                                    AnimatedCard(
+                                      delay: 700.ms,
+                                      child: _buildLogoutButton(),
+                                    ),
+                                    const SizedBox(height: 40),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-          ),
-        ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(
-                Icons.person_outline,
-                color: Color(0xFF6366F1),
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 16),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Profil étudiant",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    "Complétez votre profil pour attirer l'attention des recruteurs",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF), // Blue 50
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFBFDBFE)), // Blue 200
-          ),
-          child: const Row(
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        gradient: AppTheme.primaryGradient,
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusXLarge),
+        boxShadow: AppTheme.elevatedShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Icon(Icons.info_outline_rounded,
-                  color: Color(0xFF3B82F6)), // Blue 500
-              SizedBox(width: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.person_outline,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ).animate()
+                  .scale(delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
+              const SizedBox(width: 20),
               Expanded(
-                child: Text(
-                  "Votre profil est visible par les recruteurs. Assurez-vous que toutes les informations sont à jour pour maximiser vos chances.",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF2563EB), // Blue 600
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Profil étudiant",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ).animate()
+                        .fadeIn(delay: 200.ms, duration: 600.ms)
+                        .slideX(begin: -0.2, end: 0),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Complétez votre profil pour attirer l'attention des recruteurs",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ).animate()
+                        .fadeIn(delay: 400.ms, duration: 600.ms)
+                        .slideX(begin: -0.2, end: 0),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.info_outline_rounded,
+                  color: Colors.white,
+                ).animate()
+                    .scale(delay: 600.ms, duration: 300.ms),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Text(
+                    "Votre profil est visible par les recruteurs. Assurez-vous que toutes les informations sont à jour pour maximiser vos chances.",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ).animate()
+                    .fadeIn(delay: 700.ms, duration: 500.ms),
+              ],
+            ),
+          ).animate()
+              .fadeIn(delay: 500.ms, duration: 600.ms)
+              .slideY(begin: 0.2, end: 0),
+        ],
+      ),
     );
   }
 
   Widget _buildToggleEditButton() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
       padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _isEditing = !_isEditing;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isEditing
-                    ? const Color(0xFF475569)
-                    : const Color(0xFF6366F1),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(_isEditing ? Icons.check : Icons.edit, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    _isEditing ? 'Terminer l\'édition' : 'Modifier le profil',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+      margin: const EdgeInsets.all(4), // Marge pour l'effet de scale
+      child: AnimatedButton(
+        text: _isEditing ? 'Terminer l\'édition' : 'Modifier le profil',
+        icon: _isEditing ? Icons.check : Icons.edit,
+        customColor: _isEditing ? AppTheme.successColor : AppTheme.primaryColor,
+        onPressed: () {
+          setState(() {
+            _isEditing = !_isEditing;
+          });
+        },
       ),
     );
   }
@@ -725,28 +780,48 @@ class ProfilePageState extends State<ProfilePage> {
             Wrap(
               spacing: 12,
               runSpacing: 12,
-              children: skills.map((skill) {
-                return Chip(
-                  label: Text(skill),
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                  ),
-                  backgroundColor: const Color(0xFF6366F1),
-                  deleteIconColor:
-                      _isEditing ? Colors.white : Colors.transparent,
-                  onDeleted: _isEditing
-                      ? () {
-                          setState(() {
-                            skills.remove(skill);
-                          });
-                        }
-                      : null,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+              children: skills.asMap().entries.map((entry) {
+                final index = entry.key;
+                final skill = entry.value;
+                return AnimatedListItem(
+                  index: index,
+                  delay: const Duration(milliseconds: 50),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryColor.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Chip(
+                      label: Text(skill),
+                      labelStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                      backgroundColor: Colors.transparent,
+                      deleteIconColor:
+                          _isEditing ? Colors.white : Colors.transparent,
+                      onDeleted: _isEditing
+                          ? () {
+                              setState(() {
+                                skills.remove(skill);
+                              });
+                            }
+                          : null,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        side: BorderSide.none,
+                      ),
+                    ),
                   ),
                 );
               }).toList(),
@@ -1266,90 +1341,31 @@ class ProfilePageState extends State<ProfilePage> {
 
   Widget _buildSaveButton() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
       padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: _saveProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6366F1),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Enregistrer le profil',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
+      margin: const EdgeInsets.all(4), // Marge pour l'effet de scale
+      child: AnimatedButton(
+        text: 'Enregistrer le profil',
+        icon: Icons.save,
+        isLoading: _isLoading,
+        customColor: AppTheme.successColor,
+        onPressed: _saveProfile,
       ),
     );
   }
 
   Widget _buildLogoutButton() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
       padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () async {
-                await authService.logout();
-                if (!mounted) return;
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Se déconnecter',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
+      margin: const EdgeInsets.all(4), // Marge pour l'effet de scale
+      child: AnimatedButton(
+        text: 'Se déconnecter',
+        icon: Icons.logout,
+        customColor: AppTheme.errorColor,
+        onPressed: () async {
+          await authService.logout();
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/login');
+        },
       ),
     );
   }

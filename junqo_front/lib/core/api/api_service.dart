@@ -7,6 +7,8 @@ import 'package:junqo_front/shared/enums/offer_enums.dart';
 import 'package:junqo_front/shared/dto/student_profile.dart';
 import 'package:junqo_front/shared/dto/company_profile.dart';
 import 'package:flutter/foundation.dart';
+import 'package:junqo_front/shared/dto/application_data.dart';
+import 'package:junqo_front/shared/dto/application_query_result_data.dart';
 
 /// Service centralisé pour effectuer des appels API REST
 class ApiService {
@@ -236,6 +238,75 @@ class ApiService {
         return false;
       }
       // Pour les autres types d'erreurs, on les propage
+      rethrow;
+    }
+  }
+
+  // ************ CANDIDATURES (APPLICATIONS) ************
+
+  /// Récupérer toutes les candidatures pour une offre spécifique (pour l'entreprise propriétaire)
+  Future<ApplicationQueryResultData> getApplicationsForOffer(String offerId, {int offset = 0, int limit = 10}) async {
+    try {
+      final Map<String, String> queryParams = {
+        'offerId': offerId,
+        'offset': offset.toString(),
+        'limit': limit.toString(),
+      };
+      final response = await client.getQuery(
+        ApiEndpoints.getApplicationsForOffer,
+        query: queryParams,
+      );
+      // Assuming the response is directly the JSON for ApplicationQueryResultData
+      return ApplicationQueryResultData.fromJson(response);
+    } catch (e) {
+      debugPrint('Error getting applications for offer $offerId: $e');
+      // Return an empty result on error or rethrow based on how you handle errors
+      if (e is RestApiException && e.statusCode == 404) {
+         return ApplicationQueryResultData(rows: [], count: 0);
+      }
+      rethrow;
+    }
+  }
+
+  /// Mettre à jour le statut d'une candidature
+  Future<ApplicationData> updateApplicationStatus(String applicationId, String newStatus) async {
+    try {
+      final requestData = {
+        'status': newStatus,
+      };
+      
+      debugPrint('Updating application $applicationId with status: $newStatus');
+      
+      final response = await client.patch(
+        ApiEndpoints.updateApplication(applicationId),
+        body: requestData,
+      );
+      
+      debugPrint('Application status updated successfully');
+      return ApplicationData.fromJson(response);
+    } catch (e) {
+      debugPrint('Error updating application status: $e');
+      rethrow;
+    }
+  }
+
+  // ************ SIMULATION D'ENTRETIEN ************
+
+  /// Appel à l'API de simulation d'entretien pour générer une réponse
+  Future<Map<String, dynamic>> simulateInterview({
+    required String message,
+    String? context,
+  }) async {
+    final body = {
+      'message': message,
+      if (context != null) 'context': context,
+    };
+
+    try {
+      final response = await client.post(ApiEndpoints.interviewSimulation, body: body);
+      return response;
+    } catch (e) {
+      debugPrint('Erreur lors de la simulation d\'entretien: $e');
       rethrow;
     }
   }
@@ -606,6 +677,53 @@ class ApiService {
       return CompanyProfile.fromJson(response);
     } catch (e) {
       debugPrint('Error updating company profile: $e');
+      rethrow;
+    }
+  }
+
+  // ************ INTERVIEW SIMULATION ************
+
+  /// Envoyer un message à la simulation d'entretien
+  Future<Map<String, dynamic>> sendInterviewMessage(List<Map<String, String>> conversationHistory, String? context) async {
+    return await client.post(ApiEndpoints.interviewSimulation, body: {
+      'conversation': conversationHistory,
+      'context': context,
+    });
+  }
+  
+  // ************ AMÉLIORATION CV ************
+  
+  /// Analyser un CV et obtenir des recommandations d'amélioration
+  Future<Map<String, dynamic>> analyzeCv(String cvContent, {String? jobContext}) async {
+    try {
+      debugPrint('API Service: Préparation de la requête pour l\'analyse du CV');
+      
+      // Créer un objet de requête simple et conforme aux attentes du backend
+      final Map<String, dynamic> requestData = {
+        'cvContent': cvContent,
+      };
+      
+      // Ajouter le jobContext uniquement s'il est spécifié
+      if (jobContext != null && jobContext.isNotEmpty) {
+        requestData['jobContext'] = jobContext;
+      }
+      
+      debugPrint('API Service: Envoi de la requête, taille du contenu: ${cvContent.length} caractères');
+      
+      try {
+        // S'assurer que l'endpoint est correct
+        final response = await client.post(ApiEndpoints.analyzeCv, body: requestData);
+        debugPrint('API Service: Réponse reçue avec succès');
+        return response;
+      } catch (e) {
+        debugPrint('API Service: Erreur lors de la requête POST: $e');
+        if (e is RestApiException && e.statusCode == 500) {
+          debugPrint('API Service: Erreur 500 détectée, détails: ${e.message}');
+        }
+        rethrow;
+      }
+    } catch (e) {
+      debugPrint('API Service: Erreur d\'analyse du CV: $e');
       rethrow;
     }
   }

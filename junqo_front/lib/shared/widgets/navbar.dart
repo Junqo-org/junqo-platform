@@ -252,15 +252,15 @@ class _NavbarState extends State<Navbar> {
       case 0:
         return Icons.home_outlined;
       case 1:
-        return Icons.smart_toy_outlined;
+        return Icons.psychology_outlined;
       case 2:
         return Icons.notifications_outlined;
       case 3:
         return Icons.message_outlined;
       case 4:
-        return Icons.person_outline;
+        return Icons.person_outlined;
       default:
-        return Icons.home_outlined;
+        return Icons.help_outline;
     }
   }
 
@@ -273,7 +273,7 @@ class _NavbarState extends State<Navbar> {
       case 2:
         return 'Notifications';
       case 3:
-        return 'Messagerie';
+        return 'Messages';
       case 4:
         return 'Profil';
       default:

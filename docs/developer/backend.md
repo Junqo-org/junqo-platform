@@ -75,6 +75,7 @@ Here is the list of environment variables used by the **backend**:
 - `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./../db_password.conf`.
 - `JWT_SECRET`: The secret used to sign the JWT tokens. **Required**.
 - `CORS_ORIGINS`: The URL of the frontend used for CORS. If not set accept requests from every origin.
+- `OPENAI_API_KEY`: The API key used to access the OpenAI API. **Required**.
 - `NODE_ENV`: The environment of the backend. Either `development` or `production`.
 
 1. Create a `.env` file in the backend directory and add the following environment variables:
@@ -94,6 +95,7 @@ Here is the list of environment variables used by the **backend**:
     # Example: openssl rand -base64 32
     # CORS Configuration (authorized source url). Default accept requests from every origin.
     # CORS_ORIGINS="http://localhost:80"
+    # OPENAI_API_KEY='not_for_production'
     ```
 
 2. Ensure PostgreSQL is running and the database is set up with the provided credentials.

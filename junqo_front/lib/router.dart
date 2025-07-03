@@ -5,6 +5,7 @@ import 'package:junqo_front/pages/cv.dart';
 import 'package:junqo_front/pages/home_page.dart';
 import 'package:junqo_front/pages/ia_page.dart';
 import 'package:junqo_front/pages/interview.dart';
+import 'package:junqo_front/pages/interview_simulation.dart';
 import 'package:junqo_front/pages/login.dart';
 import 'package:junqo_front/pages/messaging_page.dart';
 import 'package:junqo_front/pages/motivation.dart';
@@ -37,6 +38,9 @@ class AppRouter {
       case '/interview':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: Interview()));
+      case '/interview-simulation':
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: InterviewSimulation()));
       case '/login':
         return MaterialPageRoute(builder: (_) => const Login());
       case '/messaging':
