@@ -183,6 +183,13 @@ class _CVState extends State<CV> {
       body: Column(
         children: [
           const Navbar(currentIndex: 1),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32), // Augmentation du padding vertical
