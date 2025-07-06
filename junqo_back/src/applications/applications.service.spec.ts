@@ -22,7 +22,6 @@ import { ApplicationQueryDTO } from './dto/application-query.dto';
 import { OffersService } from '../offers/offers.service';
 import { OfferDTO } from '../offers/dto/offer.dto';
 import { OfferStatus } from '../offers/dto/offer-status.enum';
-import { ConversationsService } from '../conversations/conversations.service';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
