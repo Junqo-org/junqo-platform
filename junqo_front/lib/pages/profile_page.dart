@@ -61,7 +61,8 @@ class ProfilePageState extends State<ProfilePage> {
   final TextEditingController _expCompanyController = TextEditingController();
   final TextEditingController _expStartDateController = TextEditingController();
   final TextEditingController _expEndDateController = TextEditingController();
-  final TextEditingController _expDescriptionController = TextEditingController();
+  final TextEditingController _expDescriptionController =
+      TextEditingController();
   final TextEditingController _expSkillsController = TextEditingController();
 
   @override
@@ -127,7 +128,8 @@ class ProfilePageState extends State<ProfilePage> {
 
               // Set experiences
               if (studentProfile.experiences != null) {
-                experiences = List<ExperienceDTO>.from(studentProfile.experiences!);
+                experiences =
+                    List<ExperienceDTO>.from(studentProfile.experiences!);
               }
 
               // REMOVED mapping of education
@@ -172,7 +174,7 @@ class ProfilePageState extends State<ProfilePage> {
 
   Future<void> _saveProfile() async {
     debugPrint("[_saveProfile] Triggered");
-    
+
     // Validate required fields first
     if (_nameController.text.isEmpty) {
       if (!mounted) return;
@@ -199,15 +201,15 @@ class ProfilePageState extends State<ProfilePage> {
         skills: skills,
         // Experiences are managed separately via add/removeExperience
       );
-      
+
       // Check mounted state before updating UI
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
         _isEditing = false;
       });
-      
+
       // Show success dialog, with mounted check before dialog
       if (!mounted) return;
       showDialog(
@@ -262,23 +264,20 @@ class ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Fermer',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    child: Semantics(
+                      button: true,
+                      label: 'TODO: Replace with a meaningful label',
+                      child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6366F1),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12))),
+                          child: const Text('Fermer',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold))),
                     ),
                   ),
                 ],
@@ -290,15 +289,15 @@ class ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       // Error handling with mounted check
       debugPrint('Error updating profile: $e');
-      
+
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur lors de la mise à jour du profil: $e'),
@@ -468,36 +467,35 @@ class ProfilePageState extends State<ProfilePage> {
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _isEditing = !_isEditing;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isEditing
-                    ? const Color(0xFF475569)
-                    : const Color(0xFF6366F1),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(_isEditing ? Icons.check : Icons.edit, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    _isEditing ? 'Terminer l\'édition' : 'Modifier le profil',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+            child: Semantics(
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isEditing = !_isEditing;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: _isEditing
+                          ? const Color(0xFF475569)
+                          : const Color(0xFF6366F1),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(_isEditing ? Icons.check : Icons.edit, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                            _isEditing
+                                ? 'Terminer l\'édition'
+                                : 'Modifier le profil',
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold))
+                      ])),
             ),
           ),
         ],
@@ -550,7 +548,8 @@ class ProfilePageState extends State<ProfilePage> {
     if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
       imageProvider = NetworkImage(_avatarUrl!); // Use NetworkImage for URL
     } else {
-      imageProvider = const AssetImage('assets/images/profile_placeholder.jpg'); // Default placeholder
+      imageProvider = const AssetImage(
+          'assets/images/profile_placeholder.jpg'); // Default placeholder
     }
 
     return Center(
@@ -788,26 +787,24 @@ class ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_newSkillController.text.isNotEmpty) {
-                        setState(() {
-                          skills.add(_newSkillController.text);
-                          _newSkillController.clear();
-                        });
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6366F1),
-                      padding: const EdgeInsets.all(12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
+                  Semantics(
+                    button: true,
+                    label: 'TODO: Replace with a meaningful label',
+                    child: ElevatedButton(
+                        onPressed: () {
+                          if (_newSkillController.text.isNotEmpty) {
+                            setState(() {
+                              skills.add(_newSkillController.text);
+                              _newSkillController.clear();
+                            });
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6366F1),
+                            padding: const EdgeInsets.all(12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12))),
+                        child: const Icon(Icons.add, color: Colors.white)),
                   ),
                 ],
               ),
@@ -933,16 +930,19 @@ class ProfilePageState extends State<ProfilePage> {
                   ),
                   if (_isEditing)
                     IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.redAccent, size: 20),
+                      icon: const Icon(Icons.delete,
+                          color: Colors.redAccent, size: 20),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       tooltip: 'Supprimer l\'expérience',
-                      onPressed: () async { // Make async
+                      onPressed: () async {
+                        // Make async
                         // Check if ID exists (it should after fetching/adding)
                         if (exp.id == null) {
-                           ScaffoldMessenger.of(context).showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Impossible de supprimer: ID d\'expérience manquant.'),
+                              content: Text(
+                                  'Impossible de supprimer: ID d\'expérience manquant.'),
                               backgroundColor: Colors.orange,
                             ),
                           );
@@ -951,57 +951,68 @@ class ProfilePageState extends State<ProfilePage> {
 
                         // Confirmation Dialog (Optional but recommended)
                         bool confirmDelete = await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Confirmer la suppression'),
-                              content: const Text('Voulez-vous vraiment supprimer cette expérience ?'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Annuler'),
-                                  onPressed: () => Navigator.of(context).pop(false),
-                                ),
-                                TextButton(
-                                  child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
-                                  onPressed: () => Navigator.of(context).pop(true),
-                                ),
-                              ],
-                            );
-                          },
-                        ) ?? false; // Default to false if dialog dismissed
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Confirmer la suppression'),
+                                  content: const Text(
+                                      'Voulez-vous vraiment supprimer cette expérience ?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text('Annuler'),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                    ),
+                                    TextButton(
+                                      child: const Text('Supprimer',
+                                          style: TextStyle(color: Colors.red)),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(true),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ) ??
+                            false; // Default to false if dialog dismissed
 
                         if (!confirmDelete) return;
 
                         // Call API to delete
                         try {
-                          final success = await studentProfileService.removeExperience(exp.id!); 
+                          final success = await studentProfileService
+                              .removeExperience(exp.id!);
                           if (success) {
                             if (!mounted) return;
                             setState(() {
                               experiences.removeAt(index);
-                              debugPrint("[Delete Button] Successfully removed experience via API.");
+                              debugPrint(
+                                  "[Delete Button] Successfully removed experience via API.");
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Expérience supprimée avec succès.'),
+                                content:
+                                    Text('Expérience supprimée avec succès.'),
                                 backgroundColor: Colors.green,
                               ),
                             );
                           } else {
-                             if (!mounted) return;
-                             ScaffoldMessenger.of(context).showSnackBar(
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Échec de la suppression de l\'expérience (API).'),
+                                content: Text(
+                                    'Échec de la suppression de l\'expérience (API).'),
                                 backgroundColor: Colors.red,
                               ),
                             );
                           }
                         } catch (e) {
-                           debugPrint("[Delete Button] Error removing experience via API: $e");
-                           if (!mounted) return;
-                           ScaffoldMessenger.of(context).showSnackBar(
+                          debugPrint(
+                              "[Delete Button] Error removing experience via API: $e");
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Erreur lors de la suppression: $e'),
+                              content:
+                                  Text('Erreur lors de la suppression: $e'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -1022,7 +1033,8 @@ class ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 14, color: Color(0xFF64748B)),
+                  const Icon(Icons.calendar_today,
+                      size: 14, color: Color(0xFF64748B)),
                   const SizedBox(width: 6),
                   Text(
                     '${exp.startDate} - ${exp.endDate ?? 'Présent'}', // Handle ongoing experience
@@ -1051,15 +1063,20 @@ class ProfilePageState extends State<ProfilePage> {
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: exp.skills!.map((skill) => Chip(
-                          label: Text(skill),
-                          labelStyle: const TextStyle(fontSize: 12, color: Color(0xFF334155)),
-                          backgroundColor: const Color(0xFFF1F5F9),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                          side: BorderSide.none,
-                        )).toList(),
+                    children: exp.skills!
+                        .map((skill) => Chip(
+                              label: Text(skill),
+                              labelStyle: const TextStyle(
+                                  fontSize: 12, color: Color(0xFF334155)),
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                              side: BorderSide.none,
+                            ))
+                        .toList(),
                   ),
                 ),
             ],
@@ -1133,11 +1150,13 @@ class ProfilePageState extends State<ProfilePage> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+              borderSide:
+                  const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.5),
+              borderSide:
+                  const BorderSide(color: Color(0xFF6366F1), width: 1.5),
             ),
             floatingLabelStyle: const TextStyle(color: Color(0xFF6366F1)),
             alignLabelWithHint: true,
@@ -1153,18 +1172,20 @@ class ProfilePageState extends State<ProfilePage> {
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _addExperience,
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter l\'expérience'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
+          child: Semantics(
+            button: true,
+            label: 'TODO: Replace with a meaningful label',
+            child: ElevatedButton.icon(
+                onPressed: _addExperience,
+                icon: const Icon(Icons.add),
+                label: const Text('Ajouter l\'expérience'),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)))),
           ),
         ),
       ],
@@ -1172,7 +1193,8 @@ class ProfilePageState extends State<ProfilePage> {
   }
 
   // Modified to call API
-  void _addExperience() async { // Make async
+  void _addExperience() async {
+    // Make async
     debugPrint("[_addExperience] Triggered (API Add)");
     final title = _expTitleController.text.trim();
     final company = _expCompanyController.text.trim();
@@ -1185,7 +1207,8 @@ class ProfilePageState extends State<ProfilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Le titre, l\'entreprise et la date de début sont obligatoires.'),
+          content: Text(
+              'Le titre, l\'entreprise et la date de début sont obligatoires.'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -1194,19 +1217,25 @@ class ProfilePageState extends State<ProfilePage> {
 
     // Basic date validation (simple check for now, enhance as needed)
     final dateRegex = RegExp(r'^\d{4}-\d{2}-\d{2}$');
-    if (!dateRegex.hasMatch(startDate) || (endDate.isNotEmpty && !dateRegex.hasMatch(endDate))) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Format de date invalide. Utilisez AAAA-MM-JJ.'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        return;
+    if (!dateRegex.hasMatch(startDate) ||
+        (endDate.isNotEmpty && !dateRegex.hasMatch(endDate))) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Format de date invalide. Utilisez AAAA-MM-JJ.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
     }
 
-    final List<String>? experienceSkills =
-        skillsString.isNotEmpty ? skillsString.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList() : null;
+    final List<String>? experienceSkills = skillsString.isNotEmpty
+        ? skillsString
+            .split(',')
+            .map((s) => s.trim())
+            .where((s) => s.isNotEmpty)
+            .toList()
+        : null;
 
     // Prepare DTO (ID will be null for creation)
     final newExperienceData = ExperienceDTO(
@@ -1219,11 +1248,12 @@ class ProfilePageState extends State<ProfilePage> {
     );
 
     // Add loading state indicator if desired
-    // setState(() => _isAddingExperience = true); 
+    // setState(() => _isAddingExperience = true);
 
     try {
       // Call the service to add experience via API
-      final createdExperience = await studentProfileService.addExperience(newExperienceData);
+      final createdExperience =
+          await studentProfileService.addExperience(newExperienceData);
 
       if (!mounted) return;
 
@@ -1237,7 +1267,8 @@ class ProfilePageState extends State<ProfilePage> {
         _expEndDateController.clear();
         _expDescriptionController.clear();
         _expSkillsController.clear();
-        debugPrint("[_addExperience] Successfully added experience via API and cleared form.");
+        debugPrint(
+            "[_addExperience] Successfully added experience via API and cleared form.");
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1246,7 +1277,6 @@ class ProfilePageState extends State<ProfilePage> {
           backgroundColor: Colors.green,
         ),
       );
-
     } catch (e) {
       debugPrint("[_addExperience] Error adding experience via API: $e");
       if (!mounted) return;
@@ -1283,23 +1313,20 @@ class ProfilePageState extends State<ProfilePage> {
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
-              onPressed: _saveProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6366F1),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Enregistrer le profil',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            child: Semantics(
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6366F1),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0),
+                  child: const Text('Enregistrer le profil',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold))),
             ),
           ),
         ],
@@ -1326,27 +1353,24 @@ class ProfilePageState extends State<ProfilePage> {
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
-              onPressed: () async {
-                await authService.logout();
-                if (!mounted) return;
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Se déconnecter',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            child: Semantics(
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: () async {
+                    await authService.logout();
+                    if (!mounted) return;
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4444),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0),
+                  child: const Text('Se déconnecter',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold))),
             ),
           ),
         ],

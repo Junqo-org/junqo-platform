@@ -93,80 +93,61 @@ class _OfferListState extends State<OfferList> {
                 ),
               ),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-
-                if (!mounted) return;
-
-                try {
-                  setState(() => _isLoading = true);
-
-                  final String newStatus = isActivating ? 'ACTIVE' : 'INACTIVE';
-
-                  // Mettre à jour l'offre avec le nouveau statut
-                  final updatedOffer = OfferData(
-                    id: offer.id,
-                    userid: offer.userid,
-                    title: offer.title,
-                    description: offer.description,
-                    offerType: offer.offerType,
-                    duration: offer.duration,
-                    salary: offer.salary,
-                    workLocationType: offer.workLocationType,
-                    skills: offer.skills,
-                    benefits: offer.benefits,
-                    educationLevel: offer.educationLevel,
-                    status: newStatus,
-                  );
-
-                  await _offerService.updateOffer(offer.id!, updatedOffer);
-
-                  if (!mounted) return;
-
-                  // Recharger les offres après la mise à jour
-                  await _loadMyOffers();
-
-                  if (!mounted) return;
-
-                  // Afficher le message de succès
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(isActivating
-                          ? "L'offre a été activée avec succès"
-                          : "L'offre a été désactivée avec succès"),
-                      backgroundColor: const Color(0xFF10B981), // Emerald 500
-                    ),
-                  );
-                } catch (e) {
-                  if (!mounted) return;
-
-                  setState(() {
-                    _isLoading = false;
-                    _errorMessage = "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
-                  });
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Erreur: ${e.toString()}"),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                } finally {
-                  if (mounted) {
-                    setState(() => _isLoading = false);
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isActivating
-                    ? const Color(0xFF10B981) // Emerald 500
-                    : const Color(0xFFEF4444), // Red 500
-                foregroundColor: Colors.white,
-              ),
-              child: Text(
-                isActivating ? "Activer" : "Désactiver",
-              ),
+            Semantics(
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.of(dialogContext).pop();
+                    if (!mounted) return;
+                    try {
+                      setState(() => _isLoading = true);
+                      final String newStatus =
+                          isActivating ? 'ACTIVE' : 'INACTIVE';
+                      final updatedOffer = OfferData(
+                          id: offer.id,
+                          userid: offer.userid,
+                          title: offer.title,
+                          description: offer.description,
+                          offerType: offer.offerType,
+                          duration: offer.duration,
+                          salary: offer.salary,
+                          workLocationType: offer.workLocationType,
+                          skills: offer.skills,
+                          benefits: offer.benefits,
+                          educationLevel: offer.educationLevel,
+                          status: newStatus);
+                      await _offerService.updateOffer(offer.id!, updatedOffer);
+                      if (!mounted) return;
+                      await _loadMyOffers();
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(isActivating
+                              ? "L'offre a été activée avec succès"
+                              : "L'offre a été désactivée avec succès"),
+                          backgroundColor: const Color(0xFF10B981)));
+                    } catch (e) {
+                      if (!mounted) return;
+                      setState(() {
+                        _isLoading = false;
+                        _errorMessage =
+                            "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Erreur: ${e.toString()}"),
+                          backgroundColor: Colors.red));
+                    } finally {
+                      if (mounted) {
+                        setState(() => _isLoading = false);
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: isActivating
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFFEF4444),
+                      foregroundColor: Colors.white),
+                  child: Text(isActivating ? "Activer" : "Désactiver")),
             ),
           ],
         );
@@ -270,20 +251,21 @@ class _OfferListState extends State<OfferList> {
             ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: _isPermissionError
-                ? () {
-                    // Rediriger vers une page accessible
-                    Navigator.of(context).pushReplacementNamed('/profile');
-                  }
-                : _loadMyOffers,
-            icon: Icon(_isPermissionError ? Icons.person : Icons.refresh),
-            label:
-                Text(_isPermissionError ? "Aller à mon profil" : "Réessayer"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1), // Indigo
-              foregroundColor: Colors.white,
-            ),
+          Semantics(
+            button: true,
+            label: 'TODO: Replace with a meaningful label',
+            child: ElevatedButton.icon(
+                onPressed: _isPermissionError
+                    ? () {
+                        Navigator.of(context).pushReplacementNamed('/profile');
+                      }
+                    : _loadMyOffers,
+                icon: Icon(_isPermissionError ? Icons.person : Icons.refresh),
+                label: Text(
+                    _isPermissionError ? "Aller à mon profil" : "Réessayer"),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white)),
           ),
         ],
       ),
@@ -335,32 +317,32 @@ class _OfferListState extends State<OfferList> {
             ),
             Container(
               margin: const EdgeInsets.only(left: 16),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          JobOfferForm(client: GetIt.instance<RestClient>()),
-                    ),
-                  ).then((result) {
-                    if (result == true || result == null) {
-                      _loadMyOffers();
-                    }
-                  });
-                },
-                icon: const Icon(Icons.add_circle_outline),
-                label: const Text("Créer une offre"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1), // Indigo
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
+              child: Semantics(
+                button: true,
+                label: 'TODO: Replace with a meaningful label',
+                child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => JobOfferForm(
+                                      client: GetIt.instance<RestClient>())))
+                          .then((result) {
+                        if (result == true || result == null) {
+                          _loadMyOffers();
+                        }
+                      });
+                    },
+                    icon: const Icon(Icons.add_circle_outline),
+                    label: const Text("Créer une offre"),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6366F1),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12))),
               ),
             ),
           ],
@@ -412,35 +394,34 @@ class _OfferListState extends State<OfferList> {
             ),
           ),
           const SizedBox(width: 20),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      JobOfferForm(client: GetIt.instance<RestClient>()),
-                ),
-              ).then((result) {
-                if (result == true || result == null) {
-                  _loadMyOffers();
-                }
-              });
-            },
-            icon: const Icon(Icons.add),
-            label: const Text("Nouvelle offre"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF6366F1), // Indigo
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: const BorderSide(
-                  color: Color(0xFF6366F1),
-                  width: 1.5,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
+          Semantics(
+            button: true,
+            label: 'TODO: Replace with a meaningful label',
+            child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => JobOfferForm(
+                                  client: GetIt.instance<RestClient>())))
+                      .then((result) {
+                    if (result == true || result == null) {
+                      _loadMyOffers();
+                    }
+                  });
+                },
+                icon: const Icon(Icons.add),
+                label: const Text("Nouvelle offre"),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF6366F1),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(
+                            color: Color(0xFF6366F1), width: 1.5)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12))),
           ),
         ],
       ),
@@ -530,27 +511,29 @@ class _OfferListState extends State<OfferList> {
             ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      JobOfferForm(client: GetIt.instance<RestClient>()),
-                ),
-              ).then((result) {
-                if (result == true || result == null) {
-                  _loadMyOffers();
-                }
-              });
-            },
-            icon: const Icon(Icons.add),
-            label: const Text("Créer ma première offre"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1), // Indigo
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
+          Semantics(
+            button: true,
+            label: 'TODO: Replace with a meaningful label',
+            child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => JobOfferForm(
+                                  client: GetIt.instance<RestClient>())))
+                      .then((result) {
+                    if (result == true || result == null) {
+                      _loadMyOffers();
+                    }
+                  });
+                },
+                icon: const Icon(Icons.add),
+                label: const Text("Créer ma première offre"),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12))),
           ),
         ],
       ),
@@ -778,29 +761,28 @@ class _OfferListState extends State<OfferList> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OfferDetail(offer: offer),
-                          ),
-                        ).then((_) {
-                          // Recharger les offres au retour (notamment après une suppression)
-                          _loadMyOffers();
-                        });
-                      },
-                      icon: const Icon(Icons.visibility_outlined),
-                      label: const Text("Voir détails"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1), // Indigo
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                      ),
+                    Semantics(
+                      button: true,
+                      label: 'TODO: Replace with a meaningful label',
+                      child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        OfferDetail(offer: offer))).then((_) {
+                              _loadMyOffers();
+                            });
+                          },
+                          icon: const Icon(Icons.visibility_outlined),
+                          label: const Text("Voir détails"),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6366F1),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8))),
                     ),
                   ],
                 ),

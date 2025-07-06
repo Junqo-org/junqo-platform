@@ -334,7 +334,8 @@ class _OfferDetailState extends State<OfferDetail> {
                           ),
                         ).then((_) {
                           // Recharger les détails de l'offre après modification
-                          Navigator.pop(context, true); // Retourner à la liste avec refresh
+                          Navigator.pop(context,
+                              true); // Retourner à la liste avec refresh
                         });
                       },
                       icon: const Icon(Icons.edit_outlined),
@@ -349,108 +350,96 @@ class _OfferDetailState extends State<OfferDetail> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext dialogContext) {
-                            return AlertDialog(
-                              title: const Text(
-                                "Supprimer cette offre ?",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1E293B),
-                                ),
-                              ),
-                              content: const Text(
-                                "Cette action est irréversible. L'offre sera définitivement supprimée.",
-                                style: TextStyle(
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(dialogContext).pop();
-                                  },
-                                  child: const Text(
-                                    "Annuler",
-                                    style: TextStyle(
-                                      color: Color(0xFF64748B),
-                                    ),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    Navigator.of(dialogContext).pop();
-                                    
-                                    try {
-                                      // Montrer un indicateur de chargement
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("Suppression en cours..."),
-                                          duration: Duration(seconds: 1),
-                                        ),
-                                      );
-                                      
-                                      final offerService = GetIt.instance<OfferService>();
-                                      final bool success = await offerService.deleteOffer(widget.offer.id!);
-                                      
-                                      if (!mounted) return;
-                                      
-                                      if (success) {
-                                        // Retourner à la liste des offres avec un message de succès
-                                        Navigator.of(context).pop(true);
-                                        if (!mounted) return;
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("L'offre a été supprimée avec succès"),
-                                            backgroundColor: Color(0xFF10B981), // Emerald 500
-                                          ),
-                                        );
-                                      } else {
-                                        // Afficher un message d'erreur
-                                        if (!mounted) return;
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("Échec de la suppression de l'offre"),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                      }
-                                    } catch (e) {
-                                      // Afficher un message d'erreur
-                                      if (!mounted) return;
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text("Erreur: ${e.toString()}"),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFEF4444), // Red 500
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  child: const Text("Supprimer"),
-                                ),
-                              ],
-                            );
+                    Semantics(
+                      button: true,
+                      label: 'TODO: Replace with a meaningful label',
+                      child: ElevatedButton.icon(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext dialogContext) {
+                                  return AlertDialog(
+                                      title: const Text(
+                                          "Supprimer cette offre ?",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF1E293B))),
+                                      content: const Text(
+                                          "Cette action est irréversible. L'offre sera définitivement supprimée.",
+                                          style: TextStyle(
+                                              color: Color(0xFF64748B))),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.of(dialogContext).pop();
+                                            },
+                                            child: const Text("Annuler",
+                                                style: TextStyle(
+                                                    color: Color(0xFF64748B)))),
+                                        ElevatedButton(
+                                            onPressed: () async {
+                                              Navigator.of(dialogContext).pop();
+                                              try {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(const SnackBar(
+                                                        content: Text(
+                                                            "Suppression en cours..."),
+                                                        duration: Duration(
+                                                            seconds: 1)));
+                                                final offerService = GetIt
+                                                    .instance<OfferService>();
+                                                final bool success =
+                                                    await offerService
+                                                        .deleteOffer(
+                                                            widget.offer.id!);
+                                                if (!mounted) return;
+                                                if (success) {
+                                                  Navigator.of(context)
+                                                      .pop(true);
+                                                  if (!mounted) return;
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(const SnackBar(
+                                                          content: Text(
+                                                              "L'offre a été supprimée avec succès"),
+                                                          backgroundColor:
+                                                              Color(
+                                                                  0xFF10B981)));
+                                                } else {
+                                                  if (!mounted) return;
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(const SnackBar(
+                                                          content: Text(
+                                                              "Échec de la suppression de l'offre"),
+                                                          backgroundColor:
+                                                              Colors.red));
+                                                }
+                                              } catch (e) {
+                                                if (!mounted) return;
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                        content: Text(
+                                                            "Erreur: ${e.toString()}"),
+                                                        backgroundColor:
+                                                            Colors.red));
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color(0xFFEF4444),
+                                                foregroundColor: Colors.white),
+                                            child: const Text("Supprimer"))
+                                      ]);
+                                });
                           },
-                        );
-                      },
-                      icon: const Icon(Icons.delete_outline),
-                      label: const Text("Supprimer"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF87171), // Red 400
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                      ),
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text("Supprimer"),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF87171),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12))),
                     ),
                   ],
                 ),

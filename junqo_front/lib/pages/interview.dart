@@ -107,21 +107,21 @@ class InterviewState extends State<Interview> {
             ),
           ),
           const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: _startInterview,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 5,
-              shadowColor: Colors.blueAccent,
-            ),
-            child: const Text(
-              "Commencer l'entretien",
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
+          Semantics(
+            button: true,
+            label: 'TODO: Replace with a meaningful label',
+            child: ElevatedButton(
+                onPressed: _startInterview,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
+                    elevation: 5,
+                    shadowColor: Colors.blueAccent),
+                child: const Text("Commencer l'entretien",
+                    style: TextStyle(fontSize: 18, color: Colors.white))),
           ),
         ],
       ),
@@ -189,21 +189,21 @@ class InterviewState extends State<Interview> {
                     if (isUserMessage)
                       Padding(
                         padding: const EdgeInsets.only(top: 8, right: 56),
-                        child: ElevatedButton(
-                          onPressed: _showRemarkPopup,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[300],
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 2,
-                          ),
-                          child: const Text(
-                            "Afficher la remarque",
-                            style: TextStyle(color: Colors.black, fontSize: 14),
-                          ),
+                        child: Semantics(
+                          button: true,
+                          label: 'TODO: Replace with a meaningful label',
+                          child: ElevatedButton(
+                              onPressed: _showRemarkPopup,
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey[300],
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16)),
+                                  elevation: 2),
+                              child: const Text("Afficher la remarque",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 14))),
                         ),
                       ),
                   ],
