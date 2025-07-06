@@ -24,19 +24,23 @@ class MessagingService {
         queryParams['participantId'] = participantId;
       }
 
-      final response = await _client.getQuery('/conversations', query: queryParams);
-      
+      final response =
+          await _client.getQuery('/conversations', query: queryParams);
+
       if (response is Map<String, dynamic> && response['rows'] != null) {
-        final List<dynamic> conversationsJson = response['rows'] as List<dynamic>;
+        final List<dynamic> conversationsJson =
+            response['rows'] as List<dynamic>;
         return conversationsJson
-            .map((json) => ConversationData.fromJson(json as Map<String, dynamic>))
+            .map((json) =>
+                ConversationData.fromJson(json as Map<String, dynamic>))
             .toList();
       } else if (response is List<dynamic>) {
         return response
-            .map((json) => ConversationData.fromJson(json as Map<String, dynamic>))
+            .map((json) =>
+                ConversationData.fromJson(json as Map<String, dynamic>))
             .toList();
       }
-      
+
       return [];
     } catch (e) {
       debugPrint('Error fetching conversations: $e');
@@ -56,9 +60,11 @@ class MessagingService {
   }
 
   /// Create a new conversation
-  Future<ConversationData> createConversation(CreateConversationData conversationData) async {
+  Future<ConversationData> createConversation(
+      CreateConversationData conversationData) async {
     try {
-      final response = await _client.post('/conversations', body: conversationData.toJson());
+      final response =
+          await _client.post('/conversations', body: conversationData.toJson());
       return ConversationData.fromJson(response);
     } catch (e) {
       debugPrint('Error creating conversation: $e');
@@ -77,7 +83,8 @@ class MessagingService {
   }
 
   /// Get messages for a specific conversation
-  Future<List<MessageData>> getMessages(String conversationId, {
+  Future<List<MessageData>> getMessages(
+    String conversationId, {
     int limit = 50,
   }) async {
     try {
@@ -85,8 +92,10 @@ class MessagingService {
         'limit': limit,
       };
 
-      final response = await _client.getQuery('/conversations/$conversationId/messages', query: queryParams);
-      
+      final response = await _client.getQuery(
+          '/conversations/$conversationId/messages',
+          query: queryParams);
+
       if (response is Map<String, dynamic> && response['rows'] != null) {
         final List<dynamic> messagesJson = response['rows'] as List<dynamic>;
         return messagesJson
@@ -97,7 +106,7 @@ class MessagingService {
             .map((json) => MessageData.fromJson(json as Map<String, dynamic>))
             .toList();
       }
-      
+
       return [];
     } catch (e) {
       debugPrint('Error fetching messages: $e');
@@ -106,13 +115,15 @@ class MessagingService {
   }
 
   /// Send a message in a conversation
-  Future<MessageData> sendMessage(String conversationId, String content, String senderId) async {
+  Future<MessageData> sendMessage(
+      String conversationId, String content, String senderId) async {
     try {
       final messageData = {
         'content': content,
       };
 
-      final response = await _client.post('/conversations/$conversationId/messages', body: messageData);
+      final response = await _client
+          .post('/conversations/$conversationId/messages', body: messageData);
       return MessageData.fromJson(response);
     } catch (e) {
       debugPrint('Error sending message: $e');
@@ -134,7 +145,8 @@ class MessagingService {
   /// Update a message
   Future<MessageData> updateMessage(String messageId, String content) async {
     try {
-      final response = await _client.patch('/messages/$messageId', body: {'content': content});
+      final response = await _client
+          .patch('/messages/$messageId', body: {'content': content});
       return MessageData.fromJson(response);
     } catch (e) {
       debugPrint('Error updating message: $e');
@@ -155,7 +167,8 @@ class MessagingService {
   /// Set a custom title for a conversation
   Future<void> setConversationTitle(String conversationId, String title) async {
     try {
-      await _client.put('/conversations/$conversationId/title', body: {'title': title});
+      await _client
+          .put('/conversations/$conversationId/title', body: {'title': title});
     } catch (e) {
       debugPrint('Error setting conversation title: $e');
       rethrow;
@@ -165,7 +178,8 @@ class MessagingService {
   /// Get the custom title for a conversation
   Future<String?> getConversationTitle(String conversationId) async {
     try {
-      final response = await _client.get('/conversations/$conversationId/title');
+      final response =
+          await _client.get('/conversations/$conversationId/title');
       return response['title'] as String?;
     } catch (e) {
       debugPrint('Error getting conversation title: $e');
@@ -184,9 +198,12 @@ class MessagingService {
   }
 
   /// Add participants to a conversation
-  Future<ConversationData> addParticipants(String conversationId, List<String> participantIds) async {
+  Future<ConversationData> addParticipants(
+      String conversationId, List<String> participantIds) async {
     try {
-      final response = await _client.post('/conversations/$conversationId/participants', body: {'participantsIds': participantIds});
+      final response = await _client.post(
+          '/conversations/$conversationId/participants',
+          body: {'participantsIds': participantIds});
       return ConversationData.fromJson(response);
     } catch (e) {
       debugPrint('Error adding participants: $e');
@@ -195,7 +212,8 @@ class MessagingService {
   }
 
   /// Remove participants from a conversation
-  Future<ConversationData> removeParticipants(String conversationId, List<String> participantIds) async {
+  Future<ConversationData> removeParticipants(
+      String conversationId, List<String> participantIds) async {
     try {
       final response = await _client.delete(
         '/conversations/$conversationId/participants',
@@ -207,4 +225,4 @@ class MessagingService {
       rethrow;
     }
   }
-} 
+}
