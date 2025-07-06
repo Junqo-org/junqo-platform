@@ -197,7 +197,10 @@ class MessagingService {
   /// Remove participants from a conversation
   Future<ConversationData> removeParticipants(String conversationId, List<String> participantIds) async {
     try {
-      final response = await _client.delete('/conversations/$conversationId/participants');
+      final response = await _client.delete(
+        '/conversations/$conversationId/participants',
+        body: {'participantsIds': participantIds},
+      );
       return ConversationData.fromJson(response);
     } catch (e) {
       debugPrint('Error removing participants: $e');
