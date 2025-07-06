@@ -5,6 +5,7 @@ import 'package:junqo_front/pages/cv.dart';
 import 'package:junqo_front/pages/home_page.dart';
 import 'package:junqo_front/pages/ia_page.dart';
 import 'package:junqo_front/pages/interview.dart';
+import 'package:junqo_front/pages/interview_simulation.dart';
 import 'package:junqo_front/pages/login.dart';
 import 'package:junqo_front/pages/messaging_page.dart';
 import 'package:junqo_front/pages/motivation.dart';
@@ -18,6 +19,8 @@ import 'package:junqo_front/pages/welcome.dart';
 import 'package:junqo_front/shared/widgets/private_page.dart';
 import 'package:junqo_front/pages/offer_creation.dart';
 import 'package:junqo_front/pages/offer_list.dart';
+import 'package:junqo_front/pages/recruiter_recruiting.dart';
+import 'package:junqo_front/pages/interview_simulation_select.dart';
 
 class AppRouter {
   // Fonction pour générer les routes de l'application
@@ -37,11 +40,25 @@ class AppRouter {
       case '/interview':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: Interview()));
+      case '/interview-simulation':
+        final args = settings.arguments;
+        if (args is String) {
+          return MaterialPageRoute(
+              builder: (_) => PrivatePage(child: InterviewSimulation(initialContext: args)));
+        }
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: InterviewSimulation()));
+      case '/interview-simulation-select':
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: InterviewSimulationSelect()));
       case '/login':
         return MaterialPageRoute(builder: (_) => const Login());
       case '/messaging':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: MessagingPage()));
+      case '/messaging-company':
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: MessagingPage(forCompany: true)));
       case '/motivation':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: Motivation()));
@@ -57,6 +74,9 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => PrivatePage(
                 child: JobOfferForm(client: GetIt.instance<RestClient>())));
+      case '/swiping':
+        return MaterialPageRoute(
+            builder: (_) => PrivatePage(child: RecruiterRecruiting()));
       case '/register':
         final userType = settings.arguments;
 

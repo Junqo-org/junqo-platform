@@ -92,11 +92,7 @@ export class ApplicationsRepository {
         limit,
       });
 
-      if (count === 0) {
-        throw new NotFoundException(
-          'No applications found matching the criteria',
-        );
-      }
+      // Return empty result instead of throwing exception for better UX
       const queryResult: ApplicationQueryOutputDTO = {
         rows: rows.map((application) => application.toApplicationDTO()),
         count,
@@ -104,7 +100,6 @@ export class ApplicationsRepository {
 
       return queryResult;
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch applications: ${error.message}`,
       );

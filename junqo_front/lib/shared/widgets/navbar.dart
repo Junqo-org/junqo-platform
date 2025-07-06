@@ -22,7 +22,8 @@ class _NavbarState extends State<Navbar> {
 
   @override
   void dispose() {
-    _hideNotificationPopup();
+    _notificationOverlay?.remove();
+    _notificationOverlay = null;
     super.dispose();
   }
 
@@ -213,9 +214,9 @@ class _NavbarState extends State<Navbar> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var i = 0; i < 5; i++) ...[
-              if (i > 0) const SizedBox(width: 16),
-              _buildNavItem(i),
+            for (var idx in [0, 1, 3, 4]) ...[
+              if (idx != 0) const SizedBox(width: 16),
+              _buildNavItem(idx),
             ],
           ],
         ),
@@ -237,9 +238,9 @@ class _NavbarState extends State<Navbar> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var i = 0; i < 5; i++) ...[
-              if (i > 0) const SizedBox(width: 24),
-              _buildNavItem(i, showLabel: true),
+            for (var idx in [0, 1, 3, 4]) ...[
+              if (idx != 0) const SizedBox(width: 24),
+              _buildNavItem(idx, showLabel: true),
             ],
           ],
         ),
@@ -252,15 +253,15 @@ class _NavbarState extends State<Navbar> {
       case 0:
         return Icons.home_outlined;
       case 1:
-        return Icons.smart_toy_outlined;
+        return Icons.psychology_outlined;
       case 2:
         return Icons.notifications_outlined;
       case 3:
         return Icons.message_outlined;
       case 4:
-        return Icons.person_outline;
+        return Icons.person_outlined;
       default:
-        return Icons.home_outlined;
+        return Icons.help_outline;
     }
   }
 
@@ -273,7 +274,7 @@ class _NavbarState extends State<Navbar> {
       case 2:
         return 'Notifications';
       case 3:
-        return 'Messagerie';
+        return 'Messages';
       case 4:
         return 'Profil';
       default:

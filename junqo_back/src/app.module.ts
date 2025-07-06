@@ -13,6 +13,8 @@ import { ExperiencesModule } from './experiences/experiences.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApplicationsModule } from './applications/applications.module';
+import { InterviewSimulationModule } from './interview-simulation/interview-simulation.module';
+import { CvImprovementModule } from './cv-improvement/cv-improvement.module';
 import { MessagesModule } from './messages/messages.module';
 import { ConversationsModule } from './conversations/conversations.module';
 
@@ -43,6 +45,8 @@ import { ConversationsModule } from './conversations/conversations.module';
     SchoolProfilesModule,
     ExperiencesModule,
     ApplicationsModule,
+    InterviewSimulationModule,
+    CvImprovementModule,
     ConversationsModule,
     MessagesModule,
   ],

@@ -22,6 +22,8 @@ import { ApplicationStatus } from './dto/application-status.enum';
 import { OffersService } from '../offers/offers.service';
 import { OfferDTO } from '../offers/dto/offer.dto';
 import { UserType } from '../users/dto/user-type.enum';
+import { ConversationsService } from '../conversations/conversations.service';
+import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
 
 @Injectable()
 export class ApplicationsService {
@@ -29,6 +31,7 @@ export class ApplicationsService {
     private readonly caslAbilityFactory: CaslAbilityFactory,
     private readonly applicationsRepository: ApplicationsRepository,
     private readonly offersService: OffersService,
+    private readonly conversationsService: ConversationsService,
   ) {}
 
   /**
@@ -66,11 +69,11 @@ export class ApplicationsService {
       const queryResult: ApplicationQueryOutputDTO =
         await this.applicationsRepository.findByQuery(query);
 
-      if (!queryResult || queryResult.count === 0) {
-        throw new NotFoundException(
-          `No applications found matching query: ${query}`,
-        );
+      if (!queryResult.rows || queryResult.rows.length === 0) {
+        throw new NotFoundException('No applications found matching the query');
       }
+
+      // Verify permissions for each application (extra security layer)
       queryResult.rows.forEach((application) => {
         const applicationResource = plainToInstance(
           ApplicationResource,
@@ -336,6 +339,11 @@ export class ApplicationsService {
     }
 
     try {
+      // Check if the status is changing to ACCEPTED
+      const isStatusChangingToAccepted =
+        updateApplicationDto.status === ApplicationStatus.ACCEPTED &&
+        application.status !== ApplicationStatus.ACCEPTED;
+
       const updatedApplication: ApplicationDTO =
         await this.applicationsRepository.update(
           applicationID,
@@ -345,6 +353,14 @@ export class ApplicationsService {
       if (updatedApplication === null) {
         throw new InternalServerErrorException(
           `Failed to update application: updatedApplication is null`,
+        );
+      }
+
+      // If the application was just accepted, create a conversation
+      if (isStatusChangingToAccepted) {
+        await this.createConversationForAcceptedApplication(
+          currentUser,
+          updatedApplication,
         );
       }
 
@@ -407,6 +423,35 @@ export class ApplicationsService {
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to delete application: ${error.message}`,
+      );
+    }
+  }
+
+    /**
+   * Creates a conversation between the student and company when an application is accepted
+   *
+   * @param currentUser - The authenticated user who accepted the application
+   * @param application - The accepted application
+   * @private
+   */
+  private async createConversationForAcceptedApplication(
+    currentUser: AuthUserDTO,
+    application: ApplicationDTO,
+  ): Promise<void> {
+    try {
+      // Create conversation between student and company
+      const createConversationDto: CreateConversationDTO = {
+        participantsIds: [application.studentId, application.companyId],
+        title: `Application Discussion - ${application.offer?.title || 'Job Application'}`,
+      };
+
+      // Create the conversation using the current user's context
+      await this.conversationsService.create(currentUser, createConversationDto);
+    } catch (error) {
+      // Log the error but don't fail the application update
+      console.error(
+        `Failed to create conversation for accepted application ${application.id}:`,
+        error.message,
       );
     }
   }
