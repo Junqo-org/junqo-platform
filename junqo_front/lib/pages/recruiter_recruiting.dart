@@ -861,10 +861,11 @@ class _JobCardState extends State<JobCard> {
                         child: _buildInfoItem(
                           icon: Icons.euro_outlined,
                           label: "School",
-                          value: widget.data.studentSchool?.isEmpty ?? true
+                          value: widget.data.studentSchool.isEmpty
                               ? "Non spécifié"
-                              : widget.data.studentSchool!,
+                              : widget.data.studentSchool,
                         ),
+                      ),
                     ],
                   ),
                 ],
