@@ -290,6 +290,22 @@ class ApiService {
     }
   }
 
+  /// Récupérer mes candidatures (pour les entreprises)
+  Future<List<ApplicationData>> getMyApplications() async {
+    try {
+      final response = await client.get('/applications/my');
+      
+      if (response is List) {
+        return response.map((json) => ApplicationData.fromJson(json as Map<String, dynamic>)).toList();
+      }
+      
+      return [];
+    } catch (e) {
+      debugPrint('Error getting my applications: $e');
+      rethrow;
+    }
+  }
+
   // ************ SIMULATION D'ENTRETIEN ************
 
   /// Appel à l'API de simulation d'entretien pour générer une réponse

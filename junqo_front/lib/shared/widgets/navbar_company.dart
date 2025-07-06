@@ -57,7 +57,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         routeName = '/offer-list';
         break;
       case 3:
-        routeName = '/messaging';
+        routeName = '/messaging-company';
         break;
       case 4:
         routeName = '/profile';
@@ -236,9 +236,9 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var i = 0; i < 5; i++) ...[
-              if (i > 0) const SizedBox(width: 16),
-              _buildNavItem(i),
+            for (var idx in [0, 1, 3, 4]) ...[
+              if (idx != 0) const SizedBox(width: 16),
+              _buildNavItem(idx),
             ],
           ],
         ),
@@ -260,9 +260,9 @@ class _NavbarCompanyState extends State<NavbarCompany> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var i = 0; i < 5; i++) ...[
-              if (i > 0) const SizedBox(width: 24),
-              _buildNavItem(i, showLabel: true),
+            for (var idx in [0, 1, 3, 4]) ...[
+              if (idx != 0) const SizedBox(width: 24),
+              _buildNavItem(idx, showLabel: true),
             ],
           ],
         ),
