@@ -31,7 +31,6 @@ dependencies:
   animated_text_kit: ^4.2.2
   flutter_staggered_animations: ^1.1.1
   glassmorphism: ^3.0.0
-  rive: ^0.13.13
   particles_flutter: ^0.1.4
   animated_background: ^2.0.0
 
