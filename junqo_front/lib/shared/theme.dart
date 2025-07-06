@@ -4,10 +4,10 @@ class AppTheme {
   // Light theme configuration
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    primaryColor: Colors.blue,
-    scaffoldBackgroundColor: const Color.fromARGB(255, 224, 167, 167),
+    primaryColor: const Color(0xFF82C8D7),
+    scaffoldBackgroundColor: Colors.white,
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.blue,
+      backgroundColor: Color(0xFF82C8D7),
       foregroundColor: Colors.white,
       elevation: 2,
     ),
@@ -17,7 +17,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF82C8D7),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(
@@ -39,10 +39,10 @@ class AppTheme {
   // Dark theme configuration
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    primaryColor: Colors.blueGrey,
-    scaffoldBackgroundColor: Colors.black,
+    primaryColor: const Color(0xFF82C8D7),
+    scaffoldBackgroundColor: Colors.grey.shade900,
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: Color(0xFF82C8D7),
       foregroundColor: Colors.white,
       elevation: 2,
     ),
@@ -52,7 +52,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: const Color(0xFF82C8D7),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(
