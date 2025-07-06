@@ -1011,25 +1011,28 @@ class _JobCardState extends State<JobCard> {
                             if (widget.data.details.length > 150)
                               Align(
                                 alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _showFullDetails = !_showFullDetails;
-                                    });
-                                  },
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: _indigoColor,
-                                    padding: EdgeInsets.zero,
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  child: Text(
-                                    _showFullDetails
-                                        ? "Voir moins"
-                                        : "Voir plus",
-                                    style: const TextStyle(fontSize: 13),
-                                  ),
+                                child: Semantics(
+                                  button: true,
+                                  label:
+                                      'TODO: Replace with a meaningful label',
+                                  child: TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _showFullDetails = !_showFullDetails;
+                                        });
+                                      },
+                                      style: TextButton.styleFrom(
+                                          foregroundColor: _indigoColor,
+                                          padding: EdgeInsets.zero,
+                                          minimumSize: Size.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap),
+                                      child: Text(
+                                          _showFullDetails
+                                              ? "Voir moins"
+                                              : "Voir plus",
+                                          style:
+                                              const TextStyle(fontSize: 13))),
                                 ),
                               ),
                           ],

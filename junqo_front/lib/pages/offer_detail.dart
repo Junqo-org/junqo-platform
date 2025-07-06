@@ -369,13 +369,20 @@ class _OfferDetailState extends State<OfferDetail> {
                                           style: TextStyle(
                                               color: Color(0xFF64748B))),
                                       actions: [
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.of(dialogContext).pop();
-                                            },
-                                            child: const Text("Annuler",
-                                                style: TextStyle(
-                                                    color: Color(0xFF64748B)))),
+                                        Semantics(
+                                          button: true,
+                                          label:
+                                              'TODO: Replace with a meaningful label',
+                                          child: TextButton(
+                                              onPressed: () {
+                                                Navigator.of(dialogContext)
+                                                    .pop();
+                                              },
+                                              child: const Text("Annuler",
+                                                  style: TextStyle(
+                                                      color:
+                                                          Color(0xFF64748B)))),
+                                        ),
                                         ElevatedButton(
                                             onPressed: () async {
                                               Navigator.of(dialogContext).pop();

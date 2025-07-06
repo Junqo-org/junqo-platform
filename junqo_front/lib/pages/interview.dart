@@ -47,11 +47,14 @@ class InterviewState extends State<Interview> {
             style: TextStyle(fontSize: 16),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Fermer"),
+            Semantics(
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Fermer")),
             ),
           ],
         );

@@ -958,16 +958,25 @@ class ProfilePageState extends State<ProfilePage> {
                                   content: const Text(
                                       'Voulez-vous vraiment supprimer cette expérience ?'),
                                   actions: <Widget>[
-                                    TextButton(
-                                      child: const Text('Annuler'),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(false),
+                                    Semantics(
+                                      button: true,
+                                      label:
+                                          'TODO: Replace with a meaningful label',
+                                      child: TextButton(
+                                          child: const Text('Annuler'),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false)),
                                     ),
-                                    TextButton(
-                                      child: const Text('Supprimer',
-                                          style: TextStyle(color: Colors.red)),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(true),
+                                    Semantics(
+                                      button: true,
+                                      label:
+                                          'TODO: Replace with a meaningful label',
+                                      child: TextButton(
+                                          child: const Text('Supprimer',
+                                              style:
+                                                  TextStyle(color: Colors.red)),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true)),
                                     ),
                                   ],
                                 );
