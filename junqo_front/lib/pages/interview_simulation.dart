@@ -354,6 +354,12 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
         children: [
           Row(
             children: [
+              // Back button
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
+              const SizedBox(width: 4),
               // Icon background
               Container(
                 padding: const EdgeInsets.all(8), // Smaller padding

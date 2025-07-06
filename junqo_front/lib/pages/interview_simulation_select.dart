@@ -63,6 +63,13 @@ class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
       body: Column(
         children: [
           const Navbar(currentIndex: 1),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
