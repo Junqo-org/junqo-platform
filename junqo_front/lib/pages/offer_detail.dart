@@ -7,10 +7,12 @@ import 'package:junqo_front/services/offer_service.dart';
 import 'package:junqo_front/pages/offer_creation.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/shared/dto/application_data.dart';
-import 'package:junqo_front/shared/dto/application_query_result_data.dart';
 import 'package:intl/intl.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'application_detail.dart';
+import 'package:junqo_front/pages/messaging_page.dart';
+import 'package:junqo_front/core/messaging_service.dart';
+import 'package:junqo_front/shared/dto/conversation_data.dart';
 
 class OfferDetail extends StatefulWidget {
   final OfferData offer;
@@ -1095,6 +1097,11 @@ class _OfferDetailState extends State<OfferDetail> {
          );
         }
       });
+
+      // If the application was accepted, create a conversation and open messaging
+      if (newStatus == 'ACCEPTED') {
+        await _createConversationAndNavigate(application);
+      }
       
     } catch (e) {
       if (!mounted) return;
@@ -1117,6 +1124,64 @@ class _OfferDetailState extends State<OfferDetail> {
           ),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
+        ),
+      );
+    }
+  }
+
+  Future<void> _createConversationAndNavigate(ApplicationData application) async {
+    try {
+      final messagingService = GetIt.instance<MessagingService>();
+      
+      // Check if a conversation already exists between company and student
+      final existingConversations = await messagingService.getConversations(limit: 100);
+      
+      ConversationData? existingConversation;
+      for (final conversation in existingConversations) {
+        if (conversation.participantsIds.contains(application.studentId) &&
+            conversation.participantsIds.contains(application.companyId)) {
+          existingConversation = conversation;
+          break;
+        }
+      }
+      
+      // If no conversation exists, create one
+      if (existingConversation == null) {
+        // Limit title to 50 characters as required by backend API
+        String conversationTitle = 'Discussion - ${widget.offer.title}';
+        if (conversationTitle.length > 50) {
+          conversationTitle = conversationTitle.substring(0, 47) + '...';
+        }
+        
+        final createConversationData = CreateConversationData(
+          participantsIds: [application.studentId, application.companyId],
+          title: conversationTitle,
+        );
+        
+        await messagingService.createConversation(createConversationData);
+        
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Conversation créée avec succès !'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+      }
+      
+      // Navigate to messaging page
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MessagingPage()),
+      );
+      
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la création de la conversation: $e'),
+          backgroundColor: const Color(0xFFEF4444),
         ),
       );
     }

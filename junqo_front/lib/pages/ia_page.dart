@@ -99,7 +99,7 @@ class _IAPageState extends State<IAPage> {
                               onTap: () {
                                 Navigator.pushNamed(
                                   context,
-                                  '/interview-simulation',
+                                  '/interview-simulation-select',
                                 );
                               },
                             ),

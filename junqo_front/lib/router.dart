@@ -19,6 +19,7 @@ import 'package:junqo_front/pages/welcome.dart';
 import 'package:junqo_front/shared/widgets/private_page.dart';
 import 'package:junqo_front/pages/offer_creation.dart';
 import 'package:junqo_front/pages/offer_list.dart';
+import 'package:junqo_front/pages/interview_simulation_select.dart';
 
 class AppRouter {
   // Fonction pour générer les routes de l'application
@@ -39,13 +40,24 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: Interview()));
       case '/interview-simulation':
+        final args = settings.arguments;
+        if (args is String) {
+          return MaterialPageRoute(
+              builder: (_) => PrivatePage(child: InterviewSimulation(initialContext: args)));
+        }
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: InterviewSimulation()));
+      case '/interview-simulation-select':
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: InterviewSimulationSelect()));
       case '/login':
         return MaterialPageRoute(builder: (_) => const Login());
       case '/messaging':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: MessagingPage()));
+      case '/messaging-company':
+        return MaterialPageRoute(
+            builder: (_) => const PrivatePage(child: MessagingPage(forCompany: true)));
       case '/motivation':
         return MaterialPageRoute(
             builder: (_) => const PrivatePage(child: Motivation()));
