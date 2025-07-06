@@ -375,35 +375,6 @@ export class ApplicationsService {
   }
 
   /**
-   * Creates a conversation between the student and company when an application is accepted
-   *
-   * @param currentUser - The authenticated user who accepted the application
-   * @param application - The accepted application
-   * @private
-   */
-  private async createConversationForAcceptedApplication(
-    currentUser: AuthUserDTO,
-    application: ApplicationDTO,
-  ): Promise<void> {
-    try {
-      // Create conversation between student and company
-      const createConversationDto: CreateConversationDTO = {
-        participantsIds: [application.studentId, application.companyId],
-        title: `Application Discussion - ${application.offer?.title || 'Job Application'}`,
-      };
-
-      // Create the conversation using the current user's context
-      await this.conversationsService.create(currentUser, createConversationDto);
-    } catch (error) {
-      // Log the error but don't fail the application update
-      console.error(
-        `Failed to create conversation for accepted application ${application.id}:`,
-        error.message,
-      );
-    }
-  }
-
-  /**
    * Deletes an application from the database after checking user permissions.
    *
    * @param currentUser - The authenticated user attempting to delete the application
@@ -452,6 +423,35 @@ export class ApplicationsService {
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to delete application: ${error.message}`,
+      );
+    }
+  }
+
+    /**
+   * Creates a conversation between the student and company when an application is accepted
+   *
+   * @param currentUser - The authenticated user who accepted the application
+   * @param application - The accepted application
+   * @private
+   */
+  private async createConversationForAcceptedApplication(
+    currentUser: AuthUserDTO,
+    application: ApplicationDTO,
+  ): Promise<void> {
+    try {
+      // Create conversation between student and company
+      const createConversationDto: CreateConversationDTO = {
+        participantsIds: [application.studentId, application.companyId],
+        title: `Application Discussion - ${application.offer?.title || 'Job Application'}`,
+      };
+
+      // Create the conversation using the current user's context
+      await this.conversationsService.create(currentUser, createConversationDto);
+    } catch (error) {
+      // Log the error but don't fail the application update
+      console.error(
+        `Failed to create conversation for accepted application ${application.id}:`,
+        error.message,
       );
     }
   }
