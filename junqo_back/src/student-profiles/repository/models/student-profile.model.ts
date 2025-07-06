@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   HasMany,
@@ -13,6 +14,7 @@ import {
 } from '../../../shared/user-validation-constants';
 import { StudentProfileDTO } from '../../dto/student-profile.dto';
 import { plainToInstance } from 'class-transformer';
+import { UserModel } from '../../../users/repository/models/user.model';
 
 @Table({ tableName: 'StudentProfiles', timestamps: true, paranoid: true })
 export class StudentProfileModel extends Model {
@@ -27,6 +29,12 @@ export class StudentProfileModel extends Model {
     },
   })
   userId: string;
+
+  @BelongsTo(() => UserModel, {
+    foreignKey: 'userId',
+    onDelete: 'CASCADE',
+  })
+  user: UserModel;
 
   @Column({
     type: DataType.STRING,
@@ -48,7 +56,7 @@ export class StudentProfileModel extends Model {
   })
   skills: string[];
 
-  @HasMany(() => ExperienceModel)
+  @HasMany(() => ExperienceModel, 'studentProfileId')
   experiences: ExperienceModel[];
 
   public toStudentProfileDTO(): StudentProfileDTO {

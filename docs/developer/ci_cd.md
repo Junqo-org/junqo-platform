@@ -241,18 +241,12 @@ The workflow runs the following steps:
 
 ## Documentation Generation
 
-The project uses **Magidoc** to generate the backend API documentation.  
-The documentation is available at [http://doc.junqo.fr/api/index.html](../api/index.html).  
+The documentation is available at [http://doc.junqo.fr/](../index.md).  
 The documentation is generated automatically when the project is deployed using Github Action.  
 
-If you want to generate the documentation manually, you can use the following command:
-
-```bash
-npx @magidoc/cli@latest generate
-```
-
-The rest of the documentation is written in Markdown and is available in the [docs](../../docs) directory.
-It is automatically generated into a static website using Jekyll and is deployed using Github Pages.
+The documentation is written in Markdown and is available in the [docs](../../docs) directory.  
+It is automatically generated into a static website using Jekyll and is deployed using Github Pages.  
+If you want to generate the documentation manually, you can use the following command:  
 
 Install the dependencies by running the following command:
 
@@ -292,20 +286,10 @@ The workflow is triggered when the following conditions are met:
 - The files inside the `docs` folder are modified.
 - The `deploy-documentation.yml` file is modified.
 
-The workflow runs the following steps:
-
-1. Checkout the repository.
-2. Install Node.js.
-3. Generate de API documentation using [Magidoc](https://magidoc.js.org/introduction/welcome).
-4. Upload the API documentation artifacts.
-
-Then in a different job:
-
 1. Checkout the repository.
 2. Install Ruby.
 3. Setup Github Pages.
-4. Fetch the API documentation.
-5. Upload the final documentation artifacts.
+4. Upload the final documentation artifacts.
 
 Finally in a different job:
 

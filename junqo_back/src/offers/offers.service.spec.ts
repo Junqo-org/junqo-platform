@@ -22,6 +22,13 @@ const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   email: 'test@mail.com',
 });
 
+const studentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
+  id: 'e69cc25b-0cc4-4032-83c2-0d34c84318bb',
+  type: UserType.STUDENT,
+  name: 'student user',
+  email: 'student@mail.com',
+});
+
 const offers: OfferDTO[] = [
   plainToInstance(OfferDTO, {
     id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -385,25 +392,49 @@ describe('OffersService', () => {
 
   describe('deleteOffer', () => {
     it('should delete an offer', async () => {
-      offersRepository.findOneById.mockResolvedValue(offers[0]);
+      // Create a temporary offer for this test
+      const tempOffer = plainToInstance(OfferDTO, {
+        id: 'temp-offer-id-1',
+        userId: 'e42cc25b-0cc4-4032-83c2-0d34c84318ba',
+        title: 'Temp Offer 1',
+        description: 'Temp Description',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: OfferStatus.ACTIVE,
+        viewCount: 0,
+      });
+
+      offersRepository.findOneById.mockResolvedValue(tempOffer);
       offersRepository.deleteOffer.mockResolvedValue(true);
 
-      const result = await offersService.deleteOffer(currentUser, offers[0].id);
+      const result = await offersService.deleteOffer(currentUser, tempOffer.id);
       expect(result).toBe(true);
-      expect(offersRepository.deleteOffer).toHaveBeenCalledWith(offers[0].id);
+      expect(offersRepository.deleteOffer).toHaveBeenCalledWith(tempOffer.id);
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
       );
       expect(cannotMockFn).toHaveBeenLastCalledWith(
         Actions.DELETE,
-        plainToInstance(OfferResource, offers[0], {
+        plainToInstance(OfferResource, tempOffer, {
           excludeExtraneousValues: true,
         }),
       );
     });
 
     it('should throw ForbiddenException if user cannot read offer', async () => {
-      offersRepository.findOneById.mockResolvedValue(offers[0]);
+      // Create a temporary offer for this test
+      const tempOffer = plainToInstance(OfferDTO, {
+        id: 'temp-offer-id-2',
+        userId: 'e42cc25b-0cc4-4032-83c2-0d34c84318ba',
+        title: 'Temp Offer 2',
+        description: 'Temp Description',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: OfferStatus.ACTIVE,
+        viewCount: 0,
+      });
+
+      offersRepository.findOneById.mockResolvedValue(tempOffer);
       offersRepository.deleteOffer.mockResolvedValue(true);
       caslAbilityFactory.createForUser.mockImplementationOnce(
         caslAbilityFactory.createForUser,
@@ -416,25 +447,104 @@ describe('OffersService', () => {
       );
 
       await expect(
-        offersService.deleteOffer(currentUser, offers[0].id),
+        offersService.deleteOffer(currentUser, tempOffer.id),
       ).rejects.toThrow(ForbiddenException);
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
       );
       expect(cannotMockFnRev).toHaveBeenLastCalledWith(
         Actions.DELETE,
-        plainToInstance(OfferResource, offers[0], {
+        plainToInstance(OfferResource, tempOffer, {
           excludeExtraneousValues: true,
         }),
       );
     });
 
     it('should throw InternalServerErrorException if delete fails', async () => {
-      offersRepository.findOneById.mockResolvedValue(offers[0]);
+      // Create a temporary offer for this test
+      const tempOffer = plainToInstance(OfferDTO, {
+        id: 'temp-offer-id-3',
+        userId: 'e42cc25b-0cc4-4032-83c2-0d34c84318ba',
+        title: 'Temp Offer 3',
+        description: 'Temp Description',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: OfferStatus.ACTIVE,
+        viewCount: 0,
+      });
+
+      offersRepository.findOneById.mockResolvedValue(tempOffer);
       offersRepository.deleteOffer.mockRejectedValue(new Error());
 
       await expect(
-        offersService.deleteOffer(currentUser, offers[0].id),
+        offersService.deleteOffer(currentUser, tempOffer.id),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('markOfferAsViewed', () => {
+    it('should mark an offer as viewed', async () => {
+      const offerId = offers[0].id;
+      offersRepository.findOneById.mockResolvedValue(offers[0]);
+      offersRepository.markOfferAsViewed.mockResolvedValue();
+
+      await offersService.markOfferAsViewed(studentUser, offerId);
+      expect(offersRepository.markOfferAsViewed).toHaveBeenCalledWith(
+        studentUser.id,
+        offerId,
+      );
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        studentUser,
+      );
+      expect(cannotMockFn).toHaveBeenLastCalledWith(
+        Actions.READ,
+        plainToInstance(OfferResource, {
+          userId: offers[0].userId,
+        }),
+      );
+    });
+
+    it('should throw ForbiddenException if user cannot read offer', async () => {
+      const invalidCurrentUser = plainToInstance(AuthUserDTO, {
+        ...studentUser,
+        id: 'other user',
+      });
+      const offerId = offers[0].id;
+
+      offersRepository.findOneById.mockResolvedValue(offers[0]);
+      offersRepository.markOfferAsViewed.mockResolvedValue();
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        caslAbilityFactory.createForUser,
+      );
+      caslAbilityFactory.createForUser.mockImplementationOnce(
+        jest.fn().mockReturnValue({
+          can: canMockFnRev,
+          cannot: cannotMockFnRev,
+        }),
+      );
+
+      await expect(
+        offersService.markOfferAsViewed(invalidCurrentUser, offerId),
+      ).rejects.toThrow(ForbiddenException);
+      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
+        invalidCurrentUser,
+      );
+      expect(cannotMockFnRev).toHaveBeenLastCalledWith(
+        Actions.READ,
+        plainToInstance(OfferResource, {
+          userId: offers[0].userId,
+        }),
+      );
+    });
+
+    it('should throw InternalServerErrorException if marking as viewed fails', async () => {
+      const offerId = offers[0].id;
+
+      offersRepository.findOneById.mockResolvedValue(offers[0]);
+      offersRepository.markOfferAsViewed.mockRejectedValue(new Error());
+
+      await expect(
+        offersService.markOfferAsViewed(studentUser, offerId),
       ).rejects.toThrow(InternalServerErrorException);
     });
   });

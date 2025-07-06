@@ -138,6 +138,19 @@ export class OfferQueryDTO {
   educationLevel?: number;
 
   @ApiPropertyOptional({
+    description: 'Filter by seen status',
+    enum: ['any', 'true', 'false'],
+    default: 'any',
+    example: 'any',
+  })
+  @Expose()
+  @IsOptional()
+  @IsIn(['any', 'true', 'false'], {
+    message: 'Seen filter must be one of: any, true, false',
+  })
+  seen?: 'any' | 'true' | 'false';
+
+  @ApiPropertyOptional({
     description: 'Mode to fetch skills "all" or  "any"',
     default: 'any',
     example: 'all',

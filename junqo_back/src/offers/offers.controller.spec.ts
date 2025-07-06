@@ -174,4 +174,18 @@ describe('OffersController', () => {
       ).rejects.toThrow(InternalServerErrorException);
     });
   });
+
+  describe('markOfferAsViewed', () => {
+    it('should mark an offer as viewed', async () => {
+      service.markOfferAsViewed.mockResolvedValue();
+      await controller.markOfferAsViewed(
+        mockCurrentUser,
+        '1aec0948-58dd-40b2-b085-5a47244036c2',
+      );
+      expect(service.markOfferAsViewed).toHaveBeenCalledWith(
+        mockCurrentUser,
+        '1aec0948-58dd-40b2-b085-5a47244036c2',
+      );
+    });
+  });
 });
