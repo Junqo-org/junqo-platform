@@ -250,7 +250,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
           children: [
             for (var i = 0; i < navbarItemCount; i++) ...[
               if (i > 0) const SizedBox(width: 16),
-              if (i !== 2) _buildNavItem(i),
+              if (i != 2) _buildNavItem(i),
             ],
           ],
         ),
@@ -274,7 +274,7 @@ class _NavbarCompanyState extends State<NavbarCompany> {
           children: [
             for (var i = 0; i < navbarItemCount; i++) ...[
               if (i > 0) const SizedBox(width: 24),
-              if (i !== 2) _buildNavItem(i, showLabel: true),
+              if (i != 2) _buildNavItem(i, showLabel: true),
             ],
           ],
         ),

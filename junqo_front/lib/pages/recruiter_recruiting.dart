@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../shared/widgets/navbar_company.dart';
-import 'package:flutter/material.dart';
-import 'package:junqo_front/shared/widgets/navbar.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'package:junqo_front/shared/dto/student_profile.dart';
 import 'package:get_it/get_it.dart';
@@ -171,7 +169,7 @@ class _RecruiterRecruitingState extends State<RecruiterRecruiting>
         backgroundColor: _slate50,
         body: Column(
           children: [
-            const Navbar(currentIndex: 5),
+            const NavbarCompany(currentIndex: 5),
             Expanded(
               child: isWideScreen
                   ? _buildWideLayout()
