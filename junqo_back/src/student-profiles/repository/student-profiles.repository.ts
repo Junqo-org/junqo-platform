@@ -15,7 +15,7 @@ import {
   StudentProfileQueryDTO,
   StudentProfileQueryOutputDTO,
 } from '../dto/student-profile-query.dto';
-import { Op } from 'sequelize';
+import { Includeable, Op } from 'sequelize';
 import { ExperienceModel } from '../../experiences/repository/models/experience.model';
 
 @Injectable()
@@ -24,6 +24,8 @@ export class StudentProfilesRepository {
     @InjectModel(StudentProfileModel)
     private readonly studentProfileModel: typeof StudentProfileModel,
   ) {}
+
+  private includeOptions: Includeable[] = [ExperienceModel];
 
   /**
    * Retrieves student profiles matching the query.
@@ -53,7 +55,7 @@ export class StudentProfilesRepository {
 
     try {
       const { rows, count } = await this.studentProfileModel.findAndCountAll({
-        include: [ExperienceModel],
+        include: this.includeOptions,
         where,
         offset,
         limit,
@@ -94,7 +96,7 @@ export class StudentProfilesRepository {
     try {
       const studentProfileM: StudentProfileModel =
         await this.studentProfileModel.findByPk(id, {
-          include: [ExperienceModel],
+          include: this.includeOptions,
         });
 
       if (!studentProfileM) {
@@ -133,7 +135,7 @@ export class StudentProfilesRepository {
             skills: createStudentProfileDto.skills,
           },
           {
-            include: [ExperienceModel],
+            include: this.includeOptions,
           },
         );
 
@@ -169,7 +171,7 @@ export class StudentProfilesRepository {
         await this.studentProfileModel.sequelize.transaction(
           async (transaction) => {
             const studentProfile = await this.studentProfileModel.findByPk(id, {
-              include: [ExperienceModel],
+              include: this.includeOptions,
               transaction,
             });
 
@@ -221,7 +223,7 @@ export class StudentProfilesRepository {
   public async delete(id: string): Promise<boolean> {
     try {
       const studentProfile = await this.studentProfileModel.findByPk(id, {
-        include: [ExperienceModel],
+        include: this.includeOptions,
       });
 
       if (!studentProfile) {

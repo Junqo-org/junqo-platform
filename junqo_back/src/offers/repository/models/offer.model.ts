@@ -34,7 +34,6 @@ export class OfferModel extends Model {
   @ForeignKey(() => UserModel)
   @Column({
     type: DataType.UUID,
-    allowNull: false,
     validate: {
       notEmpty: true,
     },

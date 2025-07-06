@@ -3,7 +3,10 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -92,7 +95,7 @@ export class OffersController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async getOne(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<OfferDTO> {
     const offer: OfferDTO = await this.offersService.findOneById(
       currentUser,
@@ -155,7 +158,7 @@ export class OffersController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async updateOffer(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() offerInput: UpdateOfferDTO,
   ): Promise<OfferDTO> {
     const offer: OfferDTO = await this.offersService.updateOffer(
@@ -185,7 +188,7 @@ export class OffersController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async deleteOffer(
     @CurrentUser() currentUser: AuthUserDTO,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<{ isSuccessful: boolean }> {
     const isSuccess: boolean = await this.offersService.deleteOffer(
       currentUser,
@@ -196,5 +199,30 @@ export class OffersController {
       throw new InternalServerErrorException(`While deleting offer ${id}`);
     }
     return { isSuccessful: isSuccess };
+  }
+
+  @Post('view/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Mark an offer as viewed' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the offer to mark as viewed',
+    type: String,
+    required: true,
+  })
+  @ApiNoContentResponse({
+    description: 'Offer marked as viewed successfully',
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to mark this offer as viewed',
+  })
+  @ApiNotFoundResponse({ description: 'Offer not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async markOfferAsViewed(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.offersService.markOfferAsViewed(currentUser, id);
   }
 }

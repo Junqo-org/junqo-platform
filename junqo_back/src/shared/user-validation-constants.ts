@@ -6,3 +6,5 @@ export const MIN_MAIL_LENGTH = 5;
 export const MAX_MAIL_LENGTH = 255;
 export const MIN_PASSWORD_LENGTH = 8;
 export const MAX_PASSWORD_LENGTH = 72; // bcrypt max length
+
+export const MAX_CONVERSATION_TITLE_LENGTH = 50;

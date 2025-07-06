@@ -8,6 +8,8 @@ import { OfferResource } from './dto/offer-resource.dto';
 import { CompanyProfileResource } from './dto/company-profile-resource.dto';
 import { SchoolProfileResource } from './dto/school-profile-resource.dto';
 import { ApplicationResource } from './dto/application-resource.dto';
+import { ConversationResource } from './dto/conversation-resource.dto';
+import { MessageResource } from './dto/message-resource.dto';
 
 describe('CaslAbilityFactory', () => {
   let caslAbilityFactory: CaslAbilityFactory;
@@ -19,7 +21,7 @@ describe('CaslAbilityFactory', () => {
   let schoolUser2: AuthUserDTO;
   let adminUser: AuthUserDTO;
 
-  beforeEach(() => {
+  beforeAll(() => {
     caslAbilityFactory = new CaslAbilityFactory();
     studentUser = plainToInstance(AuthUserDTO, {
       id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -694,6 +696,230 @@ describe('CaslAbilityFactory', () => {
       expect(ability.can(Actions.READ, applicationResource)).toBeFalsy();
       expect(ability.can(Actions.UPDATE, applicationResource)).toBeFalsy();
       expect(ability.can(Actions.DELETE, applicationResource)).toBeFalsy();
+    });
+  });
+
+  describe('Conversation resource casl', () => {
+    it('should allow student user to manage conversation resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(
+        ability.can(Actions.MANAGE, new ConversationResource([studentUser.id])),
+      ).toBeTruthy();
+    });
+
+    it('should not allow student user to manage other student conversation resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(
+        ability.can(
+          Actions.MANAGE,
+          new ConversationResource([studentUser2.id]),
+        ),
+      ).toBeFalsy();
+    });
+
+    it('should allow company user to manage conversation resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(
+        ability.can(Actions.MANAGE, new ConversationResource([companyUser.id])),
+      ).toBeTruthy();
+    });
+
+    it('should not allow company user to manage other company conversation resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(
+        ability.can(
+          Actions.MANAGE,
+          new ConversationResource([companyUser2.id]),
+        ),
+      ).toBeFalsy();
+    });
+
+    it('should allow school user to manage conversation resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+
+      expect(
+        ability.can(Actions.MANAGE, new ConversationResource([schoolUser.id])),
+      ).toBeTruthy();
+    });
+
+    it('should not allow school user to manage other school conversation resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+
+      expect(
+        ability.can(Actions.MANAGE, new ConversationResource([schoolUser2.id])),
+      ).toBeFalsy();
+    });
+  });
+
+  describe('Message resource casl', () => {
+    let studentConversationResource: ConversationResource;
+    let companyConversationResource: ConversationResource;
+    let schoolConversationResource: ConversationResource;
+
+    beforeAll(() => {
+      studentConversationResource = new ConversationResource([studentUser.id]);
+      companyConversationResource = new ConversationResource([companyUser.id]);
+      schoolConversationResource = new ConversationResource([schoolUser.id]);
+    });
+
+    it('should allow student user to create and read message resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(
+        ability.can(
+          Actions.CREATE,
+          new MessageResource(studentUser.id, studentConversationResource),
+        ),
+      ).toBeTruthy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(studentUser.id, studentConversationResource),
+        ),
+      ).toBeTruthy();
+    });
+
+    it('should not allow student user to create but read other student message resource', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+
+      expect(
+        ability.can(
+          Actions.CREATE,
+          new MessageResource(studentUser2.id, studentConversationResource),
+        ),
+      ).toBeFalsy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(studentUser2.id, studentConversationResource),
+        ),
+      ).toBeTruthy();
+    });
+
+    it('should allow company user to create and read message resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(
+        ability.can(
+          Actions.CREATE,
+          new MessageResource(companyUser.id, companyConversationResource),
+        ),
+      ).toBeTruthy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(companyUser.id, companyConversationResource),
+        ),
+      ).toBeTruthy();
+    });
+
+    it('should not allow company user to create but read other company message resource', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+
+      expect(
+        ability.can(
+          Actions.CREATE,
+          new MessageResource(companyUser2.id, companyConversationResource),
+        ),
+      ).toBeFalsy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(companyUser2.id, companyConversationResource),
+        ),
+      ).toBeTruthy();
+    });
+
+    it('should allow school user to create and read message resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+
+      expect(
+        ability.can(
+          Actions.CREATE,
+          new MessageResource(schoolUser.id, schoolConversationResource),
+        ),
+      ).toBeTruthy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(schoolUser.id, schoolConversationResource),
+        ),
+      ).toBeTruthy();
+    });
+
+    it('should not allow school user to create but read other school message resource', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+
+      expect(
+        ability.can(
+          Actions.CREATE,
+          new MessageResource(schoolUser2.id, schoolConversationResource),
+        ),
+      ).toBeFalsy();
+      expect(
+        ability.can(
+          Actions.READ,
+          new MessageResource(schoolUser2.id, schoolConversationResource),
+        ),
+      ).toBeTruthy();
+    });
+
+    it('should allow student user to read, update and delete message resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+      const messageResource = new MessageResource(studentUser.id);
+
+      expect(ability.can(Actions.READ, messageResource)).toBeTruthy();
+      expect(ability.can(Actions.UPDATE, messageResource)).toBeTruthy();
+      expect(ability.can(Actions.DELETE, messageResource)).toBeTruthy();
+    });
+
+    it('should not allow student user to read, update and delete message resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(studentUser);
+      const messageResource = new MessageResource(studentUser2.id);
+
+      expect(ability.can(Actions.READ, messageResource)).toBeFalsy();
+      expect(ability.can(Actions.UPDATE, messageResource)).toBeFalsy();
+      expect(ability.can(Actions.DELETE, messageResource)).toBeFalsy();
+    });
+
+    it('should allow company user to read, update and delete message resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const messageResource = new MessageResource(companyUser.id);
+
+      expect(ability.can(Actions.READ, messageResource)).toBeTruthy();
+      expect(ability.can(Actions.UPDATE, messageResource)).toBeTruthy();
+      expect(ability.can(Actions.DELETE, messageResource)).toBeTruthy();
+    });
+
+    it('should not allow company user to read, update and delete message resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(companyUser);
+      const messageResource = new MessageResource(companyUser2.id);
+
+      expect(ability.can(Actions.READ, messageResource)).toBeFalsy();
+      expect(ability.can(Actions.UPDATE, messageResource)).toBeFalsy();
+      expect(ability.can(Actions.DELETE, messageResource)).toBeFalsy();
+    });
+
+    it('should allow school user to read, update and delete message resource with same userId', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const messageResource = new MessageResource(schoolUser.id);
+
+      expect(ability.can(Actions.READ, messageResource)).toBeTruthy();
+      expect(ability.can(Actions.UPDATE, messageResource)).toBeTruthy();
+      expect(ability.can(Actions.DELETE, messageResource)).toBeTruthy();
+    });
+
+    it('should not allow school user to read, update and delete message resource with different userId', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const messageResource = new MessageResource(schoolUser2.id);
+
+      expect(ability.can(Actions.READ, messageResource)).toBeFalsy();
+      expect(ability.can(Actions.UPDATE, messageResource)).toBeFalsy();
+      expect(ability.can(Actions.DELETE, messageResource)).toBeFalsy();
     });
   });
 });

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../shared/widgets/navbar_company.dart';
 import 'package:junqo_front/shared/dto/offer_data.dart';
 import 'package:junqo_front/pages/offer_detail.dart';
@@ -92,64 +93,71 @@ class _OfferListState extends State<OfferList> {
                   child: const Text("Annuler",
                       style: TextStyle(color: Color(0xFF64748B)))),
             ),
-            Semantics(
-              button: true,
-              label: 'Offre',
-              child: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.of(dialogContext).pop();
-                    if (!mounted) return;
-                    try {
-                      setState(() => _isLoading = true);
-                      final String newStatus =
-                          isActivating ? 'ACTIVE' : 'INACTIVE';
-                      final updatedOffer = OfferData(
-                          id: offer.id,
-                          userid: offer.userid,
-                          title: offer.title,
-                          description: offer.description,
-                          offerType: offer.offerType,
-                          duration: offer.duration,
-                          salary: offer.salary,
-                          workLocationType: offer.workLocationType,
-                          skills: offer.skills,
-                          benefits: offer.benefits,
-                          educationLevel: offer.educationLevel,
-                          status: newStatus);
-                      await _offerService.updateOffer(offer.id!, updatedOffer);
-                      if (!mounted) return;
-                      await _loadMyOffers();
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(isActivating
-                              ? "L'offre a été activée avec succès"
-                              : "L'offre a été désactivée avec succès"),
-                          backgroundColor: const Color(0xFF10B981)));
-                    } catch (e) {
-                      if (!mounted) return;
-                      setState(() {
-                        _isLoading = false;
-                        _errorMessage =
-                            "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("Erreur: ${e.toString()}"),
-                          backgroundColor: Colors.red));
-                    } finally {
-                      if (mounted) {
-                        setState(() => _isLoading = false);
-                      }
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: isActivating
-                          ? const Color(0xFF10B981)
-                          : const Color(0xFFEF4444),
-                      foregroundColor: Colors.white),
-                  child: Text(isActivating ? "Activer" : "Désactiver")),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+
+                if (!mounted) return;
+
+                try {
+                  setState(() => _isLoading = true);
+
+                  final String newStatus = isActivating ? 'ACTIVE' : 'INACTIVE';
+
+                  // Mettre à jour l'offre avec le nouveau statut
+                  final updatedOffer = OfferData(
+                    id: offer.id,
+                    userid: offer.userid,
+                    title: offer.title,
+                    description: offer.description,
+                    offerType: offer.offerType,
+                    duration: offer.duration,
+                    salary: offer.salary,
+                    workLocationType: offer.workLocationType,
+                    skills: offer.skills,
+                    benefits: offer.benefits,
+                    educationLevel: offer.educationLevel,
+                    status: newStatus,
+                  );
+
+                  await _offerService.updateOffer(offer.id!, updatedOffer);
+
+                  // Recharger les offres après la mise à jour
+                  await _loadMyOffers();
+
+                } catch (e) {
+                  if (!mounted) return;
+
+                  setState(() {
+                    _isLoading = false;
+                    _errorMessage = "Erreur lors de la mise à jour de l'offre: ${e.toString()}";
+                  });
+
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Erreur: ${e.toString()}"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } finally {
+                  if (mounted) {
+                    setState(() => _isLoading = false);
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isActivating
+                    ? const Color(0xFF10B981) // Emerald 500
+                    : const Color(0xFFEF4444), // Red 500
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                isActivating ? "Activer" : "Désactiver",
+              ),
             ),
           ],
-        );
+        ).animate().scale(begin: const Offset(0.8, 0.8), duration: 200.ms);
       },
     );
   }
@@ -182,7 +190,7 @@ class _OfferListState extends State<OfferList> {
         ),
         icon: const Icon(Icons.add),
         elevation: 4,
-      ),
+      ).animate().scale(delay: 500.ms, duration: 400.ms, curve: Curves.elasticOut),
       body: Column(
         children: [
           const NavbarCompany(
@@ -197,12 +205,15 @@ class _OfferListState extends State<OfferList> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildHeader(),
+                            _buildHeader()
+                                .animate()
+                                .fadeIn(duration: 400.ms)
+                                .slideY(begin: -0.2, end: 0),
                             const SizedBox(height: 24),
                             _buildOfferList(),
                           ],
                         ),
-                      ),
+                      ).animate().fadeIn(duration: 300.ms),
           ),
         ],
       ),
@@ -210,21 +221,26 @@ class _OfferListState extends State<OfferList> {
   }
 
   Widget _buildLoadingIndicator() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             color: Color(0xFF6366F1), // Indigo
-          ),
-          SizedBox(height: 16),
-          Text(
+          ).animate(onPlay: (controller) => controller.repeat())
+              .rotate(duration: 1.seconds)
+              .then()
+              .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 600.ms)
+              .then()
+              .scale(begin: const Offset(1.1, 1.1), end: const Offset(1, 1), duration: 600.ms),
+          const SizedBox(height: 16),
+          const Text(
             "Chargement des offres...",
             style: TextStyle(
               color: Color(0xFF64748B), // Slate 500
               fontSize: 16,
             ),
-          ),
+          ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
         ],
       ),
     );
@@ -239,7 +255,9 @@ class _OfferListState extends State<OfferList> {
             _isPermissionError ? Icons.no_accounts : Icons.error_outline,
             color: _isPermissionError ? const Color(0xFFEF4444) : Colors.red,
             size: 48,
-          ),
+          ).animate()
+              .scale(duration: 400.ms, curve: Curves.elasticOut)
+              .shake(delay: 400.ms, duration: 300.ms),
           const SizedBox(height: 16),
           Text(
             _errorMessage ?? "Une erreur est survenue",
@@ -248,24 +266,25 @@ class _OfferListState extends State<OfferList> {
               color: _isPermissionError ? const Color(0xFFEF4444) : Colors.red,
               fontSize: 16,
             ),
-          ),
+          ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
           const SizedBox(height: 24),
-          Semantics(
-            button: true,
-            label: 'Profil',
-            child: ElevatedButton.icon(
-                onPressed: _isPermissionError
-                    ? () {
-                        Navigator.of(context).pushReplacementNamed('/profile');
-                      }
-                    : _loadMyOffers,
-                icon: Icon(_isPermissionError ? Icons.person : Icons.refresh),
-                label: Text(
-                    _isPermissionError ? "Aller à mon profil" : "Réessayer"),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6366F1),
-                    foregroundColor: Colors.white)),
-          ),
+          ElevatedButton.icon(
+            onPressed: _isPermissionError
+                ? () {
+                    // Rediriger vers une page accessible
+                    Navigator.of(context).pushReplacementNamed('/profile');
+                  }
+                : _loadMyOffers,
+            icon: Icon(_isPermissionError ? Icons.person : Icons.refresh),
+            label:
+                Text(_isPermissionError ? "Aller à mon profil" : "Réessayer"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1), // Indigo
+              foregroundColor: Colors.white,
+            ),
+          ).animate()
+              .fadeIn(delay: 400.ms, duration: 400.ms)
+              .slideY(begin: 0.2, end: 0),
         ],
       ),
     );
@@ -289,28 +308,33 @@ class _OfferListState extends State<OfferList> {
                 color: Color(0xFF6366F1), // Indigo
                 size: 28,
               ),
-            ),
+            ).animate()
+                .scale(delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Mes offres",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E293B), // Slate 800
                     ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
+                  ).animate()
+                      .fadeIn(delay: 200.ms, duration: 400.ms)
+                      .slideX(begin: -0.2, end: 0),
+                  const SizedBox(height: 6),
+                  const Text(
                     "Retrouvez toutes vos offres publiées",
                     style: TextStyle(
                       fontSize: 16,
                       color: Color(0xFF64748B), // Slate 500
                     ),
-                  ),
+                  ).animate()
+                      .fadeIn(delay: 300.ms, duration: 400.ms)
+                      .slideX(begin: -0.2, end: 0),
                 ],
               ),
             ),
@@ -343,7 +367,9 @@ class _OfferListState extends State<OfferList> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12))),
               ),
-            ),
+            ).animate()
+                .fadeIn(delay: 400.ms, duration: 400.ms)
+                .scale(begin: const Offset(0.8, 0.8)),
           ],
         ),
         const SizedBox(height: 16),
@@ -424,7 +450,9 @@ class _OfferListState extends State<OfferList> {
           ),
         ],
       ),
-    );
+    ).animate()
+        .fadeIn(delay: 500.ms, duration: 500.ms)
+        .slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildOfferList() {
@@ -446,18 +474,34 @@ class _OfferListState extends State<OfferList> {
         // Section des offres actives
         if (activeOffers.isNotEmpty) ...[
           _buildSectionHeader("Offres actives", Icons.check_circle_outline,
-              activeOffers.length),
+              activeOffers.length)
+              .animate()
+              .fadeIn(delay: 100.ms, duration: 400.ms)
+              .slideX(begin: -0.1, end: 0),
           const SizedBox(height: 16),
-          ...activeOffers.map((offer) => _buildOfferCard(offer)),
+          ...activeOffers.asMap().entries.map((entry) => 
+            _buildOfferCard(entry.value)
+                .animate()
+                .fadeIn(delay: (200 + 100 * entry.key).ms, duration: 400.ms)
+                .slideY(begin: 0.1, end: 0)
+          ),
           const SizedBox(height: 32),
         ],
 
         // Section des offres inactives
         if (inactiveOffers.isNotEmpty) ...[
           _buildSectionHeader(
-              "Offres inactives", Icons.block_outlined, inactiveOffers.length),
+              "Offres inactives", Icons.block_outlined, inactiveOffers.length)
+              .animate()
+              .fadeIn(delay: (activeOffers.isEmpty ? 100 : 300 + 100 * activeOffers.length).ms, duration: 400.ms)
+              .slideX(begin: -0.1, end: 0),
           const SizedBox(height: 16),
-          ...inactiveOffers.map((offer) => _buildOfferCard(offer)),
+          ...inactiveOffers.asMap().entries.map((entry) => 
+            _buildOfferCard(entry.value)
+                .animate()
+                .fadeIn(delay: (activeOffers.isEmpty ? 200 : 400 + 100 * activeOffers.length + 100 * entry.key).ms, duration: 400.ms)
+                .slideY(begin: 0.1, end: 0)
+          ),
         ],
 
         // Afficher un message si aucune offre n'est trouvée (ne devrait pas arriver avec la vérification isEmpty)
@@ -490,7 +534,8 @@ class _OfferListState extends State<OfferList> {
             Icons.work_off_outlined,
             color: Color(0xFF94A3B8), // Slate 400
             size: 64,
-          ),
+          ).animate()
+              .scale(delay: 100.ms, duration: 500.ms, curve: Curves.elasticOut),
           const SizedBox(height: 24),
           const Text(
             "Vous n'avez pas encore créé d'offre",
@@ -499,7 +544,8 @@ class _OfferListState extends State<OfferList> {
               fontWeight: FontWeight.bold,
               color: Color(0xFF334155), // Slate 700
             ),
-          ),
+          ).animate()
+              .fadeIn(delay: 200.ms, duration: 400.ms),
           const SizedBox(height: 8),
           const Text(
             "Créez votre première offre pour commencer à recruter des talents",
@@ -508,35 +554,38 @@ class _OfferListState extends State<OfferList> {
               fontSize: 14,
               color: Color(0xFF64748B), // Slate 500
             ),
-          ),
+          ).animate()
+              .fadeIn(delay: 300.ms, duration: 400.ms),
           const SizedBox(height: 24),
-          Semantics(
-            button: true,
-            label: 'Créer une offre',
-            child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => JobOfferForm(
-                                  client: GetIt.instance<RestClient>())))
-                      .then((result) {
-                    if (result == true || result == null) {
-                      _loadMyOffers();
-                    }
-                  });
-                },
-                icon: const Icon(Icons.add),
-                label: const Text("Créer ma première offre"),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6366F1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12))),
-          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      JobOfferForm(client: GetIt.instance<RestClient>()),
+                ),
+              ).then((result) {
+                if (result == true || result == null) {
+                  _loadMyOffers();
+                }
+              });
+            },
+            icon: const Icon(Icons.add),
+            label: const Text("Créer ma première offre"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1), // Indigo
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+          ).animate()
+              .fadeIn(delay: 400.ms, duration: 400.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
         ],
       ),
-    );
+    ).animate()
+        .fadeIn(duration: 500.ms)
+        .scale(begin: const Offset(0.95, 0.95));
   }
 
   Widget _buildSectionHeader(String title, IconData icon, int count) {
@@ -571,7 +620,8 @@ class _OfferListState extends State<OfferList> {
               color: Color(0xFF6366F1), // Indigo
             ),
           ),
-        ),
+        ).animate()
+            .scale(delay: 100.ms, duration: 300.ms),
       ],
     );
   }
@@ -662,9 +712,9 @@ class _OfferListState extends State<OfferList> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: offer.skills.map((skill) {
+                    children: offer.skills.asMap().entries.map((entry) {
                       return Chip(
-                        label: Text(skill),
+                        label: Text(entry.value),
                         labelStyle: const TextStyle(
                           color: Color(0xFF6366F1), // Indigo
                           fontSize: 12,
@@ -681,7 +731,8 @@ class _OfferListState extends State<OfferList> {
                         ),
                         visualDensity: VisualDensity.compact,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      );
+                      ).animate()
+                          .scale(delay: (50 * entry.key).ms, duration: 300.ms);
                     }).toList(),
                   ),
                   const SizedBox(height: 16),

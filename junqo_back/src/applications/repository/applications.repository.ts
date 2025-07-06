@@ -17,6 +17,7 @@ import {
 import { StudentProfileModel } from '../../student-profiles/repository/models/student-profile.model';
 import { CompanyProfileModel } from '../../company-profiles/repository/models/company-profile.model';
 import { OfferModel } from '../../offers/repository/models/offer.model';
+import { ForeignKeyConstraintError } from 'sequelize';
 
 export class ApplicationsRepository {
   constructor(
@@ -91,11 +92,7 @@ export class ApplicationsRepository {
         limit,
       });
 
-      if (count === 0) {
-        throw new NotFoundException(
-          'No applications found matching the criteria',
-        );
-      }
+      // Return empty result instead of throwing exception for better UX
       const queryResult: ApplicationQueryOutputDTO = {
         rows: rows.map((application) => application.toApplicationDTO()),
         count,
@@ -103,7 +100,6 @@ export class ApplicationsRepository {
 
       return queryResult;
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch applications: ${error.message}`,
       );
@@ -193,6 +189,8 @@ export class ApplicationsRepository {
 
       return newApplication;
     } catch (error) {
+      if (error instanceof ForeignKeyConstraintError)
+        throw new BadRequestException('Referenced ID does not exist');
       throw new InternalServerErrorException(
         `Failed to create Application: ${error.message}`,
       );
@@ -237,6 +235,8 @@ export class ApplicationsRepository {
 
       return updatedApplication;
     } catch (error) {
+      if (error instanceof ForeignKeyConstraintError)
+        throw new BadRequestException('Referenced ID does not exist');
       throw new InternalServerErrorException(
         `Failed to update application: ${error.message}`,
       );
