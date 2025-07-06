@@ -80,7 +80,6 @@ describe('ApplicationsService', () => {
   let offersService: Mocked<OffersService>;
   let applicationsRepository: Mocked<ApplicationsRepository>;
   let caslAbilityFactory: Mocked<CaslAbilityFactory>;
-  let conversationsService: Mocked<ConversationsService>;
   let canMockFn: jest.Mock;
   let cannotMockFn: jest.Mock;
   let canMockFnRev: jest.Mock;
@@ -111,7 +110,6 @@ describe('ApplicationsService', () => {
     offersService = unitRef.get(OffersService);
     applicationsRepository = unitRef.get(ApplicationsRepository);
     caslAbilityFactory = unitRef.get(CaslAbilityFactory);
-    conversationsService = unitRef.get(ConversationsService);
   });
 
   it('should be defined', () => {
