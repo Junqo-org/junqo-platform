@@ -84,7 +84,7 @@ class _OfferListState extends State<OfferList> {
           actions: [
             Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Annuler',
               child: TextButton(
                   onPressed: () {
                     Navigator.of(dialogContext).pop();
@@ -94,7 +94,7 @@ class _OfferListState extends State<OfferList> {
             ),
             Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Offre',
               child: ElevatedButton(
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
@@ -252,7 +252,7 @@ class _OfferListState extends State<OfferList> {
           const SizedBox(height: 24),
           Semantics(
             button: true,
-            label: 'TODO: Replace with a meaningful label',
+            label: 'Profil',
             child: ElevatedButton.icon(
                 onPressed: _isPermissionError
                     ? () {
@@ -318,7 +318,7 @@ class _OfferListState extends State<OfferList> {
               margin: const EdgeInsets.only(left: 16),
               child: Semantics(
                 button: true,
-                label: 'TODO: Replace with a meaningful label',
+                label: 'Créer une offre',
                 child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
@@ -395,7 +395,7 @@ class _OfferListState extends State<OfferList> {
           const SizedBox(width: 20),
           Semantics(
             button: true,
-            label: 'TODO: Replace with a meaningful label',
+            label: 'Nouvelle offre',
             child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
@@ -512,7 +512,7 @@ class _OfferListState extends State<OfferList> {
           const SizedBox(height: 24),
           Semantics(
             button: true,
-            label: 'TODO: Replace with a meaningful label',
+            label: 'Créer une offre',
             child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
@@ -762,7 +762,7 @@ class _OfferListState extends State<OfferList> {
                     const SizedBox(width: 12),
                     Semantics(
                       button: true,
-                      label: 'TODO: Replace with a meaningful label',
+                      label: 'Void détails',
                       child: ElevatedButton.icon(
                           onPressed: () {
                             Navigator.push(

@@ -352,7 +352,7 @@ class _OfferDetailState extends State<OfferDetail> {
                     const SizedBox(width: 12),
                     Semantics(
                       button: true,
-                      label: 'TODO: Replace with a meaningful label',
+                      label: 'Supprimez l\'offre',
                       child: ElevatedButton.icon(
                           onPressed: () {
                             showDialog(
@@ -371,8 +371,7 @@ class _OfferDetailState extends State<OfferDetail> {
                                       actions: [
                                         Semantics(
                                           button: true,
-                                          label:
-                                              'TODO: Replace with a meaningful label',
+                                          label: 'Annulez',
                                           child: TextButton(
                                               onPressed: () {
                                                 Navigator.of(dialogContext)

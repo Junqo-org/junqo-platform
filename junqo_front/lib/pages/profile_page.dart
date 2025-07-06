@@ -266,7 +266,7 @@ class ProfilePageState extends State<ProfilePage> {
                     width: double.infinity,
                     child: Semantics(
                       button: true,
-                      label: 'TODO: Replace with a meaningful label',
+                      label: 'Fermer',
                       child: ElevatedButton(
                           onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
@@ -469,7 +469,7 @@ class ProfilePageState extends State<ProfilePage> {
             height: 50,
             child: Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Terminer l\'édition',
               child: ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -789,7 +789,7 @@ class ProfilePageState extends State<ProfilePage> {
                   const SizedBox(width: 12),
                   Semantics(
                     button: true,
-                    label: 'TODO: Replace with a meaningful label',
+                    label: 'Bouton',
                     child: ElevatedButton(
                         onPressed: () {
                           if (_newSkillController.text.isNotEmpty) {
@@ -961,7 +961,7 @@ class ProfilePageState extends State<ProfilePage> {
                                     Semantics(
                                       button: true,
                                       label:
-                                          'TODO: Replace with a meaningful label',
+                                          'Voulez-vous vraiment supprimer cette expérience ?',
                                       child: TextButton(
                                           child: const Text('Annuler'),
                                           onPressed: () =>
@@ -969,8 +969,7 @@ class ProfilePageState extends State<ProfilePage> {
                                     ),
                                     Semantics(
                                       button: true,
-                                      label:
-                                          'TODO: Replace with a meaningful label',
+                                      label: 'Supprimer',
                                       child: TextButton(
                                           child: const Text('Supprimer',
                                               style:
@@ -1183,7 +1182,7 @@ class ProfilePageState extends State<ProfilePage> {
           width: double.infinity,
           child: Semantics(
             button: true,
-            label: 'TODO: Replace with a meaningful label',
+            label: 'Ajouter l\'expérience',
             child: ElevatedButton.icon(
                 onPressed: _addExperience,
                 icon: const Icon(Icons.add),
@@ -1324,7 +1323,7 @@ class ProfilePageState extends State<ProfilePage> {
             height: 50,
             child: Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Enregistre le profil',
               child: ElevatedButton(
                   onPressed: _saveProfile,
                   style: ElevatedButton.styleFrom(
@@ -1364,7 +1363,7 @@ class ProfilePageState extends State<ProfilePage> {
             height: 50,
             child: Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Se déconnecter',
               child: ElevatedButton(
                   onPressed: () async {
                     await authService.logout();

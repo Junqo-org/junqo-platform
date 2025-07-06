@@ -49,7 +49,7 @@ class InterviewState extends State<Interview> {
           actions: [
             Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Fermer',
               child: TextButton(
                   onPressed: () {
                     Navigator.pop(context);
@@ -112,7 +112,7 @@ class InterviewState extends State<Interview> {
           const SizedBox(height: 32),
           Semantics(
             button: true,
-            label: 'TODO: Replace with a meaningful label',
+            label: 'Commencez l\'entretien',
             child: ElevatedButton(
                 onPressed: _startInterview,
                 style: ElevatedButton.styleFrom(
@@ -194,7 +194,7 @@ class InterviewState extends State<Interview> {
                         padding: const EdgeInsets.only(top: 8, right: 56),
                         child: Semantics(
                           button: true,
-                          label: 'TODO: Replace with a meaningful label',
+                          label: 'Afficher la remarque',
                           child: ElevatedButton(
                               onPressed: _showRemarkPopup,
                               style: ElevatedButton.styleFrom(

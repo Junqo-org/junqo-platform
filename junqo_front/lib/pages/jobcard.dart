@@ -1013,8 +1013,7 @@ class _JobCardState extends State<JobCard> {
                                 alignment: Alignment.centerRight,
                                 child: Semantics(
                                   button: true,
-                                  label:
-                                      'TODO: Replace with a meaningful label',
+                                  label: 'Plus / Moins de détails',
                                   child: TextButton(
                                       onPressed: () {
                                         setState(() {

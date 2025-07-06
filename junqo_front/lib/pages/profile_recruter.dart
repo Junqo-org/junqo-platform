@@ -144,7 +144,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
                         width: double.infinity,
                         child: Semantics(
                           button: true,
-                          label: 'TODO: Replace with a meaningful label',
+                          label: 'Fermer',
                           child: ElevatedButton(
                               onPressed: () => Navigator.pop(context),
                               style: ElevatedButton.styleFrom(
@@ -267,7 +267,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
             height: 50,
             child: Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Terminer l\'édition / Modifier le profil',
               child: ElevatedButton(
                   onPressed: () {
                     if (_isEditing) {
@@ -760,7 +760,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
             height: 50,
             child: Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Enregister le profil',
               child: ElevatedButton(
                   onPressed: _saveProfile,
                   style: ElevatedButton.styleFrom(
@@ -800,7 +800,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
             height: 50,
             child: Semantics(
               button: true,
-              label: 'TODO: Replace with a meaningful label',
+              label: 'Se déconnecter',
               child: ElevatedButton(
                   onPressed: () async {
                     await authService.logout();

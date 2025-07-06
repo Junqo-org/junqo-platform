@@ -278,8 +278,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                               children: [
                                 Semantics(
                                   button: true,
-                                  label:
-                                      'TODO: Replace with a meaningful label',
+                                  label: 'Retour a la liste des offres',
                                   child: ElevatedButton(
                                       onPressed: () {
                                         Navigator.of(dialogContext).pop();
@@ -1644,7 +1643,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         ),
         child: Semantics(
           button: true,
-          label: 'TODO: Replace with a meaningful label',
+          label: 'Enregistrez les modification / Publier l\'offre',
           child: ElevatedButton(
               onPressed: _submitJobOffer,
               style: ElevatedButton.styleFrom(
