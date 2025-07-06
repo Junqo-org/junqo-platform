@@ -59,29 +59,31 @@ class JobCardSwipe extends StatefulWidget {
   State<JobCardSwipe> createState() => _JobCardSwipeState();
 }
 
-class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderStateMixin {
+class _JobCardSwipeState extends State<JobCardSwipe>
+    with SingleTickerProviderStateMixin {
   // Ajout d'une clé globale pour le ScaffoldMessenger
-  final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
-  
+  final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   CardData? cardData;
   late final ApiService _apiService;
   late final RestClient client;
   bool isLoading = true;
-  
+
   bool initialized = false;
   List<CardData> cardDataList = [];
   bool outOfData = false;
   int currentIndex = 0;
   int offsetIndex = 0;
-  
+
   // Set pour garder une trace des offres postulées
   final Set<String> _appliedOffers = {};
-  
+
   // Animation controller for card transitions
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _opacityAnimation;
-  
+
   // App theme colors
   static const Color _indigoColor = Color(0xFF6366F1);
   static const Color _indigoLight = Color(0xFFEEF2FF);
@@ -98,21 +100,20 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
     super.initState();
     _apiService = GetIt.instance<ApiService>();
     client = widget.client;
-    
+
     // Setup animation controller
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    
+
     _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic)
-    );
-    
+        CurvedAnimation(
+            parent: _animationController, curve: Curves.easeOutCubic));
+
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut)
-    );
-    
+        CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
+
     _initCardData();
   }
 
@@ -126,23 +127,23 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
     try {
       final data = await setCardData();
       if (mounted) {
-      setState(() {
-        cardData = data;
-        isLoading = false;
-      });
+        setState(() {
+          cardData = data;
+          isLoading = false;
+        });
         // Start animation when card is loaded
         _animationController.forward(from: 0.0);
       }
     } catch (e) {
       if (mounted) {
-      setState(() {
-        cardData = placeholderCardData()[0];
-        isLoading = false;
-      });
+        setState(() {
+          cardData = placeholderCardData()[0];
+          isLoading = false;
+        });
         // Still animate for placeholder
         _animationController.forward(from: 0.0);
-        
-      ScaffoldMessenger.of(context).showSnackBar(
+
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to load job data: ${e.toString()}'),
             behavior: SnackBarBehavior.floating,
@@ -160,8 +161,9 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final bool isWideScreen = screenSize.width > 1000;
-    final bool isMediumScreen = screenSize.width > 650 && screenSize.width <= 1000;
-    
+    final bool isMediumScreen =
+        screenSize.width > 650 && screenSize.width <= 1000;
+
     return ScaffoldMessenger(
       key: _scaffoldKey,
       child: Scaffold(
@@ -710,21 +712,22 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       debugPrint('Cannot postulate for placeholder data');
       return;
     }
-    
+
     if (_appliedOffers.contains(id)) {
       _showSnackBar('Vous avez déjà postulé à cette offre');
       return;
     }
-    
+
     debugPrint('Postulating for offer with ID: $id');
     try {
       final response = await _apiService.postulateOffer(id);
-      
+
       if (response['id'] != null || response['status'] == 'OPENED') {
         _appliedOffers.add(id);
         _showSnackBar('Candidature envoyée avec succès !');
       } else {
-        _showSnackBar('Échec de la candidature. Veuillez réessayer.', isError: true);
+        _showSnackBar('Échec de la candidature. Veuillez réessayer.',
+            isError: true);
       }
     } catch (error) {
       _showSnackBar('Erreur: ${error.toString()}', isError: true);
@@ -734,12 +737,12 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
   Future<void> _handleAction(bool accepted) async {
     // Animate out current card
     await _animationController.reverse();
-    
+
     setState(() {
       isLoading = true;
       _actionLocked = true;
     });
-    
+
     // Handle action for current card if it's not a placeholder
     if (cardData != null && !cardData!.isPlaceHolder) {
       if (accepted) {
@@ -752,11 +755,11 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
         debugPrint('Rejected offer with ID: ${cardData!.id}');
       }
     }
-    
+
     try {
       final newData = await setCardData();
       if (!mounted) return;
-      
+
       setState(() {
         cardData = newData;
         isLoading = false;
@@ -766,7 +769,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       _animationController.forward(from: 0.0);
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         cardData = placeholderCardData()[0];
         isLoading = false;
@@ -774,7 +777,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       });
       // Animate in placeholder
       _animationController.forward(from: 0.0);
-      
+
       _showSnackBar('Error loading next job: ${e.toString()}', isError: true);
     }
   }
@@ -784,8 +787,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       initialized = true;
       cardDataList = await getOfferQuery(0);
       // Filtrer les offres déjà postulées
-      cardDataList = cardDataList.where((card) => !_appliedOffers.contains(card.id)).toList();
-      
+      cardDataList = cardDataList
+          .where((card) => !_appliedOffers.contains(card.id))
+          .toList();
+
       if (cardDataList.isEmpty) {
         outOfData = true;
         currentIndex = 0;
@@ -805,19 +810,20 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
         return placeholderCardData()[0];
       }
     }
-    
+
     currentIndex++;
     debugPrint('Current index: $currentIndex');
     debugPrint('Card data list length: ${cardDataList.length}');
-    
+
     if (currentIndex >= cardDataList.length) {
       debugPrint('Fetching more data');
       offsetIndex = offsetIndex + currentIndex;
       currentIndex = 0;
       final newCards = await getOfferQuery(offsetIndex);
       // Filtrer les nouvelles offres pour exclure celles déjà postulées
-      cardDataList = newCards.where((card) => !_appliedOffers.contains(card.id)).toList();
-      
+      cardDataList =
+          newCards.where((card) => !_appliedOffers.contains(card.id)).toList();
+
       if (cardDataList.isEmpty) {
         outOfData = true;
         currentIndex = 0;
@@ -857,12 +863,14 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
 
   CardData transformOfferToCard(OfferData offer) {
     // Properly handle nullable lists and strings
-    final List<String> benefitsList = offer.benefits.isNotEmpty ? List<String>.from(offer.benefits) : [];
+    final List<String> benefitsList =
+        offer.benefits.isNotEmpty ? List<String>.from(offer.benefits) : [];
     if (offer.workLocationType.isNotEmpty) {
       benefitsList.add(offer.workLocationType);
     }
 
-    final List<String> skillsList = offer.skills.isNotEmpty ? List<String>.from(offer.skills) : [];
+    final List<String> skillsList =
+        offer.skills.isNotEmpty ? List<String>.from(offer.skills) : [];
     if (offer.educationLevel.isNotEmpty) {
       skillsList.add(offer.educationLevel);
     }
@@ -1005,7 +1013,7 @@ class JobCard extends StatefulWidget {
 
 class _JobCardState extends State<JobCard> {
   bool _showFullDetails = false;
-  
+
   // App theme colors
   static const Color _indigoColor = Color(0xFF6366F1);
   static const Color _indigoLight = Color(0xFFEEF2FF);
@@ -1479,22 +1487,23 @@ class _JobCardState extends State<JobCard> {
   Widget _getLogoWidget(String logoPath) {
     try {
       if (logoPath.toLowerCase().endsWith('.svg')) {
-      return SvgPicture.asset(
-        logoPath,
-          placeholderBuilder: (context) => const Icon(Icons.business, size: 24, color: _slate500),
+        return SvgPicture.asset(
+          logoPath,
+          placeholderBuilder: (context) =>
+              const Icon(Icons.business, size: 24, color: _slate500),
           height: 30,
           width: 30,
-      );
-    } else {
-      return Image.asset(
-        logoPath,
+        );
+      } else {
+        return Image.asset(
+          logoPath,
           height: 30,
           width: 30,
-        errorBuilder: (context, error, stackTrace) {
+          errorBuilder: (context, error, stackTrace) {
             return const Icon(Icons.business, size: 24, color: _slate500);
-        },
-      );
-    }
+          },
+        );
+      }
     } catch (e) {
       return const Icon(Icons.business, size: 24, color: _slate500);
     }

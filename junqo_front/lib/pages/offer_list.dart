@@ -83,16 +83,15 @@ class _OfferListState extends State<OfferList> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text(
-                "Annuler",
-                style: TextStyle(
-                  color: Color(0xFF64748B),
-                ),
-              ),
+            Semantics(
+              button: true,
+              label: 'Annuler',
+              child: TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                  },
+                  child: const Text("Annuler",
+                      style: TextStyle(color: Color(0xFF64748B)))),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -341,32 +340,32 @@ class _OfferListState extends State<OfferList> {
             ),
             Container(
               margin: const EdgeInsets.only(left: 16),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          JobOfferForm(client: GetIt.instance<RestClient>()),
-                    ),
-                  ).then((result) {
-                    if (result == true || result == null) {
-                      _loadMyOffers();
-                    }
-                  });
-                },
-                icon: const Icon(Icons.add_circle_outline),
-                label: const Text("Créer une offre"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1), // Indigo
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
+              child: Semantics(
+                button: true,
+                label: 'Créer une offre',
+                child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => JobOfferForm(
+                                      client: GetIt.instance<RestClient>())))
+                          .then((result) {
+                        if (result == true || result == null) {
+                          _loadMyOffers();
+                        }
+                      });
+                    },
+                    icon: const Icon(Icons.add_circle_outline),
+                    label: const Text("Créer une offre"),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6366F1),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12))),
               ),
             ).animate()
                 .fadeIn(delay: 400.ms, duration: 400.ms)
@@ -420,35 +419,34 @@ class _OfferListState extends State<OfferList> {
             ),
           ),
           const SizedBox(width: 20),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      JobOfferForm(client: GetIt.instance<RestClient>()),
-                ),
-              ).then((result) {
-                if (result == true || result == null) {
-                  _loadMyOffers();
-                }
-              });
-            },
-            icon: const Icon(Icons.add),
-            label: const Text("Nouvelle offre"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF6366F1), // Indigo
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: const BorderSide(
-                  color: Color(0xFF6366F1),
-                  width: 1.5,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
+          Semantics(
+            button: true,
+            label: 'Nouvelle offre',
+            child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => JobOfferForm(
+                                  client: GetIt.instance<RestClient>())))
+                      .then((result) {
+                    if (result == true || result == null) {
+                      _loadMyOffers();
+                    }
+                  });
+                },
+                icon: const Icon(Icons.add),
+                label: const Text("Nouvelle offre"),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF6366F1),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(
+                            color: Color(0xFF6366F1), width: 1.5)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12))),
           ),
         ],
       ),
@@ -813,29 +811,28 @@ class _OfferListState extends State<OfferList> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OfferDetail(offer: offer),
-                          ),
-                        ).then((_) {
-                          // Recharger les offres au retour (notamment après une suppression)
-                          _loadMyOffers();
-                        });
-                      },
-                      icon: const Icon(Icons.visibility_outlined),
-                      label: const Text("Voir détails"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1), // Indigo
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                      ),
+                    Semantics(
+                      button: true,
+                      label: 'Void détails',
+                      child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        OfferDetail(offer: offer))).then((_) {
+                              _loadMyOffers();
+                            });
+                          },
+                          icon: const Icon(Icons.visibility_outlined),
+                          label: const Text("Voir détails"),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6366F1),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8))),
                     ),
                   ],
                 ),
