@@ -265,24 +265,11 @@ class ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Fermer',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton(onPressed: () => Navigator.pop(context), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text('Fermer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+),
                   ),
                 ],
               ),
@@ -863,27 +850,11 @@ class ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_newSkillController.text.isNotEmpty) {
-                        setState(() {
-                          skills.add(_newSkillController.text);
-                          _newSkillController.clear();
-                        });
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6366F1),
-                      padding: const EdgeInsets.all(12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton(onPressed: () {if (_newSkillController.text.isNotEmpty) {setState(() {skills.add(_newSkillController.text); _newSkillController.clear();});}}, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), padding: const EdgeInsets.all(12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Icon(Icons.add, color: Colors.white)),
+),
                 ],
               ),
             ],
@@ -1032,10 +1003,11 @@ class ProfilePageState extends State<ProfilePage> {
                               title: const Text('Confirmer la suppression'),
                               content: const Text('Voulez-vous vraiment supprimer cette expérience ?'),
                               actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Annuler'),
-                                  onPressed: () => Navigator.of(context).pop(false),
-                                ),
+                                Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: TextButton(child: const Text('Annuler'), onPressed: () => Navigator.of(context).pop(false)),
+),
                                 TextButton(
                                   child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
                                   onPressed: () => Navigator.of(context).pop(true),
@@ -1228,19 +1200,11 @@ class ProfilePageState extends State<ProfilePage> {
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _addExperience,
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter l\'expérience'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+          child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: _addExperience, icon: const Icon(Icons.add), label: const Text('Ajouter l\'expérience'), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
+),
         ),
       ],
     );

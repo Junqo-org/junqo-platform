@@ -249,10 +249,11 @@ class _MessagingPageState extends State<MessagingPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _initializeData,
-              child: const Text('Réessayer'),
-            ),
+            Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton(onPressed: _initializeData, child: const Text('Réessayer')),
+),
           ],
         ),
       );

@@ -378,20 +378,11 @@ class _CVState extends State<CV> {
                                           ],
                                         ),
                                         const SizedBox(height: 24),
-                                        ElevatedButton.icon( // Changé en ElevatedButton pour plus de proéminence
-                                          onPressed: _pickFile,
-                                          icon: const Icon(Icons.refresh_rounded, size: 20),
-                                          label: const Text("Changer de fichier"),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: indigo600,
-                                            foregroundColor: Colors.white,
-                                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                        ),
+                                        Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: _pickFile, icon: const Icon(Icons.refresh_rounded, size: 20), label: const Text("Changer de fichier"), style: ElevatedButton.styleFrom(backgroundColor: indigo600, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
+),
                                       ],
                                     ],
                                   ),
@@ -478,43 +469,11 @@ class _CVState extends State<CV> {
                       SizedBox(
                         width: double.infinity,
                         height: 60, // Hauteur augmentée
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _analyzeCv,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: indigo600, // Couleur primaire
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16), // Bordures plus arrondies
-                            ),
-                            elevation: _isLoading ? 0 : 3, // Ombre subtile
-                            disabledBackgroundColor: slate300,
-                            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600) // Texte plus gras
-                          ),
-                          child: _isLoading
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 3.5, // Un peu plus épais
-                                      ),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    const Text("Analyse en cours..."),
-                                  ],
-                                )
-                              : const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.auto_awesome_rounded, size: 26), // Icône plus engageante
-                                    SizedBox(width: 12),
-                                    Text("Analyser mon CV"),
-                                  ],
-                                ),
-                        ),
+                        child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton(onPressed: _isLoading ? null : _analyzeCv, style: ElevatedButton.styleFrom(backgroundColor: indigo600, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: _isLoading ? 0 : 3, disabledBackgroundColor: slate300, textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)), child: _isLoading ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3.5)), const SizedBox(width: 20), const Text("Analyse en cours...")]) : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.auto_awesome_rounded, size: 26), SizedBox(width: 12), Text("Analyser mon CV")])),
+),
                       ),
                       
                       // Affichage des erreurs

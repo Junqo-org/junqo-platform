@@ -83,17 +83,11 @@ class _OfferListState extends State<OfferList> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text(
-                "Annuler",
-                style: TextStyle(
-                  color: Color(0xFF64748B),
-                ),
-              ),
-            ),
+            Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: TextButton(onPressed: () {Navigator.of(dialogContext).pop();}, child: const Text("Annuler", style: TextStyle(color: Color(0xFF64748B)))),
+),
             ElevatedButton(
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
@@ -269,21 +263,11 @@ class _OfferListState extends State<OfferList> {
             ),
           ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: _isPermissionError
-                ? () {
-                    // Rediriger vers une page accessible
-                    Navigator.of(context).pushReplacementNamed('/profile');
-                  }
-                : _loadMyOffers,
-            icon: Icon(_isPermissionError ? Icons.person : Icons.refresh),
-            label:
-                Text(_isPermissionError ? "Aller à mon profil" : "Réessayer"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1), // Indigo
-              foregroundColor: Colors.white,
-            ),
-          ).animate()
+          Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: _isPermissionError ? () {Navigator.of(context).pushReplacementNamed('/profile');} : _loadMyOffers, icon: Icon(_isPermissionError ? Icons.person : Icons.refresh), label: Text(_isPermissionError ? "Aller à mon profil" : "Réessayer"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white)),
+).animate()
               .fadeIn(delay: 400.ms, duration: 400.ms)
               .slideY(begin: 0.2, end: 0),
         ],
@@ -341,33 +325,11 @@ class _OfferListState extends State<OfferList> {
             ),
             Container(
               margin: const EdgeInsets.only(left: 16),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          JobOfferForm(client: GetIt.instance<RestClient>()),
-                    ),
-                  ).then((result) {
-                    if (result == true || result == null) {
-                      _loadMyOffers();
-                    }
-                  });
-                },
-                icon: const Icon(Icons.add_circle_outline),
-                label: const Text("Créer une offre"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1), // Indigo
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-              ),
+              child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()))).then((result) {if (result == true || result == null) {_loadMyOffers();}});}, icon: const Icon(Icons.add_circle_outline), label: const Text("Créer une offre"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12))),
+),
             ).animate()
                 .fadeIn(delay: 400.ms, duration: 400.ms)
                 .scale(begin: const Offset(0.8, 0.8)),
@@ -420,36 +382,11 @@ class _OfferListState extends State<OfferList> {
             ),
           ),
           const SizedBox(width: 20),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      JobOfferForm(client: GetIt.instance<RestClient>()),
-                ),
-              ).then((result) {
-                if (result == true || result == null) {
-                  _loadMyOffers();
-                }
-              });
-            },
-            icon: const Icon(Icons.add),
-            label: const Text("Nouvelle offre"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF6366F1), // Indigo
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: const BorderSide(
-                  color: Color(0xFF6366F1),
-                  width: 1.5,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-          ),
+          Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()))).then((result) {if (result == true || result == null) {_loadMyOffers();}});}, icon: const Icon(Icons.add), label: const Text("Nouvelle offre"), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: const Color(0xFF6366F1), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Color(0xFF6366F1), width: 1.5)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12))),
+),
         ],
       ),
     ).animate()
@@ -559,28 +496,11 @@ class _OfferListState extends State<OfferList> {
           ).animate()
               .fadeIn(delay: 300.ms, duration: 400.ms),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      JobOfferForm(client: GetIt.instance<RestClient>()),
-                ),
-              ).then((result) {
-                if (result == true || result == null) {
-                  _loadMyOffers();
-                }
-              });
-            },
-            icon: const Icon(Icons.add),
-            label: const Text("Créer ma première offre"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1), // Indigo
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
-          ).animate()
+          Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => JobOfferForm(client: GetIt.instance<RestClient>()))).then((result) {if (result == true || result == null) {_loadMyOffers();}});}, icon: const Icon(Icons.add), label: const Text("Créer ma première offre"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12))),
+).animate()
               .fadeIn(delay: 400.ms, duration: 400.ms)
               .scale(begin: const Offset(0.8, 0.8)),
         ],
@@ -813,30 +733,11 @@ class _OfferListState extends State<OfferList> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OfferDetail(offer: offer),
-                          ),
-                        ).then((_) {
-                          // Recharger les offres au retour (notamment après une suppression)
-                          _loadMyOffers();
-                        });
-                      },
-                      icon: const Icon(Icons.visibility_outlined),
-                      label: const Text("Voir détails"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1), // Indigo
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                      ),
-                    ),
+                    Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => OfferDetail(offer: offer))).then((_) {_loadMyOffers();});}, icon: const Icon(Icons.visibility_outlined), label: const Text("Voir détails"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8))),
+),
                   ],
                 ),
               ],

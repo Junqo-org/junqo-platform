@@ -455,25 +455,11 @@ class _RecruiterRecruitingState extends State<RecruiterRecruiting>
     required Color color,
     bool compact = false,
   }) {
-    return ElevatedButton.icon(
-      onPressed: (isLoading || _actionLocked) ? null : onPressed,
-      icon: Icon(icon),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: color,
-        padding: EdgeInsets.symmetric(
-          horizontal: compact ? 16 : 24,
-          vertical: compact ? 12 : 16,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: color.withOpacity(0.5)),
-        ),
-        elevation: 2,
-        shadowColor: color.withOpacity(0.3),
-      ),
-    );
+    return Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: (isLoading || _actionLocked) ? null : onPressed, icon: Icon(icon), label: Text(label), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: color, padding: EdgeInsets.symmetric(horizontal: compact ? 16 : 24, vertical: compact ? 12 : 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: color.withOpacity(0.5))), elevation: 2, shadowColor: color.withOpacity(0.3))),
+);
   }
 
   Widget _buildLoadingIndicator() {

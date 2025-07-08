@@ -591,38 +591,11 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
                   // Show tip button
                   Container(
                     margin: const EdgeInsets.only(right: 40), // Account for avatar space
-                    child: ElevatedButton.icon(
-                      onPressed: _isLoadingTip ? null : () => _getTip(messageIndex),
-                      icon: _isLoadingTip 
-                        ? SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade600),
-                            ),
-                          )
-                        : Icon(Icons.lightbulb_outline, size: 16, color: Colors.orange.shade600),
-                      label: Text(
-                        _isLoadingTip ? "Génération..." : "Conseil",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.orange.shade600,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange.shade50,
-                        foregroundColor: Colors.orange.shade600,
-                        elevation: 1,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(color: Colors.orange.shade200, width: 1),
-                        ),
-                        minimumSize: const Size(0, 32),
-                      ),
-                    ),
+                    child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: _isLoadingTip ? null : () => _getTip(messageIndex), icon: _isLoadingTip ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade600))) : Icon(Icons.lightbulb_outline, size: 16, color: Colors.orange.shade600), label: Text(_isLoadingTip ? "Génération..." : "Conseil", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.orange.shade600)), style: ElevatedButton.styleFrom(backgroundColor: Colors.orange.shade50, foregroundColor: Colors.orange.shade600, elevation: 1, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: Colors.orange.shade200, width: 1)), minimumSize: const Size(0, 32))),
+),
                   ),
                 ] else ...[
                   // Show tip content
@@ -770,20 +743,11 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
       padding: const EdgeInsets.all(24),
       color: Colors.white,
       child: Center(
-        child: ElevatedButton.icon(
-          onPressed: _startInterview,
-          icon: const Icon(Icons.play_arrow, size: 32),
-          label: const Text(
-            "Démarrer l'entretien",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size.fromHeight(60),
-            backgroundColor: Colors.indigo.shade600,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
+        child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: _startInterview, icon: const Icon(Icons.play_arrow, size: 32), label: const Text("Démarrer l'entretien", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(60), backgroundColor: Colors.indigo.shade600, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
+),
       ),
     );
   }

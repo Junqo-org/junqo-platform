@@ -141,24 +141,11 @@ class _CompanyProfileState extends State<CompanyProfile> {
                       const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6366F1),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'Fermer',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton(onPressed: () => Navigator.pop(context), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text('Fermer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+),
                       ),
                     ],
                   ),
@@ -265,44 +252,11 @@ class _CompanyProfileState extends State<CompanyProfile> {
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                if (_isEditing) {
-                  // When finishing edit mode, save the profile
-                  _saveProfile();
-                  // _isEditing will be set to false in _saveProfile's then() handler
-                } else {
-                  // Just toggle to edit mode
-                  setState(() {
-                    _isEditing = true;
-                  });
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isEditing
-                    ? const Color(0xFF475569)
-                    : const Color(0xFF6366F1),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(_isEditing ? Icons.check : Icons.edit, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    _isEditing ? 'Terminer l\'édition' : 'Modifier le profil',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton(onPressed: () {if (_isEditing) {_saveProfile();} else {setState(() {_isEditing = true;});}}, style: ElevatedButton.styleFrom(backgroundColor: _isEditing ? const Color(0xFF475569) : const Color(0xFF6366F1), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 0), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(_isEditing ? Icons.check : Icons.edit, size: 18), const SizedBox(width: 8), Text(_isEditing ? 'Terminer l\'édition' : 'Modifier le profil', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))])),
+),
           ),
         ],
       ),
@@ -762,24 +716,11 @@ class _CompanyProfileState extends State<CompanyProfile> {
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
-              onPressed: _saveProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6366F1),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Enregistrer le profil',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton(onPressed: _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 0), child: const Text('Enregistrer le profil', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+),
           ),
         ],
       ),
@@ -805,28 +746,11 @@ class _CompanyProfileState extends State<CompanyProfile> {
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
-              onPressed: () async {
-                await authService.logout();
-                if (!mounted) return;
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Se déconnecter',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton(onPressed: () async {await authService.logout(); if (!mounted) return; Navigator.pushReplacementNamed(context, '/login');}, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 0), child: const Text('Se déconnecter', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+),
           ),
         ],
       ),

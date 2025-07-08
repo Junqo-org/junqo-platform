@@ -513,35 +513,11 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                 ),
               ],
             ),
-            child: ElevatedButton.icon(
-              onPressed: _isUpdating ? null : () => _showConfirmDialog('DENIED'),
-              icon: _isUpdating 
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Icon(Icons.close, color: Colors.white),
-              label: const Text(
-                "Refuser",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
+            child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: _isUpdating ? null : () => _showConfirmDialog('DENIED'), icon: _isUpdating ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : const Icon(Icons.close, color: Colors.white), label: const Text("Refuser", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)), style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
+),
           ),
         ),
         const SizedBox(width: 16),
@@ -563,35 +539,11 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                 ),
               ],
             ),
-            child: ElevatedButton.icon(
-              onPressed: _isUpdating ? null : () => _showConfirmDialog('ACCEPTED'),
-              icon: _isUpdating 
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Icon(Icons.check, color: Colors.white),
-              label: const Text(
-                "Accepter",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
+            child: Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: ElevatedButton.icon(onPressed: _isUpdating ? null : () => _showConfirmDialog('ACCEPTED'), icon: _isUpdating ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : const Icon(Icons.check, color: Colors.white), label: const Text("Accepter", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)), style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
+),
           ),
         ),
       ],
@@ -672,15 +624,11 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                "Annuler",
-                style: TextStyle(
-                  color: Color(0xFF64748B),
-                ),
-              ),
-            ),
+            Semantics(
+  button: true,
+  label: 'TODO: Replace with a meaningful label',
+  child: TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("Annuler", style: TextStyle(color: Color(0xFF64748B)))),
+),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
