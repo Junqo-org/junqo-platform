@@ -32,7 +32,8 @@ class InterviewState extends State<Interview> {
       _isLoading = true;
       _messages.add({
         "sender": "ai",
-        "text": "Bonjour ! L'entretien va commencer. Je vais vous poser une série de questions professionnelles. Répondez-y du mieux que vous pouvez."
+        "text":
+            "Bonjour ! L'entretien va commencer. Je vais vous poser une série de questions professionnelles. Répondez-y du mieux que vous pouvez."
       });
     });
 
@@ -45,7 +46,8 @@ class InterviewState extends State<Interview> {
       setState(() {
         _messages.add({
           "sender": "ai",
-          "text": "L'entretien est maintenant terminé. Merci pour votre participation. J'espère que cet exercice vous a été utile pour préparer vos futurs entretiens."
+          "text":
+              "L'entretien est maintenant terminé. Merci pour votre participation. J'espère que cet exercice vous a été utile pour préparer vos futurs entretiens."
         });
         _isLoading = false;
       });
@@ -57,7 +59,7 @@ class InterviewState extends State<Interview> {
     });
 
     try {
-      final String prompt = _questionCount == 0 
+      final String prompt = _questionCount == 0
           ? "Pose une première question d'entretien d'embauche pertinente et professionnelle."
           : "Pose une nouvelle question d'entretien d'embauche pertinente et différente des précédentes, en tenant compte de la conversation jusqu'à présent.";
 
@@ -71,7 +73,8 @@ class InterviewState extends State<Interview> {
           _questionCount++;
           _messages.add({
             "sender": "ai",
-            "text": response['response'] ?? "Pouvez-vous me parler de votre expérience professionnelle ?"
+            "text": response['response'] ??
+                "Pouvez-vous me parler de votre expérience professionnelle ?"
           });
           _isLoading = false;
         });
@@ -81,7 +84,8 @@ class InterviewState extends State<Interview> {
         setState(() {
           _messages.add({
             "sender": "ai",
-            "text": "Pouvez-vous me parler de votre parcours professionnel et de vos compétences clés ?"
+            "text":
+                "Pouvez-vous me parler de votre parcours professionnel et de vos compétences clés ?"
           });
           _questionCount++;
           _isLoading = false;
@@ -120,10 +124,14 @@ class InterviewState extends State<Interview> {
           ),
           actions: [
             Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: TextButton(onPressed: () {Navigator.pop(context);}, child: const Text("Fermer")),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Fermer")),
+            ),
           ],
         );
       },
@@ -179,10 +187,21 @@ class InterviewState extends State<Interview> {
           ),
           const SizedBox(height: 32),
           Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: _startInterview, style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)), elevation: 5, shadowColor: Colors.blueAccent), child: const Text("Commencer l'entretien", style: TextStyle(fontSize: 18, color: Colors.white))),
-),
+            button: true,
+            label: 'TODO: Replace with a meaningful label',
+            child: ElevatedButton(
+                onPressed: _startInterview,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
+                    elevation: 5,
+                    shadowColor: Colors.blueAccent),
+                child: const Text("Commencer l'entretien",
+                    style: TextStyle(fontSize: 18, color: Colors.white))),
+          ),
         ],
       ),
     );
@@ -209,7 +228,7 @@ class InterviewState extends State<Interview> {
               ),
             ),
           ),
-          
+
           Expanded(
             child: ListView.builder(
               itemCount: _messages.length + (_isLoading ? 1 : 0),
@@ -223,7 +242,7 @@ class InterviewState extends State<Interview> {
                     ),
                   );
                 }
-                
+
                 final message = _messages[index];
                 final isUserMessage = message["sender"] == "user";
 
@@ -277,10 +296,21 @@ class InterviewState extends State<Interview> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8, right: 56),
                         child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: _showRemarkPopup, style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[300], padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 2), child: const Text("Afficher la remarque", style: TextStyle(color: Colors.black, fontSize: 14))),
-),
+                          button: true,
+                          label: 'TODO: Replace with a meaningful label',
+                          child: ElevatedButton(
+                              onPressed: _showRemarkPopup,
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey[300],
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16)),
+                                  elevation: 2),
+                              child: const Text("Afficher la remarque",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 14))),
+                        ),
                       ),
                   ],
                 );
@@ -313,11 +343,13 @@ class InterviewState extends State<Interview> {
                   ),
                 ),
                 IconButton(
-                  onPressed: _isLoading || _questionCount >= _maxQuestions ? null : _sendMessage,
-                  icon: Icon(
-                    Icons.send, 
-                    color: _isLoading || _questionCount >= _maxQuestions ? Colors.grey : Colors.blue
-                  ),
+                  onPressed: _isLoading || _questionCount >= _maxQuestions
+                      ? null
+                      : _sendMessage,
+                  icon: Icon(Icons.send,
+                      color: _isLoading || _questionCount >= _maxQuestions
+                          ? Colors.grey
+                          : Colors.blue),
                 ),
               ],
             ),

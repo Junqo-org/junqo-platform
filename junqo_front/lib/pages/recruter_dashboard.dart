@@ -29,12 +29,12 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
   List<OfferData> _myOffers = [];
   List<ApplicationData> _recentApplications = [];
   List<ConversationData> _recentConversations = [];
-  
+
   bool _isLoadingStats = true;
   bool _isLoadingOffers = true;
   bool _isLoadingApplications = true;
   bool _isLoadingConversations = true;
-  
+
   // Stats
   int _totalOffers = 0;
   int _totalApplications = 0;
@@ -80,10 +80,15 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
       final applications = await _apiService.getMyApplications();
       if (mounted) {
         setState(() {
-          _recentApplications = applications.take(5).toList(); // 5 plus récentes
+          _recentApplications =
+              applications.take(5).toList(); // 5 plus récentes
           _totalApplications = applications.length;
-          _pendingApplications = applications.where((app) => app.status == 'PENDING' || app.status == 'NOT_OPENED').length;
-          _acceptedApplications = applications.where((app) => app.status == 'ACCEPTED').length;
+          _pendingApplications = applications
+              .where((app) =>
+                  app.status == 'PENDING' || app.status == 'NOT_OPENED')
+              .length;
+          _acceptedApplications =
+              applications.where((app) => app.status == 'ACCEPTED').length;
           _isLoadingApplications = false;
           _isLoadingStats = false;
         });
@@ -155,12 +160,14 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
                             _buildRecentApplications()
                                 .animate()
                                 .fadeIn(delay: 400.ms, duration: 500.ms)
-                                .slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
+                                .slideX(
+                                    begin: -0.1, end: 0, curve: Curves.easeOut),
                             const SizedBox(height: 24),
                             _buildActiveOffers()
                                 .animate()
                                 .fadeIn(delay: 500.ms, duration: 500.ms)
-                                .slideX(begin: -0.1, end: 0, curve: Curves.easeOut),
+                                .slideX(
+                                    begin: -0.1, end: 0, curve: Curves.easeOut),
                           ],
                         ),
                       ),
@@ -521,7 +528,7 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
   Widget _buildApplicationItem(ApplicationData application) {
     Color statusColor;
     String statusText;
-    
+
     switch (application.status) {
       case 'NOT_OPENED':
         statusColor = Colors.grey;
@@ -891,7 +898,8 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      conversation.lastMessage?.content ?? 'Nouvelle conversation',
+                      conversation.lastMessage?.content ??
+                          'Nouvelle conversation',
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 11,

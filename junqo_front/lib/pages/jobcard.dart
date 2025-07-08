@@ -59,29 +59,31 @@ class JobCardSwipe extends StatefulWidget {
   State<JobCardSwipe> createState() => _JobCardSwipeState();
 }
 
-class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderStateMixin {
+class _JobCardSwipeState extends State<JobCardSwipe>
+    with SingleTickerProviderStateMixin {
   // Ajout d'une clé globale pour le ScaffoldMessenger
-  final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
-  
+  final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   CardData? cardData;
   late final ApiService _apiService;
   late final RestClient client;
   bool isLoading = true;
-  
+
   bool initialized = false;
   List<CardData> cardDataList = [];
   bool outOfData = false;
   int currentIndex = 0;
   int offsetIndex = 0;
-  
+
   // Set pour garder une trace des offres postulées
   final Set<String> _appliedOffers = {};
-  
+
   // Animation controller for card transitions
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _opacityAnimation;
-  
+
   // App theme colors
   static const Color _indigoColor = Color(0xFF6366F1);
   static const Color _indigoLight = Color(0xFFEEF2FF);
@@ -98,21 +100,20 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
     super.initState();
     _apiService = GetIt.instance<ApiService>();
     client = widget.client;
-    
+
     // Setup animation controller
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    
+
     _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic)
-    );
-    
+        CurvedAnimation(
+            parent: _animationController, curve: Curves.easeOutCubic));
+
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut)
-    );
-    
+        CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
+
     _initCardData();
   }
 
@@ -126,23 +127,23 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
     try {
       final data = await setCardData();
       if (mounted) {
-      setState(() {
-        cardData = data;
-        isLoading = false;
-      });
+        setState(() {
+          cardData = data;
+          isLoading = false;
+        });
         // Start animation when card is loaded
         _animationController.forward(from: 0.0);
       }
     } catch (e) {
       if (mounted) {
-      setState(() {
-        cardData = placeholderCardData()[0];
-        isLoading = false;
-      });
+        setState(() {
+          cardData = placeholderCardData()[0];
+          isLoading = false;
+        });
         // Still animate for placeholder
         _animationController.forward(from: 0.0);
-        
-      ScaffoldMessenger.of(context).showSnackBar(
+
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to load job data: ${e.toString()}'),
             behavior: SnackBarBehavior.floating,
@@ -160,8 +161,9 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final bool isWideScreen = screenSize.width > 1000;
-    final bool isMediumScreen = screenSize.width > 650 && screenSize.width <= 1000;
-    
+    final bool isMediumScreen =
+        screenSize.width > 650 && screenSize.width <= 1000;
+
     return ScaffoldMessenger(
       key: _scaffoldKey,
       child: Scaffold(
@@ -185,14 +187,14 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                 color: AppTheme.primaryColor,
                 maxSize: 5.0,
               ),
-              
+
               Column(
                 children: [
                   const Navbar(currentIndex: 0),
                   Expanded(
-                    child: isWideScreen 
-                        ? _buildWideLayout() 
-                        : isMediumScreen 
+                    child: isWideScreen
+                        ? _buildWideLayout()
+                        : isMediumScreen
                             ? _buildMediumLayout()
                             : _buildMobileLayout(),
                   ),
@@ -232,7 +234,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
+                        border: Border.all(
+                            color: AppTheme.primaryColor.withOpacity(0.2)),
                       ),
                       child: Column(
                         children: [
@@ -247,8 +250,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                               size: 40,
                               color: AppTheme.primaryColor,
                             ),
-                          ).animate()
-                              .scale(delay: 400.ms, duration: 600.ms, curve: Curves.elasticOut),
+                          ).animate().scale(
+                              delay: 400.ms,
+                              duration: 600.ms,
+                              curve: Curves.elasticOut),
                           const SizedBox(height: 20),
                           const Text(
                             "Découvrez de nouvelles opportunités",
@@ -258,8 +263,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                               color: _slate800,
                             ),
                             textAlign: TextAlign.center,
-                          ).animate()
-                              .fadeIn(delay: 600.ms, duration: 600.ms),
+                          ).animate().fadeIn(delay: 600.ms, duration: 600.ms),
                           const SizedBox(height: 12),
                           const Text(
                             "Balayez à droite pour accepter ou à gauche pour rejeter",
@@ -268,8 +272,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                               color: _slate500,
                             ),
                             textAlign: TextAlign.center,
-                          ).animate()
-                              .fadeIn(delay: 800.ms, duration: 600.ms),
+                          ).animate().fadeIn(delay: 800.ms, duration: 600.ms),
                         ],
                       ),
                     ),
@@ -286,20 +289,19 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
               ),
             ),
           ),
-          
+
           // Center panel - card
           Expanded(
             flex: 2,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
               child: Center(
-                child: isLoading
-                    ? _buildLoadingIndicator()
-                    : _buildAnimatedCard(),
+                child:
+                    isLoading ? _buildLoadingIndicator() : _buildAnimatedCard(),
               ),
             ),
           ),
-          
+
           // Right side panel
           Expanded(
             flex: 1,
@@ -322,7 +324,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppTheme.successColor.withOpacity(0.2)),
+                        border: Border.all(
+                            color: AppTheme.successColor.withOpacity(0.2)),
                       ),
                       child: Column(
                         children: [
@@ -337,8 +340,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                               size: 40,
                               color: AppTheme.successColor,
                             ),
-                          ).animate()
-                              .scale(delay: 600.ms, duration: 600.ms, curve: Curves.elasticOut),
+                          ).animate().scale(
+                              delay: 600.ms,
+                              duration: 600.ms,
+                              curve: Curves.elasticOut),
                           const SizedBox(height: 20),
                           const Text(
                             "Postuler en un clic",
@@ -348,8 +353,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                               color: _slate800,
                             ),
                             textAlign: TextAlign.center,
-                          ).animate()
-                              .fadeIn(delay: 800.ms, duration: 600.ms),
+                          ).animate().fadeIn(delay: 800.ms, duration: 600.ms),
                           const SizedBox(height: 12),
                           const Text(
                             "Votre profil sera automatiquement envoyé à l'employeur",
@@ -358,8 +362,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                               color: _slate500,
                             ),
                             textAlign: TextAlign.center,
-                          ).animate()
-                              .fadeIn(delay: 1000.ms, duration: 600.ms),
+                          ).animate().fadeIn(delay: 1000.ms, duration: 600.ms),
                         ],
                       ),
                     ),
@@ -395,7 +398,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                 decoration: BoxDecoration(
                   gradient: AppTheme.primaryGradient.scale(0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
+                  border:
+                      Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
@@ -410,8 +414,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                         color: AppTheme.primaryColor,
                         size: 24,
                       ),
-                    ).animate()
-                        .scale(delay: 400.ms, duration: 400.ms, curve: Curves.elasticOut),
+                    ).animate().scale(
+                        delay: 400.ms,
+                        duration: 400.ms,
+                        curve: Curves.elasticOut),
                     const SizedBox(width: 16),
                     const Expanded(
                       child: Text(
@@ -422,26 +428,24 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ).animate()
-                        .fadeIn(delay: 600.ms, duration: 600.ms),
+                    ).animate().fadeIn(delay: 600.ms, duration: 600.ms),
                   ],
                 ),
               ),
             ),
           ),
-          
+
           // Center section - card
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
               child: Center(
-                child: isLoading
-                    ? _buildLoadingIndicator()
-                    : _buildAnimatedCard(),
+                child:
+                    isLoading ? _buildLoadingIndicator() : _buildAnimatedCard(),
               ),
             ),
           ),
-          
+
           // Bottom section - action buttons
           Padding(
             padding: const EdgeInsets.only(top: 16),
@@ -485,11 +489,13 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
             child: AnimatedCard(
               delay: 200.ms,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
                   gradient: AppTheme.primaryGradient.scale(0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
+                  border:
+                      Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
@@ -504,8 +510,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                         size: 20,
                         color: AppTheme.primaryColor,
                       ),
-                    ).animate()
-                        .scale(delay: 400.ms, duration: 400.ms, curve: Curves.elasticOut),
+                    ).animate().scale(
+                        delay: 400.ms,
+                        duration: 400.ms,
+                        curve: Curves.elasticOut),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
@@ -516,26 +524,24 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ).animate()
-                        .fadeIn(delay: 600.ms, duration: 600.ms),
+                    ).animate().fadeIn(delay: 600.ms, duration: 600.ms),
                   ],
                 ),
               ),
             ),
           ),
-          
+
           // Card section
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
               child: Center(
-                child: isLoading
-                    ? _buildLoadingIndicator()
-                    : _buildAnimatedCard(),
+                child:
+                    isLoading ? _buildLoadingIndicator() : _buildAnimatedCard(),
               ),
             ),
           ),
-          
+
           // Action buttons
           Padding(
             padding: const EdgeInsets.only(top: 12),
@@ -582,7 +588,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
               movementDuration: const Duration(milliseconds: 200),
               onDismissed: (direction) {
                 if (_actionLocked) return;
-                final accepted = direction == DismissDirection.startToEnd; // Right swipe
+                final accepted =
+                    direction == DismissDirection.startToEnd; // Right swipe
                 _handleAction(accepted);
               },
               background: Container(
@@ -592,7 +599,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                   color: AppTheme.successColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(24),
                 ),
-                child: Icon(Icons.check, color: AppTheme.successColor, size: 32),
+                child:
+                    Icon(Icons.check, color: AppTheme.successColor, size: 32),
               ),
               secondaryBackground: Container(
                 alignment: Alignment.centerRight,
@@ -630,11 +638,12 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                 height: 60,
                 child: CircularProgressIndicator(
                   strokeWidth: 4,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                 ),
               ),
-            ).animate()
-                .scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
+            ).animate().scale(
+                delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
             const SizedBox(height: 24),
             const Text(
               "Chargement des offres...",
@@ -643,8 +652,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
               ),
-            ).animate()
-                .fadeIn(delay: 400.ms, duration: 600.ms),
+            ).animate().fadeIn(delay: 400.ms, duration: 600.ms),
             const SizedBox(height: 12),
             const Text(
               "Préparation de votre sélection personnalisée",
@@ -653,8 +661,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
-            ).animate()
-                .fadeIn(delay: 600.ms, duration: 600.ms),
+            ).animate().fadeIn(delay: 600.ms, duration: 600.ms),
           ],
         ),
       ),
@@ -710,21 +717,22 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       debugPrint('Cannot postulate for placeholder data');
       return;
     }
-    
+
     if (_appliedOffers.contains(id)) {
       _showSnackBar('Vous avez déjà postulé à cette offre');
       return;
     }
-    
+
     debugPrint('Postulating for offer with ID: $id');
     try {
       final response = await _apiService.postulateOffer(id);
-      
+
       if (response['id'] != null || response['status'] == 'OPENED') {
         _appliedOffers.add(id);
         _showSnackBar('Candidature envoyée avec succès !');
       } else {
-        _showSnackBar('Échec de la candidature. Veuillez réessayer.', isError: true);
+        _showSnackBar('Échec de la candidature. Veuillez réessayer.',
+            isError: true);
       }
     } catch (error) {
       _showSnackBar('Erreur: ${error.toString()}', isError: true);
@@ -734,12 +742,12 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
   Future<void> _handleAction(bool accepted) async {
     // Animate out current card
     await _animationController.reverse();
-    
+
     setState(() {
       isLoading = true;
       _actionLocked = true;
     });
-    
+
     // Handle action for current card if it's not a placeholder
     if (cardData != null && !cardData!.isPlaceHolder) {
       if (accepted) {
@@ -752,11 +760,11 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
         debugPrint('Rejected offer with ID: ${cardData!.id}');
       }
     }
-    
+
     try {
       final newData = await setCardData();
       if (!mounted) return;
-      
+
       setState(() {
         cardData = newData;
         isLoading = false;
@@ -766,7 +774,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       _animationController.forward(from: 0.0);
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         cardData = placeholderCardData()[0];
         isLoading = false;
@@ -774,7 +782,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       });
       // Animate in placeholder
       _animationController.forward(from: 0.0);
-      
+
       _showSnackBar('Error loading next job: ${e.toString()}', isError: true);
     }
   }
@@ -784,8 +792,10 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       initialized = true;
       cardDataList = await getOfferQuery(0);
       // Filtrer les offres déjà postulées
-      cardDataList = cardDataList.where((card) => !_appliedOffers.contains(card.id)).toList();
-      
+      cardDataList = cardDataList
+          .where((card) => !_appliedOffers.contains(card.id))
+          .toList();
+
       if (cardDataList.isEmpty) {
         outOfData = true;
         currentIndex = 0;
@@ -805,19 +815,20 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
         return placeholderCardData()[0];
       }
     }
-    
+
     currentIndex++;
     debugPrint('Current index: $currentIndex');
     debugPrint('Card data list length: ${cardDataList.length}');
-    
+
     if (currentIndex >= cardDataList.length) {
       debugPrint('Fetching more data');
       offsetIndex = offsetIndex + currentIndex;
       currentIndex = 0;
       final newCards = await getOfferQuery(offsetIndex);
       // Filtrer les nouvelles offres pour exclure celles déjà postulées
-      cardDataList = newCards.where((card) => !_appliedOffers.contains(card.id)).toList();
-      
+      cardDataList =
+          newCards.where((card) => !_appliedOffers.contains(card.id)).toList();
+
       if (cardDataList.isEmpty) {
         outOfData = true;
         currentIndex = 0;
@@ -838,7 +849,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
 
       final response = await _apiService.getAllOffersQuery(query);
       final List<OfferData> offers = response['rows'];
-      
+
       // Convert offers to CardData first (placeholder company name)
       final List<CardData> cards = transformOffersToCards(offers);
 
@@ -857,12 +868,14 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
 
   CardData transformOfferToCard(OfferData offer) {
     // Properly handle nullable lists and strings
-    final List<String> benefitsList = offer.benefits.isNotEmpty ? List<String>.from(offer.benefits) : [];
+    final List<String> benefitsList =
+        offer.benefits.isNotEmpty ? List<String>.from(offer.benefits) : [];
     if (offer.workLocationType.isNotEmpty) {
       benefitsList.add(offer.workLocationType);
     }
 
-    final List<String> skillsList = offer.skills.isNotEmpty ? List<String>.from(offer.skills) : [];
+    final List<String> skillsList =
+        offer.skills.isNotEmpty ? List<String>.from(offer.skills) : [];
     if (offer.educationLevel.isNotEmpty) {
       skillsList.add(offer.educationLevel);
     }
@@ -940,19 +953,23 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       final String userId = card.userid;
 
       // Determine if we already have complete info
-      final bool infoComplete = card.companyDescription.isNotEmpty && card.companyWebsite.isNotEmpty && !card.companyName.startsWith('Company name');
+      final bool infoComplete = card.companyDescription.isNotEmpty &&
+          card.companyWebsite.isNotEmpty &&
+          !card.companyName.startsWith('Company name');
       if (infoComplete) continue;
 
       // Check cache first
       if (_companyNameCache.containsKey(userId)) {
         final cachedName = _companyNameCache[userId]!;
-        _replaceCompanyData(cards, card, cachedName, card.companyDescription, card.companyWebsite);
+        _replaceCompanyData(cards, card, cachedName, card.companyDescription,
+            card.companyWebsite);
         continue;
       }
 
       futures.add(_apiService.getCompanyProfileById(userId).then((profile) {
         _companyNameCache[userId] = profile.name;
-        _replaceCompanyData(cards, card, profile.name, profile.description ?? '', profile.websiteUrl ?? '');
+        _replaceCompanyData(cards, card, profile.name,
+            profile.description ?? '', profile.websiteUrl ?? '');
       }).catchError((_) {
         // ignore errors
       }));
@@ -960,8 +977,11 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
     await Future.wait(futures);
   }
 
-  void _replaceCompanyData(List<CardData> list, CardData card, String name, String desc, String site) {
-    if (card.companyName == name && card.companyDescription == desc && card.companyWebsite == site) return;
+  void _replaceCompanyData(List<CardData> list, CardData card, String name,
+      String desc, String site) {
+    if (card.companyName == name &&
+        card.companyDescription == desc &&
+        card.companyWebsite == site) return;
     // Replace by creating a new CardData and updating list if needed
     final int idx = list.indexOf(card);
     if (idx >= 0) {
@@ -1005,7 +1025,7 @@ class JobCard extends StatefulWidget {
 
 class _JobCardState extends State<JobCard> {
   bool _showFullDetails = false;
-  
+
   // App theme colors
   static const Color _indigoColor = Color(0xFF6366F1);
   static const Color _indigoLight = Color(0xFFEEF2FF);
@@ -1071,9 +1091,10 @@ class _JobCardState extends State<JobCard> {
                 ),
                 child: Row(
                   children: [
-                    _buildCompanyLogo(widget.data.companyLogo)
-                        .animate()
-                        .scale(delay: 200.ms, duration: 400.ms, curve: Curves.elasticOut),
+                    _buildCompanyLogo(widget.data.companyLogo).animate().scale(
+                        delay: 200.ms,
+                        duration: 400.ms,
+                        curve: Curves.elasticOut),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
@@ -1084,7 +1105,8 @@ class _JobCardState extends State<JobCard> {
                           color: _slate800,
                         ),
                         overflow: TextOverflow.ellipsis,
-                      ).animate()
+                      )
+                          .animate()
                           .fadeIn(delay: 300.ms, duration: 600.ms)
                           .slideX(begin: -0.2, end: 0),
                     ),
@@ -1116,7 +1138,8 @@ class _JobCardState extends State<JobCard> {
               color: _slate800,
               height: 1.2,
             ),
-          ).animate()
+          )
+              .animate()
               .fadeIn(delay: 400.ms, duration: 600.ms)
               .slideY(begin: 0.2, end: 0),
         ),
@@ -1214,13 +1237,14 @@ class _JobCardState extends State<JobCard> {
                       ),
                     ),
                   ],
-                ).animate()
-                    .fadeIn(delay: 600.ms, duration: 500.ms),
+                ).animate().fadeIn(delay: 600.ms, duration: 500.ms),
                 const SizedBox(height: 16),
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
-                  children: widget.data.technicalSkills.asMap().entries
+                  children: widget.data.technicalSkills
+                      .asMap()
+                      .entries
                       .map(
                         (entry) => AnimatedListItem(
                           index: entry.key,
@@ -1251,8 +1275,10 @@ class _JobCardState extends State<JobCard> {
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide.none,
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                               visualDensity: VisualDensity.compact,
                             ),
                           ),
@@ -1295,13 +1321,14 @@ class _JobCardState extends State<JobCard> {
                       ),
                     ),
                   ],
-                ).animate()
-                    .fadeIn(delay: 700.ms, duration: 500.ms),
+                ).animate().fadeIn(delay: 700.ms, duration: 500.ms),
                 const SizedBox(height: 16),
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
-                  children: widget.data.benefits.asMap().entries
+                  children: widget.data.benefits
+                      .asMap()
+                      .entries
                       .map(
                         (entry) => AnimatedListItem(
                           index: entry.key,
@@ -1333,8 +1360,10 @@ class _JobCardState extends State<JobCard> {
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide.none,
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                               visualDensity: VisualDensity.compact,
                             ),
                           ),
@@ -1377,8 +1406,7 @@ class _JobCardState extends State<JobCard> {
                       ),
                     ),
                   ],
-                ).animate()
-                    .fadeIn(delay: 800.ms, duration: 500.ms),
+                ).animate().fadeIn(delay: 800.ms, duration: 500.ms),
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -1402,14 +1430,15 @@ class _JobCardState extends State<JobCard> {
                       height: 1.6,
                     ),
                   ),
-                ).animate()
-                    .fadeIn(delay: 900.ms, duration: 600.ms),
+                ).animate().fadeIn(delay: 900.ms, duration: 600.ms),
                 if (widget.data.details.length > 150)
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
                     child: AnimatedButton(
                       text: _showFullDetails ? 'Voir moins' : 'Voir plus',
-                      icon: _showFullDetails ? Icons.expand_less : Icons.expand_more,
+                      icon: _showFullDetails
+                          ? Icons.expand_less
+                          : Icons.expand_more,
                       isPrimary: false,
                       customColor: AppTheme.accentColor,
                       onPressed: () {
@@ -1479,22 +1508,23 @@ class _JobCardState extends State<JobCard> {
   Widget _getLogoWidget(String logoPath) {
     try {
       if (logoPath.toLowerCase().endsWith('.svg')) {
-      return SvgPicture.asset(
-        logoPath,
-          placeholderBuilder: (context) => const Icon(Icons.business, size: 24, color: _slate500),
+        return SvgPicture.asset(
+          logoPath,
+          placeholderBuilder: (context) =>
+              const Icon(Icons.business, size: 24, color: _slate500),
           height: 30,
           width: 30,
-      );
-    } else {
-      return Image.asset(
-        logoPath,
+        );
+      } else {
+        return Image.asset(
+          logoPath,
           height: 30,
           width: 30,
-        errorBuilder: (context, error, stackTrace) {
+          errorBuilder: (context, error, stackTrace) {
             return const Icon(Icons.business, size: 24, color: _slate500);
-        },
-      );
-    }
+          },
+        );
+      }
     } catch (e) {
       return const Icon(Icons.business, size: 24, color: _slate500);
     }

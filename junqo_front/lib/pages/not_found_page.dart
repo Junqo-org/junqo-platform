@@ -21,10 +21,13 @@ class NotFoundPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: () => Navigator.pushReplacementNamed(context, '/home'), child: const Text('Return to Home')),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: () =>
+                      Navigator.pushReplacementNamed(context, '/home'),
+                  child: const Text('Return to Home')),
+            ),
           ],
         ),
       ),

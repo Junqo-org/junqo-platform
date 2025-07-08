@@ -8,7 +8,8 @@ class InterviewSimulationSelect extends StatefulWidget {
   const InterviewSimulationSelect({super.key});
 
   @override
-  State<InterviewSimulationSelect> createState() => _InterviewSimulationSelectState();
+  State<InterviewSimulationSelect> createState() =>
+      _InterviewSimulationSelectState();
 }
 
 class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
@@ -33,10 +34,12 @@ class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
           final offer = await _apiService.getOfferById(app.offerId);
           String companyName = '';
           try {
-            final profile = await _apiService.getCompanyProfileById(app.companyId);
+            final profile =
+                await _apiService.getCompanyProfileById(app.companyId);
             companyName = profile.name;
           } catch (_) {}
-          final String context = 'Titre: ${offer.title}\nEntreprise: $companyName\nDescription: ${offer.description}';
+          final String context =
+              'Titre: ${offer.title}\nEntreprise: $companyName\nDescription: ${offer.description}';
           _offerContexts[app.offerId] = context;
         } catch (_) {}
       }));
@@ -53,7 +56,8 @@ class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
   }
 
   void _startSimulation(String contextText) {
-    Navigator.pushNamed(context, '/interview-simulation', arguments: contextText);
+    Navigator.pushNamed(context, '/interview-simulation',
+        arguments: contextText);
   }
 
   @override
@@ -92,7 +96,8 @@ class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
                           subtitle: 'Questions générales pour tout poste',
                           icon: Icons.chat_bubble_outline,
                           color: const Color(0xFF6366F1),
-                          onTap: () => Navigator.pushNamed(context, '/interview-simulation'),
+                          onTap: () => Navigator.pushNamed(
+                              context, '/interview-simulation'),
                         ),
                         const SizedBox(height: 16),
                         if (_acceptedApplications.isNotEmpty)
@@ -108,11 +113,17 @@ class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
                         ..._acceptedApplications.map((app) => Padding(
                               padding: const EdgeInsets.only(bottom: 16),
                               child: _buildOptionCard(
-                                title: _offerContexts[app.offerId]?.split('\n').first.replaceFirst('Titre: ', '') ?? 'Offre ${app.offerId}',
-                                subtitle: 'Entreprise: ${_offerContexts[app.offerId]?.split("\n")[1].replaceFirst("Entreprise: ", "") ?? app.companyId}',
+                                title: _offerContexts[app.offerId]
+                                        ?.split('\n')
+                                        .first
+                                        .replaceFirst('Titre: ', '') ??
+                                    'Offre ${app.offerId}',
+                                subtitle:
+                                    'Entreprise: ${_offerContexts[app.offerId]?.split("\n")[1].replaceFirst("Entreprise: ", "") ?? app.companyId}',
                                 icon: Icons.work_outline,
                                 color: const Color(0xFF10B981),
-                                onTap: () => _startSimulation(_offerContexts[app.offerId] ?? ''),
+                                onTap: () => _startSimulation(
+                                    _offerContexts[app.offerId] ?? ''),
                               ),
                             )),
                         if (_acceptedApplications.isEmpty)
@@ -131,7 +142,12 @@ class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
     );
   }
 
-  Widget _buildOptionCard({required String title, required String subtitle, required IconData icon, required Color color, required VoidCallback onTap}) {
+  Widget _buildOptionCard(
+      {required String title,
+      required String subtitle,
+      required IconData icon,
+      required Color color,
+      required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -166,7 +182,10 @@ class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -182,4 +201,4 @@ class _InterviewSimulationSelectState extends State<InterviewSimulationSelect> {
       ),
     );
   }
-} 
+}

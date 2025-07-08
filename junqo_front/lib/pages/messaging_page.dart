@@ -18,7 +18,7 @@ class MessagingPage extends StatefulWidget {
 class _MessagingPageState extends State<MessagingPage> {
   final MessagingService _messagingService = GetIt.instance<MessagingService>();
   final AuthService _authService = GetIt.instance<AuthService>();
-  
+
   List<ConversationData> _conversations = [];
   ConversationData? _selectedConversation;
   List<MessageData> _messages = [];
@@ -27,7 +27,7 @@ class _MessagingPageState extends State<MessagingPage> {
   bool _isSendingMessage = false;
   String? _currentUserId;
   String _errorMessage = '';
-  
+
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _messagesScrollController = ScrollController();
 
@@ -69,13 +69,13 @@ class _MessagingPageState extends State<MessagingPage> {
         _isLoadingConversations = true;
         _errorMessage = '';
       });
-      
+
       final conversations = await _messagingService.getConversations(
-        // Ne transmet plus participantId afin de récupérer toutes les conversations 
+        // Ne transmet plus participantId afin de récupérer toutes les conversations
         // où l'utilisateur courant est déjà participant (le backend filtre automatiquement)
         limit: 50,
       );
-      
+
       setState(() {
         _conversations = conversations;
         _isLoadingConversations = false;
@@ -94,14 +94,15 @@ class _MessagingPageState extends State<MessagingPage> {
         _isLoadingMessages = true;
         _errorMessage = '';
       });
-      
-      final messages = await _messagingService.getMessages(conversationId, limit: 100);
-      
+
+      final messages =
+          await _messagingService.getMessages(conversationId, limit: 100);
+
       setState(() {
         _messages = messages.reversed.toList(); // Show newest at bottom
         _isLoadingMessages = false;
       });
-      
+
       // Scroll to bottom to show latest messages
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_messagesScrollController.hasClients) {
@@ -121,8 +122,8 @@ class _MessagingPageState extends State<MessagingPage> {
   }
 
   Future<void> _sendMessage() async {
-    if (_messageController.text.trim().isEmpty || 
-        _selectedConversation == null || 
+    if (_messageController.text.trim().isEmpty ||
+        _selectedConversation == null ||
         _currentUserId == null ||
         _isSendingMessage) return;
 
@@ -163,7 +164,7 @@ class _MessagingPageState extends State<MessagingPage> {
         _errorMessage = 'Erreur lors de l\'envoi du message: $e';
         _isSendingMessage = false;
       });
-      
+
       // Restore message content if sending failed
       _messageController.text = messageContent;
     }
@@ -181,12 +182,12 @@ class _MessagingPageState extends State<MessagingPage> {
     if (conversation.title != null && conversation.title!.isNotEmpty) {
       return conversation.title!;
     }
-    
+
     // If no title, show participants (exclude current user)
     final otherParticipants = conversation.participantsIds
         .where((id) => id != _currentUserId)
         .toList();
-    
+
     if (otherParticipants.isEmpty) {
       return 'Moi';
     } else if (otherParticipants.length == 1) {
@@ -198,10 +199,10 @@ class _MessagingPageState extends State<MessagingPage> {
 
   String _formatMessageTime(DateTime? dateTime) {
     if (dateTime == null) return '';
-    
+
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays == 0) {
       return DateFormat('HH:mm').format(dateTime);
     } else if (difference.inDays == 1) {
@@ -216,7 +217,7 @@ class _MessagingPageState extends State<MessagingPage> {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 1000;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -250,10 +251,11 @@ class _MessagingPageState extends State<MessagingPage> {
             ),
             const SizedBox(height: 16),
             Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: _initializeData, child: const Text('Réessayer')),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: _initializeData, child: const Text('Réessayer')),
+            ),
           ],
         ),
       );
@@ -332,7 +334,8 @@ class _MessagingPageState extends State<MessagingPage> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
-                  onPressed: _isLoadingConversations ? null : _loadConversations,
+                  onPressed:
+                      _isLoadingConversations ? null : _loadConversations,
                 ),
               ],
             ),
@@ -374,14 +377,19 @@ class _MessagingPageState extends State<MessagingPage> {
                         itemCount: _conversations.length,
                         itemBuilder: (context, index) {
                           final conversation = _conversations[index];
-                          final isSelected = _selectedConversation?.id == conversation.id;
-                          
+                          final isSelected =
+                              _selectedConversation?.id == conversation.id;
+
                           return Container(
                             decoration: BoxDecoration(
-                              color: isSelected ? Colors.blue.shade50 : Colors.transparent,
+                              color: isSelected
+                                  ? Colors.blue.shade50
+                                  : Colors.transparent,
                               border: Border(
                                 left: BorderSide(
-                                  color: isSelected ? const Color(0xFF2563EB) : Colors.transparent,
+                                  color: isSelected
+                                      ? const Color(0xFF2563EB)
+                                      : Colors.transparent,
                                   width: 3,
                                 ),
                               ),
@@ -397,7 +405,9 @@ class _MessagingPageState extends State<MessagingPage> {
                               title: Text(
                                 _getConversationTitle(conversation),
                                 style: TextStyle(
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
                                   color: Colors.black87,
                                   fontSize: 15,
                                 ),
@@ -417,9 +427,11 @@ class _MessagingPageState extends State<MessagingPage> {
                                         color: Colors.grey,
                                       ),
                                     ),
-                              trailing: conversation.lastMessage?.createdAt != null
+                              trailing: conversation.lastMessage?.createdAt !=
+                                      null
                                   ? Text(
-                                      _formatMessageTime(conversation.lastMessage!.createdAt),
+                                      _formatMessageTime(
+                                          conversation.lastMessage!.createdAt),
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey.shade500,
@@ -531,12 +543,14 @@ class _MessagingPageState extends State<MessagingPage> {
               ),
               IconButton(
                 icon: const Icon(Icons.refresh),
-                onPressed: _isLoadingMessages ? null : () => _loadMessages(_selectedConversation!.id),
+                onPressed: _isLoadingMessages
+                    ? null
+                    : () => _loadMessages(_selectedConversation!.id),
               ),
             ],
           ),
         ),
-        
+
         // Messages area
         Expanded(
           child: _isLoadingMessages
@@ -576,15 +590,17 @@ class _MessagingPageState extends State<MessagingPage> {
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {
                         final message = _messages[index];
-                        final isCurrentUser = message.senderId == _currentUserId;
+                        final isCurrentUser =
+                            message.senderId == _currentUserId;
                         final showTime = index == _messages.length - 1 ||
                             _messages[index + 1].senderId != message.senderId;
-                        
-                        return _buildMessageBubble(message, isCurrentUser, showTime);
+
+                        return _buildMessageBubble(
+                            message, isCurrentUser, showTime);
                       },
                     ),
         ),
-        
+
         // Message input area
         Container(
           padding: const EdgeInsets.all(16),
@@ -649,7 +665,8 @@ class _MessagingPageState extends State<MessagingPage> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : const Icon(Icons.send, color: Colors.white),
@@ -663,24 +680,33 @@ class _MessagingPageState extends State<MessagingPage> {
     );
   }
 
-  Widget _buildMessageBubble(MessageData message, bool isCurrentUser, bool showTime) {
+  Widget _buildMessageBubble(
+      MessageData message, bool isCurrentUser, bool showTime) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        mainAxisAlignment: isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isCurrentUser) const SizedBox(width: 40),
           Flexible(
             child: Column(
-              crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: isCurrentUser
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isCurrentUser ? const Color(0xFF2563EB) : Colors.grey.shade200,
+                    color: isCurrentUser
+                        ? const Color(0xFF2563EB)
+                        : Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(18).copyWith(
-                      bottomRight: isCurrentUser ? const Radius.circular(4) : null,
-                      bottomLeft: !isCurrentUser ? const Radius.circular(4) : null,
+                      bottomRight:
+                          isCurrentUser ? const Radius.circular(4) : null,
+                      bottomLeft:
+                          !isCurrentUser ? const Radius.circular(4) : null,
                     ),
                   ),
                   child: Text(

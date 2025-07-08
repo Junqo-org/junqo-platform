@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final AuthService authService = GetIt.instance<AuthService>();
   final UserService userService = GetIt.instance<UserService>();
   UserType? userType;
-  
+
   // Animation controllers
   late AnimationController _floatingController;
   late AnimationController _pulseController;
@@ -33,18 +33,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     getUserType();
-    
+
     // Initialize animation controllers
     _floatingController = AnimationController(
       duration: const Duration(seconds: 6),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _rotationController = AnimationController(
       duration: const Duration(seconds: 20),
       vsync: this,
@@ -126,7 +126,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     } else if (userType == UserType.STUDENT) {
       return JobCardSwipe();
     }
-    
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -148,10 +148,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               color: AppTheme.primaryColor,
               maxSize: 6.0,
             ),
-            
+
             // Animated background shapes
             _buildAnimatedBackgroundShapes(),
-            
+
             // Main content
             Column(
               children: [
@@ -301,7 +301,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
-                      ).animate()
+                      )
+                          .animate()
                           .fadeIn(delay: 300.ms, duration: 600.ms)
                           .slideX(begin: -0.2, end: 0),
                       const SizedBox(height: 8),
@@ -312,7 +313,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           color: Colors.white,
                           fontWeight: FontWeight.w300,
                         ),
-                      ).animate()
+                      )
+                          .animate()
                           .fadeIn(delay: 500.ms, duration: 600.ms)
                           .slideX(begin: -0.2, end: 0),
                     ],
@@ -421,7 +423,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         Text(
           'Fonctionnalités principales',
           style: AppTheme.headingMedium,
-        ).animate()
+        )
+            .animate()
             .fadeIn(delay: 700.ms, duration: 600.ms)
             .slideY(begin: 0.2, end: 0),
         const SizedBox(height: 24),
@@ -433,7 +436,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 child: _buildFeatureCard(
                   icon: Icons.search,
                   title: 'Recherche intelligente',
-                  description: 'Trouvez les offres qui correspondent parfaitement à votre profil',
+                  description:
+                      'Trouvez les offres qui correspondent parfaitement à votre profil',
                   color: AppTheme.primaryColor,
                 ),
               ),
@@ -445,7 +449,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 child: _buildFeatureCard(
                   icon: Icons.psychology,
                   title: 'IA Personnalisée',
-                  description: 'Notre intelligence artificielle vous aide à optimiser vos candidatures',
+                  description:
+                      'Notre intelligence artificielle vous aide à optimiser vos candidatures',
                   color: AppTheme.secondaryColor,
                 ),
               ),

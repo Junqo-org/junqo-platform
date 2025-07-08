@@ -15,6 +15,7 @@ La présente politique de confidentialité a pour objectif de vous informer sur 
 - Appareil : tout appareil utilisé pour accéder au service.
 - Service Tiers : prestataires externes traitant les données pour notre compte.
 
+
 2. Types de données collectées
 a. Données personnelles : nom, email, adresse, données de compte, etc.
 b. Données d’utilisation : adresse IP, navigateur, interactions, etc.

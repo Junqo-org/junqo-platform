@@ -68,8 +68,9 @@ class _CompanyProfileState extends State<CompanyProfile> {
 
     try {
       // Add debug logging
-      debugPrint('Saving profile: description=${_descriptionController.text}, website=${_websiteController.text}');
-      
+      debugPrint(
+          'Saving profile: description=${_descriptionController.text}, website=${_websiteController.text}');
+
       companyProfileService
           .updateMyProfile(
         description: _descriptionController.text,
@@ -80,7 +81,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
           setState(() {
             _isLoading = false;
             _isEditing = false;
-            
+
             // Update local fields to match what came back from API
             if (updatedProfile != null) {
               _descriptionController.text = updatedProfile.description ?? '';
@@ -142,10 +143,22 @@ class _CompanyProfileState extends State<CompanyProfile> {
                       SizedBox(
                         width: double.infinity,
                         child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: () => Navigator.pop(context), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text('Fermer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-),
+                          button: true,
+                          label: 'TODO: Replace with a meaningful label',
+                          child: ElevatedButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF6366F1),
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12))),
+                              child: const Text('Fermer',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold))),
+                        ),
                       ),
                     ],
                   ),
@@ -253,10 +266,39 @@ class _CompanyProfileState extends State<CompanyProfile> {
             width: double.infinity,
             height: 50,
             child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: () {if (_isEditing) {_saveProfile();} else {setState(() {_isEditing = true;});}}, style: ElevatedButton.styleFrom(backgroundColor: _isEditing ? const Color(0xFF475569) : const Color(0xFF6366F1), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 0), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(_isEditing ? Icons.check : Icons.edit, size: 18), const SizedBox(width: 8), Text(_isEditing ? 'Terminer l\'édition' : 'Modifier le profil', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))])),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: () {
+                    if (_isEditing) {
+                      _saveProfile();
+                    } else {
+                      setState(() {
+                        _isEditing = true;
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: _isEditing
+                          ? const Color(0xFF475569)
+                          : const Color(0xFF6366F1),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(_isEditing ? Icons.check : Icons.edit, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                            _isEditing
+                                ? 'Terminer l\'édition'
+                                : 'Modifier le profil',
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold))
+                      ])),
+            ),
           ),
         ],
       ),
@@ -717,10 +759,20 @@ class _CompanyProfileState extends State<CompanyProfile> {
             width: double.infinity,
             height: 50,
             child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 0), child: const Text('Enregistrer le profil', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6366F1),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0),
+                  child: const Text('Enregistrer le profil',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold))),
+            ),
           ),
         ],
       ),
@@ -747,10 +799,24 @@ class _CompanyProfileState extends State<CompanyProfile> {
             width: double.infinity,
             height: 50,
             child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: () async {await authService.logout(); if (!mounted) return; Navigator.pushReplacementNamed(context, '/login');}, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 0), child: const Text('Se déconnecter', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton(
+                  onPressed: () async {
+                    await authService.logout();
+                    if (!mounted) return;
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4444),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0),
+                  child: const Text('Se déconnecter',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold))),
+            ),
           ),
         ],
       ),

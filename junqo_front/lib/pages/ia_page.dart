@@ -18,7 +18,8 @@ class _IAPageState extends State<IAPage> {
   static const Color slate800 = Color(0xFF1E293B);
   static const Color slate900 = Color(0xFF0F172A);
   static const Color indigo600 = Color(0xFF4F46E5);
-  static const Color skyBlue500 = Color(0xFF0EA5E9); // For "Simulateur d'entretien"
+  static const Color skyBlue500 =
+      Color(0xFF0EA5E9); // For "Simulateur d'entretien"
   static const Color emerald500 = Color(0xFF10B981); // For "Améliorer votre CV"
   static const Color amber500 = Color(0xFFF59E0B); // For "Lettre de motivation"
 
@@ -58,7 +59,8 @@ class _IAPageState extends State<IAPage> {
                       Positioned.fill(
                         child: Center(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Text(
                               "Boostez votre carrière grâce à l'IA",
                               style: TextStyle(
@@ -83,7 +85,8 @@ class _IAPageState extends State<IAPage> {
 
                   // Cartes de sélection des outils IA
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 24.0),
                     child: Column(
                       children: [
                         Row(
@@ -128,7 +131,8 @@ class _IAPageState extends State<IAPage> {
                   // Section "Comment ça marche"
                   Container(
                     color: slate50,
-                    padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 32, horizontal: 16),
                     child: Column(
                       children: [
                         Text(
@@ -178,7 +182,8 @@ class _IAPageState extends State<IAPage> {
                               );
                             } else {
                               return Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(child: step1),
@@ -212,8 +217,10 @@ class _IAPageState extends State<IAPage> {
     required VoidCallback onTap,
   }) {
     final isHovered = _hoveredCard == title;
-    final Color iconBackgroundColor = isHovered ? baseColor.withOpacity(0.15) : baseColor.withOpacity(0.1);
-    final Color cardBackgroundColor = isHovered ? baseColor.withOpacity(0.03) : Colors.white;
+    final Color iconBackgroundColor =
+        isHovered ? baseColor.withOpacity(0.15) : baseColor.withOpacity(0.1);
+    final Color cardBackgroundColor =
+        isHovered ? baseColor.withOpacity(0.03) : Colors.white;
     final Color borderColor = isHovered ? baseColor.withOpacity(0.7) : slate200;
 
     return Expanded(
@@ -236,7 +243,9 @@ class _IAPageState extends State<IAPage> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: isHovered ? baseColor.withOpacity(0.1) : Colors.black.withOpacity(0.05),
+                  color: isHovered
+                      ? baseColor.withOpacity(0.1)
+                      : Colors.black.withOpacity(0.05),
                   blurRadius: isHovered ? 12 : 8,
                   offset: isHovered ? const Offset(0, 6) : const Offset(0, 4),
                 ),

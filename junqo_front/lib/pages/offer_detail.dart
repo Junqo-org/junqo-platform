@@ -63,7 +63,8 @@ class _OfferDetailState extends State<OfferDetail> {
           _currentPage++;
           _isLoadingMore = false;
           _isInitialLoading = false;
-          if (result.rows.length < _limit || _applications.length >= result.count) {
+          if (result.rows.length < _limit ||
+              _applications.length >= result.count) {
             _canLoadMore = false;
           }
         });
@@ -75,7 +76,9 @@ class _OfferDetailState extends State<OfferDetail> {
           _isInitialLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur de chargement des candidatures: ${e.toString()}')),
+          SnackBar(
+              content: Text(
+                  'Erreur de chargement des candidatures: ${e.toString()}')),
         );
       }
     }
@@ -102,7 +105,8 @@ class _OfferDetailState extends State<OfferDetail> {
                   _buildOfferDetailCard()
                       .animate()
                       .fadeIn(delay: 200.ms, duration: 500.ms)
-                      .scaleXY(begin: 0.95, end: 1.0, curve: Curves.easeOutQuart),
+                      .scaleXY(
+                          begin: 0.95, end: 1.0, curve: Curves.easeOutQuart),
                   const SizedBox(height: 24),
                   _buildCandidatesSection()
                       .animate()
@@ -140,9 +144,8 @@ class _OfferDetailState extends State<OfferDetail> {
                   color: Color(0xFF6366F1), // Indigo
                   size: 22,
                 ),
-              ).animate()
-                .fadeIn(duration: 400.ms)
-                .scale(begin: const Offset(0.8, 0.8), curve: Curves.elasticOut),
+              ).animate().fadeIn(duration: 400.ms).scale(
+                  begin: const Offset(0.8, 0.8), curve: Curves.elasticOut),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -156,9 +159,10 @@ class _OfferDetailState extends State<OfferDetail> {
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E293B), // Slate 800
                     ),
-                  ).animate()
-                    .fadeIn(delay: 200.ms, duration: 400.ms)
-                    .slideX(begin: -0.2, end: 0),
+                  )
+                      .animate()
+                      .fadeIn(delay: 200.ms, duration: 400.ms)
+                      .slideX(begin: -0.2, end: 0),
                   const SizedBox(height: 6),
                   Text(
                     widget.offer.title,
@@ -167,9 +171,10 @@ class _OfferDetailState extends State<OfferDetail> {
                       color: Color(0xFF6366F1),
                       fontWeight: FontWeight.w500,
                     ),
-                  ).animate()
-                    .fadeIn(delay: 300.ms, duration: 400.ms)
-                    .slideX(begin: -0.2, end: 0),
+                  )
+                      .animate()
+                      .fadeIn(delay: 300.ms, duration: 400.ms)
+                      .slideX(begin: -0.2, end: 0),
                 ],
               ),
             ),
@@ -217,8 +222,8 @@ class _OfferDetailState extends State<OfferDetail> {
                     color: Color(0xFF6366F1), // Indigo
                     size: 24,
                   ),
-                ).animate()
-                  .scale(delay: 200.ms, duration: 400.ms, curve: Curves.elasticOut),
+                ).animate().scale(
+                    delay: 200.ms, duration: 400.ms, curve: Curves.elasticOut),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -231,28 +236,29 @@ class _OfferDetailState extends State<OfferDetail> {
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF1E293B), // Slate 800
                         ),
-                      ).animate()
-                        .fadeIn(delay: 300.ms, duration: 400.ms)
-                        .slideX(begin: -0.1, end: 0),
+                      )
+                          .animate()
+                          .fadeIn(delay: 300.ms, duration: 400.ms)
+                          .slideX(begin: -0.1, end: 0),
                       const SizedBox(height: 6),
                       Row(
                         children: [
                           _buildTag(widget.offer.offerType, isOfferType: true)
-                            .animate()
-                            .fadeIn(delay: 400.ms, duration: 300.ms)
-                            .scale(begin: const Offset(0.8, 0.8)),
+                              .animate()
+                              .fadeIn(delay: 400.ms, duration: 300.ms)
+                              .scale(begin: const Offset(0.8, 0.8)),
                           if (widget.offer.workLocationType.isNotEmpty) ...[
                             const SizedBox(width: 8),
                             _buildTag(widget.offer.workLocationType)
-                              .animate()
-                              .fadeIn(delay: 500.ms, duration: 300.ms)
-                              .scale(begin: const Offset(0.8, 0.8)),
+                                .animate()
+                                .fadeIn(delay: 500.ms, duration: 300.ms)
+                                .scale(begin: const Offset(0.8, 0.8)),
                           ],
                           const SizedBox(width: 8),
                           _buildStatusTag(widget.offer.status)
-                            .animate()
-                            .fadeIn(delay: 600.ms, duration: 300.ms)
-                            .scale(begin: const Offset(0.8, 0.8)),
+                              .animate()
+                              .fadeIn(delay: 600.ms, duration: 300.ms)
+                              .scale(begin: const Offset(0.8, 0.8)),
                         ],
                       ),
                     ],
@@ -273,9 +279,10 @@ class _OfferDetailState extends State<OfferDetail> {
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1E293B), // Slate 800
                   ),
-                ).animate()
-                  .fadeIn(delay: 700.ms, duration: 400.ms)
-                  .slideY(begin: 0.1, end: 0),
+                )
+                    .animate()
+                    .fadeIn(delay: 700.ms, duration: 400.ms)
+                    .slideY(begin: 0.1, end: 0),
                 const SizedBox(height: 12),
                 Text(
                   widget.offer.description,
@@ -284,9 +291,10 @@ class _OfferDetailState extends State<OfferDetail> {
                     color: Color(0xFF475569), // Slate 600
                     height: 1.6,
                   ),
-                ).animate()
-                  .fadeIn(delay: 800.ms, duration: 400.ms)
-                  .slideY(begin: 0.1, end: 0),
+                )
+                    .animate()
+                    .fadeIn(delay: 800.ms, duration: 400.ms)
+                    .slideY(begin: 0.1, end: 0),
                 const SizedBox(height: 24),
                 const Text(
                   "Informations générales",
@@ -449,10 +457,102 @@ class _OfferDetailState extends State<OfferDetail> {
                     ),
                     const SizedBox(width: 12),
                     Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton.icon(onPressed: () {showDialog(context: context, builder: (BuildContext dialogContext) {return AlertDialog(title: const Text("Supprimer cette offre ?", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B))), content: const Text("Cette action est irréversible. L'offre sera définitivement supprimée.", style: TextStyle(color: Color(0xFF64748B))), actions: [Semantics(button: true, label: 'TODO: Replace with a meaningful label', child: TextButton(onPressed: () {Navigator.of(dialogContext).pop();}, child: const Text("Annuler", style: TextStyle(color: Color(0xFF64748B))))), ElevatedButton(onPressed: () async {Navigator.of(dialogContext).pop(); try {ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Suppression en cours..."), duration: Duration(seconds: 1))); final offerService = GetIt.instance<OfferService>(); final bool success = await offerService.deleteOffer(widget.offer.id!); if (!mounted) return; if (success) {Navigator.of(context).pop(true); if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("L'offre a été supprimée avec succès"), backgroundColor: Color(0xFF10B981)));} else {if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Échec de la suppression de l'offre"), backgroundColor: Colors.red));}} catch (e) {if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erreur: ${e.toString()}"), backgroundColor: Colors.red));}}, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white), child: const Text("Supprimer"))]);});}, icon: const Icon(Icons.delete_outline), label: const Text("Supprimer"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF87171), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12))),
-),
+                      button: true,
+                      label: 'TODO: Replace with a meaningful label',
+                      child: ElevatedButton.icon(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext dialogContext) {
+                                  return AlertDialog(
+                                      title: const Text(
+                                          "Supprimer cette offre ?",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF1E293B))),
+                                      content: const Text(
+                                          "Cette action est irréversible. L'offre sera définitivement supprimée.",
+                                          style: TextStyle(
+                                              color: Color(0xFF64748B))),
+                                      actions: [
+                                        Semantics(
+                                            button: true,
+                                            label:
+                                                'TODO: Replace with a meaningful label',
+                                            child: TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(dialogContext)
+                                                      .pop();
+                                                },
+                                                child: const Text("Annuler",
+                                                    style: TextStyle(
+                                                        color: Color(
+                                                            0xFF64748B))))),
+                                        ElevatedButton(
+                                            onPressed: () async {
+                                              Navigator.of(dialogContext).pop();
+                                              try {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(const SnackBar(
+                                                        content: Text(
+                                                            "Suppression en cours..."),
+                                                        duration: Duration(
+                                                            seconds: 1)));
+                                                final offerService = GetIt
+                                                    .instance<OfferService>();
+                                                final bool success =
+                                                    await offerService
+                                                        .deleteOffer(
+                                                            widget.offer.id!);
+                                                if (!mounted) return;
+                                                if (success) {
+                                                  Navigator.of(context)
+                                                      .pop(true);
+                                                  if (!mounted) return;
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(const SnackBar(
+                                                          content: Text(
+                                                              "L'offre a été supprimée avec succès"),
+                                                          backgroundColor:
+                                                              Color(
+                                                                  0xFF10B981)));
+                                                } else {
+                                                  if (!mounted) return;
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(const SnackBar(
+                                                          content: Text(
+                                                              "Échec de la suppression de l'offre"),
+                                                          backgroundColor:
+                                                              Colors.red));
+                                                }
+                                              } catch (e) {
+                                                if (!mounted) return;
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                        content: Text(
+                                                            "Erreur: ${e.toString()}"),
+                                                        backgroundColor:
+                                                            Colors.red));
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color(0xFFEF4444),
+                                                foregroundColor: Colors.white),
+                                            child: const Text("Supprimer"))
+                                      ]);
+                                });
+                          },
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text("Supprimer"),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF87171),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12))),
+                    ),
                   ],
                 ),
               ],
@@ -471,12 +571,19 @@ class _OfferDetailState extends State<OfferDetail> {
           children: [
             const CircularProgressIndicator(
               color: Color(0xFF6366F1), // Indigo
-            ).animate(onPlay: (controller) => controller.repeat())
-              .rotate(duration: 1.seconds)
-              .then()
-              .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 600.ms)
-              .then()
-              .scale(begin: const Offset(1.1, 1.1), end: const Offset(1, 1), duration: 600.ms),
+            )
+                .animate(onPlay: (controller) => controller.repeat())
+                .rotate(duration: 1.seconds)
+                .then()
+                .scale(
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.1, 1.1),
+                    duration: 600.ms)
+                .then()
+                .scale(
+                    begin: const Offset(1.1, 1.1),
+                    end: const Offset(1, 1),
+                    duration: 600.ms),
             const SizedBox(height: 16),
             const Text(
               "Chargement des candidatures...",
@@ -484,8 +591,7 @@ class _OfferDetailState extends State<OfferDetail> {
                 color: Color(0xFF64748B), // Slate 500
                 fontSize: 16,
               ),
-            ).animate()
-              .fadeIn(delay: 200.ms, duration: 400.ms),
+            ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
           ],
         ),
       );
@@ -513,8 +619,8 @@ class _OfferDetailState extends State<OfferDetail> {
               Icons.people_outline,
               color: Color(0xFF94A3B8), // Slate 400
               size: 64,
-            ).animate()
-              .scale(delay: 100.ms, duration: 500.ms, curve: Curves.elasticOut),
+            ).animate().scale(
+                delay: 100.ms, duration: 500.ms, curve: Curves.elasticOut),
             const SizedBox(height: 24),
             const Text(
               "Aucune candidature",
@@ -523,8 +629,7 @@ class _OfferDetailState extends State<OfferDetail> {
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF334155), // Slate 700
               ),
-            ).animate()
-              .fadeIn(delay: 200.ms, duration: 400.ms),
+            ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
             const SizedBox(height: 8),
             const Text(
               "Les candidatures apparaîtront ici lorsqu'elles seront soumises",
@@ -533,13 +638,13 @@ class _OfferDetailState extends State<OfferDetail> {
                 fontSize: 14,
                 color: Color(0xFF64748B), // Slate 500
               ),
-            ).animate()
-              .fadeIn(delay: 300.ms, duration: 400.ms),
+            ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
           ],
         ),
-      ).animate()
-        .fadeIn(duration: 500.ms)
-        .scale(begin: const Offset(0.95, 0.95));
+      )
+          .animate()
+          .fadeIn(duration: 500.ms)
+          .scale(begin: const Offset(0.95, 0.95));
     }
 
     return Column(
@@ -552,29 +657,50 @@ class _OfferDetailState extends State<OfferDetail> {
             fontWeight: FontWeight.bold,
             color: Color(0xFF1E293B), // Slate 800
           ),
-        ).animate()
-          .fadeIn(delay: 100.ms, duration: 400.ms)
-          .slideX(begin: -0.1, end: 0),
-        const SizedBox(height: 16),
-        ..._applications.asMap().entries.map((entry) => 
-          _buildApplicationCard(entry.value)
+        )
             .animate()
-            .fadeIn(delay: (200 + 100 * entry.key).ms, duration: 400.ms)
-            .slideY(begin: 0.1, end: 0)
-        ),
+            .fadeIn(delay: 100.ms, duration: 400.ms)
+            .slideX(begin: -0.1, end: 0),
+        const SizedBox(height: 16),
+        ..._applications.asMap().entries.map((entry) =>
+            _buildApplicationCard(entry.value)
+                .animate()
+                .fadeIn(delay: (200 + 100 * entry.key).ms, duration: 400.ms)
+                .slideY(begin: 0.1, end: 0)),
         if (_canLoadMore)
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton.icon(onPressed: _isLoadingMore ? null : () => _fetchApplications(loadMore: true), icon: _isLoadingMore ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)).animate(onPlay: (controller) => controller.repeat()).rotate(duration: 1.seconds) : const Icon(Icons.refresh), label: Text(_isLoadingMore ? "Chargement..." : "Charger plus"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white)),
-),
+                button: true,
+                label: 'TODO: Replace with a meaningful label',
+                child: ElevatedButton.icon(
+                    onPressed: _isLoadingMore
+                        ? null
+                        : () => _fetchApplications(loadMore: true),
+                    icon: _isLoadingMore
+                        ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white))
+                            .animate(
+                                onPlay: (controller) => controller.repeat())
+                            .rotate(duration: 1.seconds)
+                        : const Icon(Icons.refresh),
+                    label:
+                        Text(_isLoadingMore ? "Chargement..." : "Charger plus"),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6366F1),
+                        foregroundColor: Colors.white)),
+              ),
             ),
-          ).animate()
-            .fadeIn(delay: (300 + 100 * _applications.length).ms, duration: 400.ms)
-            .scale(begin: const Offset(0.95, 0.95)),
+          )
+              .animate()
+              .fadeIn(
+                  delay: (300 + 100 * _applications.length).ms,
+                  duration: 400.ms)
+              .scale(begin: const Offset(0.95, 0.95)),
       ],
     );
   }
@@ -648,11 +774,11 @@ class _OfferDetailState extends State<OfferDetail> {
                       ),
                     ),
                   ),
-                ).animate()
-                  .scale(delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
-                
+                ).animate().scale(
+                    delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
+
                 const SizedBox(width: 16),
-                
+
                 // Informations du candidat
                 Expanded(
                   child: Column(
@@ -665,12 +791,13 @@ class _OfferDetailState extends State<OfferDetail> {
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF1E293B), // Slate 800
                         ),
-                      ).animate()
-                        .fadeIn(delay: 200.ms, duration: 400.ms)
-                        .slideX(begin: -0.2, end: 0),
-                      
+                      )
+                          .animate()
+                          .fadeIn(delay: 200.ms, duration: 400.ms)
+                          .slideX(begin: -0.2, end: 0),
+
                       const SizedBox(height: 4),
-                      
+
                       Row(
                         children: [
                           Icon(
@@ -687,24 +814,23 @@ class _OfferDetailState extends State<OfferDetail> {
                             ),
                           ),
                         ],
-                      ).animate()
-                        .fadeIn(delay: 300.ms, duration: 400.ms),
-                      
+                      ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+
                       const SizedBox(height: 8),
-                      
+
                       // Status chip
                       _buildApplicationStatusChip(application.status)
-                        .animate()
-                        .fadeIn(delay: 400.ms, duration: 400.ms)
-                        .scale(begin: const Offset(0.8, 0.8)),
+                          .animate()
+                          .fadeIn(delay: 400.ms, duration: 400.ms)
+                          .scale(begin: const Offset(0.8, 0.8)),
                     ],
                   ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Actions buttons
             Row(
               children: [
@@ -726,15 +852,17 @@ class _OfferDetailState extends State<OfferDetail> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                  ).animate()
-                    .fadeIn(delay: 500.ms, duration: 400.ms)
-                    .slideY(begin: 0.2, end: 0),
+                  )
+                      .animate()
+                      .fadeIn(delay: 500.ms, duration: 400.ms)
+                      .slideY(begin: 0.2, end: 0),
                 ),
-                
+
                 const SizedBox(width: 12),
-                
+
                 // Actions rapides selon le statut
-                if (application.status == 'NOT_OPENED' || application.status == 'PENDING') ...[
+                if (application.status == 'NOT_OPENED' ||
+                    application.status == 'PENDING') ...[
                   // Bouton refuser
                   Container(
                     decoration: BoxDecoration(
@@ -760,12 +888,13 @@ class _OfferDetailState extends State<OfferDetail> {
                       icon: const Icon(Icons.close, color: Colors.white),
                       tooltip: "Refuser",
                     ),
-                  ).animate()
-                    .fadeIn(delay: 600.ms, duration: 400.ms)
-                    .scale(begin: const Offset(0.8, 0.8)),
-                  
+                  )
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 400.ms)
+                      .scale(begin: const Offset(0.8, 0.8)),
+
                   const SizedBox(width: 8),
-                  
+
                   // Bouton accepter
                   Container(
                     decoration: BoxDecoration(
@@ -791,9 +920,10 @@ class _OfferDetailState extends State<OfferDetail> {
                       icon: const Icon(Icons.check, color: Colors.white),
                       tooltip: "Accepter",
                     ),
-                  ).animate()
-                    .fadeIn(delay: 700.ms, duration: 400.ms)
-                    .scale(begin: const Offset(0.8, 0.8)),
+                  )
+                      .animate()
+                      .fadeIn(delay: 700.ms, duration: 400.ms)
+                      .scale(begin: const Offset(0.8, 0.8)),
                 ],
               ],
             ),
@@ -937,11 +1067,12 @@ class _OfferDetailState extends State<OfferDetail> {
     );
   }
 
-  Future<void> _updateApplicationStatus(ApplicationData application, String newStatus) async {
+  Future<void> _updateApplicationStatus(
+      ApplicationData application, String newStatus) async {
     try {
       final apiService = GetIt.instance<ApiService>();
       await apiService.updateApplicationStatus(application.id, newStatus);
-      
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -954,9 +1085,9 @@ class _OfferDetailState extends State<OfferDetail> {
               ),
               const SizedBox(width: 12),
               Text(
-                newStatus == 'ACCEPTED' 
-                  ? 'Candidature acceptée avec succès !' 
-                  : 'Candidature refusée',
+                newStatus == 'ACCEPTED'
+                    ? 'Candidature acceptée avec succès !'
+                    : 'Candidature refusée',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -964,9 +1095,9 @@ class _OfferDetailState extends State<OfferDetail> {
               ),
             ],
           ),
-          backgroundColor: newStatus == 'ACCEPTED' 
-            ? const Color(0xFF10B981) 
-            : const Color(0xFFEF4444),
+          backgroundColor: newStatus == 'ACCEPTED'
+              ? const Color(0xFF10B981)
+              : const Color(0xFFEF4444),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -975,22 +1106,23 @@ class _OfferDetailState extends State<OfferDetail> {
           duration: const Duration(seconds: 3),
         ),
       );
-      
+
       // Update local application status
       setState(() {
-        final index = _applications.indexWhere((app) => app.id == application.id);
+        final index =
+            _applications.indexWhere((app) => app.id == application.id);
         if (index != -1) {
-                   _applications[index] = ApplicationData(
-           id: application.id,
-           studentId: application.studentId,
-           studentName: application.studentName,
-           studentEmail: application.studentEmail,
-           offerId: application.offerId,
-           companyId: application.companyId,
-           status: newStatus,
-           createdAt: application.createdAt,
-           updatedAt: DateTime.now(),
-         );
+          _applications[index] = ApplicationData(
+            id: application.id,
+            studentId: application.studentId,
+            studentName: application.studentName,
+            studentEmail: application.studentEmail,
+            offerId: application.offerId,
+            companyId: application.companyId,
+            status: newStatus,
+            createdAt: application.createdAt,
+            updatedAt: DateTime.now(),
+          );
         }
       });
 
@@ -998,7 +1130,6 @@ class _OfferDetailState extends State<OfferDetail> {
       if (newStatus == 'ACCEPTED') {
         await _createConversationAndNavigate(application);
       }
-      
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1025,13 +1156,15 @@ class _OfferDetailState extends State<OfferDetail> {
     }
   }
 
-  Future<void> _createConversationAndNavigate(ApplicationData application) async {
+  Future<void> _createConversationAndNavigate(
+      ApplicationData application) async {
     try {
       final messagingService = GetIt.instance<MessagingService>();
-      
+
       // Check if a conversation already exists between company and student
-      final existingConversations = await messagingService.getConversations(limit: 100);
-      
+      final existingConversations =
+          await messagingService.getConversations(limit: 100);
+
       ConversationData? existingConversation;
       for (final conversation in existingConversations) {
         if (conversation.participantsIds.contains(application.studentId) &&
@@ -1040,7 +1173,7 @@ class _OfferDetailState extends State<OfferDetail> {
           break;
         }
       }
-      
+
       // If no conversation exists, create one
       if (existingConversation == null) {
         // Limit title to 50 characters as required by backend API
@@ -1048,14 +1181,14 @@ class _OfferDetailState extends State<OfferDetail> {
         if (conversationTitle.length > 50) {
           conversationTitle = conversationTitle.substring(0, 47) + '...';
         }
-        
+
         final createConversationData = CreateConversationData(
           participantsIds: [application.studentId, application.companyId],
           title: conversationTitle,
         );
-        
+
         await messagingService.createConversation(createConversationData);
-        
+
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1064,14 +1197,13 @@ class _OfferDetailState extends State<OfferDetail> {
           ),
         );
       }
-      
+
       // Navigate to messaging page
       if (!mounted) return;
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const MessagingPage()),
       );
-      
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

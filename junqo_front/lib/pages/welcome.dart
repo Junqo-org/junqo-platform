@@ -120,9 +120,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                   alignment: Alignment.centerLeft,
                 ),
               ),
-            ).animate()
-                .fadeIn(duration: 600.ms)
-                .slideY(begin: -0.2, end: 0),
+            ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0),
 
             // Main content
             Expanded(
@@ -152,8 +150,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                         color: Colors.blue.shade400,
                                         borderRadius: BorderRadius.circular(2),
                                       ),
-                                    ).animate()
-                                        .scaleY(
+                                    ).animate().scaleY(
                                           delay: 200.ms,
                                           duration: 600.ms,
                                           begin: 0,
@@ -171,8 +168,10 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                           height: 1.2,
                                           letterSpacing: -0.5,
                                         ),
-                                      ).animate()
-                                          .fadeIn(delay: 300.ms, duration: 700.ms)
+                                      )
+                                          .animate()
+                                          .fadeIn(
+                                              delay: 300.ms, duration: 700.ms)
                                           .slideX(begin: -0.1, end: 0),
                                     ),
                                   ],
@@ -187,7 +186,8 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                     height: 1.5,
                                     letterSpacing: 0.1,
                                   ),
-                                ).animate()
+                                )
+                                    .animate()
                                     .fadeIn(delay: 500.ms, duration: 700.ms),
                                 const SizedBox(height: 30),
 
@@ -212,7 +212,8 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                           'S\'inscrire avec une adresse e-mail',
                                     ),
                                   ),
-                                ).animate()
+                                )
+                                    .animate()
                                     .fadeIn(delay: 700.ms, duration: 700.ms)
                                     .scale(
                                       delay: 700.ms,
@@ -250,18 +251,23 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                             ),
-                                          ).animate(
-                                            onPlay: (controller) => controller.repeat(reverse: true),
-                                          ).shimmer(
-                                            delay: 2.seconds,
-                                            duration: 1.5.seconds,
-                                            color: Colors.blue.shade400,
-                                          ),
+                                          )
+                                              .animate(
+                                                onPlay: (controller) =>
+                                                    controller.repeat(
+                                                        reverse: true),
+                                              )
+                                              .shimmer(
+                                                delay: 2.seconds,
+                                                duration: 1.5.seconds,
+                                                color: Colors.blue.shade400,
+                                              ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ).animate()
+                                )
+                                    .animate()
                                     .fadeIn(delay: 900.ms, duration: 700.ms),
                                 const SizedBox(height: 24),
 
@@ -274,7 +280,8 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                         MainAxisAlignment.spaceAround,
                                     children: [
                                       _buildStat(studentsCount, 'Étudiants', 0),
-                                      _buildStat(companiesCount, 'Entreprises', 1),
+                                      _buildStat(
+                                          companiesCount, 'Entreprises', 1),
                                       _buildStat(
                                           satisfactionRate, 'Satisfaction', 2),
                                     ],
@@ -339,7 +346,8 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                       ],
                                     ),
                                   ),
-                                ).animate()
+                                )
+                                    .animate()
                                     .fadeIn(delay: 1200.ms, duration: 700.ms)
                                     .slideY(begin: 0.1, end: 0),
                               ],
@@ -400,7 +408,8 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                                     ),
                                   );
                                 },
-                              ).animate()
+                              )
+                                  .animate()
                                   .fadeIn(delay: 400.ms, duration: 1.seconds)
                                   .scale(
                                     delay: 400.ms,
@@ -432,7 +441,8 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
             fontWeight: FontWeight.w600,
             color: Colors.blue.shade700,
           ),
-        ).animate()
+        )
+            .animate()
             .fadeIn(delay: (1000 + 100 * index).ms, duration: 500.ms)
             .scale(
               delay: (1000 + 100 * index).ms,
@@ -447,8 +457,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
             fontSize: 13,
             color: Colors.grey.shade600,
           ),
-        ).animate()
-            .fadeIn(delay: (1100 + 100 * index).ms, duration: 500.ms),
+        ).animate().fadeIn(delay: (1100 + 100 * index).ms, duration: 500.ms),
       ],
     );
   }

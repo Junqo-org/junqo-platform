@@ -247,7 +247,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                     Container(
                       padding: const EdgeInsets.fromLTRB(16, 24, 40, 16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9), // Légère transparence
+                        color: Colors.white
+                            .withOpacity(0.9), // Légère transparence
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.shade200,
@@ -281,7 +282,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                         return Center(
                           child: Container(
                             constraints: BoxConstraints(
-                              maxWidth: isSmallScreen ? screenSize.width * 0.9 : 450,
+                              maxWidth:
+                                  isSmallScreen ? screenSize.width * 0.9 : 450,
                             ),
                             margin: EdgeInsets.symmetric(
                               vertical: 32,
@@ -290,7 +292,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                             child: Container(
                               padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.95), // Légère transparence
+                                color: Colors.white
+                                    .withOpacity(0.95), // Légère transparence
                                 borderRadius: BorderRadius.circular(24),
                                 boxShadow: [
                                   BoxShadow(
@@ -308,15 +311,16 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 32),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
                                             Container(
                                               width: 4,
                                               height: 24,
-                                              margin:
-                                                  const EdgeInsets.only(right: 12),
+                                              margin: const EdgeInsets.only(
+                                                  right: 12),
                                               decoration: BoxDecoration(
                                                 color: mainColor,
                                                 borderRadius:
@@ -336,7 +340,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                         ),
                                         const SizedBox(height: 8),
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 16),
+                                          padding:
+                                              const EdgeInsets.only(left: 16),
                                           child: Text(
                                             'en tant qu\'${getUserTypeText()}',
                                             style: const TextStyle(
@@ -349,7 +354,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                         ),
                                         const SizedBox(height: 16),
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 16),
+                                          padding:
+                                              const EdgeInsets.only(left: 16),
                                           child: Text(
                                             'Remplissez le formulaire pour créer votre compte',
                                             style: TextStyle(
@@ -385,7 +391,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                           label: 'Adresse e-mail',
                                           controller: _emailController,
                                           prefix: Icons.email_outlined,
-                                          keyboardType: TextInputType.emailAddress,
+                                          keyboardType:
+                                              TextInputType.emailAddress,
                                           mainColor: mainColor,
                                           isError: _emailError != null,
                                           errorText: _emailError,
@@ -397,8 +404,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                           prefix: Icons.lock_outline,
                                           isPassword: true,
                                           isPasswordVisible: _isPasswordVisible,
-                                          onVisibilityChanged: (value) => setState(
-                                              () => _isPasswordVisible = value),
+                                          onVisibilityChanged: (value) =>
+                                              setState(() =>
+                                                  _isPasswordVisible = value),
                                           mainColor: mainColor,
                                           isError: _passwordError != null,
                                           errorText: _passwordError,
@@ -406,14 +414,16 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                         const SizedBox(height: 24),
                                         _buildTextField(
                                           label: 'Confirmer le mot de passe',
-                                          controller: _confirmPasswordController,
+                                          controller:
+                                              _confirmPasswordController,
                                           prefix: Icons.lock_outline,
                                           isPassword: true,
                                           isPasswordVisible:
                                               _isConfirmPasswordVisible,
-                                          onVisibilityChanged: (value) => setState(
-                                              () =>
-                                                  _isConfirmPasswordVisible = value),
+                                          onVisibilityChanged: (value) =>
+                                              setState(() =>
+                                                  _isConfirmPasswordVisible =
+                                                      value),
                                           isError: !_passwordsMatch ||
                                               _passwordError != null,
                                           errorText: _passwordError,
@@ -430,7 +440,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                   // Lien de connexion
                                   Center(
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Vous avez déjà un compte ? ',
@@ -486,7 +497,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                             text: 'conditions d\'utilisation',
                                             style: TextStyle(
                                               color: mainColor,
-                                              decoration: TextDecoration.underline,
+                                              decoration:
+                                                  TextDecoration.underline,
                                             ),
                                             recognizer: TapGestureRecognizer()
                                               ..onTap = () {
@@ -498,10 +510,12 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                                           ),
                                           const TextSpan(text: ' et notre '),
                                           TextSpan(
-                                            text: 'politique de confidentialité',
+                                            text:
+                                                'politique de confidentialité',
                                             style: TextStyle(
                                               color: mainColor,
-                                              decoration: TextDecoration.underline,
+                                              decoration:
+                                                  TextDecoration.underline,
                                             ),
                                             recognizer: TapGestureRecognizer()
                                               ..onTap = () {
@@ -711,7 +725,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
     required double size,
     required Offset initialOffset,
     required double floatRadius,
-    double opacity = 0.35, // Paramètre d'opacité ajouté avec valeur par défaut plus élevée
+    double opacity =
+        0.35, // Paramètre d'opacité ajouté avec valeur par défaut plus élevée
   }) {
     return AnimatedBuilder(
       animation: Listenable.merge([animation, scaleAnimation]),

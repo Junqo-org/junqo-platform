@@ -195,8 +195,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         String successMessage;
 
         if (_isEditMode) {
-          await offerService.updateOffer(
-              widget.existingOffer!.id!, jobOffer);
+          await offerService.updateOffer(widget.existingOffer!.id!, jobOffer);
           successMessage =
               "Votre offre « $titleValue » a été mise à jour avec succès !";
         } else {
@@ -278,10 +277,29 @@ class _JobOfferFormState extends State<JobOfferForm> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: () {Navigator.of(dialogContext).pop(); Navigator.of(context).pop(true);}, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))), child: const Text("Retour à la liste des offres", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
-),
+                                  button: true,
+                                  label:
+                                      'TODO: Replace with a meaningful label',
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(dialogContext).pop();
+                                        Navigator.of(context).pop(true);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0xFF6366F1),
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 24, vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10))),
+                                      child: const Text(
+                                          "Retour à la liste des offres",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600))),
+                                ),
                               ],
                             ),
                           ],
@@ -1625,10 +1643,29 @@ class _JobOfferFormState extends State<JobOfferForm> {
           ],
         ),
         child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton(onPressed: _submitJobOffer, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(_isEditMode ? Icons.save_rounded : Icons.publish_rounded), const SizedBox(width: 12), Text(_isEditMode ? "Enregistrer les modifications" : "Publier l'offre de ${_offerType.toLowerCase()}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))])),
-),
+          button: true,
+          label: 'TODO: Replace with a meaningful label',
+          child: ElevatedButton(
+              onPressed: _submitJobOffer,
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6366F1),
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  elevation: 0),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(_isEditMode ? Icons.save_rounded : Icons.publish_rounded),
+                const SizedBox(width: 12),
+                Text(
+                    _isEditMode
+                        ? "Enregistrer les modifications"
+                        : "Publier l'offre de ${_offerType.toLowerCase()}",
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold))
+              ])),
+        ),
       ),
     );
   }

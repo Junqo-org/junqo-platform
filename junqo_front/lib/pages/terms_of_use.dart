@@ -21,6 +21,7 @@ L’utilisateur s’engage à utiliser le service conformément à sa finalité,
 5. Propriété intellectuelle
 Tous les contenus, marques, logos, textes, images, interfaces et éléments techniques présents sur la plateforme sont protégés par le droit de la propriété intellectuelle. Toute reproduction, distribution ou utilisation sans autorisation est interdite.
 
+
 6. Responsabilités
 L’éditeur met tout en œuvre pour assurer la fiabilité des services, mais ne peut garantir l’exactitude, l’exhaustivité ou l’actualité des contenus générés, notamment ceux produits par l’IA. L’utilisateur est seul responsable de l’usage qu’il fait des résultats fournis.
 

@@ -32,7 +32,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
 
   Future<void> _loadStudentProfile() async {
     try {
-      final profile = await _apiService.getStudentProfileById(widget.application.studentId);
+      final profile =
+          await _apiService.getStudentProfileById(widget.application.studentId);
       if (mounted) {
         setState(() {
           _studentProfile = profile;
@@ -60,22 +61,23 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     });
 
     try {
-      await _apiService.updateApplicationStatus(widget.application.id, newStatus);
-      
+      await _apiService.updateApplicationStatus(
+          widget.application.id, newStatus);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              newStatus == 'ACCEPTED' 
-                ? 'Candidature acceptée avec succès !' 
-                : 'Candidature refusée',
+              newStatus == 'ACCEPTED'
+                  ? 'Candidature acceptée avec succès !'
+                  : 'Candidature refusée',
             ),
-            backgroundColor: newStatus == 'ACCEPTED' 
-              ? const Color(0xFF10B981) 
-              : const Color(0xFFEF4444),
+            backgroundColor: newStatus == 'ACCEPTED'
+                ? const Color(0xFF10B981)
+                : const Color(0xFFEF4444),
           ),
         );
-        
+
         // Return to previous screen
         Navigator.of(context).pop(true);
       }
@@ -105,9 +107,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
         children: [
           const NavbarCompany(currentIndex: 2),
           Expanded(
-            child: _isLoading
-                ? _buildLoadingState()
-                : _buildContent(),
+            child: _isLoading ? _buildLoadingState() : _buildContent(),
           ),
         ],
       ),
@@ -138,7 +138,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
               ),
             ),
-          ).animate()
+          )
+              .animate()
               .scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
           const SizedBox(height: 24),
           const Text(
@@ -148,8 +149,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
               fontWeight: FontWeight.w500,
               color: Color(0xFF64748B),
             ),
-          ).animate()
-              .fadeIn(delay: 400.ms, duration: 600.ms),
+          ).animate().fadeIn(delay: 400.ms, duration: 600.ms),
         ],
       ),
     );
@@ -287,13 +287,15 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           _buildInfoRow(
             icon: Icons.calendar_today_outlined,
             label: "Date de candidature",
-            value: DateFormat('dd/MM/yyyy à HH:mm').format(widget.application.createdAt),
+            value: DateFormat('dd/MM/yyyy à HH:mm')
+                .format(widget.application.createdAt),
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
             icon: Icons.schedule_outlined,
             label: "Dernière mise à jour",
-            value: DateFormat('dd/MM/yyyy à HH:mm').format(widget.application.updatedAt),
+            value: DateFormat('dd/MM/yyyy à HH:mm')
+                .format(widget.application.updatedAt),
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
@@ -400,7 +402,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           // Compétences
           if (_studentProfile!.skills?.isNotEmpty == true) ...[
             const Text(
@@ -417,7 +419,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
               runSpacing: 8,
               children: _studentProfile!.skills!.map((skill) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
@@ -444,7 +447,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
             ),
             const SizedBox(height: 24),
           ],
-          
+
           // Expériences (si disponibles)
           // TODO: Add experiences display when available in StudentProfile
         ],
@@ -453,7 +456,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
   }
 
   Widget _buildActionButtons() {
-    if (widget.application.status == 'ACCEPTED' || widget.application.status == 'DENIED') {
+    if (widget.application.status == 'ACCEPTED' ||
+        widget.application.status == 'DENIED') {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -467,25 +471,25 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
         child: Row(
           children: [
             Icon(
-              widget.application.status == 'ACCEPTED' 
-                ? Icons.check_circle_outline 
-                : Icons.cancel_outlined,
-              color: widget.application.status == 'ACCEPTED' 
-                ? const Color(0xFF10B981) 
-                : const Color(0xFFEF4444),
+              widget.application.status == 'ACCEPTED'
+                  ? Icons.check_circle_outline
+                  : Icons.cancel_outlined,
+              color: widget.application.status == 'ACCEPTED'
+                  ? const Color(0xFF10B981)
+                  : const Color(0xFFEF4444),
               size: 24,
             ),
             const SizedBox(width: 12),
             Text(
-              widget.application.status == 'ACCEPTED' 
-                ? "Cette candidature a été acceptée" 
-                : "Cette candidature a été refusée",
+              widget.application.status == 'ACCEPTED'
+                  ? "Cette candidature a été acceptée"
+                  : "Cette candidature a été refusée",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: widget.application.status == 'ACCEPTED' 
-                  ? const Color(0xFF10B981) 
-                  : const Color(0xFFEF4444),
+                color: widget.application.status == 'ACCEPTED'
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFEF4444),
               ),
             ),
           ],
@@ -514,10 +518,32 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
               ],
             ),
             child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton.icon(onPressed: _isUpdating ? null : () => _showConfirmDialog('DENIED'), icon: _isUpdating ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : const Icon(Icons.close, color: Colors.white), label: const Text("Refuser", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)), style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton.icon(
+                  onPressed:
+                      _isUpdating ? null : () => _showConfirmDialog('DENIED'),
+                  icon: _isUpdating
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white)))
+                      : const Icon(Icons.close, color: Colors.white),
+                  label: const Text("Refuser",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)))),
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -540,10 +566,32 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
               ],
             ),
             child: Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: ElevatedButton.icon(onPressed: _isUpdating ? null : () => _showConfirmDialog('ACCEPTED'), icon: _isUpdating ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : const Icon(Icons.check, color: Colors.white), label: const Text("Accepter", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)), style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: ElevatedButton.icon(
+                  onPressed:
+                      _isUpdating ? null : () => _showConfirmDialog('ACCEPTED'),
+                  icon: _isUpdating
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white)))
+                      : const Icon(Icons.check, color: Colors.white),
+                  label: const Text("Accepter",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)))),
+            ),
           ),
         ),
       ],
@@ -609,35 +657,40 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            action == 'ACCEPTED' ? "Accepter la candidature ?" : "Refuser la candidature ?",
+            action == 'ACCEPTED'
+                ? "Accepter la candidature ?"
+                : "Refuser la candidature ?",
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E293B),
             ),
           ),
           content: Text(
-            action == 'ACCEPTED' 
-              ? "Êtes-vous sûr de vouloir accepter cette candidature ? Le candidat sera notifié."
-              : "Êtes-vous sûr de vouloir refuser cette candidature ? Cette action est définitive.",
+            action == 'ACCEPTED'
+                ? "Êtes-vous sûr de vouloir accepter cette candidature ? Le candidat sera notifié."
+                : "Êtes-vous sûr de vouloir refuser cette candidature ? Cette action est définitive.",
             style: const TextStyle(
               color: Color(0xFF64748B),
             ),
           ),
           actions: [
             Semantics(
-  button: true,
-  label: 'TODO: Replace with a meaningful label',
-  child: TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("Annuler", style: TextStyle(color: Color(0xFF64748B)))),
-),
+              button: true,
+              label: 'TODO: Replace with a meaningful label',
+              child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("Annuler",
+                      style: TextStyle(color: Color(0xFF64748B)))),
+            ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _updateApplicationStatus(action);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: action == 'ACCEPTED' 
-                  ? const Color(0xFF10B981) 
-                  : const Color(0xFFEF4444),
+                backgroundColor: action == 'ACCEPTED'
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFEF4444),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -680,4 +733,4 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
         return const Color(0xFF64748B);
     }
   }
-} 
+}
