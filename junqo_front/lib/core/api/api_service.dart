@@ -74,7 +74,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> getAllOffersQuery(Map<String, String> query) async {
+  Future<Map<String, dynamic>> getAllOffersQuery(
+      Map<String, String> query) async {
     try {
       final response = await client.getQuery(ApiEndpoints.offers, query: query);
       // The response is already a Map, no need to access .data
@@ -92,6 +93,31 @@ class ApiService {
       debugPrint('Error fetching offers: $e');
       return {
         'rows': <OfferData>[],
+        'count': 0,
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> getAllStudentsQuery(
+      Map<String, String> query) async {
+    try {
+      final response =
+          await client.getQuery(ApiEndpoints.studentProfiles, query: query);
+      // The response is already a Map, no need to access .data
+      final rows = response['rows'] as List<dynamic>;
+      final count = response['count'] ?? 0;
+
+      // Convert each row to an OfferData object
+      final offers = rows.map((item) => StudentProfile.fromJson(item)).toList();
+
+      return {
+        'rows': offers,
+        'count': count,
+      };
+    } catch (e) {
+      debugPrint('Error fetching offers: $e');
+      return {
+        'rows': <StudentProfile>[],
         'count': 0,
       };
     }
@@ -129,6 +155,21 @@ class ApiService {
   Future<Map<String, dynamic>> postulateOffer(String offerId) async {
     try {
       final response = await client.post(ApiEndpoints.postulateOffer(offerId));
+      return response;
+    } catch (e) {
+      if (e is RestApiException &&
+          (e.statusCode == 403 || e.statusCode == 404)) {
+        // Peut-être que l'utilisateur n'est pas un étudiant ou l'offre n'existe pas
+        return {'error': e.message};
+      }
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> recruitStudent(String sId) async {
+    try {
+      final response =
+          await client.post(ApiEndpoints.enterprisesWantToRecruitStudents(sId));
       return response;
     } catch (e) {
       if (e is RestApiException &&
@@ -286,6 +327,22 @@ class ApiService {
       return ApplicationData.fromJson(response);
     } catch (e) {
       debugPrint('Error updating application status: $e');
+      rethrow;
+    }
+  }
+
+  /// Récupérer mes candidatures (pour les entreprises)
+  Future<List<ApplicationData>> getMyApplications() async {
+    try {
+      final response = await client.get('/applications/my');
+      
+      if (response is List) {
+        return response.map((json) => ApplicationData.fromJson(json as Map<String, dynamic>)).toList();
+      }
+      
+      return [];
+    } catch (e) {
+      debugPrint('Error getting my applications: $e');
       rethrow;
     }
   }
@@ -497,7 +554,7 @@ class ApiService {
             requestData.remove('skills'); // Remove if empty after filtering
           }
         } else {
-            requestData.remove('skills'); // Remove if not a list
+          requestData.remove('skills'); // Remove if not a list
         }
       }
 
@@ -515,13 +572,14 @@ class ApiService {
         return StudentProfile.fromJson(apiResponse);
       }
       // Handle unexpected list response (similar to getMyStudentProfile)
-      else if (apiResponse is List && apiResponse.isNotEmpty && apiResponse[0] is Map<String, dynamic>) {
-         return StudentProfile.fromJson(apiResponse[0] as Map<String, dynamic>);
+      else if (apiResponse is List &&
+          apiResponse.isNotEmpty &&
+          apiResponse[0] is Map<String, dynamic>) {
+        return StudentProfile.fromJson(apiResponse[0] as Map<String, dynamic>);
+      } else {
+        throw FormatException(
+            'Unexpected response format updating student profile: ${apiResponse?.runtimeType}');
       }
-      else {
-         throw FormatException('Unexpected response format updating student profile: ${apiResponse?.runtimeType}');
-      }
-
     } catch (e) {
       // Handle API errors more robustly
       String errorMessage = 'Failed to update student profile';
@@ -530,11 +588,13 @@ class ApiService {
         errorMessage = e.message;
         // Optional: Log additional details if available
         // if (e.errors != null) { debugPrint('Error details: ${e.errors}'); }
-        debugPrint('API Error (${e.statusCode}) during updateMyStudentProfile: $errorMessage');
+        debugPrint(
+            'API Error (${e.statusCode}) during updateMyStudentProfile: $errorMessage');
       } else {
         // Handle other types of errors (network, etc.)
         errorMessage = e.toString();
-        debugPrint('Non-API Error during updateMyStudentProfile: $errorMessage');
+        debugPrint(
+            'Non-API Error during updateMyStudentProfile: $errorMessage');
       }
       // Rethrow a standard exception with a clearer message
       throw Exception(errorMessage);
@@ -544,7 +604,8 @@ class ApiService {
   // ************ EXPERIENCES ************
 
   /// Create a new experience for the logged in student profile
-  Future<ExperienceDTO> createExperience(Map<String, dynamic> experienceData) async {
+  Future<ExperienceDTO> createExperience(
+      Map<String, dynamic> experienceData) async {
     try {
       debugPrint('Sending create experience data: $experienceData');
       // Use the correct endpoint for creating user-specific experience
@@ -562,17 +623,19 @@ class ApiService {
 
   /// Delete an experience belonging to the logged in user
   Future<bool> deleteExperience(String experienceId) async {
-     try {
+    try {
       // Use the correct endpoint for deleting user-specific experience
-      await client.delete(ApiEndpoints.deleteMyExperience(experienceId)); // Updated endpoint
+      await client.delete(
+          ApiEndpoints.deleteMyExperience(experienceId)); // Updated endpoint
       // Assume success if no error is thrown
       // Backend might return { success: true } or just 204 No Content
       return true;
     } catch (e) {
       debugPrint('API Error during deleteExperience: $e');
       // Check for specific errors like 404 Not Found or 403 Forbidden if needed
-      if (e is RestApiException && (e.statusCode == 404 || e.statusCode == 403)) {
-          return false;
+      if (e is RestApiException &&
+          (e.statusCode == 404 || e.statusCode == 403)) {
+        return false;
       }
       // Rethrow for unexpected errors
       throw Exception('Failed to delete experience: $e');
@@ -590,33 +653,34 @@ class ApiService {
   }) async {
     try {
       final Map<String, String> queryParams = {};
-      
+
       if (skills != null && skills.isNotEmpty) {
         // Backend expects skills as comma-separated list
         queryParams['skills'] = skills.join(',');
       }
-      
+
       if (mode == 'all' || mode == 'any') {
         queryParams['mode'] = mode;
       }
-      
+
       if (offset != null) {
         queryParams['offset'] = offset.toString();
       }
-      
+
       if (limit != null) {
         queryParams['limit'] = limit.toString();
       }
-      
-      final response = await client.getQuery(ApiEndpoints.companyProfiles, query: queryParams);
-      
+
+      final response = await client.getQuery(ApiEndpoints.companyProfiles,
+          query: queryParams);
+
       final List<dynamic> rows = response['rows'] as List<dynamic>;
       final int count = response['count'] as int;
-      
+
       final List<CompanyProfile> profiles = rows
           .map((item) => CompanyProfile.fromJson(item as Map<String, dynamic>))
           .toList();
-          
+
       return {
         'rows': profiles,
         'count': count,
@@ -660,19 +724,22 @@ class ApiService {
       final Map<String, dynamic> filteredData = {
         // Do NOT include 'name' here as per the API error
         if (profileData.containsKey('avatar')) 'avatar': profileData['avatar'],
-        if (profileData.containsKey('description')) 'description': profileData['description'],
-        if (profileData.containsKey('websiteUrl')) 'websiteUrl': profileData['websiteUrl'],
+        if (profileData.containsKey('description'))
+          'description': profileData['description'],
+        if (profileData.containsKey('websiteUrl'))
+          'websiteUrl': profileData['websiteUrl'],
       };
 
       // Log what we're sending to help with debugging
       debugPrint('Sending update to company profile: $filteredData');
-      
+
       // Make the API call
-      final response = await client.patch(ApiEndpoints.updateMyCompanyProfile, body: filteredData);
-      
+      final response = await client.patch(ApiEndpoints.updateMyCompanyProfile,
+          body: filteredData);
+
       // Log the response
       debugPrint('API response: $response');
-      
+
       // Parse and return the response
       return CompanyProfile.fromJson(response);
     } catch (e) {

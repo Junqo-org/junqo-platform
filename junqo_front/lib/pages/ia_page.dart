@@ -99,7 +99,7 @@ class _IAPageState extends State<IAPage> {
                               onTap: () {
                                 Navigator.pushNamed(
                                   context,
-                                  '/interview-simulation',
+                                  '/interview-simulation-select',
                                 );
                               },
                             ),
@@ -121,25 +121,6 @@ class _IAPageState extends State<IAPage> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildSelectionCard(
-                              context,
-                              title: "Lettre de motivation",
-                              description:
-                                  "Créez une lettre de motivation percutante avec notre assistant IA.",
-                              icon: Icons.mail_outline_rounded,
-                              baseColor: amber500,
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/motivation',
-                                );
-                              },
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),

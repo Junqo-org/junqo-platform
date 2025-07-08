@@ -30,6 +30,10 @@ class ApiEndpoints {
   // Amélioration CV
   static const String analyzeCv = '/cv-improvement/analyze';
 
+  // Enterprises want to recruit students
+  static String enterprisesWantToRecruitStudents(String id) =>
+      '/enterprises/recruit-students/$id'; // Yes i didn't know how to name it
+
   // Profils d'entreprises
   static const String companyProfiles = '/company-profiles';
   static const String myCompanyProfile = '/company-profiles/my';
@@ -43,11 +47,16 @@ class ApiEndpoints {
   static String updateMyStudentProfile = '/student-profiles/my';
 
   // Experiences (Corrected based on provided documentation)
-  static const String myExperiences = '/experiences/my'; // GET user's experiences
-  static String getExperienceById(String id) => '/experiences/$id'; // GET specific experience by ID
-  static const String createMyExperience = '/experiences/my'; // POST to create user's experience
-  static String updateMyExperience(String id) => '/experiences/my/$id'; // PATCH to update user's experience
-  static String deleteMyExperience(String id) => '/experiences/my/$id'; // DELETE user's experience
+  static const String myExperiences =
+      '/experiences/my'; // GET user's experiences
+  static String getExperienceById(String id) =>
+      '/experiences/$id'; // GET specific experience by ID
+  static const String createMyExperience =
+      '/experiences/my'; // POST to create user's experience
+  static String updateMyExperience(String id) =>
+      '/experiences/my/$id'; // PATCH to update user's experience
+  static String deleteMyExperience(String id) =>
+      '/experiences/my/$id'; // DELETE user's experience
 
   // Original Experience endpoints (renamed or commented out if conflicting)
   // static const String experiences = '/experiences'; // Renamed to genericExperiences maybe?

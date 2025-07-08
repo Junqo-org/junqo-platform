@@ -22,6 +22,8 @@ import { ApplicationQueryDTO } from './dto/application-query.dto';
 import { OffersService } from '../offers/offers.service';
 import { OfferDTO } from '../offers/dto/offer.dto';
 import { OfferStatus } from '../offers/dto/offer-status.enum';
+import { ConversationsService } from '../conversations/conversations.service';
+import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -77,6 +79,7 @@ const offers: OfferDTO[] = [
 describe('ApplicationsService', () => {
   let applicationsService: ApplicationsService;
   let offersService: Mocked<OffersService>;
+  let conversationsService: Mocked<ConversationsService>;
   let applicationsRepository: Mocked<ApplicationsRepository>;
   let caslAbilityFactory: Mocked<CaslAbilityFactory>;
   let canMockFn: jest.Mock;
@@ -107,6 +110,7 @@ describe('ApplicationsService', () => {
 
     applicationsService = unit;
     offersService = unitRef.get(OffersService);
+    conversationsService = unitRef.get(ConversationsService);
     applicationsRepository = unitRef.get(ApplicationsRepository);
     caslAbilityFactory = unitRef.get(CaslAbilityFactory);
   });
@@ -482,6 +486,7 @@ describe('ApplicationsService', () => {
     it('should update an application', async () => {
       const newData = {
         title: 'new title',
+        status: ApplicationStatus.ACCEPTED,
       };
       const updateInput: UpdateApplicationDTO = plainToInstance(
         UpdateApplicationDTO,
@@ -497,6 +502,10 @@ describe('ApplicationsService', () => {
           ...newData,
         },
       );
+      const createConversationDto: CreateConversationDTO = {
+        participantsIds: [applications[0].studentId, applications[0].companyId],
+        title: `Application Discussion - ${applications[0].offer?.title || 'Job Application'}`,
+      };
 
       applicationsRepository.findOneById.mockResolvedValue(applications[0]);
       applicationsRepository.update.mockResolvedValue(expectedApplication);
@@ -510,6 +519,10 @@ describe('ApplicationsService', () => {
       expect(applicationsRepository.update).toHaveBeenCalledWith(
         applications[0].id,
         updateInput,
+      );
+      expect(conversationsService.create).toHaveBeenCalledWith(
+        currentUser,
+        createConversationDto
       );
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,

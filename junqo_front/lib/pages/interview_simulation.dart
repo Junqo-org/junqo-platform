@@ -5,7 +5,8 @@ import 'package:junqo_front/shared/widgets/navbar.dart';
 import 'package:flutter/services.dart'; // Import for HapticFeedback
 
 class InterviewSimulation extends StatefulWidget {
-  const InterviewSimulation({super.key});
+  final String? initialContext;
+  const InterviewSimulation({super.key, this.initialContext});
 
   @override
   State<InterviewSimulation> createState() => _InterviewSimulationState();
@@ -31,13 +32,21 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
   late AnimationController _dotAnimationController;
   late List<Animation<double>> _dotAnimations;
 
+  late final bool _contextFixed;
+  bool _interviewStarted = false;
+
   @override
   void initState() {
     super.initState();
+    _contextFixed = widget.initialContext != null;
+    if (widget.initialContext != null && widget.initialContext!.isNotEmpty) {
+      _contextController.text = widget.initialContext!;
+    }
+
     // Improved welcome message
     _conversation.add({
       'role': 'assistant',
-      'content': 'Bonjour! Prêt à simuler votre entretien?\nIndiquez le poste ou le contexte ci-dessus, puis envoyez votre première réponse ou question.',
+      'content': 'Bonjour! Prêt à simuler votre entretien?\nIndiquez le poste ou le contexte ci-dessus puis cliquez sur « Démarrer l\'entretien ».',
       'showTipButton': false,
     });
 
@@ -70,8 +79,18 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
   Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
+    if (!_interviewStarted) return; // prevent manual send before start
+
+    // Require context if not fixed and first message
+    if (!_contextFixed && _isFirstMessage && _contextController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez saisir un contexte avant de commencer.'), backgroundColor: Colors.redAccent),
+      );
+      return;
+    }
+
     final userMessage = _messageController.text;
-    final context = _contextController.text.trim().isNotEmpty
+    final contextText = _contextController.text.trim().isNotEmpty
         ? _contextController.text
         : "entretien général";
 
@@ -99,12 +118,12 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
     try {
       // Initial prompt generation if it's the first message
       final String promptToSend = _isFirstMessage
-          ? "Commence une simulation d'entretien pour le poste de '$context'. Agis comme un recruteur et pose la première question pertinente."
+          ? "Commence une simulation d'entretien pour le poste de '$contextText'. Agis comme un recruteur et pose la première question pertinente."
           : userMessage;
 
       final response = await _apiService.simulateInterview(
         message: promptToSend,
-        context: context, // Pass context for better AI responses
+        context: contextText, // Pass context for better AI responses
       );
 
       final aiResponse = response['response'] ?? 'Désolé, je n\'ai pas pu générer de réponse.';
@@ -166,7 +185,7 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
         }
       }
 
-      final context = _contextController.text.trim().isNotEmpty
+      final contextText = _contextController.text.trim().isNotEmpty
           ? _contextController.text
           : "entretien général";
 
@@ -174,7 +193,7 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
       final tipPrompt = '''
 Analyse cette réponse d'entretien et donne des conseils d'amélioration spécifiques et constructifs.
 
-Contexte du poste: $context
+Contexte du poste: $contextText
 Question posée: $aiQuestion
 Réponse du candidat: $userAnswer
 
@@ -232,6 +251,7 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
       _lastAiQuestion = '';
       _lastUserAnswer = '';
       _dotAnimationController.stop(); // Stop animation on reset
+      _interviewStarted = false;
     });
      HapticFeedback.mediumImpact();
   }
@@ -246,6 +266,14 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
         );
       }
     });
+  }
+
+  // Trigger interview start with predefined message
+  void _startInterview() {
+    if (_isLoading || !_messageController.text.isEmpty) return;
+    _messageController.text = 'je souhaite commencer l\'entretien';
+    _interviewStarted = true;
+    _sendMessage();
   }
 
   @override
@@ -285,12 +313,8 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
                         child: Column(
                           children: [
                             // --- Messages List ---
-                            Expanded(
-                              child: _buildMessagesList(),
-                            ),
-
-                            // --- Input Area ---
-                            _buildInputArea(),
+                            Expanded(child: _buildMessagesList()),
+                            _interviewStarted ? _buildInputArea() : _buildStartButtonArea(),
                           ],
                         ),
                       ),
@@ -330,6 +354,12 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
         children: [
           Row(
             children: [
+              // Back button
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
+              const SizedBox(width: 4),
               // Icon background
               Container(
                 padding: const EdgeInsets.all(8), // Smaller padding
@@ -386,23 +416,30 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
             ],
           ),
           const SizedBox(height: 12),
-          // Context Input Field
+          // Context Input Field & Start Button
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.9), // Slightly more transparent
               borderRadius: BorderRadius.circular(10),
             ),
-            child: TextField(
-              controller: _contextController,
-              style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 14), // Darker text
-              decoration: InputDecoration(
-                hintText: "Contexte (ex: Développeur Mobile)",
-                hintStyle: TextStyle(color: Colors.blueGrey.shade400, fontSize: 14),
-                prefixIcon: Icon(Icons.cases_outlined, color: Colors.indigo.shade400, size: 18), // Different icon
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), // Adjusted padding
-                isDense: true,
-              ),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _contextController,
+                  readOnly: _contextFixed,
+                  enabled: !_contextFixed,
+                  style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 14), // Darker text
+                  decoration: InputDecoration(
+                    hintText: "Contexte (ex: Développeur Mobile)",
+                    hintStyle: TextStyle(color: Colors.blueGrey.shade400, fontSize: 14),
+                    prefixIcon: Icon(Icons.cases_outlined, color: Colors.indigo.shade400, size: 18), // Different icon
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), // Adjusted padding
+                    isDense: true,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
             ),
           ),
         ],
@@ -724,6 +761,29 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStartButtonArea() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      color: Colors.white,
+      child: Center(
+        child: ElevatedButton.icon(
+          onPressed: _startInterview,
+          icon: const Icon(Icons.play_arrow, size: 32),
+          label: const Text(
+            "Démarrer l'entretien",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(60),
+            backgroundColor: Colors.indigo.shade600,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
       ),
     );
   }

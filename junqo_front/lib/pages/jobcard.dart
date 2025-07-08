@@ -19,6 +19,8 @@ class CardData {
   final String salary;
   final List<String> benefits;
   final List<String> technicalSkills;
+  final String companyDescription;
+  final String companyWebsite;
   final bool showDetails;
   final String details;
   final String id;
@@ -36,6 +38,8 @@ class CardData {
     required this.salary,
     required this.benefits,
     required this.technicalSkills,
+    required this.companyDescription,
+    required this.companyWebsite,
     required this.details,
     this.showDetails = false,
     required this.id,
@@ -86,6 +90,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
   static const Color _slate50 = Color(0xFFF8FAFC);
 
   bool _actionLocked = false;
+  // Cache for company names to minimize API calls
+  final Map<String, String> _companyNameCache = {};
 
   @override
   void initState() {
@@ -569,11 +575,39 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
           scale: _scaleAnimation.value,
           child: Opacity(
             opacity: _opacityAnimation.value,
-            child: child,
+            child: Dismissible(
+              key: UniqueKey(),
+              direction: DismissDirection.horizontal,
+              resizeDuration: const Duration(milliseconds: 200),
+              movementDuration: const Duration(milliseconds: 200),
+              onDismissed: (direction) {
+                if (_actionLocked) return;
+                final accepted = direction == DismissDirection.startToEnd; // Right swipe
+                _handleAction(accepted);
+              },
+              background: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 24),
+                decoration: BoxDecoration(
+                  color: AppTheme.successColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Icon(Icons.check, color: AppTheme.successColor, size: 32),
+              ),
+              secondaryBackground: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 24),
+                decoration: BoxDecoration(
+                  color: AppTheme.errorColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Icon(Icons.close, color: AppTheme.errorColor, size: 32),
+              ),
+              child: JobCard(data: cardData!),
+            ),
           ),
         );
       },
-      child: JobCard(data: cardData!),
     );
   }
 
@@ -805,12 +839,17 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       final response = await _apiService.getAllOffersQuery(query);
       final List<OfferData> offers = response['rows'];
       
-      final List<CardData> cardDataList = transformOffersToCards(offers);
-      if (cardDataList.isEmpty) {
+      // Convert offers to CardData first (placeholder company name)
+      final List<CardData> cards = transformOffersToCards(offers);
+
+      // Prefetch company info for cards and update in place
+      await _prefetchCompanyNames(cards);
+
+      if (cards.isEmpty) {
         return placeholderCardData();
       }
 
-      return cardDataList;
+      return cards;
     } catch (e) {
       throw Exception('Failed to load offers: $e');
     }
@@ -839,11 +878,13 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
       technicalSkills: skillsList,
       details: offer.description,
       status: offer.status,
-      companyName: 'Company name currently not available',
+      companyName: 'Company name not available',
       companyLogo: '',
       location: 'Location currently not available',
       showDetails: false,
       isPlaceHolder: false,
+      companyDescription: '',
+      companyWebsite: '',
     );
   }
 
@@ -868,6 +909,8 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
         userid: 'placeholder',
         status: 'placeholder',
         isPlaceHolder: true,
+        companyDescription: '',
+        companyWebsite: '',
       ),
       CardData(
         companyName: 'Recherchez plus tard',
@@ -884,8 +927,69 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
         userid: 'placeholder',
         status: 'placeholder',
         isPlaceHolder: true,
+        companyDescription: '',
+        companyWebsite: '',
       )
     ];
+  }
+
+  // Fetch company info for cards and update in place
+  Future<void> _prefetchCompanyNames(List<CardData> cards) async {
+    final List<Future<void>> futures = [];
+    for (final card in cards) {
+      final String userId = card.userid;
+
+      // Determine if we already have complete info
+      final bool infoComplete = card.companyDescription.isNotEmpty && card.companyWebsite.isNotEmpty && !card.companyName.startsWith('Company name');
+      if (infoComplete) continue;
+
+      // Check cache first
+      if (_companyNameCache.containsKey(userId)) {
+        final cachedName = _companyNameCache[userId]!;
+        _replaceCompanyData(cards, card, cachedName, card.companyDescription, card.companyWebsite);
+        continue;
+      }
+
+      futures.add(_apiService.getCompanyProfileById(userId).then((profile) {
+        _companyNameCache[userId] = profile.name;
+        _replaceCompanyData(cards, card, profile.name, profile.description ?? '', profile.websiteUrl ?? '');
+      }).catchError((_) {
+        // ignore errors
+      }));
+    }
+    await Future.wait(futures);
+  }
+
+  void _replaceCompanyData(List<CardData> list, CardData card, String name, String desc, String site) {
+    if (card.companyName == name && card.companyDescription == desc && card.companyWebsite == site) return;
+    // Replace by creating a new CardData and updating list if needed
+    final int idx = list.indexOf(card);
+    if (idx >= 0) {
+      list[idx] = CardData(
+        companyName: name,
+        companyLogo: card.companyLogo,
+        jobTitle: card.jobTitle,
+        contractType: card.contractType,
+        duration: card.duration,
+        location: card.location,
+        salary: card.salary,
+        benefits: card.benefits,
+        technicalSkills: card.technicalSkills,
+        details: card.details,
+        id: card.id,
+        userid: card.userid,
+        status: card.status,
+        showDetails: card.showDetails,
+        companyDescription: desc,
+        companyWebsite: site,
+        isPlaceHolder: card.isPlaceHolder,
+      );
+      if (mounted && cardData?.id == card.id) {
+        setState(() {
+          cardData = list[idx];
+        });
+      }
+    }
   }
 }
 
@@ -988,329 +1092,337 @@ class _JobCardState extends State<JobCard> {
                 ),
               ),
 
-              // Job title
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-                child: Text(
-                  widget.data.jobTitle,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: _slate800,
-                    height: 1.2,
-                  ),
-                ).animate()
-                    .fadeIn(delay: 400.ms, duration: 600.ms)
-                    .slideY(begin: 0.2, end: 0),
-              ),
-
-              // Main info grid (2x2)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AnimatedListItem(
-                            index: 0,
-                            delay: const Duration(milliseconds: 100),
-                            child: _buildInfoItem(
-                              icon: Icons.work_outline,
-                              label: "Type",
-                              value: widget.data.contractType,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: AnimatedListItem(
-                            index: 1,
-                            delay: const Duration(milliseconds: 100),
-                            child: _buildInfoItem(
-                              icon: Icons.calendar_today,
-                              label: "Durée",
-                              value: widget.data.duration,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AnimatedListItem(
-                            index: 2,
-                            delay: const Duration(milliseconds: 100),
-                            child: _buildInfoItem(
-                              icon: Icons.location_on_outlined,
-                              label: "Lieu",
-                              value: widget.data.location,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: AnimatedListItem(
-                            index: 3,
-                            delay: const Duration(milliseconds: 100),
-                            child: _buildInfoItem(
-                              icon: Icons.euro_outlined,
-                              label: "Salaire",
-                              value: widget.data.salary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Skills section
-              if (widget.data.technicalSkills.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.lightbulb_outline,
-                              color: AppTheme.primaryColor,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            "Compétences requises",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: _slate800,
-                            ),
-                          ),
-                        ],
-                      ).animate()
-                          .fadeIn(delay: 600.ms, duration: 500.ms),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: widget.data.technicalSkills.asMap().entries
-                            .map(
-                              (entry) => AnimatedListItem(
-                                index: entry.key,
-                                delay: const Duration(milliseconds: 50),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: AppTheme.primaryGradient,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppTheme.primaryColor.withOpacity(0.2),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Chip(
-                                    label: Text(
-                                      entry.value,
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                      side: BorderSide.none,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Benefits section
-              if (widget.data.benefits.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppTheme.successColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.star_outline,
-                              color: AppTheme.successColor,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            "Avantages",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: _slate800,
-                            ),
-                          ),
-                        ],
-                      ).animate()
-                          .fadeIn(delay: 700.ms, duration: 500.ms),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: widget.data.benefits.asMap().entries
-                            .map(
-                              (entry) => AnimatedListItem(
-                                index: entry.key,
-                                delay: const Duration(milliseconds: 50),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: AppTheme.successGradient.scale(0.3),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: AppTheme.successColor.withOpacity(0.3),
-                                    ),
-                                  ),
-                                  child: Chip(
-                                    avatar: Icon(
-                                      Icons.check_circle,
-                                      size: 18,
-                                      color: AppTheme.successColor,
-                                    ),
-                                    label: Text(
-                                      entry.value,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppTheme.successColor,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                      side: BorderSide.none,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Description
-              if (widget.data.details.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppTheme.accentColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.description_outlined,
-                              color: AppTheme.accentColor,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            "Description du poste",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: _slate800,
-                            ),
-                          ),
-                        ],
-                      ).animate()
-                          .fadeIn(delay: 800.ms, duration: 500.ms),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: _slate50,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: _slate200,
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          _showFullDetails
-                              ? widget.data.details
-                              : widget.data.details.length > 150
-                                  ? '${widget.data.details.substring(0, 150)}...'
-                                  : widget.data.details,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: _slate600,
-                            height: 1.6,
-                          ),
-                        ),
-                      ).animate()
-                          .fadeIn(delay: 900.ms, duration: 600.ms),
-                      if (widget.data.details.length > 150)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: AnimatedButton(
-                            text: _showFullDetails ? 'Voir moins' : 'Voir plus',
-                            icon: _showFullDetails ? Icons.expand_less : Icons.expand_more,
-                            isPrimary: false,
-                            customColor: AppTheme.accentColor,
-                            onPressed: () {
-                              setState(() {
-                                _showFullDetails = !_showFullDetails;
-                              });
-                            },
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
+              // Content (only offre)
+              _buildOfferContent(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildOfferContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Job title
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+          child: Text(
+            widget.data.jobTitle,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: _slate800,
+              height: 1.2,
+            ),
+          ).animate()
+              .fadeIn(delay: 400.ms, duration: 600.ms)
+              .slideY(begin: 0.2, end: 0),
+        ),
+        // Main info grid (2x2)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: AnimatedListItem(
+                      index: 0,
+                      delay: const Duration(milliseconds: 100),
+                      child: _buildInfoItem(
+                        icon: Icons.work_outline,
+                        label: "Type",
+                        value: widget.data.contractType,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: AnimatedListItem(
+                      index: 1,
+                      delay: const Duration(milliseconds: 100),
+                      child: _buildInfoItem(
+                        icon: Icons.calendar_today,
+                        label: "Durée",
+                        value: widget.data.duration,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: AnimatedListItem(
+                      index: 2,
+                      delay: const Duration(milliseconds: 100),
+                      child: _buildInfoItem(
+                        icon: Icons.location_on_outlined,
+                        label: "Lieu",
+                        value: widget.data.location,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: AnimatedListItem(
+                      index: 3,
+                      delay: const Duration(milliseconds: 100),
+                      child: _buildInfoItem(
+                        icon: Icons.euro_outlined,
+                        label: "Salaire",
+                        value: widget.data.salary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        // Skills section
+        if (widget.data.technicalSkills.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.lightbulb_outline,
+                        color: AppTheme.primaryColor,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      "Compétences requises",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _slate800,
+                      ),
+                    ),
+                  ],
+                ).animate()
+                    .fadeIn(delay: 600.ms, duration: 500.ms),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: widget.data.technicalSkills.asMap().entries
+                      .map(
+                        (entry) => AnimatedListItem(
+                          index: entry.key,
+                          delay: const Duration(milliseconds: 50),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.primaryGradient,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primaryColor.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Chip(
+                              label: Text(
+                                entry.value,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide.none,
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+
+        // Benefits section
+        if (widget.data.benefits.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.successColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.star_outline,
+                        color: AppTheme.successColor,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      "Avantages",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _slate800,
+                      ),
+                    ),
+                  ],
+                ).animate()
+                    .fadeIn(delay: 700.ms, duration: 500.ms),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: widget.data.benefits.asMap().entries
+                      .map(
+                        (entry) => AnimatedListItem(
+                          index: entry.key,
+                          delay: const Duration(milliseconds: 50),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.successGradient.scale(0.3),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: AppTheme.successColor.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Chip(
+                              avatar: Icon(
+                                Icons.check_circle,
+                                size: 18,
+                                color: AppTheme.successColor,
+                              ),
+                              label: Text(
+                                entry.value,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppTheme.successColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide.none,
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+
+        // Description
+        if (widget.data.details.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.accentColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.description_outlined,
+                        color: AppTheme.accentColor,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      "Description du poste",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _slate800,
+                      ),
+                    ),
+                  ],
+                ).animate()
+                    .fadeIn(delay: 800.ms, duration: 500.ms),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: _slate50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: _slate200,
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    _showFullDetails
+                        ? widget.data.details
+                        : widget.data.details.length > 150
+                            ? '${widget.data.details.substring(0, 150)}...'
+                            : widget.data.details,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: _slate600,
+                      height: 1.6,
+                    ),
+                  ),
+                ).animate()
+                    .fadeIn(delay: 900.ms, duration: 600.ms),
+                if (widget.data.details.length > 150)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: AnimatedButton(
+                      text: _showFullDetails ? 'Voir moins' : 'Voir plus',
+                      icon: _showFullDetails ? Icons.expand_less : Icons.expand_more,
+                      isPrimary: false,
+                      customColor: AppTheme.accentColor,
+                      onPressed: () {
+                        setState(() {
+                          _showFullDetails = !_showFullDetails;
+                        });
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 

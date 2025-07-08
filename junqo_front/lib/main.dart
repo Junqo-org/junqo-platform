@@ -16,6 +16,7 @@ import 'package:junqo_front/core/student_profile_service.dart';
 import 'package:junqo_front/core/company_profile_service.dart';
 import 'package:junqo_front/core/cv_improvement_service.dart';
 import 'package:junqo_front/services/pdf_processing_service.dart';
+import 'package:junqo_front/core/messaging_service.dart';
 
 void main() async {
   try {
@@ -56,6 +57,10 @@ void main() async {
     // Register PDF processing service
     GetIt.instance.registerLazySingleton<PdfProcessingService>(
         () => PdfProcessingService());
+        
+    // Register messaging service
+    GetIt.instance.registerLazySingleton<MessagingService>(
+        () => MessagingService(client));
 
     runApp(const JunqoApp());
   } catch (e) {
