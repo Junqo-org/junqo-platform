@@ -55,8 +55,8 @@ FROM nginx:1.21.1-alpine
 HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=5 \
     CMD curl -f http://localhost || exit 1
 
-COPY  --from=build-env /home/app/junqo_front/build/web /usr/share/nginx/html
-COPY  --chown=nginx:nginx ./junqo_front/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build-env /home/app/junqo_front/build/web /usr/share/nginx/html
+COPY --chown=nginx:nginx ./junqo_front/nginx.conf /etc/nginx/nginx.conf
 RUN test -f /etc/nginx/nginx.conf || (echo "Nginx config not found" && exit 1) && chmod 644 /etc/nginx/nginx.conf
 
 EXPOSE 80

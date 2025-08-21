@@ -64,6 +64,22 @@ services:
       timeout: 5s
       retries: 5
 
+  rproxy:
+    container_name: junqo_rproxy
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - front
+      - back
+    volumes:
+      - ./nginx.rproxy.conf:/etc/nginx/nginx.conf:ro
+      - ./letsencrypt:/var/www/letsencrypt:rw
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - back-net
 
 networks:
   back-net:
