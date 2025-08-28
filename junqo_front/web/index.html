@@ -64,6 +64,25 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="icons/junqo_logo.png" />
+  <!-- Load Material Icons font from local assets.
+       Avoid using the `crossorigin` attribute here because some
+       browser tracker-protection heuristics block cross-origin
+       preloads and cause the fallback glyphs (stripes/squares).
+       The explicit @font-face below helps ensure the font is
+       registered as a same-origin resource and improves reliability
+       on Safari/mobile web. -->
+  <link rel="preload" href="assets/fonts/MaterialIcons-Regular.otf" as="font" type="font/otf" />
+  <style>
+    @font-face {
+      font-family: 'MaterialIcons';
+      /* Prefer WOFF2 when available, fall back to the OTF emitted by Flutter. */
+      src: url('assets/fonts/MaterialIcons-Regular.woff2') format('woff2'),
+           url('assets/fonts/MaterialIcons-Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
 
   <title>junqo</title>
   <link rel="manifest" href="manifest.json">
@@ -71,7 +90,6 @@
 </head>
 
 <body>
-  <script> window.flutterWebRenderer = "html";</script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 
