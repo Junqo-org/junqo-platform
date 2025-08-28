@@ -75,7 +75,7 @@ services:
     volumes:
       - ./nginx.rproxy.conf:/etc/nginx/nginx.conf:ro
       - ./letsencrypt:/var/www/letsencrypt:rw
-      - /etc/letsencrypt:/etc/letsencrypt:ro    
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
       - back-net
 
