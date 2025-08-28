@@ -40,9 +40,9 @@ COPY ./junqo_front/ .
 
 # Build the app
 RUN if [ -n "$API_URL" ]; then \
-    flutter build web --release --dart-define=API_URL=$API_URL; \
+    flutter build web --release --pwa-strategy=all --dart-define=API_URL=$API_URL; \
     else \
-    flutter build web --release; \
+    flutter build web --release --pwa-strategy=all; \
     fi
 
 # Clean up unnecessary files to reduce image size
