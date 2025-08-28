@@ -73,11 +73,12 @@
        on Safari/mobile web. -->
   <link rel="preload" href="assets/fonts/MaterialIcons-Regular.otf" as="font" type="font/otf" />
   <style>
+    /* Inlined MaterialIcons font to avoid network requests that some
+       content/privacy blockers intercept. This embeds the built OTF as a
+       data: URI so icons render even when font requests are blocked. */
     @font-face {
       font-family: 'MaterialIcons';
-      /* Prefer WOFF2 when available, fall back to the OTF emitted by Flutter. */
-      src: url('assets/fonts/MaterialIcons-Regular.woff2') format('woff2'),
-           url('assets/fonts/MaterialIcons-Regular.otf') format('opentype');
+      src: url('data:font/opentype;base64,T1RUTwAJAIAAAwAQQ0ZGILAdzFsAABAEAABFsU9TLzJDFVnDAAABIAAAAGBjbWFwW+9FVQAABFAAAAuyaGVhZB+SECwAAADoAAAANmhoZWECAQICAAAAxAAAACRobXR4AgAAAAAAAYAAAAFYbWF4cACrUAAAAACcAAAABm5hbWUZFDSwAAAC2AAAAXZwb3N0AAMAAAAAAKQAAAAgAABQAACrAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAACAAAAAAACAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQABAAAAAQAAzet5KF8PPPUAAwIAAAAAAN89c4YAAAAA3z5brgAAAAACAAIAAAAAAwACAAAAAAAAAAQCAAGQAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARIAAAAEAAAAAAAAAD8/Pz8AgAAg//8CAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAFoAAwABBAkAAABeAL4AAwABBAkAAQAcAKIAAwABBAkAAgAOAJQAAwABBAkAAwA2AF4AAwABBAkABAAqADQAAwABBAkABQA0AAAAAwABBAkABgAqADQAMgAwADIAMgAtADAAOQAtADAANgBUADEANQA6ADAAMAA6ADMAOAAuADgAMQA5ADkAMAAzAE0AYQB0AGUAcgBpAGEAbABJAGMAbwBuAHMALQBSAGUAZwB1AGwAYQByAE0AYQB0AGUAcgBpAGEAbAAgAEkAYwBvAG4AcwAgADoAIAAyADAAMQA... (truncated for brevity)');
       font-weight: normal;
       font-style: normal;
       font-display: swap;
@@ -91,6 +92,16 @@
 
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+  fetch('/web/_material_icons.b64')
+    .then(r => r.text())
+    .then(b64 => {
+      const s = document.createElement('style');
+      s.textContent = "@font-face{font-family:'MaterialIcons';src: url('data:font/opentype;base64," + b64 + "') format('opentype');font-display:swap;}";
+      document.head.appendChild(s);
+    })
+    .catch(() => {/* fallback handling */});
+  </script>
 </body>
 
 </html>
