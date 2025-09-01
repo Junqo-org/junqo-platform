@@ -79,6 +79,26 @@ services:
     networks:
       - back-net
 
+  adminer:
+    container_name: junqo_adminer
+    image: adminer
+    restart: unless-stopped
+    environment:
+      ADMINER_DESIGN: ${ADMINER_DESIGN:-pepa-linha-dark}
+      ADMINER_DEFAULT_SERVER: db
+    networks:
+      - back-net
+    ports:
+      - "127.0.0.1:3000:8080"  # Adminer accessible uniquement sur localhost
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f adminer || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
 networks:
   back-net:
     driver: bridge
