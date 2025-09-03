@@ -101,7 +101,52 @@ The development deployment has several differences from the production deploymen
 
 #### Production deployment
 
-To deploy the **Junqo-platform** in production mode, you can use the following command:
+To deploy the **Junqo-platform** in production mode, you first need to setup the ssl certificates.
+
+For detailed instructions, visit the [official Certbot documentation](https://certbot.eff.org/).
+
+First, install Certbot and its Nginx plugin:
+
+```bash
+sudo apt update
+sudo apt install certbot python3-certbot-nginx
+```
+
+Then, obtain an SSL certificate:
+
+```bash
+sudo certbot --nginx -d yourdomain.com
+```
+
+Follow the prompts to:
+
+1. Enter your email address
+2. Accept the terms of service
+3. Choose whether to redirect HTTP traffic to HTTPS
+
+Certbot will automatically:
+
+- Obtain the certificate
+- Configure Nginx
+- Set up auto-renewal
+
+Verify the auto-renewal timer is active:
+
+```bash
+sudo systemctl status certbot.timer
+```
+
+Your SSL certificates will be automatically renewed before expiry.
+
+To test the renewal process:
+
+```bash
+sudo certbot renew --dry-run
+```
+
+The SSL certificates must be placed inside the `/etc/letsencrypt/live/junqo.fr` directory.
+
+After setting up SSL, you can deploy the production environment:
 
 ```bash
 # Deploy using Docker Compose
@@ -110,10 +155,11 @@ docker-compose up -d
 
 The production deployment has several differences from the development deployment:
 
+- All the requests are routed through the Nginx reverse proxy.
 - The back server is running in production mode.
 - The front server is running in production mode.
 - The database volume is set to the docker volume `db_data`.
-- The database adminer is not deployed.
+- The database adminer is available only through a ssh tunnel at `localhost:3000`.
 
 ### Configuration
 
