@@ -2,7 +2,9 @@ auth_enabled: false
 
 server:
   http_listen_port: 3100
+  http_listen_address: 0.0.0.0
   grpc_listen_port: 9096
+  grpc_listen_address: 0.0.0.0
 
 common:
   path_prefix: /tmp/loki
@@ -12,7 +14,7 @@ common:
       rules_directory: /tmp/loki/rules
   replication_factor: 1
   ring:
-    instance_addr: 127.0.0.1
+    instance_addr: 0.0.0.0
     kvstore:
       store: inmemory
 
@@ -26,9 +28,9 @@ query_range:
 schema_config:
   configs:
     - from: 2020-10-24
-      store: boltdb-shipper
+      store: tsdb
       object_store: filesystem
-      schema: v11
+      schema: v12
       index:
         prefix: index_
         period: 24h
