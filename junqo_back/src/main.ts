@@ -1,13 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AppSetup } from './app.setup';
-import { FileLogger } from './shared/logger/file-logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: new FileLogger('NestApplication'),
-  });
-  const logger = new FileLogger('Bootstrap');
+  const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
 
   // Graceful shutdown
   const shutdown = async (signal: string) => {
