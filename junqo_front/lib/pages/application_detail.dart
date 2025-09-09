@@ -4,7 +4,6 @@ import '../shared/widgets/navbar_company.dart';
 import '../shared/dto/application_data.dart';
 import '../shared/dto/student_profile.dart';
 import 'package:get_it/get_it.dart';
-import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'package:intl/intl.dart';
 
@@ -232,12 +231,12 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
             Colors.white,
-            const Color(0xFFF8FAFC),
+            Color(0xFFF8FAFC),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -313,12 +312,12 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
             Colors.white,
-            const Color(0xFFF8FAFC),
+            Color(0xFFF8FAFC),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -386,11 +385,11 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
+                    const Text(
                       "Profil étudiant",
                       style: TextStyle(
                         fontSize: 16,
-                        color: const Color(0xFF6366F1),
+                        color: Color(0xFF6366F1),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -498,10 +497,10 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
-                  const Color(0xFFEF4444),
-                  const Color(0xFFDC2626),
+                  Color(0xFFEF4444),
+                  Color(0xFFDC2626),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
@@ -548,10 +547,10 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
-                  const Color(0xFF10B981),
-                  const Color(0xFF059669),
+                  Color(0xFF10B981),
+                  Color(0xFF059669),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),

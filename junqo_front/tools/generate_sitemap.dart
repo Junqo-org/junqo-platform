@@ -6,8 +6,8 @@ void main(List<String> args) {
     exit(2);
   }
   final baseUrl = args[0].trim().replaceAll(RegExp(r'/$'), '');
-  final routerPath = 'lib/router.dart';
-  final outPath = 'web/sitemap.xml';
+  const routerPath = 'lib/router.dart';
+  const outPath = 'web/sitemap.xml';
 
   final routerFile = File(routerPath);
   if (!routerFile.existsSync()) {

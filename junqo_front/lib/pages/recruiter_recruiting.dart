@@ -483,8 +483,8 @@ class _RecruiterRecruitingState extends State<RecruiterRecruiting>
         CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(_indigoColor),
         ),
-        const SizedBox(height: 16),
-        const Text(
+        SizedBox(height: 16),
+        Text(
           "Chargement des offres...",
           style: TextStyle(color: _slate500, fontSize: 16),
         ),

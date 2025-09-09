@@ -868,7 +868,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: _expiresIn,
+                          initialValue: _expiresIn,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
@@ -1293,7 +1293,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: _educationLevel,
+                          initialValue: _educationLevel,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
