@@ -126,8 +126,8 @@ services:
   prometheus:
     container_name: junqo_prometheus
     image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
+    # ports:
+    #   - "9090:9090"
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
     command:
@@ -143,8 +143,8 @@ services:
   loki:
     container_name: junqo_loki
     image: grafana/loki:latest
-    ports:
-      - "3100:3100"
+    # ports:
+    #   - "3100:3100"
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
     command: -config.file=/etc/loki/local-config.yaml
