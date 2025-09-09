@@ -4,7 +4,7 @@
 # Stage 1 - Install dependencies and build the app in a build environment
 FROM debian:bullseye AS build-env
 
-ARG FLUTTER_VERSION=3.22.2
+ARG FLUTTER_VERSION=3.35.3
 ARG API_URL
 
 # Install flutter dependencies
@@ -28,15 +28,19 @@ RUN apt-get update && apt-get install -y \
 # See https://docs.flutter.dev/release/archive to change the version
 WORKDIR /usr/local/
 ENV PATH="/usr/local/src/flutter/bin:${PATH}"
-ADD https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz  .
-RUN tar -xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C src && \
+RUN wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
+    tar -xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C src && \
     rm flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
     git config --global --add safe.directory /usr/local/src/flutter && \
-    flutter doctor -v
+    flutter doctor -v && \
+    flutter config --enable-web
 
 # Copy files to container and build
 WORKDIR /home/app/junqo_front
 COPY ./junqo_front/ .
+
+# Get dependencies (this layer will be cached if pubspec files don't change)
+RUN flutter pub get
 
 # Build the app
 RUN if [ -n "$API_URL" ]; then \

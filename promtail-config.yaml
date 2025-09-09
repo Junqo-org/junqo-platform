@@ -1,0 +1,74 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Junqo Backend Logs
+  - job_name: junqo-back
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: junqo-back
+          service: backend
+          __path__: /var/log/junqo/back.log
+
+  # Junqo Frontend Access Logs
+  - job_name: junqo-front-access
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: junqo-front
+          service: frontend
+          log_type: access
+          __path__: /var/log/junqo/front-access.log
+
+  # Junqo Frontend Error Logs
+  - job_name: junqo-front-error
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: junqo-front
+          service: frontend
+          log_type: error
+          __path__: /var/log/junqo/front-error.log
+
+  # Database Logs
+  - job_name: junqo-db
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: junqo-db
+          service: database
+          __path__: /var/log/junqo/db.log
+
+  # Reverse Proxy Access Logs
+  - job_name: junqo-rproxy-access
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: junqo-rproxy
+          service: nginx
+          log_type: access
+          __path__: /var/log/junqo/rproxy-access.log
+
+  # Reverse Proxy Error Logs
+  - job_name: junqo-rproxy-error
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: junqo-rproxy
+          service: nginx
+          log_type: error
+          __path__: /var/log/junqo/rproxy-error.log

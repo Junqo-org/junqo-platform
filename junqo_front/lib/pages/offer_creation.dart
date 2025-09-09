@@ -195,8 +195,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         String successMessage;
 
         if (_isEditMode) {
-          await offerService.updateOffer(
-              widget.existingOffer!.id!, jobOffer);
+          await offerService.updateOffer(widget.existingOffer!.id!, jobOffer);
           successMessage =
               "Votre offre « $titleValue » a été mise à jour avec succès !";
         } else {

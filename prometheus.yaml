@@ -1,7 +1,34 @@
 global:
   scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
 
 scrape_configs:
+  # Prometheus itself
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
+
+  # Node Exporter (if you add it later)
+  # - job_name: 'node'
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
+
+  # Backend application metrics (if you add metrics endpoint)
+  # - job_name: 'junqo-backend'
+  #   static_configs:
+  #     - targets: ['back:4200']
+  #   metrics_path: '/api/v1/metrics'
+
+  # Database metrics (if you add postgres_exporter)
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+
+  # Nginx metrics (if you add nginx-prometheus-exporter)
+  # - job_name: 'nginx'
+  #   static_configs:
+  #     - targets: ['nginx-exporter:9113']

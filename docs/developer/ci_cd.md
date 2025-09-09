@@ -172,7 +172,7 @@ If an environment variable is not found, the default value will be used.
 
 Here is the list of environment variables used by the **Junqo-platform**:
 
-- `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.22.2`.
+- `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.35.3`.
 - `BACK_PORT`: The port of the back server. Default value is `4200`.
 - `DATABASE_SHM_SIZE`: The size of the shared memory for the database container. Default value is `256MB`.
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.

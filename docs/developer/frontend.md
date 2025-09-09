@@ -28,7 +28,7 @@ Its main goal is to provide a user interface to interact with the backend.
 
 ### Prerequisites
 
-- **Flutter**: Version 3.22.2 or higher. [Install Flutter](https://docs.flutter.dev/get-started/install)
+- **Flutter**: Version 3.35.3 or higher. [Install Flutter](https://docs.flutter.dev/get-started/install)
 - **Dart**: Comes with Flutter, but ensure it's up to date.
 - **Python 3**: For updating environment configs. [Install Python 3](https://www.python.org/downloads/)
 

@@ -9,7 +9,7 @@ services:
       context: ./
       dockerfile: ./junqo_front/dockerfile.prod
       args:
-        - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
+        - FLUTTER_VERSION=${FLUTTER_VERSION:-3.35.3}
         - API_URL=${API_URL:-http://localhost:4200/api/v1}
     restart: always
     networks:
@@ -17,6 +17,10 @@ services:
     depends_on:
       back:
         condition: service_healthy
+    volumes:
+      - junqo_logs:/var/log/junqo
+    environment:
+      LOG_PATH: /var/log/junqo/front.log
 
   back:
     container_name: junqo_back
@@ -38,8 +42,11 @@ services:
         condition: service_healthy
     environment:
       DATABASE_PASSWORD_FILE: /run/secrets/db_password
+      LOG_PATH: /var/log/junqo/back.log
     secrets:
       - db_password
+    volumes:
+      - junqo_logs:/var/log/junqo
 
   db:
     container_name: junqo_db
@@ -50,10 +57,14 @@ services:
       - back-net
     volumes:
       - db_data:/var/lib/postgresql/data
+      - junqo_logs:/var/log/junqo
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf:ro
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      LOG_PATH: /var/log/junqo/db.log
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     secrets:
       - db_password
     healthcheck:
@@ -76,8 +87,9 @@ services:
       - ./nginx.rproxy.conf:/etc/nginx/nginx.conf:ro
       - ./letsencrypt:/var/www/letsencrypt:rw
       - /etc/letsencrypt:/etc/letsencrypt:ro
-    networks:
-      - back-net
+      - junqo_logs:/var/log/junqo
+    environment:
+      LOG_PATH: /var/log/junqo/rproxy.log
 
   adminer:
     container_name: junqo_adminer
@@ -100,8 +112,8 @@ services:
       start_period: 5s
 
   prometheus:
+    container_name: junqo_prometheus
     image: prom/prometheus:latest
-    container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -112,23 +124,39 @@ services:
       - monitor-net
 
   loki:
+    container_name: junqo_loki
     image: grafana/loki:latest
-    container_name: loki
     ports:
       - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - monitor-net
 
+  promtail:
+    container_name: junqo_promtail
+    image: grafana/promtail:latest
+    volumes:
+      - /var/log:/var/log:ro
+      - junqo_logs:/var/log/junqo:ro
+      - ./promtail-config.yaml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitor-net
+    depends_on:
+      - loki
+
   grafana:
+    container_name: junqo_grafana
     image: grafana/grafana:latest
-    container_name: grafana
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
     networks:
       - monitor-net
+      - back-net
 
 networks:
   back-net:
@@ -139,6 +167,7 @@ networks:
 volumes:
   db_data:
   grafana-storage:
+  junqo_logs:
 
 secrets:
   db_password:
