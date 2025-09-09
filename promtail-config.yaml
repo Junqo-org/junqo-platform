@@ -49,7 +49,7 @@ scrape_configs:
         labels:
           job: junqo-db
           service: database
-          __path__: /var/log/junqo/db.log
+          __path__: /var/lib/docker/containers/*/*-json.log
 
   # Reverse Proxy Access Logs
   - job_name: junqo-rproxy-access
