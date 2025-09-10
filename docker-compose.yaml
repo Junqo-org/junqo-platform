@@ -88,6 +88,8 @@ services:
     depends_on:
       - front
       - back
+    networks:
+      - back-net
     volumes:
       - ./nginx.rproxy.conf:/etc/nginx/nginx.conf:ro
       - ./letsencrypt:/var/www/letsencrypt:rw
