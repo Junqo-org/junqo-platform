@@ -2,7 +2,7 @@ import 'dart:io';
 
 void main(List<String> args) {
   if (args.isEmpty) {
-    stderr.writeln('Usage: dart run tool/generate_sitemap.dart <baseUrl>');
+    stderr.writeln('Usage: dart run tools/generate_sitemap.dart <baseUrl>');
     exit(2);
   }
   final baseUrl = args[0].trim().replaceAll(RegExp(r'/$'), '');

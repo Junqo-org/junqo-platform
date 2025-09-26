@@ -323,7 +323,7 @@ For more information, see the [the official github page documentation](https://d
 ### Automatic documentation deployment
 
 The automatic documentation deployment generate the documentation using the markdown files in the `docs` folder.  
-Then it deploys the documentation at [http://doc.junqo.fr](http://doc.junqo.fr) using Github Pages. 
+Then it deploys the documentation at [http://doc.junqo.fr](http://doc.junqo.fr) using Github Pages.  
 
 The documentation deployment is done using the `deploy-documentation.yml` workflow.  
 The workflow is triggered when the following conditions are met:

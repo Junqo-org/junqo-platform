@@ -7,11 +7,11 @@ server:
   grpc_listen_address: 0.0.0.0
 
 common:
-  path_prefix: /tmp/loki
+  path_prefix: /loki
   storage:
     filesystem:
-      chunks_directory: /tmp/loki/chunks
-      rules_directory: /tmp/loki/rules
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
   replication_factor: 1
   ring:
     instance_addr: 0.0.0.0
@@ -43,6 +43,14 @@ limits_config:
   max_streams_per_user: 0
   max_line_size: 256000
   retention_period: 744h
+
+compactor:
+  working_directory: /loki/compactor
+  shared_store: filesystem
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
 
 ruler:
   alertmanager_url: http://localhost:9093

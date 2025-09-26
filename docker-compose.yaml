@@ -10,13 +10,15 @@ services:
       dockerfile: ./junqo_front/dockerfile.prod
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.35.3}
-        - API_URL=${API_URL:-http://localhost:4200/api/v1}
+        - API_URL=${API_URL:-http://localhost/api/v1}
     restart: always
     networks:
       - back-net
     depends_on:
       back:
         condition: service_healthy
+    labels:
+      - "logging=promtail"
     logging:
       driver: "json-file"
       options:
@@ -41,6 +43,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    labels:
+      - "logging=promtail"
     environment:
       DATABASE_PASSWORD_FILE: /run/secrets/db_password
     secrets:
@@ -61,6 +65,8 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    labels:
+      - "logging=promtail"
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}
@@ -94,6 +100,8 @@ services:
       - ./nginx.rproxy.conf:/etc/nginx/nginx.conf:ro
       - ./letsencrypt:/var/www/letsencrypt:rw
       - /etc/letsencrypt:/etc/letsencrypt:ro
+    labels:
+      - "logging=promtail"
     logging:
       driver: "json-file"
       options:
@@ -113,6 +121,8 @@ services:
       - "127.0.0.1:8080:8080"
     depends_on:
       - db
+    labels:
+      - "logging=promtail"
     logging:
       driver: "json-file"
       options:
@@ -127,7 +137,7 @@ services:
 
   prometheus:
     container_name: junqo_prometheus
-    image: prom/prometheus:latest
+    image: prom/prometheus:3.5.0
     # ports:
     #   - "9090:9090"
     volumes:
@@ -144,11 +154,12 @@ services:
 
   loki:
     container_name: junqo_loki
-    image: grafana/loki:latest
+    image: grafana/loki:3.5.4
     # ports:
     #   - "3100:3100"
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - monitor-net
@@ -160,7 +171,7 @@ services:
 
   promtail:
     container_name: junqo_promtail
-    image: grafana/promtail:latest
+    image: grafana/promtail:3.5.4
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
@@ -178,7 +189,7 @@ services:
 
   grafana:
     container_name: junqo_grafana
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.1.1
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
@@ -201,6 +212,7 @@ networks:
 volumes:
   db_data:
   grafana-storage:
+  loki-data:
 
 secrets:
   db_password:
