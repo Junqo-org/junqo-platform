@@ -178,6 +178,7 @@ Here is the list of environment variables used by the **Junqo-platform**:
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
 - `DATABASE_NAME`: The name of the database. Default value is `junqo`.
 - `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./db_password.conf`.
+- `GRAFANA_PASSWORD_FILE`: The path to the file containing the Grafana admin password. Default value is `./grafana_password.conf`.
 - `API_URL`: The URL of the back server used in the frontend. Default value is `http://localhost:4200`.
 
 The following are only available in development mode:
@@ -201,6 +202,7 @@ These files should not be committed to the repository.
 The secret files are:
 
 - `db_password.conf`: Contains the password for the database user. (The file path may defer depending on the environment variable `DATABASE_PASSWORD_FILE`)
+- `grafana_password.conf`: Contains the admin password for Grafana. (The file path may defer depending on the environment variable `GRAFANA_PASSWORD_FILE`)
 
 ## Automatic tests
 

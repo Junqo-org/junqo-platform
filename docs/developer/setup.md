@@ -31,13 +31,22 @@ Once you have installed these tools, you can proceed to the deployment of the **
     cd junqo-platform
     ```
 
-2. Once you are in the project directory, you need to create a `db_password.conf` file at the root of the project.
-    This file should contain the password for the database user.
-    The content of the file should look like this:
+2. Once you are in the project directory, you need to create two secret configuration files at the root of the project:
+
+    a. Create a `db_password.conf` file for the database password:
 
     ```bash
     my_db_password
     ```
+
+    b. Create a `grafana_password.conf` file for the Grafana admin password:
+
+    ```bash
+    my_grafana_password
+    ```
+
+    These files contain sensitive credentials and should never be committed to version control.
+    You can customize their locations using the environment variables `DATABASE_PASSWORD_FILE` and `GRAFANA_PASSWORD_FILE` respectively.
 
 3. Then, you need to create the `junqo_back/.env` file to configure the backend.
     You can use the `junqo_back/exemple.env` file to create the new one.

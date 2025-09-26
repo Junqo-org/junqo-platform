@@ -115,14 +115,34 @@ Promtail reads these files directly with the pattern:
 
 ## Service Access
 
-- **Grafana**: http://localhost:3000 (admin/admin)
-- **Loki**: http://localhost:3100
-- **Prometheus**: http://localhost:9090
-- **Adminer**: http://localhost:8080
+- **Grafana**: [http://localhost:3000](http://localhost:3000)
+- **Loki**: [http://localhost:3100](http://localhost:3100)
+- **Prometheus**: [http://localhost:9090](http://localhost:9090)
+- **Adminer**: [http://localhost:8080](http://localhost:8080)
+
+## Grafana Security Setup
+
+Grafana's admin password is managed securely using Docker secrets. The password is stored in a file and mounted as a secret:
+
+1. Create a `grafana_password.conf` file at the root of the project:
+
+   ```bash
+   echo "your_secure_password" > grafana_password.conf
+   ```
+
+2. The password file location can be customized using the `GRAFANA_PASSWORD_FILE` environment variable:
+
+   ```bash
+   export GRAFANA_PASSWORD_FILE=/path/to/custom/grafana_password.conf
+   ```
+
+3. Access Grafana at [http://localhost:3000](http://localhost:3000) using:
+   - Username: admin
+   - Password: (password from grafana_password.conf)
 
 ## Grafana Dashboard Setup
 
-1. Access Grafana at http://localhost:3000
+1. Access Grafana at [http://localhost:3000](http://localhost:3000)
 2. Add Loki as a data source:
    - URL: `http://loki:3100`
 3. Import or create dashboards for:
