@@ -19,8 +19,8 @@ jobs:
 
       - name: Export .env variables
         run: |
-          cat $BACK_ENV_FILE >> $GITHUB_ENV
-          cat $FRONT_ENV_FILE >> $GITHUB_ENV
+          sed 's/\s*#.*$//' $BACK_ENV_FILE | grep -v '^$' >> $GITHUB_ENV
+          sed 's/\s*#.*$//' $FRONT_ENV_FILE | grep -v '^$' >> $GITHUB_ENV
 
       - name: Start containers
         shell: bash
