@@ -19,10 +19,8 @@ jobs:
 
       - name: Export .env variables
         run: |
-          set -a
-          source $BACK_ENV_FILE
-          source $FRONT_ENV_FILE
-          set +a
+          cat $BACK_ENV_FILE >> $GITHUB_ENV
+          cat $FRONT_ENV_FILE >> $GITHUB_ENV
 
       - name: Start containers
         shell: bash
