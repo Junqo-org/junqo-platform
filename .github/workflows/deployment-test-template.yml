@@ -10,14 +10,22 @@ on:
 jobs:
   deployment-test:
     runs-on: ubuntu-latest
+    env:
+      BACK_ENV_FILE: "./junqo_back/.env.ci"
+      FRONT_ENV_FILE: "./junqo_front/config/.env.ci"
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Export .env variables
+        run: |
+          set -a
+          source $BACK_ENV_FILE
+          source $FRONT_ENV_FILE
+          set +a
+
       - name: Start containers
         shell: bash
-        env:
-          BACK_ENV_FILE: "./junqo_back/.env.ci"
-          FRONT_ENV_FILE: "./junqo_front/config/.env.ci"
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
       - name: Check Container Status
@@ -34,9 +42,6 @@ jobs:
           fi
         shell: bash
       - name: Check if all services are up and running
-        env:
-          BACK_ENV_FILE: "./junqo_back/.env.ci"
-          FRONT_ENV_FILE: "./junqo_front/config/.env.ci"
         run: |
             max_attempts=30
             attempt=1
@@ -58,8 +63,5 @@ jobs:
             exit 1
 
       - name: Stop containers
-        env:
-          BACK_ENV_FILE: "./junqo_back/.env.ci"
-          FRONT_ENV_FILE: "./junqo_front/config/.env.ci"
         if: always()
         run: docker compose -f ${{ inputs.compose_file }} down --volumes
