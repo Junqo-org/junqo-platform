@@ -137,7 +137,7 @@ services:
 
   prometheus:
     container_name: junqo_prometheus
-    image: prom/prometheus:3.5.0
+    image: prom/prometheus:v2.54.1
     # ports:
     #   - "9090:9090"
     volumes:
