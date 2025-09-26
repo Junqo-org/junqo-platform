@@ -16,9 +16,8 @@ jobs:
       - name: Start containers
         shell: bash
         env:
-          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
-          BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/api/v1"
+          BACK_ENV_FILE: "./junqo_back/.env.ci"
+          FRONT_ENV_FILE: "./junqo_front/config/.env.ci"
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
       - name: Check Container Status
@@ -36,9 +35,8 @@ jobs:
         shell: bash
       - name: Check if all services are up and running
         env:
-          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
-          BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/api/v1"
+          BACK_ENV_FILE: "./junqo_back/.env.ci"
+          FRONT_ENV_FILE: "./junqo_front/config/.env.ci"
         run: |
             max_attempts=30
             attempt=1
@@ -61,8 +59,7 @@ jobs:
 
       - name: Stop containers
         env:
-          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
-          BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/api/v1"
+          BACK_ENV_FILE: "./junqo_back/.env.ci"
+          FRONT_ENV_FILE: "./junqo_front/config/.env.ci"
         if: always()
         run: docker compose -f ${{ inputs.compose_file }} down --volumes

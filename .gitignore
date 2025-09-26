@@ -6,6 +6,7 @@ docs/api
 *.env
 !exemple.env
 db_password.conf
+grafana_password.conf
 
 # Development
 database-volume

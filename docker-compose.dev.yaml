@@ -11,6 +11,8 @@ services:
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.35.3}
         - API_URL=${API_URL:-http://localhost:4200/api/v1}
+    env_file:
+      - ${FRONT_ENV_FILE:-./junqo_front/config/.env}
     restart: unless-stopped
     ports:
       - "80:80"
@@ -87,13 +89,11 @@ services:
       - db_data_dev:/var/lib/postgresql/data
       - ${TEST_DATA_FOLDER:-./db}:/docker-entrypoint-initdb.d
       - junqo_logs:/var/log/junqo
-      - ./postgresql.conf:/etc/postgresql/postgresql.conf:ro
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       LOG_PATH: /var/log/junqo/db.log
-    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     secrets:
       - db_password
     healthcheck:

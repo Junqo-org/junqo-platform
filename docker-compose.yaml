@@ -11,6 +11,8 @@ services:
       args:
         - FLUTTER_VERSION=${FLUTTER_VERSION:-3.35.3}
         - API_URL=${API_URL:-http://localhost/api/v1}
+    env_file:
+      - ${FRONT_ENV_FILE:-./junqo_front/config/.env}
     restart: always
     networks:
       - back-net
@@ -193,9 +195,13 @@ services:
       - "127.0.0.1:3000:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD_FILE: /run/secrets/grafana_admin_password
     networks:
       - monitor-net
       - back-net
+    secrets:
+      - grafana_admin_password
     logging:
       driver: "json-file"
       options:
@@ -216,3 +222,5 @@ volumes:
 secrets:
   db_password:
     file: ${DATABASE_PASSWORD_FILE:-./db_password.conf}
+  grafana_admin_password:
+    file: ${GRAFANA_PASSWORD_FILE:-./grafana_password.conf}
