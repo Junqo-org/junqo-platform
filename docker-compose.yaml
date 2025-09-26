@@ -64,7 +64,6 @@ services:
       - back-net
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./postgresql.conf:/etc/postgresql/postgresql.conf:ro
     labels:
       - "logging=promtail"
     environment:

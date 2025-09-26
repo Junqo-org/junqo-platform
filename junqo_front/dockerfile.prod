@@ -53,7 +53,7 @@ RUN if [ -n "$API_URL" ]; then \
     fi
 
 # Stage 2 - Create the run-time image
-FROM nginx:1.21.1-alpine
+FROM nginx:1.29.1-alpine
 
 HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=5 \
     CMD curl -f http://localhost || exit 1
