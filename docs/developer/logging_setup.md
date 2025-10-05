@@ -17,6 +17,26 @@ The logging system follows containerization best practices by using Docker's nat
 - **Grafana**: Visualizes logs and metrics
 - **Prometheus**: Collects metrics
 
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Containers as Services
+  participant Docker as Docker json-file
+  participant Promtail
+  participant Loki
+  participant Grafana
+  participant Prometheus
+
+  Containers->>Docker: stdout/stderr → JSON logs
+  Docker-->>Promtail: Read *-json.log
+  Promtail->>Loki: Push parsed streams
+  Grafana->>Loki: Query logs
+  Prometheus->>Prometheus: Scrape metrics
+  Grafana->>Prometheus: Query metrics
+```
+
+> Note: The diagram above illustrates the flow of logs and metrics from services to visualization.
+
 ## Logging Strategy
 
 ### Container-Native Logging
