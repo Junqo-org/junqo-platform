@@ -10,19 +10,25 @@ on:
 jobs:
   deployment-test:
     runs-on: ubuntu-latest
-    env:
-      BACK_ENV_FILE: "./junqo_back/.env.ci"
-      FRONT_ENV_FILE: "./junqo_front/config/.env.ci"
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Export .env variables
+      - name: Load CI environment variables
+        env:
+            CI_ENV_FILE: "./.env.ci"
         run: |
-          sed 's/\s*#.*$//' $BACK_ENV_FILE | grep -v '^$' >> $GITHUB_ENV
-          sed 's/\s*#.*$//' $FRONT_ENV_FILE | grep -v '^$' >> $GITHUB_ENV
+          if [[ -f $CI_ENV_FILE ]]; then
+            echo "Loading CI environment variables from $CI_ENV_FILE"
+            sed 's/\s*#.*$//' $CI_ENV_FILE | grep -v '^$' >> $GITHUB_ENV
+          fi
+
+      - name: Generate SSL certificates
+        run: |
+          ./tools/generate_ssl_certs.sh
 
       - name: Start containers
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         shell: bash
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
@@ -39,6 +45,7 @@ jobs:
             exit 1
           fi
         shell: bash
+
       - name: Check if all services are up and running
         run: |
             max_attempts=30
@@ -56,7 +63,7 @@ jobs:
             done
             echo "Timeout waiting for services to start"
             echo "Current service status:"
-            docker compose -f "${{ inputs.compose_file }}" ps --format json | jq -r '.[] | "\(.Name): \(.State) (\(.Health))"'
+            docker compose -f "${{ inputs.compose_file }}" ps --format json | jq -r '.[] | "\(.Name): \(.State) (\(.Health // "N/A"))"'
             docker compose -f "${{ inputs.compose_file }}" ps
             exit 1
 

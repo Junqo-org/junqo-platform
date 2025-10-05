@@ -14,6 +14,7 @@ This documentation is intended for developers who want to contribute to the proj
 - [Deployment](#deployment)
   - [Prerequisites](#prerequisites)
   - [Deploy using Docker Compose](#deploy-using-docker-compose)
+    - [Config files](#config-files)
     - [Development deployment](#development-deployment)
     - [Production deployment](#production-deployment)
   - [Configuration](#configuration)
@@ -47,8 +48,6 @@ If you don't have these tools installed, you can follow the installation instruc
 
 Once you have installed these tools, you can proceed to the deployment of the **Junqo-platform**.
 
-### Deploy using Docker Compose
-
 The first step to deploy the **Junqo-platform** is to clone or download the repository and move to the project directory:
 
 ```bash
@@ -59,17 +58,18 @@ git clone git@github.com:Junqo-org/junqo-platform.git
 cd junqo-platform
 ```
 
-Once you are in the project directory, you need to create a `db_password.conf` file at the root of the project.
-This file should contain the password for the database user.
-The content of the file should look like this:
+### Deploy using Docker Compose
 
-```bash
-my_db_password
-```
+Once the project is cloned and you are in the project directory, you need to setup config files.
+
+#### Config files
+
+First, you need to create a `db_password.conf` file at the root of the project.
+You can use the `db_password_example.conf` file to create the new one.
+This file contain the password for the database user.
 
 Then, you need to create the `junqo_back/.env` file to configure the backend.
 You can use the `junqo_back/exemple.env` file to create the new one.
-Don't forget to change the values as they are not safe for production use.
 
 For more informations, see the [backend configuration documentation](./backend.md#configuration).
 
@@ -95,8 +95,6 @@ The development deployment has several differences from the production deploymen
 
 - The back server is running in development mode. And the watch flag is enabled.
 - The front server is running in development mode. And the watch flag is enabled.
-- The database volume is set to the `./database-volume` folder, allowing you to interact with the database files.
-- The database is initialized from the `./db/test_data.sql` file.
 - The database adminer is deployed. Allowing you to access the database adminer at [http://localhost:3000](http://localhost:3000). (The port can be changed using the `ADMINER_PORT` environment variable)
 
 #### Production deployment
@@ -150,7 +148,7 @@ After setting up SSL, you can deploy the production environment:
 
 ```bash
 # Deploy using Docker Compose
-docker-compose up -d
+docker compose up -d
 ```
 
 The production deployment has several differences from the development deployment:
@@ -180,12 +178,12 @@ Here is the list of environment variables used by the **Junqo-platform**:
 - `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./db_password.conf`.
 - `GRAFANA_PASSWORD_FILE`: The path to the file containing the Grafana admin password. Default value is `./grafana_password.conf`.
 - `API_URL`: The URL of the back server used in the frontend. Default value is `http://localhost:4200`.
+- `SSL_CERTS_PATH`: The path to the folder containing the SSL certificates. Default value is `/etc/letsencrypt`.
 
 The following are only available in development mode:
 
 - `ADMINER_PORT`: The port of the database adminer. Default value is `3000`.
 - `ADMINER_DESIGN`: The design of the database adminer. Default value is `pepa-linha-dark`.
-- `TEST_DATA_FOLDER`: The folder containing the test data for the database. The test should be a file ending with `.sql`. Default value is `./db`.
 
 #### Configuration Files
 
@@ -197,7 +195,7 @@ You can modify this file to fit your needs.
 #### Secret Files
 
 The **Junqo-platform** uses secret files to store sensitive information.
-These files should not be committed to the repository.
+These files **must not** be committed to the repository.
 
 The secret files are:
 
@@ -220,12 +218,14 @@ Note: act requires root privileges to run Docker containers, hence the sudo requ
 # Run the tests specified in the <specific file>
 sudo act workflow_dispatch -W '.github/workflows/<specific_file>' -e tools/act-event-file.json -q
 # Example
-sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml' -e tools/act-event-file.json -q
+sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml' -e tools/act-event-file.json -q --concurrent-jobs 1
 ```
 
 The `tools/act-event-file.json` file contains the event payload for the workflow.
 You can modify this file to change the event payload.
 The `q` flag is used to run the workflow in quiet mode. Remove it to see the logs.
+The `concurrent-jobs` flag is used to limit the number of concurrent jobs.
+Here it is set to 1 to avoid issues with same ports being used by multiple jobs.
 
 ### Deployment tests
 
@@ -247,9 +247,11 @@ These tests are run using th `deployment-test-template.yml` workflow.
 The workflow runs the following steps:
 
 1. Checkout the repository.
-2. Start the docker compose services.
-3. Check if the services are up and running.
-4. Stop the docker compose services.
+2. Set up the environment variables.
+3. Generate SSL certificates.
+4. Start the docker compose services.
+5. Check if the services are up and running.
+6. Stop the docker compose services.
 
 ### Front tests
 

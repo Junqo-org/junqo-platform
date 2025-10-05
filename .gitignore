@@ -10,6 +10,7 @@ grafana_password.conf
 
 # Development
 database-volume
+ssl_certs
 
 # IDE files
 .vscode

@@ -18,8 +18,8 @@ If you need some precise information, see the following sections :
 - [Getting started](#getting-started)
   - [Before you begin](#before-you-begin)
   - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Usage](#usage)
+  - [Testing the project](#testing-the-project)
+  - [Deploying the project](#deploying-the-project)
 - [Learn more](#learn-more)
   - [Project structure](#project-structure)
   - [Interactions](#interactions)
@@ -51,43 +51,25 @@ Before you begin, you should have a basic understanding of the following:
 - [Docker](https://www.docker.com/) (v20.10.7 or higher)
 - [Docker Compose](https://docs.docker.com/compose/) (v1.29.2 or higher)
 
-### Installation
+### Testing the project
 
-1. Clone the repository
+To test the project locally, you can use the development environment provided by Docker Compose.
+The deployment process is described in the [deployment documentation](./deployment.md#development-deployment).
 
-    ```bash
-    git clone git@github.com:Junqo-org/junqo-platform.git
-    ```
+### Deploying the project
 
-2. Move to the project directory
-
-    ```bash
-    cd junqo-platform
-    ```
-
-3. Deploy the project locally using Docker Compose
-
-    ```bash
-    docker compose up --build -d
-    ```
-
-  `--build` will build the images locally before starting the containers.
-  `-d` will run the containers in detached mode. So that you can continue to use your terminal.
-
-### Usage
-
-Notice, the following instructions are admitting that you are using the default configuration of the project.
-Furthermore, the project is running in **development** mode.
-You should replace *localhost* by the IP address of the machine running the project.
-
-- Access the web server at [http://localhost:80](http://localhost:80) or [https://localhost:443](https://localhost:443) if using TLS.
-- Access the back server at [http://localhost:4200](http://localhost:4200).
-- Access the API documentation at [http://localhost:4200/api/v1](http://localhost:4200/api/v1).
-- Access the database adminer at [http://localhost:3000](http://localhost:3000).
+To deploy the project in production, you can use the production environment provided by Docker Compose.
+The deployment process is described in the [deployment documentation](./deployment.md#production-deployment).
 
 ## Learn more
 
-Notice, the following sections are admitting that you are using the default configuration of the project.
+The documentation below provides more in-depth information about the project.
+
+- [Deployment](./deployment.md)
+- [Frontend](./frontend.md)
+- [Backend](./backend.md)
+- [CI/CD](./ci_cd.md)
+- [Logging Setup](./logging_setup.md)
 
 ### Project structure
 
@@ -119,8 +101,11 @@ The project is structured as follows:
 - `docs`: Contains the documentation of the project.
 - `docker-compose.yaml`: The main file to deploy the project in production mode.
 - `docker-compose.dev.yaml`: The main file to deploy the project in development mode.
+- `tools`: Contains utility scripts to manage the project.
 
 ### Interactions
+
+Notice, the following sections are admitting that you are using the default configuration of the project.
 
 The following diagram shows the interactions between the different parts of the project:
 
@@ -146,6 +131,8 @@ The following diagram shows how the different programs are executed:
 
 ### Networking
 
+Notice, the following sections are admitting that you are using the default configuration of the project.
+
 The following diagram shows the networking of the project:
 
 #### Development
@@ -158,6 +145,7 @@ External ports:   80/443              4200                                      
                |   Front   |       |   Back   |---------|  Database  |---------|  Adminer  |
                +-----------+       +----------+         +------------+         +-----------+
 ```
+
 ```mermaid
 ---
 title: Networking Development
