@@ -24,6 +24,7 @@ jobs:
 
       - name: Generate SSL certificates
         run: |
+          chmod +x ./tools/generate_ssl_certs.sh
           ./tools/generate_ssl_certs.sh
 
       - name: Start containers
