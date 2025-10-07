@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/shared/dto/conversation_data.dart';

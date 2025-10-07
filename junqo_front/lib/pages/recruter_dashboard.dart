@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import '../shared/widgets/navbar_company.dart';
 import '../core/api/api_service.dart';
 import '../core/auth_service.dart';
@@ -391,7 +390,7 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MessagingPage(forCompany: true),
+                        builder: (context) => const MessagingPage(forCompany: true),
                       ),
                     );
                   },
@@ -789,7 +788,7 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MessagingPage(forCompany: true),
+                      builder: (context) => const MessagingPage(forCompany: true),
                     ),
                   );
                 },
@@ -848,7 +847,7 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MessagingPage(forCompany: true),
+              builder: (context) => const MessagingPage(forCompany: true),
             ),
           );
         },
@@ -867,12 +866,12 @@ class RecruiterDashboardState extends State<RecruiterDashboard> {
             children: [
               CircleAvatar(
                 backgroundColor: Colors.purple.shade100,
+                radius: 16,
                 child: Icon(
                   Icons.person,
                   color: Colors.purple.shade700,
                   size: 16,
                 ),
-                radius: 16,
               ),
               const SizedBox(width: 12),
               Expanded(

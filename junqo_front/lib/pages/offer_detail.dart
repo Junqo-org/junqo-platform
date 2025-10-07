@@ -687,12 +687,12 @@ class _OfferDetailState extends State<OfferDetail> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
             Colors.white,
-            const Color(0xFFF8FAFC), // Slate 50
+            Color(0xFFF8FAFC), // Slate 50
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -777,10 +777,10 @@ class _OfferDetailState extends State<OfferDetail> {
                       
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.calendar_today_outlined,
                             size: 14,
-                            color: const Color(0xFF64748B), // Slate 500
+                            color: Color(0xFF64748B), // Slate 500
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -842,10 +842,10 @@ class _OfferDetailState extends State<OfferDetail> {
                   // Bouton refuser
                   Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
-                          const Color(0xFFEF4444), // Red
-                          const Color(0xFFDC2626),
+                          Color(0xFFEF4444), // Red
+                          Color(0xFFDC2626),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(12),
@@ -873,10 +873,10 @@ class _OfferDetailState extends State<OfferDetail> {
                   // Bouton accepter
                   Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
-                          const Color(0xFF10B981), // Green
-                          const Color(0xFF059669),
+                          Color(0xFF10B981), // Green
+                          Color(0xFF059669),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(12),
@@ -1150,7 +1150,7 @@ class _OfferDetailState extends State<OfferDetail> {
         // Limit title to 50 characters as required by backend API
         String conversationTitle = 'Discussion - ${widget.offer.title}';
         if (conversationTitle.length > 50) {
-          conversationTitle = conversationTitle.substring(0, 47) + '...';
+          conversationTitle = '${conversationTitle.substring(0, 47)}...';
         }
         
         final createConversationData = CreateConversationData(

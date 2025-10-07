@@ -13,12 +13,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Start containers
-        shell: bash
+      - name: Load CI environment variables
         env:
-          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
-          BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/api/v1"
+            CI_ENV_FILE: "./.env.ci"
+        run: |
+          if [[ -f $CI_ENV_FILE ]]; then
+            echo "Loading CI environment variables from $CI_ENV_FILE"
+            sed 's/\s*#.*$//' $CI_ENV_FILE | grep -v '^$' >> $GITHUB_ENV
+          fi
+
+      - name: Generate SSL certificates
+        run: |
+          chmod +x ./tools/generate_ssl_certs.sh
+          ./tools/generate_ssl_certs.sh
+
+      - name: Start containers
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        shell: bash
         run: docker compose -f ${{ inputs.compose_file }} up -d --build
 
       - name: Check Container Status
@@ -34,11 +46,8 @@ jobs:
             exit 1
           fi
         shell: bash
+
       - name: Check if all services are up and running
-        env:
-          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
-          BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/api/v1"
         run: |
             max_attempts=30
             attempt=1
@@ -55,14 +64,10 @@ jobs:
             done
             echo "Timeout waiting for services to start"
             echo "Current service status:"
-            docker compose -f "${{ inputs.compose_file }}" ps --format json | jq -r '.[] | "\(.Name): \(.State) (\(.Health))"'
+            docker compose -f "${{ inputs.compose_file }}" ps --format json | jq -r '.[] | "\(.Name): \(.State) (\(.Health // "N/A"))"'
             docker compose -f "${{ inputs.compose_file }}" ps
             exit 1
 
       - name: Stop containers
-        env:
-          DATABASE_PASSWORD_FILE: "./db_password_example.conf"
-          BACK_ENV_FILE: "./junqo_back/exemple.env"
-          API_URL: "http://localhost:4200/api/v1"
         if: always()
         run: docker compose -f ${{ inputs.compose_file }} down --volumes

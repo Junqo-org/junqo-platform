@@ -242,7 +242,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                               color: AppTheme.primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.swipe,
                               size: 40,
                               color: AppTheme.primaryColor,
@@ -332,7 +332,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                               color: AppTheme.successColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.check_circle_outline,
                               size: 40,
                               color: AppTheme.successColor,
@@ -405,7 +405,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                         color: AppTheme.primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.info_outline,
                         color: AppTheme.primaryColor,
                         size: 24,
@@ -499,7 +499,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                         color: AppTheme.primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.swipe,
                         size: 20,
                         color: AppTheme.primaryColor,
@@ -592,7 +592,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                   color: AppTheme.successColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(24),
                 ),
-                child: Icon(Icons.check, color: AppTheme.successColor, size: 32),
+                child: const Icon(Icons.check, color: AppTheme.successColor, size: 32),
               ),
               secondaryBackground: Container(
                 alignment: Alignment.centerRight,
@@ -601,7 +601,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                   color: AppTheme.errorColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(24),
                 ),
-                child: Icon(Icons.close, color: AppTheme.errorColor, size: 32),
+                child: const Icon(Icons.close, color: AppTheme.errorColor, size: 32),
               ),
               child: JobCard(data: cardData!),
             ),
@@ -625,7 +625,7 @@ class _JobCardSwipeState extends State<JobCardSwipe> with SingleTickerProviderSt
                 gradient: AppTheme.primaryGradient.scale(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: SizedBox(
+              child: const SizedBox(
                 width: 60,
                 height: 60,
                 child: CircularProgressIndicator(
@@ -1198,7 +1198,7 @@ class _JobCardState extends State<JobCard> {
                         color: AppTheme.primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.lightbulb_outline,
                         color: AppTheme.primaryColor,
                         size: 20,
@@ -1279,7 +1279,7 @@ class _JobCardState extends State<JobCard> {
                         color: AppTheme.successColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.star_outline,
                         color: AppTheme.successColor,
                         size: 20,
@@ -1315,14 +1315,14 @@ class _JobCardState extends State<JobCard> {
                               ),
                             ),
                             child: Chip(
-                              avatar: Icon(
+                              avatar: const Icon(
                                 Icons.check_circle,
                                 size: 18,
                                 color: AppTheme.successColor,
                               ),
                               label: Text(
                                 entry.value,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 13,
                                   color: AppTheme.successColor,
                                   fontWeight: FontWeight.w500,
@@ -1361,7 +1361,7 @@ class _JobCardState extends State<JobCard> {
                         color: AppTheme.accentColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.description_outlined,
                         color: AppTheme.accentColor,
                         size: 20,
@@ -1465,7 +1465,7 @@ class _JobCardState extends State<JobCard> {
                   gradient: AppTheme.primaryGradient.scale(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.business,
                   size: 28,
                   color: AppTheme.primaryColor,
@@ -1550,7 +1550,7 @@ class _JobCardState extends State<JobCard> {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     color: AppTheme.primaryColor,
                     fontWeight: FontWeight.w600,
