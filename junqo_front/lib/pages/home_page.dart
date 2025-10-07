@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ),
       );
     } else if (userType == UserType.COMPANY) {
-      return RecruiterDashboard();
+      return const RecruiterDashboard();
     } else if (userType == UserType.STUDENT) {
       return JobCardSwipe();
     }
@@ -418,7 +418,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Fonctionnalités principales',
           style: AppTheme.headingMedium,
         ).animate()
@@ -502,7 +502,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Actions rapides',
               style: AppTheme.headingMedium,
             ),

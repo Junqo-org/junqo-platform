@@ -132,7 +132,9 @@ class _MessagingPageState extends State<MessagingPage> {
     if (_messageController.text.trim().isEmpty || 
         _selectedConversation == null || 
         _currentUserId == null ||
-        _isSendingMessage) return;
+        _isSendingMessage) {
+      return;
+    }
 
     final messageContent = _messageController.text.trim();
     _messageController.clear();
@@ -350,11 +352,11 @@ class _MessagingPageState extends State<MessagingPage> {
                     // Header
                     Container(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
                           colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                         ),
-                        borderRadius: const BorderRadius.only(
+                        borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16),
                           topRight: Radius.circular(16),
                         ),
@@ -430,11 +432,11 @@ class _MessagingPageState extends State<MessagingPage> {
                     // Header
                     Container(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
                           colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                         ),
-                        borderRadius: const BorderRadius.only(
+                        borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16),
                           topRight: Radius.circular(16),
                         ),
@@ -1262,16 +1264,16 @@ class _MessagingPageState extends State<MessagingPage> {
     return Container(
       color: const Color(0xFFF8FAFC),
       child: Center(
-        child: Column(
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.chat_bubble_outline,
               size: 64,
               color: Colors.grey,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'Sélectionnez une conversation',
               style: TextStyle(
                 fontSize: 18,
@@ -1279,8 +1281,8 @@ class _MessagingPageState extends State<MessagingPage> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Choisissez une conversation dans la liste pour commencer à échanger.',
               style: TextStyle(
                 fontSize: 14,

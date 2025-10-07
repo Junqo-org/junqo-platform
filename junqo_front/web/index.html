@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -18,21 +19,90 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- SEO -->
+  <meta name="description"
+    content="junqo — platform to connect students and recruiters. Find jobs, practice interviews and improve your CV.">
+  <meta name="keywords" content="junqo, students, recruiters, jobs, interviews, CV, career, internships">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://junqo.fr/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="junqo — Student & Recruiter Platform">
+  <meta property="og:description" content="Find jobs, practice interviews and improve your CV.">
+  <meta property="og:image" content="https://junqo.fr/icons/junqo_logo.png">
+  <meta property="og:url" content="https://junqo.fr/">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="junqo — Student & Recruiter Platform">
+  <meta name="twitter:description" content="Find jobs, practice interviews and improve your CV.">
+  <meta name="twitter:image" content="https://junqo.fr/icons/junqo_logo.png">
+
+  <!-- removed duplicate generic description -->
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Structured data (JSON-LD) for better Google understanding -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "junqo",
+    "url": "https://junqo.fr",
+    "logo": "https://junqo.fr/icons/junqo_logo.png",
+    "sameAs": []
+  }
+  </script>
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="junqo_front">
+  <meta name="apple-mobile-web-app-title" content="junqo">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="icons/junqo_logo.png"/>
+  <link rel="icon" type="image/png" href="icons/junqo_logo.png" />
+  <!-- Load Material Icons font from local assets.
+       Avoid using the `crossorigin` attribute here because some
+       browser tracker-protection heuristics block cross-origin
+       preloads and cause the fallback glyphs (stripes/squares).
+       The explicit @font-face below helps ensure the font is
+       registered as a same-origin resource and improves reliability
+       on Safari/mobile web. -->
+  <link rel="preload" href="assets/fonts/MaterialIcons-Regular.otf" as="font" type="font/otf" />
+  <style>
+    /* Inlined MaterialIcons font to avoid network requests that some
+       content/privacy blockers intercept. This embeds the built OTF as a
+       data: URI so icons render even when font requests are blocked. */
+    @font-face {
+      font-family: 'MaterialIcons';
+      src: url('data:font/opentype;base64,T1RUTwAJAIAAAwAQQ0ZGILAdzFsAABAEAABFsU9TLzJDFVnDAAABIAAAAGBjbWFwW+9FVQAABFAAAAuyaGVhZB+SECwAAADoAAAANmhoZWECAQICAAAAxAAAACRobXR4AgAAAAAAAYAAAAFYbWF4cACrUAAAAACcAAAABm5hbWUZFDSwAAAC2AAAAXZwb3N0AAMAAAAAAKQAAAAgAABQAACrAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAACAAAAAAACAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQABAAAAAQAAzet5KF8PPPUAAwIAAAAAAN89c4YAAAAA3z5brgAAAAACAAIAAAAAAwACAAAAAAAAAAQCAAGQAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARIAAAAEAAAAAAAAAD8/Pz8AgAAg//8CAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAFoAAwABBAkAAABeAL4AAwABBAkAAQAcAKIAAwABBAkAAgAOAJQAAwABBAkAAwA2AF4AAwABBAkABAAqADQAAwABBAkABQA0AAAAAwABBAkABgAqADQAMgAwADIAMgAtADAAOQAtADAANgBUADEANQA6ADAAMAA6ADMAOAAuADgAMQA5ADkAMAAzAE0AYQB0AGUAcgBpAGEAbABJAGMAbwBuAHMALQBSAGUAZwB1AGwAYQByAE0AYQB0AGUAcgBpAGEAbAAgAEkAYwBvAG4AcwAgADoAIAAyADAAMQA... (truncated for brevity)');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
 
-  <title>junqo_front</title>
+  <title>junqo</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 </head>
+
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    const fontUrl = new URL('_material_icons.b64', document.baseURI).toString();
+    fetch(fontUrl)
+      .then(r => r.text())
+      .then(b64 => {
+        const s = document.createElement('style');
+        s.textContent = "@font-face{font-family:'MaterialIcons';src: url('data:font/opentype;base64," + b64 + "') format('opentype');font-display:swap;}";
+        document.head.appendChild(s);
+      })
+      .catch(() => {/* fallback handling */});
+  </script>
 </body>
+
 </html>
