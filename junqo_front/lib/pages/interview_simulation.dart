@@ -153,7 +153,7 @@ class _InterviewSimulationState extends State<InterviewSimulation> with SingleTi
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur API: ${e.toString()}'),
             backgroundColor: Colors.redAccent,
@@ -270,7 +270,7 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
 
   // Trigger interview start with predefined message
   void _startInterview() {
-    if (_isLoading || !_messageController.text.isEmpty) return;
+    if (_isLoading || _messageController.text.isNotEmpty) return;
     _messageController.text = 'je souhaite commencer l\'entretien';
     _interviewStarted = true;
     _sendMessage();
@@ -576,7 +576,7 @@ Donne 2-3 conseils concrets et pratiques pour améliorer cette réponse, en fran
                  CircleAvatar(
                    backgroundColor: Colors.indigo.shade600,
                    radius: 16,
-                  child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
+                  child: const Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
                  ),
             ],
           ),

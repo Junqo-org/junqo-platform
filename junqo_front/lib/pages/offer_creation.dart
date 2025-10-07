@@ -195,8 +195,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
         String successMessage;
 
         if (_isEditMode) {
-          await offerService.updateOffer(
-              widget.existingOffer!.id!, jobOffer);
+          await offerService.updateOffer(widget.existingOffer!.id!, jobOffer);
           successMessage =
               "Votre offre « $titleValue » a été mise à jour avec succès !";
         } else {
@@ -868,7 +867,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: _expiresIn,
+                          initialValue: _expiresIn,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
@@ -1293,7 +1292,7 @@ class _JobOfferFormState extends State<JobOfferForm> {
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: _educationLevel,
+                          initialValue: _educationLevel,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(

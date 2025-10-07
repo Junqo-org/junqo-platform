@@ -5,7 +5,7 @@ Politique de Confidentialité
 
 Dernière mise à jour : 22 juin 2025
 
-La présente politique de confidentialité a pour objectif de vous informer sur la manière dont Junqo (ci-après « nous », « notre », « la Société ») collecte, utilise, protège et partage vos données personnelles lorsque vous utilisez notre service, à savoir l’application JunqoApp ou le site web http://junqo.fr/
+La présente politique de confidentialité a pour objectif de vous informer sur la manière dont Junqo (ci-après « nous », « notre », « la Société ») collecte, utilise, protège et partage vos données personnelles lorsque vous utilisez notre service, à savoir l’application JunqoApp ou le site web https://junqo.fr/
 
 1. Définitions
 - Compte : compte utilisateur créé pour accéder à certaines fonctionnalités.

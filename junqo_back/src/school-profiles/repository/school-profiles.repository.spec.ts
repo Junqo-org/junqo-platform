@@ -20,14 +20,14 @@ const schoolProfiles: SchoolProfileDTO[] = [
     name: 'Test User',
     avatar: 'https://picsum.photos/200/300',
     description: 'Test User school profile',
-    websiteUrl: 'http://junqo.fr',
+  websiteUrl: 'https://junqo.fr',
   }),
   new SchoolProfileDTO({
     userId: '8aec0948-58dd-40b2-b085-5a47244036c2',
     name: 'Test User',
     avatar: 'https://picsum.photos/200/300',
     description: 'Test User school profile',
-    websiteUrl: 'http://junqo.fr',
+  websiteUrl: 'https://junqo.fr',
   }),
 ];
 

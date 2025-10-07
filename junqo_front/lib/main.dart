@@ -49,15 +49,15 @@ void main() async {
         () => StudentProfileService());
     GetIt.instance.registerLazySingleton<CompanyProfileService>(
         () => CompanyProfileService());
-        
+
     // Register CV improvement service
     GetIt.instance.registerLazySingleton<CvImprovementService>(
         () => CvImprovementService());
-        
+
     // Register PDF processing service
     GetIt.instance.registerLazySingleton<PdfProcessingService>(
         () => PdfProcessingService());
-        
+
     // Register messaging service
     GetIt.instance.registerLazySingleton<MessagingService>(
         () => MessagingService(client));
