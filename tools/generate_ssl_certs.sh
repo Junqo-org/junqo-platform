@@ -3,7 +3,7 @@
 # Script to generate self-signed certificates for testing
 # This creates certificates that work for localhost and common test domains
 
-CERT_DIR="${1:-./ssl_certs}"
+CERT_DIR="${1:-./ssl_certs/live/junqo.fr}"
 DOMAIN="${2:-localhost}"
 
 echo "🔐 Generating self-signed certificates for testing..."

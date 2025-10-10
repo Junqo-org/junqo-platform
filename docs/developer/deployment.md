@@ -122,6 +122,8 @@ Development deployment provides a local environment for development with hot-rel
    ```bash
    # Clone the repository
    git clone git@github.com:Junqo-org/junqo-platform.git
+   # If you don't have setup SSH keys, use:
+   # git clone https://github.com/Junqo-org/junqo-platform.git .
 
    # Navigate to the project directory
    cd junqo-platform
@@ -320,6 +322,8 @@ Production deployment is designed for running the platform in a live environment
    # Clone repository
    cd /opt/junqo
    git clone git@github.com:Junqo-org/junqo-platform.git .
+   # If you don't have setup SSH keys, use:
+   # git clone https://github.com/Junqo-org/junqo-platform.git .
    ```
 
 ### SSL Certificates Configuration

@@ -5,6 +5,7 @@
 services:
   front:
     container_name: junqo_front_dev
+    image: ghcr.io/junqo-org/junqo-front-dev:dev # Dev branch, development image
     build:
       context: ./
       dockerfile: ./junqo_front/dockerfile.dev
@@ -37,6 +38,7 @@ services:
 
   back:
     container_name: junqo_back_dev
+    image: ghcr.io/junqo-org/junqo-back-dev:dev # Dev branch, development image
     build:
       context: ./
       dockerfile: ./junqo_back/dockerfile.dev
