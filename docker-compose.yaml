@@ -5,6 +5,7 @@
 services:
   front:
     container_name: junqo_front
+    image: ghcr.io/junqo-org/junqo-front-prod:latest # Main branch, production image
     build:
       context: ./
       dockerfile: ./junqo_front/dockerfile.prod
@@ -28,6 +29,7 @@ services:
         max-file: "3"
 
   back:
+    image: ghcr.io/junqo-org/junqo-back-prod:latest # Main branch, production image
     container_name: junqo_back
     build:
       context: ./
