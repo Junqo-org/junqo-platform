@@ -31,7 +31,7 @@ export default function UserTypeSelectionPage() {
   ]
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,7 +39,7 @@ export default function UserTypeSelectionPage() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl font-bold mb-4">Choose Your Profile Type</h1>
+          <h1 className="text-4xl font-bold mb-4 text-foreground">Choose Your Profile Type</h1>
           <p className="text-muted-foreground text-lg">
             Select the option that best describes you
           </p>

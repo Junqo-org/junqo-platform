@@ -29,7 +29,7 @@ import junqoLogo from '/assets/images/junqo_logo.png'
 export function Header() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
-  const { theme, setTheme } = useTheme()
+  const { theme, resolvedTheme, setTheme } = useTheme()
 
   const handleLogout = () => {
     logout()
@@ -37,7 +37,7 @@ export function Header() {
   }
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
   }
 
   const isStudent = user?.type === 'STUDENT'
@@ -136,7 +136,7 @@ export function Header() {
               onClick={toggleTheme}
               className="relative"
             >
-              {theme === 'dark' ? (
+              {resolvedTheme === 'dark' ? (
                 <Sun className="h-5 w-5 text-foreground" />
               ) : (
                 <Moon className="h-5 w-5 text-foreground" />

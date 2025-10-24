@@ -119,7 +119,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ export default function RegisterPage() {
         <Link to="/" className="flex justify-center mb-8">
           <div className="flex items-center space-x-2">
             <img src={junqoLogo} alt="Junqo Logo" className="h-10 w-10" />
-            <span className="text-2xl font-bold text-white">
+            <span className="text-2xl font-bold text-foreground">
               Junqo
             </span>
           </div>
