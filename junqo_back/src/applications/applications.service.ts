@@ -455,4 +455,59 @@ export class ApplicationsService {
       );
     }
   }
+
+  /**
+   * Bulk update status of multiple applications (companies only).
+   *
+   * @param currentUser - The authenticated company user
+   * @param applicationIds - Array of application IDs to update
+   * @param status - New status to apply
+   * @returns Result with count of updated/failed applications
+   */
+  public async bulkUpdateStatus(
+    currentUser: AuthUserDTO,
+    applicationIds: string[],
+    status: any,
+  ): Promise<any> {
+    const results = {
+      updated: 0,
+      failed: 0,
+      updatedIds: [] as string[],
+      failedIds: [] as string[],
+    };
+
+    for (const id of applicationIds) {
+      try {
+        await this.update(currentUser, id, { status });
+        results.updated++;
+        results.updatedIds.push(id);
+      } catch (error) {
+        results.failed++;
+        results.failedIds.push(id);
+        console.error(`Failed to update application ${id}:`, error.message);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Mark an application as opened (change from NOT_OPENED to PENDING).
+   *
+   * @param currentUser - The authenticated user
+   * @param id - Application ID
+   * @returns Updated application
+   */
+  public async markAsOpened(
+    currentUser: AuthUserDTO,
+    id: string,
+  ): Promise<ApplicationDTO> {
+    const application = await this.findOneById(currentUser, id);
+
+    if (application.status === 'NOT_OPENED') {
+      return this.update(currentUser, id, { status: 'PENDING' as any });
+    }
+
+    return application;
+  }
 }

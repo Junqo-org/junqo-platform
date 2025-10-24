@@ -324,4 +324,57 @@ export class OffersRepository {
       );
     }
   }
+
+  /**
+   * Increments the view count of an offer by 1.
+   *
+   * @param id - The ID of the offer to increment views for
+   * @throws NotFoundException if the offer doesn't exist
+   * @throws InternalServerErrorException if the operation fails
+   */
+  public async incrementViewCount(id: string): Promise<void> {
+    try {
+      const offer = await this.offerModel.findByPk(id);
+      
+      if (!offer) {
+        throw new NotFoundException(`Offer #${id} not found`);
+      }
+
+      await offer.increment('viewCount', { by: 1 });
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to increment view count: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Gets all applications for a specific offer.
+   *
+   * @param offerId - The ID of the offer
+   * @returns Promise containing array of applications
+   */
+  public async getOfferApplications(offerId: string): Promise<any[]> {
+    try {
+      const offer = await this.offerModel.findByPk(offerId, {
+        include: [
+          {
+            association: 'applications',
+            include: ['student', 'company'],
+          },
+        ],
+      });
+
+      if (!offer) {
+        return [];
+      }
+
+      return offer.applications || [];
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to get offer applications: ${error.message}`,
+      );
+    }
+  }
 }

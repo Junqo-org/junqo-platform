@@ -127,6 +127,7 @@ export class OffersService {
 
   /**
    * Retrieves a specific offer by its ID while enforcing access control.
+   * Automatically increments view count for non-owner views.
    *
    * @param currentUser - The authenticated user requesting the offer
    * @param id - The unique identifier of the offer to retrieve
@@ -160,6 +161,14 @@ export class OffersService {
       if (offer === null) {
         throw new NotFoundException(`Offers ${id} not found`);
       }
+
+      // Increment view count if the viewer is not the owner
+      if (offer.userId !== currentUser.id) {
+        await this.offersRepository.incrementViewCount(id);
+        // Update the returned offer with the new view count
+        offer.viewCount = (offer.viewCount || 0) + 1;
+      }
+
       return offer;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
@@ -342,6 +351,133 @@ export class OffersService {
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to mark offer as viewed: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Gets analytics for a specific offer.
+   *
+   * @param currentUser - The authenticated user requesting analytics
+   * @param offerId - The ID of the offer to get analytics for
+   * @returns Promise containing offer analytics
+   * @throws ForbiddenException if user doesn't own the offer
+   * @throws NotFoundException if offer not found
+   */
+  public async getOfferAnalytics(
+    currentUser: AuthUserDTO,
+    offerId: string,
+  ): Promise<any> {
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    try {
+      const offer: OfferDTO = await this.offersRepository.findOneById(offerId);
+      
+      if (!offer) {
+        throw new NotFoundException(`Offer ${offerId} not found`);
+      }
+
+      const offerResource: OfferResource = plainToInstance(
+        OfferResource,
+        offer,
+        { excludeExtraneousValues: true },
+      );
+
+      // Only allow owner to see analytics
+      if (ability.cannot(Actions.UPDATE, offerResource)) {
+        throw new ForbiddenException(
+          'You do not have permission to view analytics for this offer',
+        );
+      }
+
+      // Get applications for this offer
+      const applications = await this.offersRepository.getOfferApplications(offerId);
+
+      const analytics = {
+        offerId: offer.id,
+        totalViews: offer.viewCount || 0,
+        totalApplications: applications.length,
+        pendingApplications: applications.filter(
+          (a) => a.status === 'PENDING' || a.status === 'NOT_OPENED',
+        ).length,
+        acceptedApplications: applications.filter((a) => a.status === 'ACCEPTED')
+          .length,
+        deniedApplications: applications.filter((a) => a.status === 'DENIED')
+          .length,
+        conversionRate:
+          offer.viewCount > 0
+            ? (applications.length / offer.viewCount) * 100
+            : 0,
+        acceptanceRate:
+          applications.length > 0
+            ? (applications.filter((a) => a.status === 'ACCEPTED').length /
+                applications.length) *
+              100
+            : 0,
+        daysSinceCreation: Math.floor(
+          (Date.now() - new Date(offer.createdAt).getTime()) /
+            (1000 * 60 * 60 * 24),
+        ),
+      };
+
+      return analytics;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof ForbiddenException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to get offer analytics: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Gets analytics for all offers of the current user.
+   *
+   * @param currentUser - The authenticated user requesting analytics
+   * @returns Promise containing analytics for all user's offers
+   */
+  public async getAllOffersAnalytics(currentUser: AuthUserDTO): Promise<any> {
+    try {
+      const offers = await this.findByUserId(currentUser, currentUser.id);
+
+      const analyticsPromises = offers.map((offer) =>
+        this.getOfferAnalytics(currentUser, offer.id),
+      );
+
+      const analytics = await Promise.all(analyticsPromises);
+
+      const totals = {
+        totalOffers: offers.length,
+        totalViews: analytics.reduce((sum, a) => sum + a.totalViews, 0),
+        totalApplications: analytics.reduce(
+          (sum, a) => sum + a.totalApplications,
+          0,
+        ),
+        averageViewsPerOffer:
+          offers.length > 0
+            ? analytics.reduce((sum, a) => sum + a.totalViews, 0) /
+              offers.length
+            : 0,
+        averageApplicationsPerOffer:
+          offers.length > 0
+            ? analytics.reduce((sum, a) => sum + a.totalApplications, 0) /
+              offers.length
+            : 0,
+        overallConversionRate:
+          analytics.reduce((sum, a) => sum + a.totalViews, 0) > 0
+            ? (analytics.reduce((sum, a) => sum + a.totalApplications, 0) /
+                analytics.reduce((sum, a) => sum + a.totalViews, 0)) *
+              100
+            : 0,
+      };
+
+      return {
+        analytics,
+        totals,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to get offers analytics: ${error.message}`,
       );
     }
   }
