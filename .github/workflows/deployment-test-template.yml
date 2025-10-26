@@ -17,9 +17,9 @@ jobs:
         env:
             CI_ENV_FILE: "./.env.ci"
         run: |
-          if [[ -f $CI_ENV_FILE ]]; then
+          if [[ -f "$CI_ENV_FILE" ]]; then
             echo "Loading CI environment variables from $CI_ENV_FILE"
-            sed 's/\s*#.*$//' $CI_ENV_FILE | grep -v '^$' >> $GITHUB_ENV
+            sed 's/\s*#.*$//' "$CI_ENV_FILE" | grep -v '^$' >> "$GITHUB_ENV"
           fi
 
       - name: Generate SSL certificates
