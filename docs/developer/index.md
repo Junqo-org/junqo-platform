@@ -179,7 +179,7 @@ flowchart TB
 > Networking diagram
 
 The **front** is accessible on the World Wide Web at port **80**/**443**
-The **back** gis accessible on the World Wide Web at port **4200**
+The **back** is accessible on the World Wide Web at port **4200**
 The **database** is using the **backnet** network for internal communication and so is not directly accessible from the outside.  
 The **adminer** is accessible on the World Wide Web at port **3000** and communicates with the **database** through the **backnet** network.  
 
