@@ -14,7 +14,8 @@ class RestClient {
 
   /// Initialise le client avec le stockage local pour l'authentification
   Future<void> initialize({bool clearBox = false}) async {
-    int retries = kIsWeb ? 5 : 3; // More retries for web (Chrome needs this)
+    int retries = 5;
+    final int initialRetries = retries;
     int delayMs = 100;
 
     while (retries > 0) {
@@ -30,7 +31,7 @@ class RestClient {
       } catch (e, stack) {
         retries--;
         debugPrint(
-            'Error initializing auth storage (${5 - retries} attempt): $e');
+            'Error initializing auth storage (attempt ${initialRetries - retries}/$initialRetries): $e');
 
         if (retries == 0) {
           debugPrint('Stack trace: $stack');
@@ -39,7 +40,8 @@ class RestClient {
         }
 
         // Wait with exponential backoff before retrying
-        await Future.delayed(Duration(milliseconds: delayMs * (6 - retries)));
+        await Future.delayed(
+            Duration(milliseconds: delayMs * (initialRetries - retries + 1)));
       }
     }
   }
