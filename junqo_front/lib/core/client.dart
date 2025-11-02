@@ -39,7 +39,6 @@ class RestClient {
               'Failed to initialize auth storage after multiple attempts: $e');
         }
 
-        // Wait with exponential backoff before retrying
         await Future.delayed(
             Duration(milliseconds: delayMs * (initialRetries - retries + 1)));
       }
