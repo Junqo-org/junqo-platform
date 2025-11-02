@@ -44,9 +44,9 @@ RUN flutter pub get
 
 # Build the app
 RUN if [ -n "$API_URL" ]; then \
-    flutter build web --wasm --release --dart-define=API_URL=$API_URL; \
+    flutter build web --release --dart-define=API_URL=$API_URL; \
     else \
-    flutter build web --wasm --release; \
+    flutter build web --release; \
     fi
 RUN test -d build/web || (echo "Error when building the web app, web build not found" && exit 1)
 
