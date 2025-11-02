@@ -14,14 +14,33 @@ class RestClient {
 
   /// Initialise le client avec le stockage local pour l'authentification
   Future<void> initialize({bool clearBox = false}) async {
-    try {
-      _authBox = await Hive.openBox<String>('auth');
+    int retries = kIsWeb ? 5 : 3; // More retries for web (Chrome needs this)
+    int delayMs = 100;
 
-      if (clearBox) {
-        await _authBox.clear();
+    while (retries > 0) {
+      try {
+        _authBox = await Hive.openBox<String>('auth');
+
+        if (clearBox) {
+          await _authBox.clear();
+        }
+
+        debugPrint('Auth storage initialized successfully');
+        return;
+      } catch (e, stack) {
+        retries--;
+        debugPrint(
+            'Error initializing auth storage (${5 - retries} attempt): $e');
+
+        if (retries == 0) {
+          debugPrint('Stack trace: $stack');
+          throw Exception(
+              'Failed to initialize auth storage after multiple attempts: $e');
+        }
+
+        // Wait with exponential backoff before retrying
+        await Future.delayed(Duration(milliseconds: delayMs * (6 - retries)));
       }
-    } catch (e) {
-      throw Exception('Failed to initialize auth storage: $e');
     }
   }
 
