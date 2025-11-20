@@ -442,7 +442,7 @@ For detailed instructions, visit the [official Certbot documentation](https://ce
    echo "test" | sudo tee /var/www/letsencrypt/.well-known/acme-challenge/test.txt
 
    # Test HTTP access (replace yourdomain.com with your actual domain)
-   curl http://junqo.fr/.well-known/acme-challenge/test.txt
+   curl http://yourdomain.com/.well-known/acme-challenge/test.txt
 
    # Should return "test"
    # Clean up test file
