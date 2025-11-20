@@ -103,30 +103,72 @@ To deploy the **Junqo-platform** in production mode, you first need to setup the
 
 For detailed instructions, visit the [official Certbot documentation](https://certbot.eff.org/).
 
-First, install Certbot and its Nginx plugin:
+First, install Certbot (without the nginx plugin as we manage nginx config manually):
 
 ```bash
 sudo apt update
-sudo apt install certbot python3-certbot-nginx
+sudo apt install certbot -y
 ```
 
-Then, obtain an SSL certificate:
+Create the ACME challenge directory that nginx expects:
 
 ```bash
-sudo certbot --nginx -d yourdomain.com
+# Create the directory structure
+sudo mkdir -p /var/www/letsencrypt/.well-known/acme-challenge
+
+# Set correct permissions
+# Since nginx runs in Docker, use root ownership with world-readable permissions
+sudo chown -R root:root /var/www/letsencrypt
+sudo chmod -R 755 /var/www/letsencrypt
 ```
 
-Follow the prompts to:
+> **Note**: The directory is owned by `root` because the nginx reverse proxy runs inside a Docker container. The `755` permissions allow the containerized nginx to read the challenge files while Certbot (running as root on the host) can write to them.
 
-1. Enter your email address
-2. Accept the terms of service
-3. Choose whether to redirect HTTP traffic to HTTPS
+Test that the challenge directory is accessible:
 
-Certbot will automatically:
+```bash
+# Create a test file
+echo "test" | sudo tee /var/www/letsencrypt/.well-known/acme-challenge/test.txt
 
-- Obtain the certificate
-- Configure Nginx
+# Test HTTP access (replace yourdomain.com with your actual domain)
+curl http://yourdomain.com/.well-known/acme-challenge/test.txt
+
+# Should return "test"
+# Clean up test file
+sudo rm /var/www/letsencrypt/.well-known/acme-challenge/test.txt
+```
+
+Then, obtain an SSL certificate using webroot mode:
+
+```bash
+# Replace yourdomain.com with your actual domain
+sudo certbot certonly \
+  --webroot \
+  -w /var/www/letsencrypt \
+  -d yourdomain.com \
+  --email your-email@example.com \
+  --agree-tos \
+  --non-interactive
+```
+
+Certbot will:
+
+- Place challenge files in `/var/www/letsencrypt/.well-known/acme-challenge/`
+- Verify domain ownership via HTTP
+- Store certificates in `/etc/letsencrypt/live/yourdomain.com/`
 - Set up auto-renewal
+
+> **Important**: The nginx reverse proxy configuration (`nginx.rproxy.conf`) is already set up to serve these challenge files and use the certificates. No manual nginx configuration changes are needed.
+
+Verify the certificate installation:
+
+```bash
+# Check certificate details
+sudo certbot certificates
+
+# Verify certificate files exist
+sudo ls -la /etc/letsencrypt/live/yourdomain.com/
+```
 
 Verify the auto-renewal timer is active:
 
@@ -141,8 +183,6 @@ To test the renewal process:
 ```bash
 sudo certbot renew --dry-run
 ```
-
-The SSL certificates must be placed inside the `/etc/letsencrypt/live/junqo.fr` directory.
 
 After setting up SSL, you can deploy the production environment:
 

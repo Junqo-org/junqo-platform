@@ -331,44 +331,137 @@ Production deployment is designed for running the platform in a live environment
 ### SSL Certificates Configuration
 
 For production deployment, SSL certificates are required for HTTPS.
+The nginx reverse proxy is configured to serve ACME challenge files for certificate verification.
 For detailed instructions, visit the [official Certbot documentation](https://certbot.eff.org/).
 
 1. **Install Certbot**
 
    ```bash
-   # Install Certbot and Nginx plugin
+   # Install Certbot (without nginx plugin as we manage nginx config manually)
    sudo apt update
-   sudo apt install certbot python3-certbot-nginx -y
+   sudo apt install certbot -y
    ```
 
-2. **Obtain SSL Certificates**
+2. **Create ACME Challenge Directory**
+
+   The nginx configuration expects ACME challenge files in `/var/www/letsencrypt`:
+
+   ```bash
+   # Create the directory structure
+   sudo mkdir -p /var/www/letsencrypt/.well-known/acme-challenge
+
+   # Set correct permissions
+   # Since nginx runs in Docker, use root ownership with world-readable permissions
+   sudo chown -R root:root /var/www/letsencrypt
+   sudo chmod -R 755 /var/www/letsencrypt
+   ```
+
+   > **Note**: The directory is owned by `root` because the nginx reverse proxy runs inside a Docker container. The `755` permissions allow the containerized nginx to read the challenge files while Certbot (running as root on the host) can write to them.
+
+3. **Test ACME Challenge Access**
+
+   Before obtaining certificates, verify that the challenge directory is accessible:
+
+   ```bash
+   # Create a test file
+   echo "test" | sudo tee /var/www/letsencrypt/.well-known/acme-challenge/test.txt
+
+   # Test HTTP access (replace yourdomain.com with your actual domain)
+   curl http://junqo.fr/.well-known/acme-challenge/test.txt
+
+   # Should return "test"
+   # Clean up test file
+   sudo rm /var/www/letsencrypt/.well-known/acme-challenge/test.txt
+   ```
+
+4. **Obtain SSL Certificates**
+
+   Use Certbot's webroot mode to obtain certificates without modifying nginx configuration:
 
    ```bash
    # Replace yourdomain.com with your actual domain
-   sudo certbot --nginx -d yourdomain.com
+   sudo certbot certonly \
+     --webroot \
+     -w /var/www/letsencrypt \
+     -d yourdomain.com \
+     --email your-email@example.com \
+     --agree-tos \
+     --non-interactive
    ```
 
    Follow the prompts to:
-   - Enter your email address
-   - Accept the terms of service
-   - Choose whether to redirect HTTP traffic to HTTPS
+   - Enter your email address (if not using `--email` flag)
+   - Accept the terms of service (if not using `--agree-tos` flag)
 
-   Certbot will automatically:
-   - Obtain the certificate
-   - Configure Nginx
+   Certbot will:
+   - Place challenge files in `/var/www/letsencrypt/.well-known/acme-challenge/`
+   - Verify domain ownership via HTTP
+   - Store certificates in `/etc/letsencrypt/live/yourdomain.com/`
    - Set up auto-renewal
 
-3. **Verify Auto-Renewal**
+   > **Important**: The nginx reverse proxy configuration (`nginx.rproxy.conf`) is already set up to serve these challenge files and use the certificates. No manual nginx configuration changes are needed.
+
+5. **Verify Certificate Installation**
+
+   ```bash
+   # Check certificate details
+   sudo certbot certificates
+
+   # Verify certificate files exist
+   sudo ls -la /etc/letsencrypt/live/yourdomain.com/
+   ```
+
+   You should see:
+   - `fullchain.pem` - Full certificate chain
+   - `privkey.pem` - Private key
+   - `cert.pem` - Domain certificate
+   - `chain.pem` - Certificate chain
+
+6. **Restart Nginx**
+
+   After obtaining certificates, restart the nginx reverse proxy:
+
+   ```bash
+   # If running via Docker Compose
+   docker compose restart rproxy
+
+   # If running nginx directly
+   sudo systemctl restart nginx
+   ```
+
+7. **Verify Auto-Renewal**
 
    ```bash
    # Check that auto-renewal timer is active
    sudo systemctl status certbot.timer
 
-   # Test renewal process
+   # Test renewal process (dry run)
    sudo certbot renew --dry-run
    ```
 
-   Certificates will be automatically renewed before expiry.
+   Certificates will be automatically renewed before expiry (typically 30 days before expiration).
+
+8. **Setup Renewal Hook (Optional)**
+
+   To automatically reload nginx after certificate renewal:
+
+   ```bash
+   # Create renewal hook script
+   sudo tee /etc/letsencrypt/renewal-hooks/deploy/restart-nginx.sh > /dev/null << 'EOF'
+   #!/bin/bash
+   # Restart nginx after certificate renewal
+   if command -v docker &> /dev/null; then
+       docker compose -f /opt/junqo/docker-compose.yaml restart rproxy
+   else
+       systemctl restart nginx
+   fi
+   EOF
+
+   # Make it executable
+   sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/restart-nginx.sh
+   ```
+
+   This script will automatically restart nginx whenever certificates are renewed.
 
 ### Production Configuration
 
