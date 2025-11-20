@@ -102,6 +102,7 @@ services:
     volumes:
       - ./nginx.rproxy.conf:/etc/nginx/nginx.conf:ro
       - ${SSL_CERTS_PATH:-/etc/letsencrypt}:/etc/letsencrypt:ro
+      - /var/www/letsencrypt:/var/www/letsencrypt:ro
     labels:
       - "logging=promtail"
     logging:
