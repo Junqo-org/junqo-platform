@@ -21,9 +21,10 @@ nav_order: 8
 - [Production Deployment](#production-deployment)
   - [Production Prerequisites](#production-prerequisites)
   - [Server Setup](#server-setup)
-  - [SSL Certificates Configuration](#ssl-certificates-configuration)
   - [Production Configuration](#production-configuration)
   - [Deploying to Production](#deploying-to-production)
+  - [SSL Certificates Configuration](#ssl-certificates-configuration)
+  - [Check Deployment](#check-deployment)
   - [Production Features](#production-features)
   - [Monitoring and Logging](#monitoring-and-logging)
 - [Environment Configuration](#environment-configuration)
@@ -328,6 +329,80 @@ Production deployment is designed for running the platform in a live environment
    # git clone https://github.com/Junqo-org/junqo-platform.git .
    ```
 
+### Production Configuration
+
+1. **Create Secret Files**
+
+   ```bash
+   # Create secure database password
+   openssl rand -base64 32 > db_password.conf
+
+   # Create secure Grafana password
+   openssl rand -base64 32 > grafana_password.conf
+
+   # Secure the files
+   chmod 600 db_password.conf grafana_password.conf
+   ```
+
+2. **Backend Production Configuration**
+
+   Create `junqo_back/.env`:
+
+   ```env
+   # Database Configuration
+   DATABASE_PASSWORD_FILE=/run/secrets/db_password
+
+   # Security Configuration - Generate with: `openssl rand -base64 32`
+   JWT_SECRET=your_production_jwt_secret_minimum_32_characters
+
+   # CORS Configuration (restrict to your domain)
+   CORS_ORIGINS=https://yourdomain.com
+
+   # OpenAI Configuration
+   OPENAI_API_KEY=your_production_openai_api_key
+
+   # Environment
+   NODE_ENV=production
+   ```
+
+3. **Frontend Production Configuration**
+
+   Create `junqo_front/config/.env`:
+
+   ```env
+   # API URL for production
+   API_URL=https://yourdomain.com/api/v1
+   ```
+
+4. **Global Environment Variables**
+
+   Create `.env` at project root:
+
+   ```env
+   # SSL Certificate path
+   SSL_CERTS_PATH=/etc/letsencrypt
+
+   # Database configuration
+   DATABASE_NAME=junqo
+   DATABASE_USER=junqo
+   DATABASE_SHM_SIZE=256mb
+
+   # Flutter version
+   FLUTTER_VERSION=3.35.3
+   ```
+
+### Deploying to Production
+
+Start Production Environment
+
+   ```bash
+   # Deploy using production configuration
+   docker compose up -d --build
+
+   # Verify all services are running
+   docker compose ps
+   ```
+
 ### SSL Certificates Configuration
 
 For production deployment, SSL certificates are required for HTTPS.
@@ -424,9 +499,6 @@ For detailed instructions, visit the [official Certbot documentation](https://ce
    ```bash
    # If running via Docker Compose
    docker compose restart rproxy
-
-   # If running nginx directly
-   sudo systemctl restart nginx
    ```
 
 7. **Verify Auto-Renewal**
@@ -463,81 +535,9 @@ For detailed instructions, visit the [official Certbot documentation](https://ce
 
    This script will automatically restart nginx whenever certificates are renewed.
 
-### Production Configuration
+### Check Deployment
 
-1. **Create Secret Files**
-
-   ```bash
-   # Create secure database password
-   openssl rand -base64 32 > db_password.conf
-
-   # Create secure Grafana password
-   openssl rand -base64 32 > grafana_password.conf
-
-   # Secure the files
-   chmod 600 db_password.conf grafana_password.conf
-   ```
-
-2. **Backend Production Configuration**
-
-   Create `junqo_back/.env`:
-
-   ```env
-   # Database Configuration
-   DATABASE_PASSWORD_FILE=/run/secrets/db_password
-
-   # Security Configuration - Generate with: `openssl rand -base64 32`
-   JWT_SECRET=your_production_jwt_secret_minimum_32_characters
-
-   # CORS Configuration (restrict to your domain)
-   CORS_ORIGINS=https://yourdomain.com
-
-   # OpenAI Configuration
-   OPENAI_API_KEY=your_production_openai_api_key
-
-   # Environment
-   NODE_ENV=production
-   ```
-
-3. **Frontend Production Configuration**
-
-   Create `junqo_front/config/.env`:
-
-   ```env
-   # API URL for production
-   API_URL=https://yourdomain.com/api/v1
-   ```
-
-4. **Global Environment Variables**
-
-   Create `.env` at project root:
-
-   ```env
-   # SSL Certificate path
-   SSL_CERTS_PATH=/etc/letsencrypt
-
-   # Database configuration
-   DATABASE_NAME=junqo
-   DATABASE_USER=junqo
-   DATABASE_SHM_SIZE=256mb
-
-   # Flutter version
-   FLUTTER_VERSION=3.35.3
-   ```
-
-### Deploying to Production
-
-1. **Start Production Environment**
-
-   ```bash
-   # Deploy using production configuration
-   docker compose up -d --build
-
-   # Verify all services are running
-   docker compose ps
-   ```
-
-2. **Check Service Health**
+1. **Check Service Health**
 
    ```bash
    # Check logs
@@ -549,7 +549,7 @@ For detailed instructions, visit the [official Certbot documentation](https://ce
    docker compose logs front
    ```
 
-3. **Test the Deployment**
+2. **Test the Deployment**
 
    ```bash
    # Test HTTP to HTTPS redirect
