@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -306,36 +306,38 @@ export default function OfferDetailPage() {
                 </div>
               </>
             )}
-            {isStudent && (
-              <div className="mt-8 flex gap-4">
-                {hasApplied ? (
-                  <Button disabled className="flex-1 bg-gray-800 text-gray-400 cursor-not-allowed border-gray-700">
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Already Applied
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={handleApply} 
-                    disabled={isApplying || offer.status !== 'ACTIVE'}
-                    className="flex-1 bg-black hover:bg-gray-800 text-white border-gray-700"
-                    size="lg"
-                  >
-                    {isApplying ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Applying...
-                      </>
-                    ) : (
-                      <>
-                        <Briefcase className="mr-2 h-4 w-4" />
-                        Apply Now
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
-            )}
           </CardContent>
+
+          <CardFooter className="flex gap-4 bg-black border-t border-gray-800">
+            {isStudent && (
+              hasApplied ? (
+                <Button disabled className="flex-1 bg-gray-800 text-gray-400 cursor-not-allowed border-gray-700">
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Already Applied
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleApply} 
+                  disabled={isApplying || offer.status !== 'ACTIVE'}
+                  className="flex-1 bg-black hover:bg-gray-800 text-white border-gray-700"
+                  size="lg"
+                >
+                  {isApplying ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Applying...
+                    </>
+                  ) : (
+                    <>
+                      <Briefcase className="mr-2 h-4 w-4" />
+                      Apply Now
+                    </>
+                  )}
+                </Button>
+              )
+            )}
+            {/* Companies cannot edit offers as per API specifications */}
+          </CardFooter>
         </Card>
       </motion.div>
       </div>
