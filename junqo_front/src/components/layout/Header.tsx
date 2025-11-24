@@ -29,16 +29,16 @@ import { motion } from 'framer-motion'
 export function Header() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
-  const resolvedTheme = 'light' // TODO: implement theme
+  // const resolvedTheme = 'light' // TODO: implement theme
 
   const handleLogout = () => {
     logout()
     navigate('/login')
   }
 
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-  }
+  // const toggleTheme = () => {
+  //   // TODO: implement theme toggle
+  // }
 
   const isStudent = user?.type === 'STUDENT'
   const isCompany = user?.type === 'COMPANY'
@@ -129,20 +129,16 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
+          {/* TODO: Implement theme toggle */}
+          {/* <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={toggleTheme}
               className="relative"
             >
-              {resolvedTheme === 'dark' ? (
-                <Sun className="h-5 w-5 text-foreground" />
-              ) : (
-                <Moon className="h-5 w-5 text-foreground" />
-              )}
+              <Moon className="h-5 w-5 text-foreground" />
             </Button>
-          </motion.div>
+          </motion.div> */}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

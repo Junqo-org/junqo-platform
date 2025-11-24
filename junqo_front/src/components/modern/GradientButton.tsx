@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-interface GradientButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface GradientButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onDrag' | 'onDragStart' | 'onDragEnd'> {
   children: ReactNode
   variant?: 'primary' | 'secondary' | 'accent'
   size?: 'sm' | 'md' | 'lg'
