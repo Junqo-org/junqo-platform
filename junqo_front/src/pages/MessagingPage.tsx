@@ -48,7 +48,7 @@ export default function MessagingPage() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
   const [isSending, setIsSending] = useState(false)
 
-  const { sendMessage, joinRoom, leaveRoom, onMessage, offMessage } = useWebSocket({
+  const { sendMessage, joinRoom, leaveRoom } = useWebSocket({
     onMessage: handleNewMessage,
   })
 
@@ -114,7 +114,14 @@ export default function MessagingPage() {
     setConversations((prev) =>
       prev.map((conv) =>
         conv.id === message.conversationId
-          ? { ...conv, lastMessage: message, updatedAt: new Date().toISOString() }
+          ? { 
+              ...conv, 
+              lastMessage: { 
+                ...message, 
+                createdAt: message.createdAt || new Date().toISOString() 
+              }, 
+              updatedAt: new Date().toISOString() 
+            }
           : conv
       )
     )

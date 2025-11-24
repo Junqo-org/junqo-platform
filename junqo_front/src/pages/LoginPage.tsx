@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
-import junqoLogo from '/assets/images/junqo_logo.png'
+// import junqoLogo from '/assets/images/junqo_logo.png'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -61,8 +61,8 @@ export default function LoginPage() {
       >
         <Link to="/" className="flex justify-center mb-8">
           <div className="flex items-center space-x-2">
-            <img src={junqoLogo} alt="Junqo Logo" className="h-10 w-10" />
-            <span className="text-2xl font-bold text-foreground">
+            {/* <img src={junqoLogo} alt="Junqo Logo" className="h-10 w-10" /> */}
+            <span className="text-2xl font-bold text-primary">
               Junqo
             </span>
           </div>

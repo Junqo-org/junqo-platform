@@ -24,12 +24,12 @@ import {
 } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import { motion } from 'framer-motion'
-import junqoLogo from '/assets/images/junqo_logo.png'
+// import junqoLogo from '/assets/images/junqo_logo.png'
 
 export function Header() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
-  const { theme, resolvedTheme, setTheme } = useTheme()
+  const resolvedTheme = 'light' // TODO: implement theme
 
   const handleLogout = () => {
     logout()
@@ -53,8 +53,8 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link to="/home" className="flex items-center space-x-2">
-            <img src={junqoLogo} alt="Junqo logo" className="h-7 w-auto" />
-            <span className="text-xl font-semibold text-foreground">Junqo</span>
+            {/* <img src={junqoLogo} alt="Junqo logo" className="h-7 w-auto" /> */}
+            <span className="text-xl font-bold text-primary">Junqo</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-2">
