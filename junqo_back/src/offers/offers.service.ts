@@ -372,7 +372,7 @@ export class OffersService {
 
     try {
       const offer: OfferDTO = await this.offersRepository.findOneById(offerId);
-      
+
       if (!offer) {
         throw new NotFoundException(`Offer ${offerId} not found`);
       }
@@ -391,7 +391,8 @@ export class OffersService {
       }
 
       // Get applications for this offer
-      const applications = await this.offersRepository.getOfferApplications(offerId);
+      const applications =
+        await this.offersRepository.getOfferApplications(offerId);
 
       const analytics = {
         offerId: offer.id,
@@ -400,8 +401,9 @@ export class OffersService {
         pendingApplications: applications.filter(
           (a) => a.status === 'PENDING' || a.status === 'NOT_OPENED',
         ).length,
-        acceptedApplications: applications.filter((a) => a.status === 'ACCEPTED')
-          .length,
+        acceptedApplications: applications.filter(
+          (a) => a.status === 'ACCEPTED',
+        ).length,
         deniedApplications: applications.filter((a) => a.status === 'DENIED')
           .length,
         conversionRate:

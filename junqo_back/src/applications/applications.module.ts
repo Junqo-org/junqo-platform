@@ -9,7 +9,12 @@ import { ConversationsModule } from '../conversations/conversations.module';
 @Module({
   controllers: [ApplicationsController],
   providers: [ApplicationsService],
-  imports: [ApplicationsRepositoryModule, CaslModule, OffersModule, ConversationsModule],
+  imports: [
+    ApplicationsRepositoryModule,
+    CaslModule,
+    OffersModule,
+    ConversationsModule,
+  ],
   exports: [ApplicationsService],
 })
 export class ApplicationsModule {}

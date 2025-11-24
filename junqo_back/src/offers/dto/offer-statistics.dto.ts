@@ -68,7 +68,8 @@ export class OfferStatisticsDTO {
 
 export class UserStatisticsDTO {
   @ApiProperty({
-    description: 'Total number of active offers (for companies) or applications (for students)',
+    description:
+      'Total number of active offers (for companies) or applications (for students)',
     example: 12,
   })
   @Expose()
@@ -77,7 +78,8 @@ export class UserStatisticsDTO {
   totalActive: number;
 
   @ApiProperty({
-    description: 'Total views on offers (for companies) or profile views (for students)',
+    description:
+      'Total views on offers (for companies) or profile views (for students)',
     example: 245,
   })
   @Expose()
@@ -86,7 +88,8 @@ export class UserStatisticsDTO {
   totalViews: number;
 
   @ApiProperty({
-    description: 'Total applications (received for companies, sent for students)',
+    description:
+      'Total applications (received for companies, sent for students)',
     example: 34,
   })
   @Expose()
@@ -139,4 +142,3 @@ export class UserStatisticsDTO {
   @IsInt()
   unreadMessages: number;
 }
-

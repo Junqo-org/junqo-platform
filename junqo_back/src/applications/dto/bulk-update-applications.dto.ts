@@ -72,4 +72,3 @@ export class MarkAsOpenedDTO {
   @IsUUID('4')
   applicationId: string;
 }
-

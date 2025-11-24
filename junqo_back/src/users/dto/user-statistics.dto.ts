@@ -4,7 +4,8 @@ import { IsInt, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class DashboardStatisticsDTO {
   @ApiProperty({
-    description: 'Total active items (offers for companies, applications for students)',
+    description:
+      'Total active items (offers for companies, applications for students)',
     example: 12,
   })
   @Expose()
@@ -13,7 +14,8 @@ export class DashboardStatisticsDTO {
   totalActive: number;
 
   @ApiProperty({
-    description: 'Total views (offer views for companies, profile views for students)',
+    description:
+      'Total views (offer views for companies, profile views for students)',
     example: 245,
   })
   @Expose()
@@ -22,7 +24,8 @@ export class DashboardStatisticsDTO {
   totalViews: number;
 
   @ApiProperty({
-    description: 'Total applications (received for companies, sent for students)',
+    description:
+      'Total applications (received for companies, sent for students)',
     example: 34,
   })
   @Expose()
@@ -102,4 +105,3 @@ export class DashboardStatisticsDTO {
   @IsInt()
   profileCompletion: number;
 }
-

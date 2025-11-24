@@ -23,4 +23,3 @@ export class ProfileCompletionDTO {
   })
   completedFields: string[];
 }
-

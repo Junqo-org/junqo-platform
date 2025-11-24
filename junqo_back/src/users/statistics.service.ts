@@ -53,7 +53,10 @@ export class StatisticsService {
         });
 
         stats.totalActive = offers.filter((o) => o.status === 'ACTIVE').length;
-        stats.totalViews = offers.reduce((sum, o) => sum + (o.viewCount || 0), 0);
+        stats.totalViews = offers.reduce(
+          (sum, o) => sum + (o.viewCount || 0),
+          0,
+        );
 
         const applications = await this.applicationModel.findAll({
           where: { companyId: currentUser.id },
@@ -120,7 +123,10 @@ export class StatisticsService {
           if (studentProfile.skills && studentProfile.skills.length > 0)
             completion += 15;
           if (studentProfile.educationLevel) completion += 10;
-          if (studentProfile.experiences && studentProfile.experiences.length > 0)
+          if (
+            studentProfile.experiences &&
+            studentProfile.experiences.length > 0
+          )
             completion += 10;
           stats.profileCompletion = completion;
         }
@@ -151,7 +157,9 @@ export class StatisticsService {
       ).length;
 
       // Calculate response rate (messages sent vs received)
-      const sentMessages = messages.filter((m) => m.senderId === currentUser.id);
+      const sentMessages = messages.filter(
+        (m) => m.senderId === currentUser.id,
+      );
       const receivedMessages = messages.filter(
         (m) => m.senderId !== currentUser.id,
       );
@@ -169,4 +177,3 @@ export class StatisticsService {
     return stats;
   }
 }
-

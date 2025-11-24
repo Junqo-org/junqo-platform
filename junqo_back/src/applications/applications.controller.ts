@@ -30,6 +30,10 @@ import {
   ApplicationQueryDTO,
   ApplicationQueryOutputDTO,
 } from './dto/application-query.dto';
+import {
+  BulkUpdateApplicationsDTO,
+  BulkUpdateResultDTO,
+} from './dto/bulk-update-applications.dto';
 
 @ApiBearerAuth()
 @Controller('applications')
@@ -149,12 +153,12 @@ export class ApplicationsController {
   @Post('bulk/update-status')
   @ApiOperation({ summary: 'Bulk update application status (companies only)' })
   @ApiBody({
-    type: () => require('./dto/bulk-update-applications.dto').BulkUpdateApplicationsDTO,
+    type: BulkUpdateApplicationsDTO,
     description: 'Application IDs and new status',
   })
   @ApiOkResponse({
     description: 'Applications updated successfully',
-    type: () => require('./dto/bulk-update-applications.dto').BulkUpdateResultDTO,
+    type: BulkUpdateResultDTO,
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   @ApiForbiddenResponse({
@@ -173,7 +177,10 @@ export class ApplicationsController {
   }
 
   @Patch(':id/mark-opened')
-  @ApiOperation({ summary: 'Mark an application as opened (changes from NOT_OPENED to PENDING)' })
+  @ApiOperation({
+    summary:
+      'Mark an application as opened (changes from NOT_OPENED to PENDING)',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID of the application',

@@ -74,7 +74,7 @@ export class StudentProfileDTO {
   phoneNumber?: string;
 
   @ApiPropertyOptional({
-    description: "LinkedIn profile URL",
+    description: 'LinkedIn profile URL',
     example: 'https://linkedin.com/in/johndoe',
   })
   @Expose()
@@ -202,7 +202,7 @@ export class UpdateStudentProfileDTO {
   phoneNumber?: string;
 
   @ApiPropertyOptional({
-    description: "LinkedIn profile URL",
+    description: 'LinkedIn profile URL',
     example: 'https://linkedin.com/in/johndoe',
   })
   @IsOptional()

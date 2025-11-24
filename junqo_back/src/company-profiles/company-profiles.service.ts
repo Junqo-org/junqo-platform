@@ -293,7 +293,9 @@ export class CompanyProfilesService {
       });
 
       const totalFields = Object.keys(fields).length;
-      const percentage = Math.round((completedFields.length / totalFields) * 100);
+      const percentage = Math.round(
+        (completedFields.length / totalFields) * 100,
+      );
 
       return {
         percentage,

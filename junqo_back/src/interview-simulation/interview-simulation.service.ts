@@ -11,14 +11,16 @@ export class InterviewSimulationService {
   constructor(private configService: ConfigService) {
     this.apiKey = this.configService.get<string>('OPENAI_API_KEY');
     if (!this.apiKey) {
-      this.logger.error('OPENAI_API_KEY is not set in the environment variables');
+      this.logger.error(
+        'OPENAI_API_KEY is not set in the environment variables',
+      );
     }
   }
 
   async generateResponse(message: string, context?: string): Promise<string> {
     try {
       // Construire le système prompt
-      const systemPrompt = context 
+      const systemPrompt = context
         ? `Tu es un recruteur conduisant un entretien d\u2019embauche pour un poste de ${context}. Pose des questions pertinentes, évalue les réponses et donne des conseils constructifs.`
         : 'Tu es un recruteur conduisant un entretien d\u2019embauche. Pose des questions pertinentes, évalue les réponses et donne des conseils constructifs.';
 
@@ -46,7 +48,7 @@ export class InterviewSimulationService {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.apiKey}`,
+            Authorization: `Bearer ${this.apiKey}`,
           },
         },
       );
@@ -56,9 +58,11 @@ export class InterviewSimulationService {
     } catch (error) {
       this.logger.error(`Error calling OpenAI API: ${error.message}`);
       if (error.response) {
-        this.logger.error(`Response data: ${JSON.stringify(error.response.data)}`);
+        this.logger.error(
+          `Response data: ${JSON.stringify(error.response.data)}`,
+        );
       }
       throw new Error('Failed to generate interview response');
     }
   }
-} 
+}

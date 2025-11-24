@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CvImprovementRequestDto {
   @ApiProperty({
     description: 'Le contenu du CV à analyser',
-    example: 'John Doe\nDéveloppeur Web\n10 ans d\'expérience...',
+    example: "John Doe\nDéveloppeur Web\n10 ans d'expérience...",
   })
   @IsNotEmpty()
   @IsString()
@@ -22,8 +22,9 @@ export class CvImprovementRequestDto {
 
 export class CvImprovementResponseDto {
   @ApiProperty({
-    description: 'Les recommandations d\'amélioration pour le CV',
-    example: '1. Ajoutez vos certifications.\n2. Mettez en avant vos compétences techniques...',
+    description: "Les recommandations d'amélioration pour le CV",
+    example:
+      '1. Ajoutez vos certifications.\n2. Mettez en avant vos compétences techniques...',
   })
   recommendations: string;
-} 
+}

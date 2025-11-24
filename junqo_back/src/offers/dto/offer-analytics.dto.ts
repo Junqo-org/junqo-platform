@@ -107,4 +107,3 @@ export class BulkOfferAnalyticsDTO {
     overallConversionRate: number;
   };
 }
-

@@ -427,7 +427,7 @@ export class ApplicationsService {
     }
   }
 
-    /**
+  /**
    * Creates a conversation between the student and company when an application is accepted
    *
    * @param currentUser - The authenticated user who accepted the application
@@ -446,7 +446,10 @@ export class ApplicationsService {
       };
 
       // Create the conversation using the current user's context
-      await this.conversationsService.create(currentUser, createConversationDto);
+      await this.conversationsService.create(
+        currentUser,
+        createConversationDto,
+      );
     } catch (error) {
       // Log the error but don't fail the application update
       console.error(

@@ -20,14 +20,14 @@ const companyProfiles: CompanyProfileDTO[] = [
     name: 'Test User',
     avatar: 'https://picsum.photos/200/300',
     description: 'Test User Company profile',
-  websiteUrl: 'https://junqo.fr',
+    websiteUrl: 'https://junqo.fr',
   }),
   new CompanyProfileDTO({
     userId: '8aec0948-58dd-40b2-b085-5a47244036c2',
     name: 'Test User',
     avatar: 'https://picsum.photos/200/300',
     description: 'Test User Company profile',
-  websiteUrl: 'https://junqo.fr',
+    websiteUrl: 'https://junqo.fr',
   }),
 ];
 

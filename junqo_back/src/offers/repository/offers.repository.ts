@@ -325,7 +325,6 @@ export class OffersRepository {
     }
   }
 
-
   /**
    * Gets all applications for a specific offer.
    *
