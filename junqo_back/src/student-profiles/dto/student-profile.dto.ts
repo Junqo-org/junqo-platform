@@ -56,6 +56,42 @@ export class StudentProfileDTO {
   avatar?: string;
 
   @ApiPropertyOptional({
+    description: "Student's bio/description",
+    example: 'Passionate software developer with 3 years of experience...',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Bio must be a string' })
+  bio?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's phone number",
+    example: '+33612345678',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Phone number must be a string' })
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({
+    description: "LinkedIn profile URL",
+    example: 'https://linkedin.com/in/johndoe',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl({}, { message: 'LinkedIn URL must be valid' })
+  linkedinUrl?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's education level",
+    example: 'Bachelor in Computer Science',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Education level must be a string' })
+  educationLevel?: string;
+
+  @ApiPropertyOptional({
     description: 'List of student skills',
     example: ['JavaScript', 'React', 'Node.js'],
     isArray: true,
@@ -145,10 +181,41 @@ export class UpdateStudentProfileDTO {
     description: "URL to student's avatar image",
     example: 'https://example.com/avatar.jpg',
   })
-  @Expose()
   @IsOptional()
-  @IsUrl()
+  @IsString({ message: 'Avatar must be a string' })
   avatar?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's bio/description",
+    example: 'Passionate software developer with 3 years of experience...',
+  })
+  @IsOptional()
+  @IsString({ message: 'Bio must be a string' })
+  bio?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's phone number",
+    example: '+33612345678',
+  })
+  @IsOptional()
+  @IsString({ message: 'Phone number must be a string' })
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({
+    description: "LinkedIn profile URL",
+    example: 'https://linkedin.com/in/johndoe',
+  })
+  @IsOptional()
+  @IsString({ message: 'LinkedIn URL must be a string' })
+  linkedinUrl?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's education level",
+    example: 'Bachelor in Computer Science',
+  })
+  @IsOptional()
+  @IsString({ message: 'Education level must be a string' })
+  educationLevel?: string;
 
   @ApiPropertyOptional({
     description: 'List of student skills',
@@ -156,7 +223,6 @@ export class UpdateStudentProfileDTO {
     isArray: true,
     type: [String],
   })
-  @Expose()
   @IsOptional()
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true })

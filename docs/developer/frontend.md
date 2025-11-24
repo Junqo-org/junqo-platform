@@ -15,22 +15,21 @@ nav_order: 2
   - [Configuration](#configuration)
   - [Local Development Setup](#local-development-setup)
   - [Running the Application](#running-the-application)
+  - [Building for Production](#building-for-production)
   - [Development Environment Configuration](#development-environment-configuration)
-  - [Hot Reload/Restart](#hot-reloadrestart)
+  - [Hot Module Replacement (HMR)](#hot-module-replacement-hmr)
   - [Common Development Commands](#common-development-commands)
-  - [Platform-Specific Build Instructions](#platform-specific-build-instructions)
 - [Technologies](#technologies)
 
 ## Getting started
 
-The frontend of the **Junqo-platform** is a Flutter application.  
+The frontend of the **Junqo-platform** is a React application built with Vite.  
 Its main goal is to provide a user interface to interact with the backend.
 
 ### Prerequisites
 
-- **Flutter**: Version 3.22.2 or higher. [Install Flutter](https://docs.flutter.dev/get-started/install)
-- **Dart**: Comes with Flutter, but ensure it's up to date.
-- **Python 3**: For updating environment configs. [Install Python 3](https://www.python.org/downloads/)
+- **Node.js**: Version 18 or higher. [Install Node.js](https://nodejs.org/)
+- **npm**: Version 9 or higher (comes with Node.js)
 
 ### Installation
 
@@ -52,121 +51,175 @@ Its main goal is to provide a user interface to interact with the backend.
     cd junqo_front
     ```
 
-4. Get the Flutter dependencies:
+4. Install dependencies:
 
     ```sh
-    flutter pub get
+    npm install
     ```
 
 ### Configuration
 
-To configure the frontend, you can use flutter build environment variables when building the app or `.env` files in the `junqo_front/config/` directory.
-If an environment variable is not found, the default value will be used.
+The frontend uses environment variables to configure the backend API connection.
 
-Here is the list of environment variables used by the **frontend**:
+#### Local Mode (Default Development)
 
-- `API_URL`: The URL of the backend API. Default: `http://localhost:4200/api/v1`
-
-Create a `.env` file in the `junqo_front/config/` directory and add the following environment variables:
+**Do NOT create a `.env` file** or leave `API_URL` empty:
 
 ```env
-# Url of the junqo-platform backend
-API_URL=http://localhost:4200/api/v1
+# .env (or no file at all)
+# API_URL=
 ```
+
+➡️ The Vite proxy will automatically redirect to `http://localhost:4200`
+
+#### Remote Server Mode (Dev/Staging)
+
+Create a `.env` file at the root of `junqo_front/` with:
+
+```env
+# .env
+API_URL=http://dev.junqo.fr:4200/api/v1
+```
+
+➡️ The Vite proxy will redirect to the remote server
+
+#### Production Mode
+
+```env
+# .env.production
+API_URL=https://api.junqo.fr/api/v1
+```
+
+#### WebSocket (Optional)
+
+By default, the WebSocket URL is derived from `API_URL`. You can specify it manually if needed:
+
+```env
+WS_URL=http://localhost:4200
+```
+
+**Note:** After modifying the `.env` file, **restart the development server** (Ctrl+C then `npm run dev`).
+
+For more details, see [ENV_CONFIG.md](./ENV_CONFIG.md).
 
 ### Local Development Setup
 
-1. Ensure you have an emulator or a physical device connected.
-2. Run the application:
+1. Ensure the backend is running (see [Backend Documentation](./backend.md))
+2. Run the development server:
 
   ```sh
-  flutter run
+  npm run dev
   ```
+
+3. Open your browser at `http://localhost:3000`
 
 ### Running the Application
 
-- To run the application in debug mode:
+- To run the application in development mode with hot reload:
 
   ```sh
-  flutter run
+  npm run dev
   ```
 
-- To build the application for release:
+- To run with custom host/port:
 
   ```sh
-  flutter build apk
+  npm run dev -- --host 0.0.0.0 --port 8080
+  ```
+
+### Building for Production
+
+- To build the application for production:
+
+  ```sh
+  npm run build
+  ```
+
+- To preview the production build locally:
+
+  ```sh
+  npm run preview
   ```
 
 ### Development Environment Configuration
 
-- **VS Code**: Install the Flutter and Dart extensions.
-- **Android Studio**: Install the Flutter and Dart plugins.
+- **VS Code**: Install the following extensions:
+  - ESLint
+  - Prettier
+  - TypeScript and JavaScript Language Features
+- **Browser DevTools**: Install React Developer Tools extension
 
-### Hot Reload/Restart
+### Hot Module Replacement (HMR)
 
-- **Hot Reload**: Press `r` in the terminal or use the hot reload button in your IDE.
-- **Hot Restart**: Press `R` in the terminal or use the hot restart button in your IDE.
+Vite provides blazing-fast Hot Module Replacement (HMR) out of the box:
+
+- **Automatic**: Changes to your code are instantly reflected in the browser without losing component state
+- **Fast Refresh**: React components update without full page reload
+- **No configuration needed**: Just save your files and see the changes
 
 ### Common Development Commands
 
-- Clean the project:
+- Clean build artifacts:
 
   ```sh
-  flutter clean
+  rm -rf dist node_modules/.vite
   ```
 
-- Upgrade dependencies:
+- Update dependencies:
 
   ```sh
-  flutter pub upgrade
+  npm update
   ```
 
-- Upgrade dependencies versions:
+- Check for outdated packages:
 
   ```sh
-  flutter pub outdated
-  flutter pub upgrade --major-versions
+  npm outdated
   ```
 
-- Run tests:
+- Run TypeScript type checking:
 
   ```sh
-  flutter test
+  npx tsc --noEmit
   ```
 
-- Run lint checks:
+- Run linter:
 
   ```sh
-  flutter analyze
+  npm run lint
   ```
 
-### Platform-Specific Build Instructions
-
-- **iOS**: Ensure you have Xcode installed. Run:
+- Format code with Prettier:
 
   ```sh
-  flutter build ios
+  npm run format
   ```
 
-- **Web**: Ensure you have Chrome installed. Run:
+- Analyze bundle size:
 
   ```sh
-  flutter build web
-  ```
-
-- **Desktop**: Ensure you have the necessary dependencies installed. Run:
-
-  ```sh
-  flutter build windows
-  flutter build macos
-  flutter build linux
+  npm run build -- --analyze
   ```
 
 ## Technologies
 
-- [Flutter](https://flutter.dev/)
-  - It is an open source framework for building beautiful, natively compiled, multi-platform applications from a single codebase.
-- [Dart](https://dart.dev/)
-  - It is a client-optimized programming language for fast apps on any platform.
-- [Dio](https://pub.dev/packages/dio)
-  - It is a powerful HTTP client for Dart, which supports Interceptors, FormData, Request Cancellation, File Downloading, Timeout, and more.
+- [React](https://react.dev/)
+  - A JavaScript library for building user interfaces with reusable components
+- [TypeScript](https://www.typescriptlang.org/)
+  - JavaScript with syntax for types, providing better developer experience and type safety
+- [Vite](https://vitejs.dev/)
+  - Next generation frontend tooling with blazing-fast dev server and optimized builds
+- [React Router](https://reactrouter.com/)
+  - Declarative routing for React applications
+- [Axios](https://axios-http.com/)
+  - Promise-based HTTP client for making API requests
+- [Zustand](https://github.com/pmndrs/zustand)
+  - Small, fast, and scalable state management solution
+- [Tailwind CSS](https://tailwindcss.com/)
+  - Utility-first CSS framework for rapidly building custom designs
+- [shadcn/ui](https://ui.shadcn.com/)
+  - Re-usable components built with Radix UI and Tailwind CSS
+- [Sonner](https://sonner.emilkowal.ski/)
+  - Opinionated toast component for React
+- [date-fns](https://date-fns.org/)
+  - Modern JavaScript date utility library

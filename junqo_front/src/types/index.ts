@@ -5,25 +5,39 @@ export interface User {
   type: 'STUDENT' | 'COMPANY' | 'SCHOOL'  // Backend uses uppercase enum
 }
 
-export interface StudentProfile {
+export interface Experience {
   id: string
-  userId: string
-  bio?: string
+  title: string
+  company: string
+  startDate: string
+  endDate?: string
+  description?: string
   skills?: string[]
-  education?: string
-  lookingFor?: string
-  cv?: string
-  profilePicture?: string
+  studentProfileId: string
+}
+
+export interface StudentProfile {
+  userId: string
+  name: string
+  avatar?: string
+  bio?: string
+  phoneNumber?: string
+  linkedinUrl?: string
+  educationLevel?: string
+  skills?: string[]
+  experiences?: Experience[]
 }
 
 export interface CompanyProfile {
-  id: string
   userId: string
-  companyName: string
+  name: string
+  avatar?: string
   description?: string
+  phoneNumber?: string
+  address?: string
+  websiteUrl?: string
+  logoUrl?: string
   industry?: string
-  website?: string
-  logo?: string
 }
 
 export interface Offer {
@@ -117,5 +131,21 @@ export interface DashboardStatistics {
   unreadMessages: number
   responseRate: number
   profileCompletion: number
+}
+
+// Profile Completion
+export interface ProfileFieldStatus {
+  fieldName: string
+  label: string
+  completed: boolean
+  weight: number
+  hint?: string
+}
+
+export interface ProfileCompletion {
+  completionPercentage: number
+  fields: ProfileFieldStatus[]
+  completedFields: number
+  totalFields: number
 }
 

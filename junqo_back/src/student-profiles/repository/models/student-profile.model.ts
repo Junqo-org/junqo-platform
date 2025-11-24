@@ -52,6 +52,30 @@ export class StudentProfileModel extends Model {
   avatar: string;
 
   @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  bio?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  phoneNumber?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  linkedinUrl?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  educationLevel?: string;
+
+  @Column({
     type: DataType.ARRAY(DataType.STRING),
   })
   skills: string[];
@@ -64,6 +88,10 @@ export class StudentProfileModel extends Model {
       userId: this.userId,
       name: this.name,
       avatar: this.avatar,
+      bio: this.bio,
+      phoneNumber: this.phoneNumber,
+      linkedinUrl: this.linkedinUrl,
+      educationLevel: this.educationLevel,
       skills: this.skills,
       experiences: this.experiences?.map((exp) => exp.toExperienceDTO()) || [],
     });

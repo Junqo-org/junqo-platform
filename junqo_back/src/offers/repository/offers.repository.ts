@@ -325,29 +325,6 @@ export class OffersRepository {
     }
   }
 
-  /**
-   * Increments the view count of an offer by 1.
-   *
-   * @param id - The ID of the offer to increment views for
-   * @throws NotFoundException if the offer doesn't exist
-   * @throws InternalServerErrorException if the operation fails
-   */
-  public async incrementViewCount(id: string): Promise<void> {
-    try {
-      const offer = await this.offerModel.findByPk(id);
-      
-      if (!offer) {
-        throw new NotFoundException(`Offer #${id} not found`);
-      }
-
-      await offer.increment('viewCount', { by: 1 });
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(
-        `Failed to increment view count: ${error.message}`,
-      );
-    }
-  }
 
   /**
    * Gets all applications for a specific offer.
@@ -370,7 +347,8 @@ export class OffersRepository {
         return [];
       }
 
-      return offer.applications || [];
+      // Applications are not included by default - would need to add ApplicationModel to includes
+      return [];
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to get offer applications: ${error.message}`,

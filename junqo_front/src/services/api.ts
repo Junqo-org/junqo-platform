@@ -76,30 +76,40 @@ class ApiService {
   }
 
   // User endpoints
-  async updateUser(id: number, data: any) {
+  async updateUser(id: string, data: any) {
     const response = await this.client.patch(`/users/${id}`, data)
     return response.data
   }
 
   // Student Profile endpoints
-  async getStudentProfile(userId: number) {
+  async getStudentProfile(userId: string) {
     const response = await this.client.get(`/student-profiles/${userId}`)
     return response.data
   }
 
-  async updateStudentProfile(userId: number, data: any) {
-    const response = await this.client.patch(`/student-profiles/${userId}`, data)
+  async getMyStudentProfile() {
+    const response = await this.client.get('/student-profiles/my')
+    return response.data
+  }
+
+  async updateStudentProfile(data: any) {
+    const response = await this.client.patch('/student-profiles/my', data)
     return response.data
   }
 
   // Company Profile endpoints
-  async getCompanyProfile(userId: number) {
+  async getCompanyProfile(userId: string) {
     const response = await this.client.get(`/company-profiles/${userId}`)
     return response.data
   }
 
-  async updateCompanyProfile(userId: number, data: any) {
-    const response = await this.client.patch(`/company-profiles/${userId}`, data)
+  async getMyCompanyProfile() {
+    const response = await this.client.get('/company-profiles/my')
+    return response.data
+  }
+
+  async updateCompanyProfile(data: any) {
+    const response = await this.client.patch('/company-profiles/my', data)
     return response.data
   }
 
@@ -252,6 +262,43 @@ class ApiService {
   // Statistics endpoints
   async getDashboardStatistics() {
     const response = await this.client.get('/users/me/statistics')
+    return response.data
+  }
+
+  // Profile Completion endpoints
+  async getStudentProfileCompletion() {
+    const response = await this.client.get('/student-profiles/completion')
+    return response.data
+  }
+
+  async getCompanyProfileCompletion() {
+    const response = await this.client.get('/company-profiles/completion')
+    return response.data
+  }
+
+  // Experiences endpoints
+  async getMyExperiences() {
+    const response = await this.client.get('/experiences/my')
+    return response.data
+  }
+
+  async getExperience(id: string) {
+    const response = await this.client.get(`/experiences/${id}`)
+    return response.data
+  }
+
+  async createExperience(data: any) {
+    const response = await this.client.post('/experiences/my', data)
+    return response.data
+  }
+
+  async updateExperience(id: string, data: any) {
+    const response = await this.client.patch(`/experiences/my/${id}`, data)
+    return response.data
+  }
+
+  async deleteExperience(id: string) {
+    const response = await this.client.delete(`/experiences/my/${id}`)
     return response.data
   }
 

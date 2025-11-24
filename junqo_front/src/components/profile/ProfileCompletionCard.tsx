@@ -2,72 +2,57 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle2, Circle, AlertCircle } from 'lucide-react'
+import { CheckCircle2, Circle } from 'lucide-react'
 import { apiService } from '@/services/api'
-import { motion } from 'framer-motion'
+import { useAuthStore } from '@/store/authStore'
 
-interface ProfileSuggestion {
-  field: string
-  completed: boolean
-  weight: number
+interface ProfileCompletionData {
+  percentage: number
+  completedFields: string[]
+  missingFields: string[]
 }
 
 interface ProfileCompletionCardProps {
-  userId: string
-  userType: 'STUDENT' | 'COMPANY'
+  refreshTrigger?: number
 }
 
-export function ProfileCompletionCard({ userId, userType }: ProfileCompletionCardProps) {
-  const [completion, setCompletion] = useState(0)
-  const [suggestions, setSuggestions] = useState<ProfileSuggestion[]>([])
+const fieldLabels: Record<string, string> = {
+  bio: 'Bio',
+  phoneNumber: 'Phone Number',
+  linkedinUrl: 'LinkedIn Profile',
+  educationLevel: 'Education Level',
+  skills: 'Skills',
+  experiences: 'Work Experiences',
+  description: 'Company Description',
+  address: 'Address',
+  websiteUrl: 'Website',
+  logoUrl: 'Company Logo',
+  industry: 'Industry',
+}
+
+export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardProps) {
+  const { user } = useAuthStore()
+  const [completion, setCompletion] = useState<ProfileCompletionData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  const isStudent = user?.type === 'STUDENT'
+
   useEffect(() => {
-    loadProfileCompletion()
-  }, [userId])
+    loadCompletion()
+  }, [refreshTrigger])
 
-  const loadProfileCompletion = async () => {
+  const loadCompletion = async () => {
     try {
-      const stats = await apiService.getDashboardStatistics()
-      setCompletion(stats.profileCompletion || 0)
-
-      // Calculate suggestions based on completion
-      if (userType === 'STUDENT') {
-        setSuggestions([
-          { field: 'Bio', completed: stats.profileCompletion >= 45, weight: 15 },
-          { field: 'Phone Number', completed: stats.profileCompletion >= 55, weight: 10 },
-          { field: 'LinkedIn', completed: stats.profileCompletion >= 65, weight: 10 },
-          { field: 'GitHub', completed: stats.profileCompletion >= 75, weight: 10 },
-          { field: 'Skills', completed: stats.profileCompletion >= 90, weight: 15 },
-          { field: 'Education Level', completed: stats.profileCompletion >= 100, weight: 10 },
-        ])
-      } else {
-        setSuggestions([
-          { field: 'Description', completed: stats.profileCompletion >= 50, weight: 20 },
-          { field: 'Phone Number', completed: stats.profileCompletion >= 60, weight: 10 },
-          { field: 'Address', completed: stats.profileCompletion >= 70, weight: 10 },
-          { field: 'Website', completed: stats.profileCompletion >= 80, weight: 10 },
-          { field: 'Logo', completed: stats.profileCompletion >= 90, weight: 10 },
-          { field: 'Industry', completed: stats.profileCompletion >= 100, weight: 10 },
-        ])
-      }
+      setIsLoading(true)
+      const data = isStudent
+        ? await apiService.getStudentProfileCompletion()
+        : await apiService.getCompanyProfileCompletion()
+      setCompletion(data)
     } catch (error) {
-      console.error('Failed to load profile completion:', error)
+      console.error('Failed to load profile completion', error)
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const getCompletionColor = () => {
-    if (completion >= 80) return 'text-emerald-600'
-    if (completion >= 50) return 'text-amber-600'
-    return 'text-red-600'
-  }
-
-  const getCompletionBadge = () => {
-    if (completion >= 80) return { label: 'Excellent', variant: 'default' as const, color: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
-    if (completion >= 50) return { label: 'Good', variant: 'secondary' as const, color: 'bg-amber-100 text-amber-700 border-amber-200' }
-    return { label: 'Incomplete', variant: 'destructive' as const, color: 'bg-red-100 text-red-700 border-red-200' }
   }
 
   if (isLoading) {
@@ -75,109 +60,71 @@ export function ProfileCompletionCard({ userId, userType }: ProfileCompletionCar
       <Card>
         <CardHeader>
           <CardTitle>Profile Completion</CardTitle>
+          <CardDescription>Loading...</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-            <div className="h-2 bg-slate-200 rounded"></div>
-          </div>
-        </CardContent>
       </Card>
     )
   }
 
-  const badge = getCompletionBadge()
-  const completedCount = suggestions.filter(s => s.completed).length
+  if (!completion) return null
+
+  const getCompletionColor = (percentage: number) => {
+    if (percentage >= 80) return 'text-green-600'
+    if (percentage >= 50) return 'text-yellow-600'
+    return 'text-red-600'
+  }
+
+  const getCompletionStatus = (percentage: number) => {
+    if (percentage === 100) return 'Complete! 🎉'
+    if (percentage >= 80) return 'Almost there!'
+    if (percentage >= 50) return 'Good progress'
+    return 'Getting started'
+  }
 
   return (
-    <Card className="border-2 border-blue-100 dark:border-blue-900">
+    <Card>
       <CardHeader>
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              Profile Completion
-              <Badge className={badge.color}>
-                {badge.label}
-              </Badge>
-            </CardTitle>
-            <CardDescription className="mt-1">
-              Complete your profile to increase visibility
-            </CardDescription>
+            <CardTitle>Profile Completion</CardTitle>
+            <CardDescription>{getCompletionStatus(completion.percentage)}</CardDescription>
           </div>
-          <motion.div
-            className={`text-4xl font-bold ${getCompletionColor()}`}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 10 }}
-          >
-            {completion}%
-          </motion.div>
+          <Badge variant={completion.percentage === 100 ? 'default' : 'secondary'} className="text-lg">
+            {completion.percentage}%
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <Progress 
-            value={completion} 
-            className="h-3"
-          />
-          <p className="text-xs text-slate-600 dark:text-slate-400">
-            {completedCount} of {suggestions.length} sections completed
-          </p>
-        </div>
+        <Progress value={completion.percentage} className="h-3" />
 
-        {/* Suggestions */}
-        {completion < 100 && (
-          <div className="space-y-3 mt-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-              <AlertCircle className="h-4 w-4" />
-              <span>To complete your profile:</span>
-            </div>
-            <div className="space-y-2">
-              {suggestions.map((suggestion, index) => (
-                <motion.div
-                  key={suggestion.field}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`flex items-center gap-2 text-sm p-2 rounded transition-colors ${
-                    suggestion.completed
-                      ? 'text-slate-500 dark:text-slate-500'
-                      : 'text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800'
-                  }`}
-                >
-                  {suggestion.completed ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-slate-400 flex-shrink-0" />
-                  )}
-                  <span className="flex-1">{suggestion.field}</span>
-                  <span className="text-xs text-slate-500">+{suggestion.weight}%</span>
-                </motion.div>
+        {completion.missingFields.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-muted-foreground">
+              Complete your profile by adding:
+            </h4>
+            <div className="space-y-1">
+              {completion.missingFields.map((field) => (
+                <div key={field} className="flex items-center gap-2 text-sm">
+                  <Circle className="h-4 w-4 text-muted-foreground" />
+                  <span>{fieldLabels[field] || field}</span>
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Completion Message */}
-        {completion === 100 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg"
-          >
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-              <div>
-                <p className="font-medium text-emerald-900 dark:text-emerald-100">
-                  Profile Complete! 🎉
-                </p>
-                <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-0.5">
-                  Your profile is fully optimized for maximum visibility
-                </p>
-              </div>
+        {completion.completedFields.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-muted-foreground">Completed:</h4>
+            <div className="flex flex-wrap gap-2">
+              {completion.completedFields.map((field) => (
+                <Badge key={field} variant="outline" className="gap-1">
+                  <CheckCircle2 className="h-3 w-3 text-green-600" />
+                  {fieldLabels[field] || field}
+                </Badge>
+              ))}
             </div>
-          </motion.div>
+          </div>
         )}
       </CardContent>
     </Card>

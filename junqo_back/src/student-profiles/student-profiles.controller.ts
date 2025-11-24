@@ -18,6 +18,7 @@ import {
   StudentProfileQueryDTO,
   StudentProfileQueryOutputDTO,
 } from './dto/student-profile-query.dto';
+import { ProfileCompletionDTO } from './dto/profile-completion.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -56,6 +57,19 @@ export class StudentProfilesController {
     @Query() query: StudentProfileQueryDTO,
   ): Promise<StudentProfileQueryOutputDTO> {
     return this.studentProfilesService.findByQuery(currentUser, query);
+  }
+
+  @Get('completion')
+  @ApiOperation({ summary: "Get current user's profile completion status" })
+  @ApiOkResponse({
+    description: 'Profile completion retrieved successfully',
+    type: ProfileCompletionDTO,
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiNotFoundResponse({ description: 'Student profile not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async getMyCompletion(@CurrentUser() currentUser: AuthUserDTO) {
+    return this.studentProfilesService.getProfileCompletion(currentUser);
   }
 
   @Get('my')

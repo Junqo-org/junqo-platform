@@ -181,11 +181,23 @@ export class StudentProfilesRepository {
 
             const updatedStudentProfile = await studentProfile.update(
               {
-                ...(updateStudentProfileDto.avatar != undefined && {
+                ...(updateStudentProfileDto.avatar !== undefined && {
                   avatar: updateStudentProfileDto.avatar,
                 }),
-                ...(updateStudentProfileDto.skills != undefined && {
+                ...(updateStudentProfileDto.skills !== undefined && {
                   skills: updateStudentProfileDto.skills,
+                }),
+                ...(updateStudentProfileDto.bio !== undefined && {
+                  bio: updateStudentProfileDto.bio,
+                }),
+                ...(updateStudentProfileDto.phoneNumber !== undefined && {
+                  phoneNumber: updateStudentProfileDto.phoneNumber,
+                }),
+                ...(updateStudentProfileDto.linkedinUrl !== undefined && {
+                  linkedinUrl: updateStudentProfileDto.linkedinUrl,
+                }),
+                ...(updateStudentProfileDto.educationLevel !== undefined && {
+                  educationLevel: updateStudentProfileDto.educationLevel,
                 }),
               },
               {

@@ -18,6 +18,7 @@ import { Actions, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { StudentProfileResource } from '../casl/dto/student-profile-resource.dto';
 import { plainToInstance } from 'class-transformer';
+import { ProfileCompletionDTO } from './dto/profile-completion.dto';
 
 @Injectable()
 export class StudentProfilesService {
@@ -258,6 +259,56 @@ export class StudentProfilesService {
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to delete profile: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Calculate profile completion for the authenticated student user.
+   *
+   * @param currentUser - The authenticated user's data transfer object
+   * @returns Promise resolving to profile completion details
+   * @throws NotFoundException if the profile is not found
+   * @throws InternalServerErrorException if there's an error calculating completion
+   */
+  public async getProfileCompletion(
+    currentUser: AuthUserDTO,
+  ): Promise<ProfileCompletionDTO> {
+    try {
+      const profile = await this.findOneById(currentUser, currentUser.id);
+
+      const fields = {
+        bio: profile.bio,
+        phoneNumber: profile.phoneNumber,
+        linkedinUrl: profile.linkedinUrl,
+        educationLevel: profile.educationLevel,
+        skills: profile.skills && profile.skills.length > 0,
+        experiences: profile.experiences && profile.experiences.length > 0,
+      };
+
+      const completedFields: string[] = [];
+      const missingFields: string[] = [];
+
+      Object.entries(fields).forEach(([key, value]) => {
+        if (value) {
+          completedFields.push(key);
+        } else {
+          missingFields.push(key);
+        }
+      });
+
+      const totalFields = Object.keys(fields).length;
+      const percentage = Math.round((completedFields.length / totalFields) * 100);
+
+      return {
+        percentage,
+        completedFields,
+        missingFields,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to calculate profile completion: ${error.message}`,
       );
     }
   }

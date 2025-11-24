@@ -156,14 +156,26 @@ export class CompanyProfilesRepository {
             }
             const updatedCompanyProfile = await companyProfile.update(
               {
-                ...(updateCompanyProfileDto.avatar != undefined && {
+                ...(updateCompanyProfileDto.avatar !== undefined && {
                   avatar: updateCompanyProfileDto.avatar,
                 }),
-                ...(updateCompanyProfileDto.description != undefined && {
-                  skills: updateCompanyProfileDto.description,
+                ...(updateCompanyProfileDto.description !== undefined && {
+                  description: updateCompanyProfileDto.description,
                 }),
-                ...(updateCompanyProfileDto.websiteUrl != undefined && {
-                  experiences: updateCompanyProfileDto.websiteUrl,
+                ...(updateCompanyProfileDto.websiteUrl !== undefined && {
+                  websiteUrl: updateCompanyProfileDto.websiteUrl,
+                }),
+                ...(updateCompanyProfileDto.phoneNumber !== undefined && {
+                  phoneNumber: updateCompanyProfileDto.phoneNumber,
+                }),
+                ...(updateCompanyProfileDto.address !== undefined && {
+                  address: updateCompanyProfileDto.address,
+                }),
+                ...(updateCompanyProfileDto.logoUrl !== undefined && {
+                  logoUrl: updateCompanyProfileDto.logoUrl,
+                }),
+                ...(updateCompanyProfileDto.industry !== undefined && {
+                  industry: updateCompanyProfileDto.industry,
                 }),
               },
               {

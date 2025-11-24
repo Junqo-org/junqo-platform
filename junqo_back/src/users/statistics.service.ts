@@ -81,7 +81,7 @@ export class StatisticsService {
           if (companyProfile.description) completion += 20;
           if (companyProfile.phoneNumber) completion += 10;
           if (companyProfile.address) completion += 10;
-          if (companyProfile.website) completion += 10;
+          if (companyProfile.websiteUrl) completion += 10;
           if (companyProfile.logoUrl) completion += 10;
           if (companyProfile.industry) completion += 10;
           stats.profileCompletion = completion;
@@ -117,10 +117,11 @@ export class StatisticsService {
           if (studentProfile.bio) completion += 15;
           if (studentProfile.phoneNumber) completion += 10;
           if (studentProfile.linkedinUrl) completion += 10;
-          if (studentProfile.githubUrl) completion += 10;
           if (studentProfile.skills && studentProfile.skills.length > 0)
             completion += 15;
           if (studentProfile.educationLevel) completion += 10;
+          if (studentProfile.experiences && studentProfile.experiences.length > 0)
+            completion += 10;
           stats.profileCompletion = completion;
         }
       }
@@ -144,8 +145,9 @@ export class StatisticsService {
         },
       });
 
+      // Count unread messages (messages not sent by current user)
       stats.unreadMessages = messages.filter(
-        (m) => m.senderId !== currentUser.id && !m.isRead,
+        (m) => m.senderId !== currentUser.id,
       ).length;
 
       // Calculate response rate (messages sent vs received)
