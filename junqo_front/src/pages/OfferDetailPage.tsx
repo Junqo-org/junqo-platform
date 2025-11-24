@@ -177,7 +177,7 @@ export default function OfferDetailPage() {
     <div className="min-h-screen bg-black py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Back Button */}
-        <Button variant="ghost" onClick={() => navigate('/offers')} className="text-white hover:bg-gray-800">
+        <Button onClick={() => navigate('/offers')} className="text-white hover:bg-gray-800 bg-transparent border-0">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Jobs
         </Button>
@@ -187,7 +187,7 @@ export default function OfferDetailPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card className="bg-black text-white border-slate-700">
+        <Card className="bg-black text-white border-gray-700">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
@@ -285,7 +285,7 @@ export default function OfferDetailPage() {
                   <ul className="space-y-2">
                     {offer.benefits.map((benefit, index) => (
                       <li key={index} className="flex items-start gap-2">
-                        <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="h-5 w-5 text-white mt-0.5 flex-shrink-0" />
                         <span>{benefit}</span>
                       </li>
                     ))}
@@ -311,7 +311,7 @@ export default function OfferDetailPage() {
           <CardFooter className="flex gap-4 bg-gray-900">
             {isStudent && (
               hasApplied ? (
-                <Button disabled variant="secondary" className="flex-1">
+                <Button disabled className="flex-1 bg-gray-800 text-gray-400 cursor-not-allowed border-gray-700">
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Already Applied
                 </Button>
@@ -319,8 +319,7 @@ export default function OfferDetailPage() {
                 <Button 
                   onClick={handleApply} 
                   disabled={isApplying || offer.status !== 'ACTIVE'}
-                  variant="default"
-                  className="flex-1 bg-black hover:bg-gray-800 text-white"
+                  className="flex-1 bg-black hover:bg-gray-800 text-white border-gray-700"
                   size="lg"
                 >
                   {isApplying ? (

@@ -201,7 +201,7 @@ export default function OffersPage() {
                 <span className="truncate">{formatRelativeTime(new Date(offer.createdAt))}</span>
               </p>
             </div>
-            <Badge variant="secondary" className="flex-shrink-0 bg-gray-800 text-white border-gray-700">
+            <Badge className="flex-shrink-0 bg-gray-800 text-white border-gray-700 border">
               {offerTypeBadge.label}
             </Badge>
           </div>
@@ -309,19 +309,17 @@ export default function OffersPage() {
               {isStudent && (
                 <div className="inline-flex bg-gray-900 rounded-lg border border-gray-700 p-1">
                   <Button
-                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('grid')}
-                    className={viewMode === 'grid' ? 'gap-2 bg-white hover:bg-gray-100 text-black' : 'gap-2 text-gray-300 hover:bg-gray-800 hover:text-white'}
+                    className={viewMode === 'grid' ? 'gap-2 bg-white hover:bg-gray-100 text-black border-0' : 'gap-2 text-gray-300 hover:bg-gray-800 hover:text-white bg-transparent border-0'}
                   >
                     <Grid3x3 className="h-4 w-4" />
                     Grid
                   </Button>
                   <Button
-                    variant={viewMode === 'swipe' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('swipe')}
-                    className={viewMode === 'swipe' ? 'gap-2 bg-white hover:bg-gray-100 text-black' : 'gap-2 text-gray-300 hover:bg-gray-800 hover:text-white'}
+                    className={viewMode === 'swipe' ? 'gap-2 bg-white hover:bg-gray-100 text-black border-0' : 'gap-2 text-gray-300 hover:bg-gray-800 hover:text-white bg-transparent border-0'}
                   >
                     <Layers className="h-4 w-4" />
                     Swipe
