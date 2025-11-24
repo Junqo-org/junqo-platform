@@ -188,7 +188,7 @@ export default function OffersPage() {
     
     return (
       <Card 
-        className="h-full bg-gray-900 border-gray-700 shadow-xl"
+        className="h-full bg-black border-gray-800 shadow-xl"
       >
         <CardContent className="p-8">
           <div className="flex items-start justify-between gap-4 mb-4">
@@ -307,7 +307,7 @@ export default function OffersPage() {
             </div>
             <div className="flex gap-3">
               {isStudent && (
-                <div className="inline-flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                <div className="inline-flex bg-black rounded-lg border border-gray-800 p-1">
                   <Button
                     size="sm"
                     onClick={() => setViewMode('grid')}
@@ -341,7 +341,7 @@ export default function OffersPage() {
 
         {/* Filters - Only in grid mode */}
         {viewMode === 'grid' && (
-          <Card className="bg-gray-900 border-gray-700">
+          <Card className="bg-black border-gray-800">
             <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
@@ -350,32 +350,32 @@ export default function OffersPage() {
                     placeholder="Search jobs..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-black border-gray-700 text-white placeholder:text-gray-500"
+                    className="pl-10 bg-black border-gray-800 text-white placeholder:text-gray-500"
                   />
                 </div>
                 
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="bg-black border-gray-700 text-white">
+                  <SelectTrigger className="bg-black border-gray-800 text-white">
                     <SelectValue placeholder="Job Type" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    <SelectItem value="all" className="text-white hover:bg-gray-800">All Types</SelectItem>
-                    <SelectItem value="INTERNSHIP" className="text-white hover:bg-gray-800">Internship</SelectItem>
-                    <SelectItem value="FULL_TIME" className="text-white hover:bg-gray-800">Full Time</SelectItem>
-                    <SelectItem value="PART_TIME" className="text-white hover:bg-gray-800">Part Time</SelectItem>
-                    <SelectItem value="CONTRACT" className="text-white hover:bg-gray-800">Contract</SelectItem>
+                  <SelectContent className="bg-black border-gray-800">
+                    <SelectItem value="all" className="text-white hover:bg-gray-900">All Types</SelectItem>
+                    <SelectItem value="INTERNSHIP" className="text-white hover:bg-gray-900">Internship</SelectItem>
+                    <SelectItem value="FULL_TIME" className="text-white hover:bg-gray-900">Full Time</SelectItem>
+                    <SelectItem value="PART_TIME" className="text-white hover:bg-gray-900">Part Time</SelectItem>
+                    <SelectItem value="CONTRACT" className="text-white hover:bg-gray-900">Contract</SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Select value={locationFilter} onValueChange={setLocationFilter}>
-                  <SelectTrigger className="bg-black border-gray-700 text-white">
+                  <SelectTrigger className="bg-black border-gray-800 text-white">
                     <SelectValue placeholder="Work Location" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    <SelectItem value="all" className="text-white hover:bg-gray-800">All Locations</SelectItem>
-                    <SelectItem value="ONSITE" className="text-white hover:bg-gray-800">On-site</SelectItem>
-                    <SelectItem value="REMOTE" className="text-white hover:bg-gray-800">Remote</SelectItem>
-                    <SelectItem value="HYBRID" className="text-white hover:bg-gray-800">Hybrid</SelectItem>
+                  <SelectContent className="bg-black border-gray-800">
+                    <SelectItem value="all" className="text-white hover:bg-gray-900">All Locations</SelectItem>
+                    <SelectItem value="ONSITE" className="text-white hover:bg-gray-900">On-site</SelectItem>
+                    <SelectItem value="REMOTE" className="text-white hover:bg-gray-900">Remote</SelectItem>
+                    <SelectItem value="HYBRID" className="text-white hover:bg-gray-900">Hybrid</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -387,25 +387,25 @@ export default function OffersPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="bg-gray-900 border-gray-700">
+              <Card key={i} className="bg-black border-gray-800">
                 <CardContent className="p-6 space-y-4">
-                  <Skeleton className="h-5 w-3/4 bg-gray-800" />
-                  <Skeleton className="h-4 w-1/3 bg-gray-800" />
+                  <Skeleton className="h-5 w-3/4 bg-gray-900" />
+                  <Skeleton className="h-4 w-1/3 bg-gray-900" />
                   <div className="grid grid-cols-2 gap-3">
-                    <Skeleton className="h-8 w-full bg-gray-800" />
-                    <Skeleton className="h-8 w-full bg-gray-800" />
+                    <Skeleton className="h-8 w-full bg-gray-900" />
+                    <Skeleton className="h-8 w-full bg-gray-900" />
                   </div>
-                  <Skeleton className="h-20 w-full bg-gray-800" />
+                  <Skeleton className="h-20 w-full bg-gray-900" />
                   <div className="flex items-center justify-between">
-                    <Skeleton className="h-6 w-24 bg-gray-800" />
-                    <Skeleton className="h-4 w-4 bg-gray-800" />
+                    <Skeleton className="h-6 w-24 bg-gray-900" />
+                    <Skeleton className="h-4 w-4 bg-gray-900" />
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : filteredOffers.length === 0 ? (
-          <Card className="bg-gray-900 border-gray-700">
+          <Card className="bg-black border-gray-800">
             <CardContent className="py-20 text-center">
               <Briefcase className="h-16 w-16 mx-auto text-gray-600 mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">
@@ -444,7 +444,7 @@ export default function OffersPage() {
                     onClick={() => console.log('Link clicked for offer:', offer.id)}
                   >
                     <Card 
-                      className="h-full bg-gray-900 border-gray-700 hover:border-gray-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+                      className="h-full bg-black border-gray-800 hover:border-gray-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
                     >
                     <CardContent className="p-6 flex flex-col h-full">
                       {/* Header */}
