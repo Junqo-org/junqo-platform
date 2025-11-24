@@ -11,8 +11,8 @@ WORKDIR /home/app/junqo_front
 # Copy package files
 COPY ./junqo_front/package*.json ./
 
-# Install dependencies (production only)
-RUN npm ci --omit=dev
+# Install all dependencies (including devDependencies needed for build)
+RUN npm ci
 
 # Copy source files
 COPY ./junqo_front/ .
