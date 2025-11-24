@@ -174,10 +174,10 @@ export default function OfferDetailPage() {
   const offerTypeBadge = getOfferTypeBadge(offer.offerType)
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen bg-black py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Back Button */}
-        <Button variant="ghost" onClick={() => navigate('/offers')} className="hover:bg-accent">
+        <Button variant="ghost" onClick={() => navigate('/offers')} className="text-white hover:bg-gray-800">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Jobs
         </Button>
@@ -187,23 +187,23 @@ export default function OfferDetailPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-black text-white border-slate-700">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <Badge className="bg-muted text-foreground border border-border">
+                  <Badge className="bg-gray-800 text-white border border-gray-700">
                     {offerTypeBadge.label}
                   </Badge>
                   {offer.status === 'ACTIVE' && (
-                    <Badge className="bg-muted text-foreground border border-border">
-                      <CheckCircle className="mr-1 h-3 w-3 text-primary" />
+                    <Badge className="bg-gray-800 text-white border border-gray-700">
+                      <CheckCircle className="mr-1 h-3 w-3 text-green-500" />
                       Active
                     </Badge>
                   )}
                 </div>
-                <CardTitle className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-3">{offer.title}</CardTitle>
-                <CardDescription className="flex items-center gap-4 text-base text-slate-600 dark:text-slate-400">
+                <CardTitle className="text-3xl font-bold text-white mb-3">{offer.title}</CardTitle>
+                <CardDescription className="flex items-center gap-4 text-base text-gray-400">
                   <span className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     Posted {formatRelativeTime(new Date(offer.createdAt))}
@@ -220,41 +220,41 @@ export default function OfferDetailPage() {
           <CardContent className="space-y-6">
             {/* Key Info */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
-                <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
+              <div className="flex items-center gap-3 p-4 bg-gray-900 rounded-lg border border-gray-700">
+                <MapPin className="h-5 w-5 text-blue-500 flex-shrink-0" />
                 <div>
-                  <div className="text-xs text-slate-600 dark:text-slate-400">Location</div>
-                  <p className="font-semibold text-slate-900 dark:text-slate-50">{getLocationLabel(offer.workLocationType)}</p>
+                  <div className="text-xs text-gray-400">Location</div>
+                  <p className="font-semibold text-white">{getLocationLabel(offer.workLocationType)}</p>
                 </div>
               </div>
 
               {offer.salary && offer.salary > 0 && (
-                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
-                  <TrendingUp className="h-5 w-5 text-primary flex-shrink-0" />
+                <div className="flex items-center gap-3 p-4 bg-gray-900 rounded-lg border border-gray-700">
+                  <TrendingUp className="h-5 w-5 text-blue-500 flex-shrink-0" />
                   <div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Salary</div>
-                    <p className="font-semibold text-slate-900 dark:text-slate-50">€{offer.salary}/month</p>
+                    <div className="text-xs text-gray-400">Salary</div>
+                    <p className="font-semibold text-white">€{offer.salary}/month</p>
                   </div>
                 </div>
               )}
 
               {offer.duration && offer.duration > 0 && (
-                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
-                  <Calendar className="h-5 w-5 text-primary flex-shrink-0" />
+                <div className="flex items-center gap-3 p-4 bg-gray-900 rounded-lg border border-gray-700">
+                  <Calendar className="h-5 w-5 text-blue-500 flex-shrink-0" />
                   <div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Duration</div>
-                    <p className="font-semibold text-slate-900 dark:text-slate-50">{offer.duration} months</p>
+                    <div className="text-xs text-gray-400">Duration</div>
+                    <p className="font-semibold text-white">{offer.duration} months</p>
                   </div>
                 </div>
               )}
             </div>
 
-            <Separator className="bg-slate-200 dark:bg-slate-700" />
+            <Separator className="bg-gray-700" />
 
             {/* Description */}
             <div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-3">Job Description</h3>
-              <p className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+              <h3 className="text-xl font-bold text-white mb-3">Job Description</h3>
+              <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
                 {offer.description}
               </p>
             </div>
@@ -262,12 +262,12 @@ export default function OfferDetailPage() {
             {/* Skills */}
             {offer.skills && offer.skills.length > 0 && (
               <>
-                <Separator className="bg-slate-200 dark:bg-slate-700" />
+                <Separator className="bg-gray-700" />
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-3">Required Skills</h3>
+                  <h3 className="text-xl font-bold text-white mb-3">Required Skills</h3>
                   <div className="flex flex-wrap gap-2">
                     {offer.skills.map((skill, index) => (
-                      <Badge key={index} className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-3 py-1">
+                      <Badge key={index} className="bg-gray-800 text-gray-200 border border-gray-700 px-3 py-1">
                         {skill}
                       </Badge>
                     ))}
@@ -308,7 +308,7 @@ export default function OfferDetailPage() {
             )}
           </CardContent>
 
-          <CardFooter className="flex gap-4 bg-muted">
+          <CardFooter className="flex gap-4 bg-gray-900">
             {isStudent && (
               hasApplied ? (
                 <Button disabled variant="secondary" className="flex-1">
