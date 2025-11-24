@@ -320,7 +320,7 @@ export default function OfferDetailPage() {
                   onClick={handleApply} 
                   disabled={isApplying || offer.status !== 'ACTIVE'}
                   variant="default"
-                  className="flex-1"
+                  className="flex-1 bg-black hover:bg-gray-800 text-white"
                   size="lg"
                 >
                   {isApplying ? (
