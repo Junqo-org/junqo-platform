@@ -182,7 +182,7 @@ export class UpdateStudentProfileDTO {
     example: 'https://example.com/avatar.jpg',
   })
   @IsOptional()
-  @IsString({ message: 'Avatar must be a string' })
+  @IsUrl({}, { message: 'Avatar must be a valid URL' })
   avatar?: string;
 
   @ApiPropertyOptional({
@@ -206,7 +206,7 @@ export class UpdateStudentProfileDTO {
     example: 'https://linkedin.com/in/johndoe',
   })
   @IsOptional()
-  @IsString({ message: 'LinkedIn URL must be a string' })
+  @IsUrl({}, { message: 'LinkedIn URL must be a valid URL' })
   linkedinUrl?: string;
 
   @ApiPropertyOptional({
