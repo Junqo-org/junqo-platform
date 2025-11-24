@@ -14,6 +14,7 @@ This documentation is intended for developers who want to contribute to the proj
 - [Deployment](#deployment)
   - [Prerequisites](#prerequisites)
   - [Deploy using Docker Compose](#deploy-using-docker-compose)
+    - [Config files](#config-files)
     - [Development deployment](#development-deployment)
     - [Production deployment](#production-deployment)
   - [Configuration](#configuration)
@@ -47,8 +48,6 @@ If you don't have these tools installed, you can follow the installation instruc
 
 Once you have installed these tools, you can proceed to the deployment of the **Junqo-platform**.
 
-### Deploy using Docker Compose
-
 The first step to deploy the **Junqo-platform** is to clone or download the repository and move to the project directory:
 
 ```bash
@@ -59,17 +58,18 @@ git clone git@github.com:Junqo-org/junqo-platform.git
 cd junqo-platform
 ```
 
-Once you are in the project directory, you need to create a `db_password.conf` file at the root of the project.
-This file should contain the password for the database user.
-The content of the file should look like this:
+### Deploy using Docker Compose
 
-```bash
-my_db_password
-```
+Once the project is cloned and you are in the project directory, you need to setup config files.
+
+#### Config files
+
+First, you need to create a `db_password.conf` file at the root of the project.
+You can use the `db_password_example.conf` file to create the new one.
+This file contain the password for the database user.
 
 Then, you need to create the `junqo_back/.env` file to configure the backend.
 You can use the `junqo_back/exemple.env` file to create the new one.
-Don't forget to change the values as they are not safe for production use.
 
 For more informations, see the [backend configuration documentation](./backend.md#configuration).
 
@@ -95,25 +95,109 @@ The development deployment has several differences from the production deploymen
 
 - The back server is running in development mode. And the watch flag is enabled.
 - The front server is running in development mode. And the watch flag is enabled.
-- The database volume is set to the `./database-volume` folder, allowing you to interact with the database files.
-- The database is initialized from the `./db/test_data.sql` file.
 - The database adminer is deployed. Allowing you to access the database adminer at [http://localhost:3000](http://localhost:3000). (The port can be changed using the `ADMINER_PORT` environment variable)
 
 #### Production deployment
 
-To deploy the **Junqo-platform** in production mode, you can use the following command:
+To deploy the **Junqo-platform** in production mode, you first need to setup the ssl certificates.
+
+For detailed instructions, visit the [official Certbot documentation](https://certbot.eff.org/).
+
+First, install Certbot (without the nginx plugin as we manage nginx config manually):
+
+```bash
+sudo apt update
+sudo apt install certbot -y
+```
+
+Create the ACME challenge directory that nginx expects:
+
+```bash
+# Create the directory structure
+sudo mkdir -p /var/www/letsencrypt/.well-known/acme-challenge
+
+# Set correct permissions
+# Since nginx runs in Docker, use root ownership with world-readable permissions
+sudo chown -R root:root /var/www/letsencrypt
+sudo chmod -R 755 /var/www/letsencrypt
+```
+
+> **Note**: The directory is owned by `root` because the nginx reverse proxy runs inside a Docker container. The `755` permissions allow the containerized nginx to read the challenge files while Certbot (running as root on the host) can write to them.
+
+Test that the challenge directory is accessible:
+
+```bash
+# Create a test file
+echo "test" | sudo tee /var/www/letsencrypt/.well-known/acme-challenge/test.txt
+
+# Test HTTP access (replace yourdomain.com with your actual domain)
+curl http://yourdomain.com/.well-known/acme-challenge/test.txt
+
+# Should return "test"
+# Clean up test file
+sudo rm /var/www/letsencrypt/.well-known/acme-challenge/test.txt
+```
+
+Then, obtain an SSL certificate using webroot mode:
+
+```bash
+# Replace yourdomain.com with your actual domain
+sudo certbot certonly \
+  --webroot \
+  -w /var/www/letsencrypt \
+  -d yourdomain.com \
+  --email your-email@example.com \
+  --agree-tos \
+  --non-interactive
+```
+
+Certbot will:
+
+- Place challenge files in `/var/www/letsencrypt/.well-known/acme-challenge/`
+- Verify domain ownership via HTTP
+- Store certificates in `/etc/letsencrypt/live/yourdomain.com/`
+- Set up auto-renewal
+
+> **Important**: The nginx reverse proxy configuration (`nginx.rproxy.conf`) is already set up to serve these challenge files and use the certificates. No manual nginx configuration changes are needed.
+
+Verify the certificate installation:
+
+```bash
+# Check certificate details
+sudo certbot certificates
+
+# Verify certificate files exist
+sudo ls -la /etc/letsencrypt/live/yourdomain.com/
+```
+
+Verify the auto-renewal timer is active:
+
+```bash
+sudo systemctl status certbot.timer
+```
+
+Your SSL certificates will be automatically renewed before expiry.
+
+To test the renewal process:
+
+```bash
+sudo certbot renew --dry-run
+```
+
+After setting up SSL, you can deploy the production environment:
 
 ```bash
 # Deploy using Docker Compose
-docker-compose up -d
+docker compose up -d
 ```
 
 The production deployment has several differences from the development deployment:
 
+- All the requests are routed through the Nginx reverse proxy.
 - The back server is running in production mode.
 - The front server is running in production mode.
 - The database volume is set to the docker volume `db_data`.
-- The database adminer is not deployed.
+- The database adminer is available only through a ssh tunnel at `localhost:3000`.
 
 ### Configuration
 
@@ -126,19 +210,20 @@ If an environment variable is not found, the default value will be used.
 
 Here is the list of environment variables used by the **Junqo-platform**:
 
-- `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.22.2`.
+- `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.35.3`.
 - `BACK_PORT`: The port of the back server. Default value is `4200`.
 - `DATABASE_SHM_SIZE`: The size of the shared memory for the database container. Default value is `256MB`.
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
 - `DATABASE_NAME`: The name of the database. Default value is `junqo`.
 - `DATABASE_PASSWORD_FILE`: The path to the file containing the password of the database user. Default value is `./db_password.conf`.
+- `GRAFANA_PASSWORD_FILE`: The path to the file containing the Grafana admin password. Default value is `./grafana_password.conf`.
 - `API_URL`: The URL of the back server used in the frontend. Default value is `http://localhost:4200`.
+- `SSL_CERTS_PATH`: The path to the folder containing the SSL certificates. Default value is `/etc/letsencrypt`.
 
 The following are only available in development mode:
 
 - `ADMINER_PORT`: The port of the database adminer. Default value is `3000`.
 - `ADMINER_DESIGN`: The design of the database adminer. Default value is `pepa-linha-dark`.
-- `TEST_DATA_FOLDER`: The folder containing the test data for the database. The test should be a file ending with `.sql`. Default value is `./db`.
 
 #### Configuration Files
 
@@ -150,11 +235,12 @@ You can modify this file to fit your needs.
 #### Secret Files
 
 The **Junqo-platform** uses secret files to store sensitive information.
-These files should not be committed to the repository.
+These files **must not** be committed to the repository.
 
 The secret files are:
 
 - `db_password.conf`: Contains the password for the database user. (The file path may defer depending on the environment variable `DATABASE_PASSWORD_FILE`)
+- `grafana_password.conf`: Contains the admin password for Grafana. (The file path may defer depending on the environment variable `GRAFANA_PASSWORD_FILE`)
 
 ## Automatic tests
 
@@ -172,12 +258,14 @@ Note: act requires root privileges to run Docker containers, hence the sudo requ
 # Run the tests specified in the <specific file>
 sudo act workflow_dispatch -W '.github/workflows/<specific_file>' -e tools/act-event-file.json -q
 # Example
-sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml' -e tools/act-event-file.json -q
+sudo act workflow_dispatch -W '.github/workflows/deployment-tests.yml' -e tools/act-event-file.json -q --concurrent-jobs 1
 ```
 
 The `tools/act-event-file.json` file contains the event payload for the workflow.
 You can modify this file to change the event payload.
 The `q` flag is used to run the workflow in quiet mode. Remove it to see the logs.
+The `concurrent-jobs` flag is used to limit the number of concurrent jobs.
+Here it is set to 1 to avoid issues with same ports being used by multiple jobs.
 
 ### Deployment tests
 
@@ -199,9 +287,11 @@ These tests are run using th `deployment-test-template.yml` workflow.
 The workflow runs the following steps:
 
 1. Checkout the repository.
-2. Start the docker compose services.
-3. Check if the services are up and running.
-4. Stop the docker compose services.
+2. Set up the environment variables.
+3. Generate SSL certificates.
+4. Start the docker compose services.
+5. Check if the services are up and running.
+6. Stop the docker compose services.
 
 ### Front tests
 
@@ -277,7 +367,7 @@ For more information, see the [the official github page documentation](https://d
 ### Automatic documentation deployment
 
 The automatic documentation deployment generate the documentation using the markdown files in the `docs` folder.  
-Then it deploys the documentation at [http://doc.junqo.fr](http://doc.junqo.fr) using Github Pages. 
+Then it deploys the documentation at [http://doc.junqo.fr](http://doc.junqo.fr) using Github Pages.  
 
 The documentation deployment is done using the `deploy-documentation.yml` workflow.  
 The workflow is triggered when the following conditions are met:

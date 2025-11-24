@@ -67,7 +67,7 @@ class _IAPageState extends State<IAPage> {
                                 color: Colors.white,
                                 shadows: [
                                   Shadow(
-                                    offset: Offset(0, 1),
+                                    offset: const Offset(0, 1),
                                     blurRadius: 3.0,
                                     color: Colors.black.withOpacity(0.5),
                                   ),
@@ -121,25 +121,6 @@ class _IAPageState extends State<IAPage> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildSelectionCard(
-                              context,
-                              title: "Lettre de motivation",
-                              description:
-                                  "Créez une lettre de motivation percutante avec notre assistant IA.",
-                              icon: Icons.mail_outline_rounded,
-                              baseColor: amber500,
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/motivation',
-                                );
-                              },
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -150,7 +131,7 @@ class _IAPageState extends State<IAPage> {
                     padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
                     child: Column(
                       children: [
-                        Text(
+                        const Text(
                           "Comment ça marche ?",
                           style: TextStyle(
                             fontSize: 26,
@@ -321,7 +302,7 @@ class _IAPageState extends State<IAPage> {
         const SizedBox(height: 12),
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: slate900,
@@ -331,7 +312,7 @@ class _IAPageState extends State<IAPage> {
         const SizedBox(height: 8),
         Text(
           description,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 15,
             color: slate600,
             height: 1.5,

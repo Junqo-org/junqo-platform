@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
@@ -81,8 +80,7 @@ class PdfProcessingService {
       // Limiter la taille du texte pour éviter les problèmes d'API
       const int maxLength = 3000; // Réduire la limite pour plus de sécurité
       if (cleanedText.length > maxLength) {
-        cleanedText = cleanedText.substring(0, maxLength) + 
-            "\n...\n[Contenu tronqué - texte trop long pour l'analyse complète]";
+        cleanedText = "${cleanedText.substring(0, maxLength)}\n...\n[Contenu tronqué - texte trop long pour l'analyse complète]";
       }
       
       debugPrint('Texte préparé pour l\'IA : ${cleanedText.length} caractères');

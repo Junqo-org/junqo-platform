@@ -6,11 +6,11 @@ nav_order: 3
 <!-- omit in toc -->
 # Developer documentation
 
-Welcome to the developer documentation of the **Junqo-platform**.  
-This documentation is intended for developers who want to contribute to the project.  
-  
-If you are a new contributor, you should start by reading the [getting started](#getting-started) section.  
-If you need some precise information, see the following sections :  
+Welcome to the developer documentation of the **Junqo-platform**.
+This documentation is intended for developers who want to contribute to the project.
+
+If you are a new contributor, you should start by reading the [getting started](#getting-started) section.
+If you need some precise information, see the following sections :
 
 <!-- omit in toc -->
 ## Table of contents
@@ -18,13 +18,15 @@ If you need some precise information, see the following sections :
 - [Getting started](#getting-started)
   - [Before you begin](#before-you-begin)
   - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Usage](#usage)
+  - [Testing the project](#testing-the-project)
+  - [Deploying the project](#deploying-the-project)
 - [Learn more](#learn-more)
   - [Project structure](#project-structure)
   - [Interactions](#interactions)
   - [Operation](#operation)
   - [Networking](#networking)
+    - [Development](#development)
+    - [Production](#production)
   - [API](#api)
   - [Sequence Diagram](#sequence-diagram)
     - [User SignUp](#user-signup)
@@ -49,40 +51,25 @@ Before you begin, you should have a basic understanding of the following:
 - [Docker](https://www.docker.com/) (v20.10.7 or higher)
 - [Docker Compose](https://docs.docker.com/compose/) (v1.29.2 or higher)
 
-### Installation
+### Testing the project
 
-1. Clone the repository
+To test the project locally, you can use the development environment provided by Docker Compose.
+The deployment process is described in the [deployment documentation](./deployment.md#development-deployment).
 
-    ```bash
-    git clone git@github.com:Junqo-org/junqo-platform.git
-    ```
+### Deploying the project
 
-2. Move to the project directory
-
-    ```bash
-    cd junqo-platform
-    ```
-
-3. Deploy the project locally using Docker Compose
-
-    ```bash
-    docker compose up --build
-    ```
-
-### Usage
-
-Notice, the following instructions are admitting that you are using the default configuration of the project.  
-Furthermore, the project is running in production mode.  
-You should replace *localhost* by the IP address of the machine running the project.  
-
-- Access the web server at [http://localhost:80](http://localhost:80) or [https://localhost:443](https://localhost:443) if using TLS.
-- Access the back server at [http://localhost:4200](http://localhost:4200).
-- Access the API documentation at [http://localhost:4200/api/v1](http://localhost:4200/api/v1).
-- Access the database adminer at [http://localhost:3000](http://localhost:3000).
+To deploy the project in production, you can use the production environment provided by Docker Compose.
+The deployment process is described in the [deployment documentation](./deployment.md#production-deployment).
 
 ## Learn more
 
-Notice, the following sections are admitting that you are using the default configuration of the project.
+The documentation below provides more in-depth information about the project.
+
+- [Deployment](./deployment.md)
+- [Frontend](./frontend.md)
+- [Backend](./backend.md)
+- [CI/CD](./ci_cd.md)
+- [Logging Setup](./logging_setup.md)
 
 ### Project structure
 
@@ -114,10 +101,13 @@ The project is structured as follows:
 - `docs`: Contains the documentation of the project.
 - `docker-compose.yaml`: The main file to deploy the project in production mode.
 - `docker-compose.dev.yaml`: The main file to deploy the project in development mode.
+- `tools`: Contains utility scripts to manage the project.
 
 ### Interactions
 
-The following diagram shows the interactions between the different parts of the project:  
+Notice, the following sections are admitting that you are using the default configuration of the project.
+
+The following diagram shows the interactions between the different parts of the project:
 
 ![
    +-----------+       +----------+       +------------+
@@ -127,13 +117,13 @@ The following diagram shows the interactions between the different parts of the 
 
 > Interactions diagram
 
-The **front** communicates with the back using the REST API.  
-The **back** communicates with the database using the database driver.  
-The **database** stores the data.  
+The **front** communicates with the back using the REST API.
+The **back** communicates with the database using the database driver.
+The **database** stores the data.
 
 ### Operation
 
-The following diagram shows how the different programs are executed:  
+The following diagram shows how the different programs are executed:
 
 ![Operational diagram](../assets/operational_diagram.png)
 
@@ -141,45 +131,124 @@ The following diagram shows how the different programs are executed:
 
 ### Networking
 
-The following diagram shows the networking of the project:  
+Notice, the following sections are admitting that you are using the default configuration of the project.
+
+The following diagram shows the networking of the project:
+
+#### Development
 
 ```txt
-External ports:   80/443              4200                5432                 3000
-                     |                  |                   |                    |
-               +-----------+       +----------+       +------------+       +-----------+
-               |   Front   |       |   Back   |       |  DataBase  |       |  Adminer  |
-               +-----------+       +----------+       +------------+       +-----------+
+Development
+External ports:   80/443              4200                                         3000
+                     |                  |                     db                     |
+               +-----------+       +----------+ backnet +------------+ backnet +-----------+
+               |   Front   |       |   Back   |---------|  Database  |---------|  Adminer  |
+               +-----------+       +----------+         +------------+         +-----------+
 ```
 
 ```mermaid
 ---
-title: Networking
+title: Networking Development
 ---
-flowchart BT
-%% External ports
-    A("**Front**") --> P1;
-    B("**Back**") --> P2;
-    C("**Database**") --> P3;
-    D("**Adminer**
-    (*development only*)") --> P4;
+flowchart TB
+  %% External ports
+  subgraph Ports
+    direction LR
     P1[[80/443]];
     P2[[4200]];
-    P3[[5432]];
     P4[[3000]];
-    linkStyle 0,1,2,3 stroke-dasharray: 4 3
+  end
+
+  %%Components
+  A("**Front**")
+  B("**Back**")
+  C("**Database**")
+  D("**Adminer**")
+
+  %% Connections
+  P1 --> A;
+  P2 --> B;
+  P4 --> D;
+  B --"backnet"--> C;
+  D --"backnet"--> C;
+
+  %% Styling
+  linkStyle 0,1,2,3,4 stroke-dasharray: 4 3
 ```
 
 > Networking diagram
 
-The **front** is accessible on the World Wide Web at port **80**/**443**.
-The **back** is accessible on the World Wide Web at port **4200**.
-The **database** is accessible on the World Wide Web at port **5432** (admitting that you are using Postgresql).
-The **adminer** is accessible on the World Wide Web at port **3000**.
+The **front** is accessible on the World Wide Web at port **80**/**443**
+The **back** is accessible on the World Wide Web at port **4200**
+The **database** is using the **backnet** network for internal communication and so is not directly accessible from the outside.  
+The **adminer** is accessible on the World Wide Web at port **3000** and communicates with the **database** through the **backnet** network.  
+
+#### Production
+
+```txt
+Production
+External ports:     80/443                          Localhost:3000
+                      |                                   |
+               +------------+                             |
+               |   RProxy   |                             |
+               +------------+                             |
+                      |                                   |
+                      |-------------------+               |
+                      |                   |               |
+                +----------+       +------------+         |
+                |   Back   |       |    Front   |         |
+                +----------+       +------------+         |
+                      |                                   |
+                      |                                   |
+                +------------+                      +------------+
+                |  Database  |----------------------|   Adminer  |
+                +------------+                      +------------+
+```
+
+```mermaid
+---
+title: Production Networking
+---
+flowchart TB
+    %% Ports at the top level
+    subgraph Ports
+        direction LR
+        P1[[80/443]]
+        P2[[Localhost:3000]]
+    end
+
+    %% Components
+    RP["**RProxy**"]
+    FR["**Front**"]
+    BK["**Back**"]
+    DB["**Database**"]
+    AD["**Adminer**"]
+
+    %% Connections
+    P1 --> RP;
+    P2 --> AD;
+    RP --> BK;
+    RP --> FR;
+    BK --"backnet"--> DB;
+    AD --"backnet"--> DB;
+
+    %% Styling
+    linkStyle default stroke-dasharray: 4 3;
+
+```
+
+> Networking diagram
+
+The **RProxy** (reverse proxy) is accessible on the World Wide Web at port **80**/**443** and forwards requests to the appropriate frontend or backend service.  
+The **front** gets requests from the **RProxy**, requests to the back pass through **RProxy**.  
+The **back** gets requests from the **RProxy** and communicates with the **database** through the **backnet** network.  
+The **database** is using the **backnet** network for internal communication and so is not directly accessible from the outside.  
+The **adminer** is accessible on **localhost:3000** and communicates with the **database** through the **backnet** network. If on a remote server, you would need to set up an SSH tunnel to access it.
 
 ### API
 
-The **backend** API communicate with the **frontend**.  
-Yous can find the API documentation at [http://prod.junqo.fr:4200/api/v1]([../api/index.html](http://prod.junqo.fr:4200/api/v1)).
+The **backend** API communicate with the **frontend**.
+You can find the API documentation at [https://junqo.fr/api/v1](https://junqo.fr/api/v1).
 
 ### Sequence Diagram
 
@@ -259,7 +328,7 @@ sequenceDiagram
 For the continuous integration and continuous deployment, the project uses **Github Actions** and **Docker Compose**.
 The CI/CD pipeline is defined in the [.github/workflows](../../.github/workflows) directory.
 
-You can find the CI/CD documentation at [here](ci_cd.md).
+You can find the CI/CD documentation [here](ci_cd.md).
 
 ### Technologies
 

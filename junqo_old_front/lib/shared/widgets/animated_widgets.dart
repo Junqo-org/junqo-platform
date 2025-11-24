@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../theme/app_theme.dart';
 import 'dart:math' as math;
@@ -30,8 +29,10 @@ class _AnimatedCardState extends State<AnimatedCard> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: widget.enableHover ? (_) => setState(() => _isHovered = true) : null,
-      onExit: widget.enableHover ? (_) => setState(() => _isHovered = false) : null,
+      onEnter:
+          widget.enableHover ? (_) => setState(() => _isHovered = true) : null,
+      onExit:
+          widget.enableHover ? (_) => setState(() => _isHovered = false) : null,
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
@@ -43,7 +44,8 @@ class _AnimatedCardState extends State<AnimatedCard> {
             decoration: BoxDecoration(
               color: AppTheme.cardColor,
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-              boxShadow: _isHovered ? AppTheme.elevatedShadow : AppTheme.cardShadow,
+              boxShadow:
+                  _isHovered ? AppTheme.elevatedShadow : AppTheme.cardShadow,
             ),
             child: widget.child,
           ),
@@ -102,7 +104,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
   @override
   Widget build(BuildContext context) {
     final color = widget.customColor ?? AppTheme.primaryColor;
-    
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -137,7 +139,8 @@ class _AnimatedButtonState extends State<AnimatedButton>
               onTap: widget.isLoading ? null : widget.onPressed,
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusNormal),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -159,7 +162,8 @@ class _AnimatedButtonState extends State<AnimatedButton>
                         color: widget.isPrimary ? Colors.white : color,
                         size: 20,
                       ),
-                    if ((widget.icon != null || widget.isLoading) && widget.text.isNotEmpty)
+                    if ((widget.icon != null || widget.isLoading) &&
+                        widget.text.isNotEmpty)
                       const SizedBox(width: 8),
                     if (widget.text.isNotEmpty)
                       Text(
@@ -263,7 +267,9 @@ class _AnimatedTextFieldState extends State<AnimatedTextField> {
                     ? Icon(widget.prefixIcon, color: AppTheme.textTertiary)
                     : null,
                 floatingLabelStyle: TextStyle(
-                  color: _isFocused ? AppTheme.primaryColor : AppTheme.textTertiary,
+                  color: _isFocused
+                      ? AppTheme.primaryColor
+                      : AppTheme.textTertiary,
                 ),
               ),
             ),
@@ -415,7 +421,9 @@ class _FloatingParticlesState extends State<FloatingParticles>
           builder: (context, child) {
             return Positioned(
               left: startX + (endX - startX) * _animations[index].value,
-              top: size.height + 50 - (size.height + 100) * _animations[index].value,
+              top: size.height +
+                  50 -
+                  (size.height + 100) * _animations[index].value,
               child: Opacity(
                 opacity: (1 - _animations[index].value).clamp(0.0, 1.0),
                 child: Container(
@@ -516,4 +524,4 @@ class _PulsingDotState extends State<PulsingDot>
       },
     );
   }
-} 
+}

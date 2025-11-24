@@ -183,6 +183,13 @@ class _CVState extends State<CV> {
       body: Column(
         children: [
           const Navbar(currentIndex: 1),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32), // Augmentation du padding vertical
@@ -193,7 +200,7 @@ class _CVState extends State<CV> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Titre et description
-                      Text(
+                      const Text(
                         "Améliorez votre CV avec l'IA",
                         style: TextStyle(
                           fontSize: 36, // Augmenté
@@ -202,7 +209,7 @@ class _CVState extends State<CV> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
+                      const Text(
                         "Téléchargez votre CV, ajoutez le contexte du poste souhaité, et laissez notre IA vous fournir des pistes d'amélioration.",
                         style: TextStyle(fontSize: 18, color: slate600),
                       ),
@@ -214,11 +221,11 @@ class _CVState extends State<CV> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: slate200),
                         ),
-                        child: Row(
+                        child: const Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Icon(Icons.info_outline_rounded, color: indigo600, size: 28),
-                            const SizedBox(width: 16),
+                            SizedBox(width: 16),
                             Expanded(
                               child: Text(
                                 "Notre outil analyse votre CV et vous propose des recommandations personnalisées pour améliorer son impact auprès des recruteurs.",
@@ -239,7 +246,7 @@ class _CVState extends State<CV> {
                             // Il est préférable de toujours appeler _pickFile
                             _pickFile();
                           },
-                          onWillAccept: (data) {
+                          onWillAcceptWithDetails: (data) {
                             setState(() => _isDragging = true);
                             return true;
                           },
@@ -291,14 +298,14 @@ class _CVState extends State<CV> {
                                             shape: BoxShape.circle,
                                             border: Border.all(color: slate200, width: 1.5)
                                           ),
-                                          child: Icon(
+                                          child: const Icon(
                                             Icons.cloud_upload_rounded,
                                             size: 50,
                                             color: indigo600,
                                           ),
                                         ),
                                         const SizedBox(height: 24),
-                                        Text(
+                                        const Text(
                                           "Glissez votre CV ici ou cliquez pour importer",
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
@@ -308,7 +315,7 @@ class _CVState extends State<CV> {
                                           ),
                                         ),
                                         const SizedBox(height: 10),
-                                        Text(
+                                        const Text(
                                           "Formats acceptés: PDF, TXT",
                                           style: TextStyle(
                                             fontSize: 14,
@@ -327,7 +334,7 @@ class _CVState extends State<CV> {
                                             )
                                           ),
                                           child: isFileSuccessfullyProcessed
-                                            ? Icon(
+                                            ? const Icon(
                                                 Icons.check_circle_outline_rounded,
                                                 size: 48, // Augmenté
                                                 color: emerald500,
@@ -345,7 +352,7 @@ class _CVState extends State<CV> {
                                               ? "CV importé et traité !"
                                               : (_isLoading && _extractedText == null ? "Traitement du CV en cours..." : "Vérification du CV"),
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 18, // Augmenté
                                             fontWeight: FontWeight.w600, // Plus de poids
                                             color: slate800,
@@ -355,14 +362,14 @@ class _CVState extends State<CV> {
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Icon(Icons.description_outlined, size: 18, color: slate500),
+                                            const Icon(Icons.description_outlined, size: 18, color: slate500),
                                             const SizedBox(width: 8),
                                             Flexible( // Pour éviter overflow si nom de fichier long
                                               child: Text(
                                                 _fileName!,
                                                 textAlign: TextAlign.center,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontSize: 15, // Augmenté
                                                   color: slate600,
                                                 ),
@@ -414,10 +421,10 @@ class _CVState extends State<CV> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(Icons.work_outline_rounded, color: indigo600, size: 28),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 Text(
                                   "Poste ciblé (Optionnel)",
                                   style: TextStyle(
@@ -429,7 +436,7 @@ class _CVState extends State<CV> {
                               ],
                             ),
                             const SizedBox(height: 10),
-                            Text(
+                            const Text(
                               "Spécifiez le poste que vous visez pour obtenir des recommandations encore plus pertinentes et personnalisées.",
                               style: TextStyle(
                                 fontSize: 15, // Augmenté
@@ -442,24 +449,24 @@ class _CVState extends State<CV> {
                               controller: _jobContextController,
                               decoration: InputDecoration(
                                 hintText: 'Ex: Développeur Fullstack Python/Vue.js Senior', // Changé en hintText
-                                hintStyle: TextStyle(color: slate500), // Style pour hintText
+                                hintStyle: const TextStyle(color: slate500), // Style pour hintText
                                 filled: true,
                                 fillColor: slate50, // Fond légèrement différent
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: slate200), // Bordure plus claire
+                                  borderSide: const BorderSide(color: slate200), // Bordure plus claire
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: slate300),
+                                  borderSide: const BorderSide(color: slate300),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: indigo600, width: 2), // Bordure focus plus visible
+                                  borderSide: const BorderSide(color: indigo600, width: 2), // Bordure focus plus visible
                                 ),
-                                prefixIcon: Icon(Icons.search, color: slate500, size: 22),
+                                prefixIcon: const Icon(Icons.search, color: slate500, size: 22),
                               ),
-                              style: TextStyle(color: slate800, fontSize: 16), // Style pour le texte saisi
+                              style: const TextStyle(color: slate800, fontSize: 16), // Style pour le texte saisi
                             ),
                           ],
                         ),
@@ -484,7 +491,7 @@ class _CVState extends State<CV> {
                             textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600) // Texte plus gras
                           ),
                           child: _isLoading
-                              ? Row(
+                              ? const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     SizedBox(
@@ -495,8 +502,8 @@ class _CVState extends State<CV> {
                                         strokeWidth: 3.5, // Un peu plus épais
                                       ),
                                     ),
-                                    const SizedBox(width: 20),
-                                    const Text("Analyse en cours..."),
+                                    SizedBox(width: 20),
+                                    Text("Analyse en cours..."),
                                   ],
                                 )
                               : const Row(
@@ -523,15 +530,15 @@ class _CVState extends State<CV> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 3), // Ajustement pour alignement icône
+                              const Padding(
+                                padding: EdgeInsets.only(top: 3), // Ajustement pour alignement icône
                                 child: Icon(Icons.error_outline_rounded, color: red600, size: 24), // Icône plus grande
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
                                   _errorMessage!,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: red600,
                                     fontSize: 15, // Augmenté
                                     fontWeight: FontWeight.w500, // Un peu plus de poids
@@ -575,14 +582,14 @@ class _CVState extends State<CV> {
                                         shape: BoxShape.circle,
                                         border: Border.all(color: amber600.withOpacity(0.3))
                                       ),
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.lightbulb_outline_rounded,
                                         color: amber600, // Couleur d'accent
                                         size: 28, // Augmenté
                                       ),
                                     ),
                                     const SizedBox(width: 16),
-                                    Expanded(
+                                    const Expanded(
                                       child: Text(
                                         "Recommandations d'amélioration",
                                         style: TextStyle(
@@ -595,11 +602,11 @@ class _CVState extends State<CV> {
                                   ],
                                 ),
                                 const SizedBox(height: 20),
-                                Divider(color: slate200, thickness: 1), // Séparateur plus subtil
+                                const Divider(color: slate200, thickness: 1), // Séparateur plus subtil
                                 const SizedBox(height: 20),
                                 SelectableText(
                                   _recommendations!,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16, // Maintenu
                                     height: 1.7, // Augmenté pour lisibilité
                                     color: slate600, // Couleur de texte plus douce

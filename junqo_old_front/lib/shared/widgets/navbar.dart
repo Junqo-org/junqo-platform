@@ -28,10 +28,10 @@ class _NavbarState extends State<Navbar> {
 
   void _navigateToPage(BuildContext context, int index) {
     if (_selectedIndex == index) return;
-    
+
     // Ne pas naviguer si c'est l'index des notifications
     if (index == 2) return;
-    
+
     setState(() {
       _selectedIndex = index;
     });
@@ -71,9 +71,14 @@ class _NavbarState extends State<Navbar> {
   void _showNotificationPopup(BuildContext context, GlobalKey buttonKey) {
     final buttonContext = buttonKey.currentContext;
     if (buttonContext == null) return;
-    
-    final RenderBox button = buttonContext.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final buttonRenderBox = buttonContext.findRenderObject();
+    if (buttonRenderBox is! RenderBox) return;
+
+    final overlayRenderBox = Overlay.of(context).context.findRenderObject();
+    if (overlayRenderBox is! RenderBox) return;
+
+    final RenderBox button = buttonRenderBox;
+    final RenderBox overlay = overlayRenderBox;
     final buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
 
     _notificationOverlay = OverlayEntry(
@@ -100,7 +105,7 @@ class _NavbarState extends State<Navbar> {
   void _hideNotificationPopup() {
     _notificationOverlay?.remove();
     _notificationOverlay = null;
-    
+
     if (mounted) {
       setState(() {
         _isNotificationVisible = false;
@@ -110,8 +115,9 @@ class _NavbarState extends State<Navbar> {
 
   Widget _buildNavItem(int index, {bool showLabel = false}) {
     final isSelected = _selectedIndex == index;
-    final iconColor = isSelected ? const Color(0xFF2563EB) : Colors.grey.shade600;
-    
+    final iconColor =
+        isSelected ? const Color(0xFF2563EB) : Colors.grey.shade600;
+
     // Si c'est l'index des notifications
     if (index == 2) {
       final notificationKey = GlobalKey();
@@ -132,7 +138,9 @@ class _NavbarState extends State<Navbar> {
                 Icon(
                   Icons.notifications_outlined,
                   size: 24,
-                  color: _isNotificationVisible ? const Color(0xFF2563EB) : Colors.grey.shade600,
+                  color: _isNotificationVisible
+                      ? const Color(0xFF2563EB)
+                      : Colors.grey.shade600,
                 ),
                 if (showLabel) ...[
                   const SizedBox(width: 6),
@@ -141,7 +149,8 @@ class _NavbarState extends State<Navbar> {
                     style: TextStyle(
                       fontSize: 14,
                       color: iconColor,
-                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.w500 : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -173,7 +182,8 @@ class _NavbarState extends State<Navbar> {
                       style: TextStyle(
                         fontSize: 14,
                         color: iconColor,
-                        fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.w500 : FontWeight.normal,
                       ),
                     ),
                   ],

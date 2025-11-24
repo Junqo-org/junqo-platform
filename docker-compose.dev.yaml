@@ -5,18 +5,25 @@
 services:
   front:
     container_name: junqo_front_dev
+    image: ghcr.io/junqo-org/junqo-front-dev:dev # Dev branch, development image
     build:
       context: ./
       dockerfile: ./junqo_front/dockerfile.dev
       args:
-        - FLUTTER_VERSION=${FLUTTER_VERSION:-3.22.2}
-        - API_URL=${API_URL:-http://localhost:4200/api/v1}
+        - FLUTTER_VERSION=${FLUTTER_VERSION:-3.35.3}
+        - API_URL=${API_URL:-/api/v1}
+    env_file:
+      - ${FRONT_ENV_FILE:-./junqo_front/config/.env}
     restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
       back:
         condition: service_healthy
+    volumes:
+      - junqo_logs:/var/log/junqo
+    environment:
+      LOG_PATH: /var/log/junqo/front.log
     develop:
       watch:
         # Sync and restart when nginx.conf changes
@@ -31,6 +38,7 @@ services:
 
   back:
     container_name: junqo_back_dev
+    image: ghcr.io/junqo-org/junqo-back-dev:dev # Dev branch, development image
     build:
       context: ./
       dockerfile: ./junqo_back/dockerfile.dev
@@ -51,8 +59,11 @@ services:
         condition: service_healthy
     environment:
       DATABASE_PASSWORD_FILE: /run/secrets/db_password
+      LOG_PATH: /var/log/junqo/back.log
     secrets:
       - db_password
+    volumes:
+      - junqo_logs:/var/log/junqo
     develop:
       watch:
         # Sync all files except node_modules for live reloading
@@ -78,11 +89,12 @@ services:
       - back-net
     volumes:
       - db_data_dev:/var/lib/postgresql/data
-      - ${TEST_DATA_FOLDER:-./db}:/docker-entrypoint-initdb.d
+      - junqo_logs:/var/log/junqo
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
       POSTGRES_USER: ${DATABASE_USER:-junqo}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      LOG_PATH: /var/log/junqo/db.log
     secrets:
       - db_password
     healthcheck:
@@ -118,6 +130,7 @@ networks:
 
 volumes:
   db_data_dev:
+  junqo_logs:
 
 secrets:
   db_password:
