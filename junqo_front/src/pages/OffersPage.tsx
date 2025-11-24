@@ -188,57 +188,57 @@ export default function OffersPage() {
     
     return (
       <Card 
-        className="h-full bg-card shadow-md"
+        className="h-full bg-gray-900 border-gray-700 shadow-xl"
       >
         <CardContent className="p-8">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-2xl font-semibold text-foreground mb-2 truncate">
+              <h3 className="text-2xl font-semibold text-white mb-2 truncate">
                 {offer.title}
               </h3>
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2 text-sm text-gray-400">
                 <Clock className="h-4 w-4 flex-shrink-0" />
                 <span className="truncate">{formatRelativeTime(new Date(offer.createdAt))}</span>
               </p>
             </div>
-            <Badge variant="secondary" className="flex-shrink-0">
+            <Badge variant="secondary" className="flex-shrink-0 bg-gray-800 text-white border-gray-700">
               {offerTypeBadge.label}
             </Badge>
           </div>
           
-          <p className="text-muted-foreground mb-6 line-clamp-4 leading-relaxed">
+          <p className="text-gray-300 mb-6 line-clamp-4 leading-relaxed">
             {offer.description}
           </p>
           
           <div className="grid grid-cols-2 gap-3 mb-6">
             {offer.salary && offer.salary > 0 && (
-              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
-                <TrendingUp className="h-5 w-5 text-primary flex-shrink-0" />
+              <div className="flex items-center gap-3 p-3 bg-black rounded-lg border border-gray-700">
+                <TrendingUp className="h-5 w-5 text-gray-400 flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="text-xs text-muted-foreground">Salary</div>
-                  <div className="font-semibold text-foreground truncate">
+                  <div className="text-xs text-gray-400">Salary</div>
+                  <div className="font-semibold text-white truncate">
                     €{offer.salary}/mo
                   </div>
                 </div>
               </div>
             )}
             
-            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
-              <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
+            <div className="flex items-center gap-3 p-3 bg-black rounded-lg border border-gray-700">
+              <MapPin className="h-5 w-5 text-gray-400 flex-shrink-0" />
               <div className="min-w-0">
-                <div className="text-xs text-muted-foreground">Location</div>
-                <div className="font-semibold text-foreground truncate">
+                <div className="text-xs text-gray-400">Location</div>
+                <div className="font-semibold text-white truncate">
                   {locationBadge.label}
                 </div>
               </div>
             </div>
 
             {offer.duration && offer.duration > 0 && (
-              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
-                <Clock className="h-5 w-5 text-primary flex-shrink-0" />
+              <div className="flex items-center gap-3 p-3 bg-black rounded-lg border border-gray-700">
+                <Clock className="h-5 w-5 text-gray-400 flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="text-xs text-muted-foreground">Duration</div>
-                  <div className="font-semibold text-foreground truncate">
+                  <div className="text-xs text-gray-400">Duration</div>
+                  <div className="font-semibold text-white truncate">
                     {offer.duration} months
                   </div>
                 </div>
@@ -248,21 +248,21 @@ export default function OffersPage() {
 
           {offer.skills && offer.skills.length > 0 && (
             <div className="mb-4">
-              <div className="text-sm font-medium text-foreground mb-2">
+              <div className="text-sm font-medium text-white mb-2">
                 Required Skills
               </div>
               <div className="flex flex-wrap gap-2">
                 {offer.skills.slice(0, 6).map((skill, index) => (
                   <span 
                     key={index} 
-                    className="px-2 py-1 text-xs bg-muted text-foreground rounded border border-border truncate max-w-[150px]"
+                    className="px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded border border-gray-700 truncate max-w-[150px]"
                     title={skill}
                   >
                     {skill}
                   </span>
                 ))}
                 {offer.skills.length > 6 && (
-                  <span className="px-2 py-1 text-xs bg-muted text-foreground rounded border border-border">
+                  <span className="px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded border border-gray-700">
                     +{offer.skills.length - 6} more
                   </span>
                 )}
@@ -275,7 +275,7 @@ export default function OffersPage() {
             <Link to={`/offers/details?id=${offer.id}`} className="w-full">
               <Button 
                 variant="outline" 
-                className="w-full"
+                className="w-full bg-black border-gray-700 text-white hover:bg-gray-800"
                 onClick={(e) => {
                   e.stopPropagation() // Prevent swipe
                   console.log('View details clicked for offer:', offer.id)
@@ -291,28 +291,28 @@ export default function OffersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                <Briefcase className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                <Briefcase className="h-8 w-8 text-white" />
                 Job Opportunities
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-gray-400 mt-1">
                 {filteredOffers.length} position{filteredOffers.length !== 1 ? 's' : ''} available
               </p>
             </div>
             <div className="flex gap-3">
               {isStudent && (
-                <div className="inline-flex bg-card rounded-lg border border-border p-1">
+                <div className="inline-flex bg-gray-900 rounded-lg border border-gray-700 p-1">
                   <Button
                     variant={viewMode === 'grid' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('grid')}
-                    className="gap-2"
+                    className={viewMode === 'grid' ? 'gap-2 bg-white hover:bg-gray-100 text-black' : 'gap-2 text-gray-300 hover:bg-gray-800 hover:text-white'}
                   >
                     <Grid3x3 className="h-4 w-4" />
                     Grid
@@ -321,7 +321,7 @@ export default function OffersPage() {
                     variant={viewMode === 'swipe' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('swipe')}
-                    className="gap-2"
+                    className={viewMode === 'swipe' ? 'gap-2 bg-white hover:bg-gray-100 text-black' : 'gap-2 text-gray-300 hover:bg-gray-800 hover:text-white'}
                   >
                     <Layers className="h-4 w-4" />
                     Swipe
@@ -331,7 +331,7 @@ export default function OffersPage() {
               {isCompany && (
                 <Button 
                   onClick={() => navigate('/offers/create')}
-                  variant="default"
+                  className="bg-white hover:bg-gray-100 text-black"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Post Job
@@ -343,41 +343,41 @@ export default function OffersPage() {
 
         {/* Filters - Only in grid mode */}
         {viewMode === 'grid' && (
-          <Card className="bg-card border-border">
+          <Card className="bg-gray-900 border-gray-700">
             <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     placeholder="Search jobs..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-background border-border"
+                    className="pl-10 bg-black border-gray-700 text-white placeholder:text-gray-500"
                   />
                 </div>
                 
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="bg-background border-border">
+                  <SelectTrigger className="bg-black border-gray-700 text-white">
                     <SelectValue placeholder="Job Type" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="INTERNSHIP">Internship</SelectItem>
-                    <SelectItem value="FULL_TIME">Full Time</SelectItem>
-                    <SelectItem value="PART_TIME">Part Time</SelectItem>
-                    <SelectItem value="CONTRACT">Contract</SelectItem>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="all" className="text-white hover:bg-gray-800">All Types</SelectItem>
+                    <SelectItem value="INTERNSHIP" className="text-white hover:bg-gray-800">Internship</SelectItem>
+                    <SelectItem value="FULL_TIME" className="text-white hover:bg-gray-800">Full Time</SelectItem>
+                    <SelectItem value="PART_TIME" className="text-white hover:bg-gray-800">Part Time</SelectItem>
+                    <SelectItem value="CONTRACT" className="text-white hover:bg-gray-800">Contract</SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Select value={locationFilter} onValueChange={setLocationFilter}>
-                  <SelectTrigger className="bg-background border-border">
+                  <SelectTrigger className="bg-black border-gray-700 text-white">
                     <SelectValue placeholder="Work Location" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    <SelectItem value="ONSITE">On-site</SelectItem>
-                    <SelectItem value="REMOTE">Remote</SelectItem>
-                    <SelectItem value="HYBRID">Hybrid</SelectItem>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="all" className="text-white hover:bg-gray-800">All Locations</SelectItem>
+                    <SelectItem value="ONSITE" className="text-white hover:bg-gray-800">On-site</SelectItem>
+                    <SelectItem value="REMOTE" className="text-white hover:bg-gray-800">Remote</SelectItem>
+                    <SelectItem value="HYBRID" className="text-white hover:bg-gray-800">Hybrid</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -389,31 +389,31 @@ export default function OffersPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+              <Card key={i} className="bg-gray-900 border-gray-700">
                 <CardContent className="p-6 space-y-4">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-5 w-3/4 bg-gray-800" />
+                  <Skeleton className="h-4 w-1/3 bg-gray-800" />
                   <div className="grid grid-cols-2 gap-3">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full bg-gray-800" />
+                    <Skeleton className="h-8 w-full bg-gray-800" />
                   </div>
-                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full bg-gray-800" />
                   <div className="flex items-center justify-between">
-                    <Skeleton className="h-6 w-24" />
-                    <Skeleton className="h-4 w-4" />
+                    <Skeleton className="h-6 w-24 bg-gray-800" />
+                    <Skeleton className="h-4 w-4 bg-gray-800" />
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : filteredOffers.length === 0 ? (
-          <Card className="bg-card border-border">
+          <Card className="bg-gray-900 border-gray-700">
             <CardContent className="py-20 text-center">
-              <Briefcase className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">
+              <Briefcase className="h-16 w-16 mx-auto text-gray-600 mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">
                  No jobs found
                </h3>
-              <p className="text-muted-foreground">
+              <p className="text-gray-400">
                  Try adjusting your filters to see more results
                </p>
             </CardContent>
@@ -446,27 +446,27 @@ export default function OffersPage() {
                     onClick={() => console.log('Link clicked for offer:', offer.id)}
                   >
                     <Card 
-                      className="h-full bg-card border-border hover:border-primary/30 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200 group cursor-pointer"
+                      className="h-full bg-gray-900 border-gray-700 hover:border-gray-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
                     >
                     <CardContent className="p-6 flex flex-col h-full">
                       {/* Header */}
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                          <h3 className="text-lg font-semibold text-white line-clamp-2 group-hover:text-gray-300 transition-colors">
                             {offer.title}
                           </h3>
-                          <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                          <p className="flex items-center gap-1 text-xs text-gray-400 mt-1">
                             <Clock className="h-3 w-3 flex-shrink-0" />
                             <span className="truncate">{formatRelativeTime(new Date(offer.createdAt))}</span>
                           </p>
                         </div>
-                        <Badge variant="secondary" className="flex-shrink-0">
+                        <Badge variant="secondary" className="flex-shrink-0 bg-gray-800 text-white border-gray-700">
                           {offerTypeBadge.label}
                         </Badge>
                       </div>
                       
                       {/* Description */}
-                      <p className="text-sm text-muted-foreground line-clamp-3 mb-4 flex-1 leading-relaxed">
+                      <p className="text-sm text-gray-300 line-clamp-3 mb-4 flex-1 leading-relaxed">
                         {offer.description}
                       </p>
                       
@@ -474,26 +474,26 @@ export default function OffersPage() {
                       <div className="space-y-2 mb-4">
                         {offer.salary && offer.salary > 0 && (
                           <div className="flex items-center text-sm gap-2">
-                            <div className="h-6 w-6 rounded bg-muted flex items-center justify-center flex-shrink-0">
-                              <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                            <div className="h-6 w-6 rounded bg-black border border-gray-700 flex items-center justify-center flex-shrink-0">
+                              <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
                             </div>
-                            <span className="font-medium text-foreground truncate">
+                            <span className="font-medium text-white truncate">
                               €{offer.salary}/month
                             </span>
                           </div>
                         )}
                         
-                        <div className="flex items-center text-sm text-foreground gap-2">
-                          <div className="h-6 w-6 rounded bg-muted flex items-center justify-center flex-shrink-0">
-                            <MapPin className="h-3.5 w-3.5 text-primary" />
+                        <div className="flex items-center text-sm text-white gap-2">
+                          <div className="h-6 w-6 rounded bg-black border border-gray-700 flex items-center justify-center flex-shrink-0">
+                            <MapPin className="h-3.5 w-3.5 text-gray-400" />
                           </div>
                           <span className="truncate">{locationBadge.label}</span>
                         </div>
 
                         {offer.duration && offer.duration > 0 && (
-                          <div className="flex items-center text-sm text-foreground gap-2">
-                            <div className="h-6 w-6 rounded bg-muted flex items-center justify-center flex-shrink-0">
-                              <Clock className="h-3.5 w-3.5 text-primary" />
+                          <div className="flex items-center text-sm text-white gap-2">
+                            <div className="h-6 w-6 rounded bg-black border border-gray-700 flex items-center justify-center flex-shrink-0">
+                              <Clock className="h-3.5 w-3.5 text-gray-400" />
                             </div>
                             <span className="truncate">{offer.duration} months</span>
                           </div>
@@ -506,14 +506,14 @@ export default function OffersPage() {
                           {offer.skills.slice(0, 3).map((skill, index) => (
                             <span 
                               key={index} 
-                              className="px-2 py-0.5 text-xs bg-muted text-foreground rounded truncate max-w-[100px]"
+                              className="px-2 py-0.5 text-xs bg-gray-800 text-gray-200 border border-gray-700 rounded truncate max-w-[100px]"
                               title={skill}
                             >
                               {skill}
                             </span>
                           ))}
                           {offer.skills.length > 3 && (
-                            <span className="px-2 py-0.5 text-xs bg-muted text-foreground rounded">
+                            <span className="px-2 py-0.5 text-xs bg-gray-800 text-gray-200 border border-gray-700 rounded">
                               +{offer.skills.length - 3}
                             </span>
                           )}
@@ -521,7 +521,7 @@ export default function OffersPage() {
                       )}
                       
                       {/* View Button */}
-                      <div className="flex items-center justify-between text-sm text-muted-foreground font-medium group-hover:text-primary pointer-events-none">
+                      <div className="flex items-center justify-between text-sm text-gray-400 font-medium group-hover:text-white pointer-events-none">
                         <span>View Details</span>
                         <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                       </div>

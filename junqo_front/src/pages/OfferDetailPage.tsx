@@ -221,7 +221,7 @@ export default function OfferDetailPage() {
             {/* Key Info */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center gap-3 p-4 bg-gray-900 rounded-lg border border-gray-700">
-                <MapPin className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                <MapPin className="h-5 w-5 text-gray-400 flex-shrink-0" />
                 <div>
                   <div className="text-xs text-gray-400">Location</div>
                   <p className="font-semibold text-white">{getLocationLabel(offer.workLocationType)}</p>
@@ -230,7 +230,7 @@ export default function OfferDetailPage() {
 
               {offer.salary && offer.salary > 0 && (
                 <div className="flex items-center gap-3 p-4 bg-gray-900 rounded-lg border border-gray-700">
-                  <TrendingUp className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <TrendingUp className="h-5 w-5 text-gray-400 flex-shrink-0" />
                   <div>
                     <div className="text-xs text-gray-400">Salary</div>
                     <p className="font-semibold text-white">€{offer.salary}/month</p>
@@ -240,7 +240,7 @@ export default function OfferDetailPage() {
 
               {offer.duration && offer.duration > 0 && (
                 <div className="flex items-center gap-3 p-4 bg-gray-900 rounded-lg border border-gray-700">
-                  <Calendar className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <Calendar className="h-5 w-5 text-gray-400 flex-shrink-0" />
                   <div>
                     <div className="text-xs text-gray-400">Duration</div>
                     <p className="font-semibold text-white">{offer.duration} months</p>
