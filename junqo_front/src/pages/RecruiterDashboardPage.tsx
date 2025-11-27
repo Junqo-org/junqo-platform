@@ -99,26 +99,26 @@ export default function RecruiterDashboardPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading dashboard...</p>
+          <p className="text-slate-600 dark:text-slate-400">Chargement du tableau de bord...</p>
         </div>
       </div>
     )
   }
 
   const applicationStatusData = [
-    { name: 'Pending', value: stats?.pendingApplications || 0, color: '#f59e0b' },
-    { name: 'Accepted', value: stats?.acceptedApplications || 0, color: '#10b981' },
-    { name: 'Denied', value: stats?.rejectedApplications || 0, color: '#ef4444' },
+    { name: 'En attente', value: stats?.pendingApplications || 0, color: '#f59e0b' },
+    { name: 'Acceptées', value: stats?.acceptedApplications || 0, color: '#10b981' },
+    { name: 'Refusées', value: stats?.rejectedApplications || 0, color: '#ef4444' },
   ]
 
   const topPerformingOffers = analytics.slice(0, 5).map((a) => ({
-    name: a.offerTitle?.substring(0, 20) || 'Offer',
+    name: a.offerTitle?.substring(0, 20) || 'Offre',
     views: a.totalViews,
     applications: a.totalApplications,
   }))
 
   const conversionData = analytics.map((a) => ({
-    name: a.offerTitle?.substring(0, 15) || 'Offer',
+    name: a.offerTitle?.substring(0, 15) || 'Offre',
     rate: a.conversionRate,
   }))
 
@@ -129,10 +129,10 @@ export default function RecruiterDashboardPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-              Recruiter Dashboard
+              Tableau de bord recruteur
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
-              Monitor your recruitment performance
+              Suivez vos performances de recrutement
             </p>
           </div>
           <div className="flex gap-3">
@@ -141,13 +141,13 @@ export default function RecruiterDashboardPage() {
               className="bg-blue-600 hover:bg-blue-700"
             >
               <Briefcase className="h-4 w-4 mr-2" />
-              Create Offer
+              Créer une offre
             </Button>
             <Button 
               variant="outline"
               onClick={() => navigate('/offers')}
             >
-              View All Offers
+              Voir toutes les offres
             </Button>
           </div>
         </div>
@@ -161,13 +161,13 @@ export default function RecruiterDashboardPage() {
           >
             <Card className="border-blue-200 dark:border-blue-800">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Offers</CardTitle>
+                <CardTitle className="text-sm font-medium">Offres actives</CardTitle>
                 <Briefcase className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-blue-600">{stats?.totalActive || 0}</div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                  Currently active job postings
+                  Annonces d'emploi actuellement actives
                 </p>
               </CardContent>
             </Card>
@@ -180,13 +180,13 @@ export default function RecruiterDashboardPage() {
           >
             <Card className="border-emerald-200 dark:border-emerald-800">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Views</CardTitle>
+                <CardTitle className="text-sm font-medium">Vues totales</CardTitle>
                 <Eye className="h-4 w-4 text-emerald-600" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-emerald-600">{stats?.totalViews || 0}</div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                  Across all your offers
+                  Sur toutes vos offres
                 </p>
               </CardContent>
             </Card>
@@ -199,7 +199,7 @@ export default function RecruiterDashboardPage() {
           >
             <Card className="border-amber-200 dark:border-amber-800">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Applications</CardTitle>
+                <CardTitle className="text-sm font-medium">Candidatures</CardTitle>
                 <Users className="h-4 w-4 text-amber-600" />
               </CardHeader>
               <CardContent>
@@ -238,10 +238,10 @@ export default function RecruiterDashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
-                Application Status
+                Statut des candidatures
               </CardTitle>
               <CardDescription>
-                Distribution of application statuses
+                Répartition des statuts des candidatures
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -269,7 +269,7 @@ export default function RecruiterDashboardPage() {
                 <div className="h-[300px] flex items-center justify-center text-slate-500">
                   <div className="text-center">
                     <Users className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-                    <p>No applications yet</p>
+                    <p>Aucune candidature pour le moment</p>
                   </div>
                 </div>
               )}
@@ -281,10 +281,10 @@ export default function RecruiterDashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Top Performing Offers
+                Offres les plus performantes
               </CardTitle>
               <CardDescription>
-                Views vs Applications comparison
+                Comparaison Vues vs Candidatures
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -296,15 +296,15 @@ export default function RecruiterDashboardPage() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="views" fill="#3b82f6" name="Views" />
-                    <Bar dataKey="applications" fill="#10b981" name="Applications" />
+                    <Bar dataKey="views" fill="#3b82f6" name="Vues" />
+                    <Bar dataKey="applications" fill="#10b981" name="Candidatures" />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
                 <div className="h-[300px] flex items-center justify-center text-slate-500">
                   <div className="text-center">
                     <Briefcase className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-                    <p>No offers created yet</p>
+                    <p>Aucune offre créée pour le moment</p>
                   </div>
                 </div>
               )}
@@ -316,10 +316,10 @@ export default function RecruiterDashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ArrowUpRight className="h-5 w-5" />
-                Conversion Rates
+                Taux de conversion
               </CardTitle>
               <CardDescription>
-                Application conversion per offer
+                Conversion des candidatures par offre
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -336,7 +336,7 @@ export default function RecruiterDashboardPage() {
                       dataKey="rate" 
                       stroke="#8b5cf6" 
                       strokeWidth={2}
-                      name="Conversion Rate (%)"
+                      name="Taux de conversion (%)"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -344,7 +344,7 @@ export default function RecruiterDashboardPage() {
                 <div className="h-[300px] flex items-center justify-center text-slate-500">
                   <div className="text-center">
                     <BarChart3 className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-                    <p>No data available</p>
+                    <p>Aucune donnée disponible</p>
                   </div>
                 </div>
               )}
@@ -354,9 +354,9 @@ export default function RecruiterDashboardPage() {
           {/* Quick Actions & Insights */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions & Insights</CardTitle>
+              <CardTitle>Actions rapides & Insights</CardTitle>
               <CardDescription>
-                Recommended next steps
+                Prochaines étapes recommandées
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -364,14 +364,14 @@ export default function RecruiterDashboardPage() {
                 <div className="flex items-center gap-3">
                   <Clock className="h-5 w-5 text-amber-600" />
                   <div>
-                    <p className="font-medium text-sm">Pending Reviews</p>
+                    <p className="font-medium text-sm">Examens en attente</p>
                     <p className="text-xs text-slate-600 dark:text-slate-400">
-                      {stats?.pendingApplications || 0} applications awaiting
+                      {stats?.pendingApplications || 0} candidatures en attente
                     </p>
                   </div>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => navigate('/offers')}>
-                  Review
+                <Button size="sm" variant="outline" onClick={() => navigate('/recruiter/applications')}>
+                  Examiner
                 </Button>
               </div>
 
@@ -379,9 +379,9 @@ export default function RecruiterDashboardPage() {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-emerald-600" />
                   <div>
-                    <p className="font-medium text-sm">Accepted</p>
+                    <p className="font-medium text-sm">Acceptées</p>
                     <p className="text-xs text-slate-600 dark:text-slate-400">
-                      {stats?.acceptedApplications || 0} candidates accepted
+                      {stats?.acceptedApplications || 0} candidats acceptés
                     </p>
                   </div>
                 </div>

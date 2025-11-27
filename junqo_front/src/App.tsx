@@ -19,6 +19,7 @@ import MessagingPage from './pages/MessagingPage'
 import RecruiterDashboardPage from './pages/RecruiterDashboardPage'
 import SwipingPage from './pages/SwipingPage'
 import ApplicationsTrackingPage from './pages/ApplicationsTrackingPage'
+import ApplicationManagementPage from './pages/ApplicationManagementPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 // Layout
@@ -49,6 +50,7 @@ function App() {
             <Route path="/messaging" element={<MessagingPage />} />
             <Route path="/applications" element={<ApplicationsTrackingPage />} />
             <Route path="/recruiter/dashboard" element={<RecruiterDashboardPage />} />
+            <Route path="/recruiter/applications" element={<ApplicationManagementPage />} />
             <Route path="/recruiter/swiping" element={<SwipingPage />} />
           </Route>
 

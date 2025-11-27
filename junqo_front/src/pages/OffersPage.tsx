@@ -25,7 +25,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { apiService } from '@/services/api'
-import { Offer } from '@/types'
+import { Offer, Application } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'sonner'
@@ -43,6 +43,7 @@ export default function OffersPage() {
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [locationFilter, setLocationFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'swipe'>('grid')
+  const [hiddenOfferIds, setHiddenOfferIds] = useState<Set<string>>(new Set())
 
   // Disable body scroll when in swipe mode
   useEffect(() => {
@@ -84,6 +85,35 @@ export default function OffersPage() {
     try {
       const query: Record<string, any> = {}
       
+      if (user?.type === 'STUDENT') {
+        try {
+          const applicationsData = await apiService.getMyApplications()
+          const applicationsArray: Application[] = Array.isArray(applicationsData)
+            ? applicationsData
+            : applicationsData?.rows ||
+              applicationsData?.items ||
+              applicationsData?.data ||
+              []
+
+          const hiddenIds = new Set(
+            applicationsArray
+              .filter(
+                (application) =>
+                  application.status === 'ACCEPTED' ||
+                  application.status === 'DENIED'
+              )
+              .map((application) => application.offerId)
+              .filter(Boolean)
+          )
+          setHiddenOfferIds(hiddenIds)
+        } catch (error) {
+          console.error('Failed to load applications for student filtering:', error)
+          setHiddenOfferIds(new Set())
+        }
+      } else {
+        setHiddenOfferIds(new Set())
+      }
+
       const data = user?.type === 'COMPANY'
         ? await apiService.getMyOffers()
         : await apiService.getOffers(query)
@@ -116,6 +146,10 @@ export default function OffersPage() {
     const description = offer.description || ''
     const skills = offer.skills || []
     const searchLower = searchQuery.toLowerCase()
+
+    if (hiddenOfferIds.has(offer.id)) {
+      return false
+    }
     
     const matchesSearch = title.toLowerCase().includes(searchLower) ||
                          description.toLowerCase().includes(searchLower) ||
@@ -130,19 +164,19 @@ export default function OffersPage() {
 
   const getOfferTypeBadge = (type: string) => {
     const badges = {
-      'INTERNSHIP': { label: 'Internship', color: 'bg-muted text-foreground border-border' },
-      'FULL_TIME': { label: 'Full Time', color: 'bg-muted text-foreground border-border' },
-      'PART_TIME': { label: 'Part Time', color: 'bg-muted text-foreground border-border' },
-      'CONTRACT': { label: 'Contract', color: 'bg-muted text-foreground border-border' },
+      'INTERNSHIP': { label: 'Stage', color: 'bg-muted text-foreground border-border' },
+      'FULL_TIME': { label: 'Temps plein', color: 'bg-muted text-foreground border-border' },
+      'PART_TIME': { label: 'Temps partiel', color: 'bg-muted text-foreground border-border' },
+      'CONTRACT': { label: 'Contrat', color: 'bg-muted text-foreground border-border' },
     }
     return badges[type as keyof typeof badges] || { label: type, color: 'bg-muted text-foreground border-border' }
   }
 
   const getLocationBadge = (location: string) => {
     const badges = {
-      'ONSITE': { label: 'On-site', icon: '📍' },
-      'REMOTE': { label: 'Remote', icon: '🌐' },
-      'HYBRID': { label: 'Hybrid', icon: '🔀' },
+      'ON_SITE': { label: 'Sur site', icon: '📍' },
+      'TELEWORKING': { label: 'Télétravail', icon: '🌐' },
+      'HYBRID': { label: 'Hybride', icon: '🔀' },
     }
     return badges[location as keyof typeof badges] || { label: location, icon: '📍' }
   }
@@ -188,57 +222,57 @@ export default function OffersPage() {
     
     return (
       <Card 
-        className="h-full bg-black border-gray-800 shadow-xl"
+        className="h-full bg-card border-border shadow-xl"
       >
         <CardContent className="p-8">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-2xl font-semibold text-white mb-2 truncate">
+              <h3 className="text-2xl font-semibold text-foreground mb-2 line-clamp-2">
                 {offer.title}
               </h3>
-              <p className="flex items-center gap-2 text-sm text-gray-400">
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{formatRelativeTime(new Date(offer.createdAt))}</span>
+                <span className="whitespace-nowrap">{formatRelativeTime(new Date(offer.createdAt))}</span>
               </p>
             </div>
-            <Badge className="flex-shrink-0 bg-gray-800 text-white border-gray-700 border">
+            <Badge className="flex-shrink-0 bg-muted text-foreground border-border border">
               {offerTypeBadge.label}
             </Badge>
           </div>
           
-          <p className="text-gray-300 mb-6 line-clamp-4 leading-relaxed">
+          <p className="text-card-foreground mb-6 leading-relaxed line-clamp-4">
             {offer.description}
           </p>
           
           <div className="grid grid-cols-2 gap-3 mb-6">
             {offer.salary && offer.salary > 0 && (
-              <div className="flex items-center gap-3 p-3 bg-black rounded-lg border border-gray-700">
-                <TrendingUp className="h-5 w-5 text-gray-400 flex-shrink-0" />
+              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
+                <TrendingUp className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="text-xs text-gray-400">Salary</div>
-                  <div className="font-semibold text-white truncate">
+                  <div className="text-xs text-muted-foreground">Salaire</div>
+                  <div className="font-semibold text-foreground truncate">
                     €{offer.salary}/mo
                   </div>
                 </div>
               </div>
             )}
             
-            <div className="flex items-center gap-3 p-3 bg-black rounded-lg border border-gray-700">
-              <MapPin className="h-5 w-5 text-gray-400 flex-shrink-0" />
+            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
+              <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
               <div className="min-w-0">
-                <div className="text-xs text-gray-400">Location</div>
-                <div className="font-semibold text-white truncate">
+                <div className="text-xs text-muted-foreground">Localisation</div>
+                <div className="font-semibold text-foreground truncate">
                   {locationBadge.label}
                 </div>
               </div>
             </div>
 
             {offer.duration && offer.duration > 0 && (
-              <div className="flex items-center gap-3 p-3 bg-black rounded-lg border border-gray-700">
-                <Clock className="h-5 w-5 text-gray-400 flex-shrink-0" />
+              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
+                <Clock className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="text-xs text-gray-400">Duration</div>
-                  <div className="font-semibold text-white truncate">
+                  <div className="text-xs text-muted-foreground">Durée</div>
+                  <div className="font-semibold text-foreground truncate">
                     {offer.duration} months
                   </div>
                 </div>
@@ -248,21 +282,21 @@ export default function OffersPage() {
 
           {offer.skills && offer.skills.length > 0 && (
             <div className="mb-4">
-              <div className="text-sm font-medium text-white mb-2">
-                Required Skills
+              <div className="text-sm font-medium text-foreground mb-2">
+                Compétences requises
               </div>
               <div className="flex flex-wrap gap-2">
                 {offer.skills.slice(0, 6).map((skill, index) => (
                   <span 
                     key={index} 
-                    className="px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded border border-gray-700 truncate max-w-[150px]"
+                    className="px-2 py-1 text-xs bg-muted text-foreground rounded border border-border truncate max-w-[150px]"
                     title={skill}
                   >
                     {skill}
                   </span>
                 ))}
                 {offer.skills.length > 6 && (
-                  <span className="px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded border border-gray-700">
+                  <span className="px-2 py-1 text-xs bg-muted text-foreground rounded border border-border">
                     +{offer.skills.length - 6} more
                   </span>
                 )}
@@ -275,13 +309,13 @@ export default function OffersPage() {
             <Link to={`/offers/details?id=${offer.id}`} className="w-full">
               <Button 
                 variant="outline" 
-                className="w-full bg-black border-gray-700 text-white hover:bg-gray-800"
+                className="w-full"
                 onClick={(e) => {
                   e.stopPropagation() // Prevent swipe
                   console.log('View details clicked for offer:', offer.id)
                 }}
               >
-                View Full Details
+                Voir les détails
               </Button>
             </Link>
           </div>
@@ -291,48 +325,49 @@ export default function OffersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                <Briefcase className="h-8 w-8 text-white" />
-                Job Opportunities
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <Briefcase className="h-8 w-8 text-primary" />
+                Opportunités d'emploi
               </h1>
-              <p className="text-gray-400 mt-1">
+              <p className="text-muted-foreground mt-1">
                 {filteredOffers.length} position{filteredOffers.length !== 1 ? 's' : ''} available
               </p>
             </div>
             <div className="flex gap-3">
               {isStudent && (
-                <div className="inline-flex bg-black rounded-lg border border-gray-800 p-1">
+                <div className="inline-flex bg-muted rounded-lg border border-border p-1">
                   <Button
                     size="sm"
                     onClick={() => setViewMode('grid')}
-                    className={viewMode === 'grid' ? 'gap-2 bg-white hover:bg-gray-100 text-black border-0' : 'gap-2 text-gray-300 hover:bg-gray-800 hover:text-white bg-transparent border-0'}
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    className="gap-2"
                   >
                     <Grid3x3 className="h-4 w-4" />
-                    Grid
+                    Grille
                   </Button>
                   <Button
                     size="sm"
                     onClick={() => setViewMode('swipe')}
-                    className={viewMode === 'swipe' ? 'gap-2 bg-white hover:bg-gray-100 text-black border-0' : 'gap-2 text-gray-300 hover:bg-gray-800 hover:text-white bg-transparent border-0'}
+                    variant={viewMode === 'swipe' ? 'default' : 'ghost'}
+                    className="gap-2"
                   >
                     <Layers className="h-4 w-4" />
-                    Swipe
+                    Balayer
                   </Button>
                 </div>
               )}
               {isCompany && (
                 <Button 
                   onClick={() => navigate('/offers/create')}
-                  className="bg-white hover:bg-gray-100 text-black"
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Post Job
+                  Publier une offre
                 </Button>
               )}
             </div>
@@ -341,41 +376,41 @@ export default function OffersPage() {
 
         {/* Filters - Only in grid mode */}
         {viewMode === 'grid' && (
-          <Card className="bg-black border-gray-800">
+          <Card className="bg-card border-border shadow-md">
             <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="Search jobs..."
+                    placeholder="Rechercher des offres..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-black border-gray-800 text-white placeholder:text-gray-500"
+                    className="pl-10"
                   />
                 </div>
                 
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="bg-black border-gray-800 text-white">
+                  <SelectTrigger>
                     <SelectValue placeholder="Job Type" />
                   </SelectTrigger>
-                  <SelectContent className="bg-black border-gray-800">
-                    <SelectItem value="all" className="text-white hover:bg-gray-900">All Types</SelectItem>
-                    <SelectItem value="INTERNSHIP" className="text-white hover:bg-gray-900">Internship</SelectItem>
-                    <SelectItem value="FULL_TIME" className="text-white hover:bg-gray-900">Full Time</SelectItem>
-                    <SelectItem value="PART_TIME" className="text-white hover:bg-gray-900">Part Time</SelectItem>
-                    <SelectItem value="CONTRACT" className="text-white hover:bg-gray-900">Contract</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les types</SelectItem>
+                    <SelectItem value="INTERNSHIP">Stage</SelectItem>
+                    <SelectItem value="FULL_TIME">Temps plein</SelectItem>
+                    <SelectItem value="PART_TIME">Temps partiel</SelectItem>
+                    <SelectItem value="CONTRACT">Contrat</SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Select value={locationFilter} onValueChange={setLocationFilter}>
-                  <SelectTrigger className="bg-black border-gray-800 text-white">
+                  <SelectTrigger>
                     <SelectValue placeholder="Work Location" />
                   </SelectTrigger>
-                  <SelectContent className="bg-black border-gray-800">
-                    <SelectItem value="all" className="text-white hover:bg-gray-900">All Locations</SelectItem>
-                    <SelectItem value="ONSITE" className="text-white hover:bg-gray-900">On-site</SelectItem>
-                    <SelectItem value="REMOTE" className="text-white hover:bg-gray-900">Remote</SelectItem>
-                    <SelectItem value="HYBRID" className="text-white hover:bg-gray-900">Hybrid</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les localisations</SelectItem>
+                    <SelectItem value="ON_SITE">Sur site</SelectItem>
+                    <SelectItem value="TELEWORKING">Télétravail</SelectItem>
+                    <SelectItem value="HYBRID">Hybride</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -387,32 +422,32 @@ export default function OffersPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="bg-black border-gray-800">
+              <Card key={i} className="bg-card border-border shadow-md">
                 <CardContent className="p-6 space-y-4">
-                  <Skeleton className="h-5 w-3/4 bg-gray-900" />
-                  <Skeleton className="h-4 w-1/3 bg-gray-900" />
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/3" />
                   <div className="grid grid-cols-2 gap-3">
-                    <Skeleton className="h-8 w-full bg-gray-900" />
-                    <Skeleton className="h-8 w-full bg-gray-900" />
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
                   </div>
-                  <Skeleton className="h-20 w-full bg-gray-900" />
+                  <Skeleton className="h-20 w-full" />
                   <div className="flex items-center justify-between">
-                    <Skeleton className="h-6 w-24 bg-gray-900" />
-                    <Skeleton className="h-4 w-4 bg-gray-900" />
+                    <Skeleton className="h-6 w-24" />
+                    <Skeleton className="h-4 w-4" />
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : filteredOffers.length === 0 ? (
-          <Card className="bg-black border-gray-800">
+          <Card className="bg-card border-border shadow-md">
             <CardContent className="py-20 text-center">
-              <Briefcase className="h-16 w-16 mx-auto text-gray-600 mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">
-                 No jobs found
+              <Briefcase className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                 Aucune offre trouvée
                </h3>
-              <p className="text-gray-400">
-                 Try adjusting your filters to see more results
+              <p className="text-muted-foreground">
+                 Essayez d'ajuster vos filtres pour voir plus de résultats
                </p>
             </CardContent>
           </Card>
@@ -444,27 +479,27 @@ export default function OffersPage() {
                     onClick={() => console.log('Link clicked for offer:', offer.id)}
                   >
                     <Card 
-                      className="h-full bg-black border-gray-800 hover:border-gray-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+                      className="h-full bg-card border-border hover:border-primary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer shadow-md"
                     >
                     <CardContent className="p-6 flex flex-col h-full">
                       {/* Header */}
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-white line-clamp-2 group-hover:text-gray-300 transition-colors">
+                          <h3 className="text-lg font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                             {offer.title}
                           </h3>
-                          <p className="flex items-center gap-1 text-xs text-gray-400 mt-1">
+                          <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                             <Clock className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{formatRelativeTime(new Date(offer.createdAt))}</span>
+                            <span className="whitespace-nowrap">{formatRelativeTime(new Date(offer.createdAt))}</span>
                           </p>
                         </div>
-                        <Badge variant="secondary" className="flex-shrink-0 bg-gray-800 text-white border-gray-700">
+                        <Badge variant="secondary" className="flex-shrink-0">
                           {offerTypeBadge.label}
                         </Badge>
                       </div>
                       
                       {/* Description */}
-                      <p className="text-sm text-gray-300 line-clamp-3 mb-4 flex-1 leading-relaxed">
+                      <p className="text-sm text-card-foreground mb-4 flex-1 leading-relaxed line-clamp-3">
                         {offer.description}
                       </p>
                       
@@ -472,26 +507,26 @@ export default function OffersPage() {
                       <div className="space-y-2 mb-4">
                         {offer.salary && offer.salary > 0 && (
                           <div className="flex items-center text-sm gap-2">
-                            <div className="h-6 w-6 rounded bg-black border border-gray-700 flex items-center justify-center flex-shrink-0">
-                              <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
+                            <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
                             </div>
-                            <span className="font-medium text-white truncate">
+                            <span className="font-medium text-foreground truncate">
                               €{offer.salary}/month
                             </span>
                           </div>
                         )}
                         
-                        <div className="flex items-center text-sm text-white gap-2">
-                          <div className="h-6 w-6 rounded bg-black border border-gray-700 flex items-center justify-center flex-shrink-0">
-                            <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                        <div className="flex items-center text-sm text-foreground gap-2">
+                          <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                           </div>
                           <span className="truncate">{locationBadge.label}</span>
                         </div>
 
                         {offer.duration && offer.duration > 0 && (
-                          <div className="flex items-center text-sm text-white gap-2">
-                            <div className="h-6 w-6 rounded bg-black border border-gray-700 flex items-center justify-center flex-shrink-0">
-                              <Clock className="h-3.5 w-3.5 text-gray-400" />
+                          <div className="flex items-center text-sm text-foreground gap-2">
+                            <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                             </div>
                             <span className="truncate">{offer.duration} months</span>
                           </div>
@@ -504,14 +539,14 @@ export default function OffersPage() {
                           {offer.skills.slice(0, 3).map((skill, index) => (
                             <span 
                               key={index} 
-                              className="px-2 py-0.5 text-xs bg-gray-800 text-gray-200 border border-gray-700 rounded truncate max-w-[100px]"
+                              className="px-2 py-0.5 text-xs bg-muted text-foreground border border-border rounded truncate max-w-[100px]"
                               title={skill}
                             >
                               {skill}
                             </span>
                           ))}
                           {offer.skills.length > 3 && (
-                            <span className="px-2 py-0.5 text-xs bg-gray-800 text-gray-200 border border-gray-700 rounded">
+                            <span className="px-2 py-0.5 text-xs bg-muted text-foreground border border-border rounded">
                               +{offer.skills.length - 3}
                             </span>
                           )}
@@ -519,8 +554,8 @@ export default function OffersPage() {
                       )}
                       
                       {/* View Button */}
-                      <div className="flex items-center justify-between text-sm text-gray-400 font-medium group-hover:text-white pointer-events-none">
-                        <span>View Details</span>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground font-medium group-hover:text-primary pointer-events-none">
+                        <span>Voir les détails</span>
                         <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </CardContent>

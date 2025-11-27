@@ -27,7 +27,7 @@ const offerSchema = z.object({
   description: z.string().min(20, 'La description doit contenir au moins 20 caractères'),
   status: z.enum(['ACTIVE', 'INACTIVE', 'CLOSED']),
   offerType: z.enum(['INTERNSHIP', 'FULL_TIME', 'PART_TIME', 'CONTRACT']),
-  workLocationType: z.enum(['ONSITE', 'REMOTE', 'HYBRID']),
+  workLocationType: z.enum(['ON_SITE', 'TELEWORKING', 'HYBRID']),
   // Optional fields - can be empty string and will be converted
   duration: z.string().optional(),
   salary: z.string().optional(),
@@ -216,8 +216,8 @@ export default function OfferCreationPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ONSITE">🏢 Sur site</SelectItem>
-                          <SelectItem value="REMOTE">🏠 Télétravail</SelectItem>
+                          <SelectItem value="ON_SITE">🏢 Sur site</SelectItem>
+                          <SelectItem value="TELEWORKING">🏠 Télétravail</SelectItem>
                           <SelectItem value="HYBRID">🔀 Hybride</SelectItem>
                         </SelectContent>
                       </Select>

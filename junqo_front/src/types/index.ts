@@ -50,7 +50,7 @@ export interface Offer {
   offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT'
   duration?: number
   salary?: number
-  workLocationType: 'ONSITE' | 'REMOTE' | 'HYBRID'
+  workLocationType: 'ON_SITE' | 'TELEWORKING' | 'HYBRID'
   skills?: string[]
   benefits?: string[]
   educationLevel?: number
@@ -66,7 +66,7 @@ export interface CreateOfferInput {
   offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT'
   duration?: number
   salary?: number
-  workLocationType: 'ONSITE' | 'REMOTE' | 'HYBRID'
+  workLocationType: 'ON_SITE' | 'TELEWORKING' | 'HYBRID'
   skills?: string[]
   benefits?: string[]
   educationLevel?: number

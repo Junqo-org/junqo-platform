@@ -98,10 +98,10 @@ export default function HomePage() {
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                            Browse Jobs
+                            Parcourir les offres
                           </CardTitle>
                           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            Explore opportunities
+                            Explorer les opportunités
                           </p>
                         </div>
                         <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
@@ -121,10 +121,10 @@ export default function HomePage() {
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-lg group-hover:text-emerald-600 transition-colors">
-                            CV Analysis
+                            Analyse de CV
                           </CardTitle>
                           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            AI-powered insights
+                            Conseils par IA
                           </p>
                         </div>
                         <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
@@ -144,10 +144,10 @@ export default function HomePage() {
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-lg group-hover:text-amber-600 transition-colors">
-                            Practice Interview
+                            Simuler un entretien
                           </CardTitle>
                           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            Build confidence
+                            Gagner en confiance
                           </p>
                         </div>
                         <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
@@ -167,10 +167,10 @@ export default function HomePage() {
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-lg group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
-                            My Applications
+                            Mes candidatures
                           </CardTitle>
                           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            Track your progress
+                            Suivre votre progression
                           </p>
                         </div>
                         <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
@@ -194,7 +194,7 @@ export default function HomePage() {
                               Messages
                             </CardTitle>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                              Stay connected with recruiters
+                              Restez en contact avec les recruteurs
                             </p>
                           </div>
                         </div>
@@ -219,10 +219,10 @@ export default function HomePage() {
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                            Post a Job
+                            Publier une offre
                           </CardTitle>
                           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            Create new opportunity
+                            Créer une nouvelle opportunité
                           </p>
                         </div>
                         <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
@@ -242,10 +242,10 @@ export default function HomePage() {
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-lg group-hover:text-emerald-600 transition-colors">
-                            My Job Listings
+                            Mes offres d'emploi
                           </CardTitle>
                           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            Manage your posts
+                            Gérer vos annonces
                           </p>
                         </div>
                         <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
@@ -256,7 +256,7 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div variants={item}>
-                <Link to="/recruiter/dashboard" className="block h-full">
+                <Link to="/recruiter/applications" className="block h-full">
                   <Card className="h-full border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-200 cursor-pointer group">
                     <CardHeader>
                       <div className="flex items-center gap-4">
@@ -265,10 +265,10 @@ export default function HomePage() {
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-lg group-hover:text-amber-600 transition-colors">
-                            Applications
+                            Candidatures
                           </CardTitle>
                           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            Review candidates
+                            Examiner les candidats
                           </p>
                         </div>
                         <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
@@ -292,7 +292,7 @@ export default function HomePage() {
                               Messages
                             </CardTitle>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                              Communicate with candidates
+                              Communiquer avec les candidats
                             </p>
                           </div>
                         </div>
@@ -324,7 +324,7 @@ export default function HomePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
-                      {isStudent ? "Applications Sent" : "Active Listings"}
+                      {isStudent ? "Candidatures envoyées" : "Annonces actives"}
                     </p>
                     <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
                       {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : (stats?.totalActive || 0)}
@@ -342,7 +342,7 @@ export default function HomePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
-                      {isStudent ? "Accepted" : isCompany ? "Views" : "Applications Received"}
+                      {isStudent ? "Acceptées" : isCompany ? "Vues" : "Candidatures reçues"}
                     </p>
                     <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
                       {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : (isStudent ? (stats?.acceptedApplications || 0) : (stats?.totalViews || 0))}
@@ -365,7 +365,7 @@ export default function HomePage() {
                     </p>
                     {!isLoading && stats && stats.unreadMessages > 0 && (
                       <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                        {stats.unreadMessages} unread
+                        {stats.unreadMessages} non lus
                       </p>
                     )}
                   </div>

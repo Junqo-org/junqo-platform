@@ -165,6 +165,14 @@ class ApiService {
     return response.data
   }
 
+  async bulkUpdateApplications(applicationIds: string[], status: string) {
+    const response = await this.client.post('/applications/bulk/update-status', {
+      applicationIds,
+      status,
+    })
+    return response.data
+  }
+
   // CV endpoints
   async uploadCV(file: File) {
     const formData = new FormData()
