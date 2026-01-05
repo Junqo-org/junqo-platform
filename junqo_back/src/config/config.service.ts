@@ -48,11 +48,19 @@ function validatePort(port: number): number {
 // Register app configuration
 export const appConfig = registerAs('app', () => {
   const backPort = validatePort(parseInt(process.env.BACK_PORT ?? '4200'));
+  const corsOrigins = process.env.CORS_ORIGINS?.split(',') || /.*/;
+
+  // Disable credentials when using wildcard CORS origins for security
+  const isWildcard =
+    corsOrigins instanceof RegExp ||
+    (Array.isArray(corsOrigins) &&
+      corsOrigins.some((origin) => origin === '*'));
 
   return {
     nodeEnv: process.env.NODE_ENV,
     port: backPort,
-    corsOrigins: process.env.CORS_ORIGINS?.split(',') || /.*/,
+    corsOrigins,
+    credentials: !isWildcard,
   };
 });
 

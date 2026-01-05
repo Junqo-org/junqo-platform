@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
@@ -27,6 +29,8 @@ import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
 
 @Injectable()
 export class ApplicationsService {
+  private readonly logger = new Logger(ApplicationsService.name);
+
   constructor(
     private readonly caslAbilityFactory: CaslAbilityFactory,
     private readonly applicationsRepository: ApplicationsRepository,
@@ -452,9 +456,13 @@ export class ApplicationsService {
       );
     } catch (error) {
       // Log the error but don't fail the application update
-      console.error(
-        `Failed to create conversation for accepted application ${application.id}:`,
-        error.message,
+      this.logger.error(
+        `Failed to create conversation for accepted application ${application.id}`,
+        {
+          applicationId: application.id,
+          error: error.message,
+          stack: error.stack,
+        },
       );
     }
   }
@@ -466,12 +474,30 @@ export class ApplicationsService {
    * @param applicationIds - Array of application IDs to update
    * @param status - New status to apply
    * @returns Result with count of updated/failed applications
+   * @throws BadRequestException if applicationIds array is empty or exceeds maximum batch size
    */
   public async bulkUpdateStatus(
     currentUser: AuthUserDTO,
     applicationIds: string[],
-    status: any,
-  ): Promise<any> {
+    status: ApplicationStatus,
+  ): Promise<{
+    updated: number;
+    failed: number;
+    updatedIds: string[];
+    failedIds: string[];
+  }> {
+    const MAX_BATCH_SIZE = 100;
+
+    if (!applicationIds || applicationIds.length === 0) {
+      throw new BadRequestException('applicationIds array cannot be empty');
+    }
+
+    if (applicationIds.length > MAX_BATCH_SIZE) {
+      throw new BadRequestException(
+        `Batch size exceeds maximum of ${MAX_BATCH_SIZE}`,
+      );
+    }
+
     const results = {
       updated: 0,
       failed: 0,
@@ -487,7 +513,11 @@ export class ApplicationsService {
       } catch (error) {
         results.failed++;
         results.failedIds.push(id);
-        console.error(`Failed to update application ${id}:`, error.message);
+        this.logger.error(`Failed to update application ${id}`, {
+          applicationId: id,
+          error: error.message,
+          stack: error.stack,
+        });
       }
     }
 
@@ -507,8 +537,10 @@ export class ApplicationsService {
   ): Promise<ApplicationDTO> {
     const application = await this.findOneById(currentUser, id);
 
-    if (application.status === 'NOT_OPENED') {
-      return this.update(currentUser, id, { status: 'PENDING' as any });
+    if (application.status === ApplicationStatus.NOT_OPENED) {
+      return this.update(currentUser, id, {
+        status: ApplicationStatus.PENDING,
+      });
     }
 
     return application;

@@ -478,6 +478,20 @@ export class OffersService {
         totals,
       };
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        return {
+          analytics: [],
+          totals: {
+            totalOffers: 0,
+            totalViews: 0,
+            totalApplications: 0,
+            averageViewsPerOffer: 0,
+            averageApplicationsPerOffer: 0,
+            overallConversionRate: 0,
+          },
+        };
+      }
+      if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to get offers analytics: ${error.message}`,
       );

@@ -43,7 +43,6 @@
         "openai": "^4.98.0",
         "pdf-parse": "^1.1.1",
         "pg": "^8.14.1",
-        "recharts": "^3.3.0",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.2",
         "sequelize": "^6.37.7",

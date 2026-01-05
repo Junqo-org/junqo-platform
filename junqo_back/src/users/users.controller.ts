@@ -86,6 +86,7 @@ export class UsersController {
   }
 
   @Delete('me')
+  @ApiOperation({ summary: 'Delete current user' })
   async deleteMe(
     @CurrentUser() currentUser: AuthUserDTO,
   ): Promise<{ isSuccessful: boolean }> {
