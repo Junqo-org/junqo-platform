@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import { 
-  Users, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Users,
+  Clock,
+  CheckCircle,
+  XCircle,
   Search,
   Filter,
   Calendar,
   Briefcase,
   Eye,
-  GraduationCap,
-  Mail,
   Phone,
   Linkedin
 } from 'lucide-react'
@@ -85,14 +83,14 @@ export default function ApplicationManagementPage() {
     try {
       setIsUpdating(true)
       await apiService.updateApplication(applicationId, { status: newStatus })
-      
+
       // Update local state
-      setApplications(prev => 
-        prev.map(app => 
+      setApplications(prev =>
+        prev.map(app =>
           app.id === applicationId ? { ...app, status: newStatus as any } : app
         )
       )
-      
+
       toast.success(`Candidature ${newStatus === 'ACCEPTED' ? 'acceptée' : 'refusée'}`)
     } catch (error) {
       console.error('Failed to update application:', error)
@@ -112,14 +110,14 @@ export default function ApplicationManagementPage() {
       setIsUpdating(true)
       const applicationIds = Array.from(selectedApplications)
       await apiService.bulkUpdateApplications(applicationIds, status)
-      
+
       // Update local state
-      setApplications(prev => 
-        prev.map(app => 
+      setApplications(prev =>
+        prev.map(app =>
           selectedApplications.has(app.id) ? { ...app, status: status as any } : app
         )
       )
-      
+
       setSelectedApplications(new Set())
       toast.success(`${applicationIds.length} candidature(s) mise(s) à jour`)
     } catch (error) {

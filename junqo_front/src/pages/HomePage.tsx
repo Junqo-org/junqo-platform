@@ -314,7 +314,7 @@ export default function HomePage() {
           className="mt-12"
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Your Activity</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Votre activité</h2>
             {isLoading && <Loader2 className="h-5 w-5 text-slate-400 animate-spin" />}
           </div>
           

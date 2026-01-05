@@ -60,7 +60,7 @@ export default function MessagingPage() {
     if (selectedConversation) {
       loadMessages(selectedConversation.id)
       joinRoom(selectedConversation.id)
-      
+
       return () => {
         leaveRoom(selectedConversation.id)
       }
@@ -109,18 +109,18 @@ export default function MessagingPage() {
     if (selectedConversation && message.conversationId === selectedConversation.id) {
       setMessages((prev) => [...prev, message])
     }
-    
+
     // Update last message in conversations list
     setConversations((prev) =>
       prev.map((conv) =>
         conv.id === message.conversationId
-          ? { 
-              ...conv, 
-              lastMessage: { 
-                ...message, 
-                createdAt: message.createdAt || new Date().toISOString() 
-              }, 
-              updatedAt: new Date().toISOString() 
+          ? {
+              ...conv,
+              lastMessage: {
+                ...message,
+                createdAt: message.createdAt || new Date().toISOString()
+              },
+              updatedAt: new Date().toISOString()
             }
           : conv
       )
@@ -162,7 +162,7 @@ export default function MessagingPage() {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSendMessage()
@@ -250,7 +250,7 @@ export default function MessagingPage() {
                 {selectedConversation.title || 'Conversation'}
               </CardTitle>
             </CardHeader>
-            
+
             <ScrollArea className="flex-1 p-6">
               {isLoadingMessages ? (
                 <div className="flex items-center justify-center py-12">
@@ -267,7 +267,7 @@ export default function MessagingPage() {
                   <AnimatePresence>
                     {messages.map((message) => {
                       const isOwn = message.senderId === user?.id
-                      
+
                       return (
                         <motion.div
                           key={message.id}
@@ -281,7 +281,7 @@ export default function MessagingPage() {
                               {isOwn ? getInitials(user.name || user.email) : '👤'}
                             </AvatarFallback>
                           </Avatar>
-                          
+
                           <div className={`flex-1 max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col`}>
                             <div
                               className={`rounded-lg p-3 ${
@@ -317,7 +317,7 @@ export default function MessagingPage() {
                 <Input
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
                   placeholder="Tapez votre message..."
                   disabled={isSending}
                 />
