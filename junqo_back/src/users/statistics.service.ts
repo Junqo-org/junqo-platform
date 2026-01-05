@@ -168,11 +168,13 @@ export class StatisticsService {
     stats: DashboardStatisticsDTO,
   ): Promise<void> {
     const conversations = await this.conversationModel.findAll({
-      where: {
-        participantsIds: {
-          [Op.contains]: [currentUser.id],
+      include: [
+        {
+          association: 'participants',
+          where: { id: currentUser.id },
+          attributes: [],
         },
-      },
+      ],
     });
 
     stats.totalConversations = conversations.length;
