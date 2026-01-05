@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { 
-  Briefcase, 
-  FileText, 
-  MessageSquare, 
+import {
+  Briefcase,
+  FileText,
+  MessageSquare,
   Users,
   PlusCircle,
   BarChart3,
@@ -317,7 +317,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Votre activité</h2>
             {isLoading && <Loader2 className="h-5 w-5 text-slate-400 animate-spin" />}
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-6">
             <Card className="border-slate-200 dark:border-slate-700">
               <CardContent className="p-6">
@@ -390,17 +390,17 @@ export default function HomePage() {
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-2">
-                    {isStudent ? "Ready to find your dream job?" : "Looking for top talent?"}
+                    {isStudent ? "Prêt à trouver l'emploi de vos rêves ?" : "À la recherche de talents ?"}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-400 text-lg">
-                    {isStudent 
-                      ? "Browse thousands of opportunities and apply with one click" 
-                      : "Post your job listing and connect with qualified candidates"}
+                    {isStudent
+                      ? "Parcourez des milliers d'opportunités et postulez en un clic"
+                      : "Publiez votre offre d'emploi et entrez en contact avec des candidats qualifiés"}
                   </p>
                 </div>
                 <Link to={isStudent ? "/offers" : "/offers/create"}>
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8">
-                    {isStudent ? "Browse Jobs" : "Post a Job"}
+                    {isStudent ? "Parcourir les offres" : "Publier une offre"}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
@@ -417,7 +417,7 @@ export default function HomePage() {
           className="mt-12 mb-8"
         >
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">
-            {isStudent ? "Quick Tips" : "Best Practices"}
+            {isStudent ? "Conseils rapides" : "Bonnes pratiques"}
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="border-slate-200 dark:border-slate-700">
@@ -426,14 +426,14 @@ export default function HomePage() {
                   <div className="h-8 w-8 rounded bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                     <FileText className="h-4 w-4 text-blue-600" />
                   </div>
-                  {isStudent ? "Optimize Your Profile" : "Write Clear Job Descriptions"}
+                  {isStudent ? "Optimisez votre profil" : "Rédigez des descriptions claires"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 dark:text-slate-400">
-                  {isStudent 
-                    ? "Keep your profile up-to-date with your latest skills and experience to attract more opportunities." 
-                    : "Include specific requirements and responsibilities to attract the right candidates."}
+                  {isStudent
+                    ? "Gardez votre profil à jour avec vos dernières compétences et expériences pour attirer plus d'opportunités."
+                    : "Incluez des exigences et responsabilités spécifiques pour attirer les bons candidats."}
                 </p>
               </CardContent>
             </Card>
@@ -444,14 +444,14 @@ export default function HomePage() {
                   <div className="h-8 w-8 rounded bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                     <BarChart3 className="h-4 w-4 text-emerald-600" />
                   </div>
-                  {isStudent ? "Practice Makes Perfect" : "Respond Quickly"}
+                  {isStudent ? "La pratique rend parfait" : "Répondez rapidement"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 dark:text-slate-400">
-                  {isStudent 
-                    ? "Use our AI-powered interview practice tool to prepare for your upcoming interviews." 
-                    : "Quick responses to applications show professionalism and keep candidates engaged."}
+                  {isStudent
+                    ? "Utilisez notre outil de simulation d'entretien alimenté par l'IA pour préparer vos prochains entretiens."
+                    : "Des réponses rapides aux candidatures montrent votre professionnalisme et maintiennent l'engagement des candidats."}
                 </p>
               </CardContent>
             </Card>

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
 import { DashboardStatisticsDTO } from './dto/user-statistics.dto';
@@ -53,7 +54,7 @@ export class StatisticsService {
 
       await this.populateConversationStatistics(currentUser, stats);
     } catch (error) {
-      console.error('Error fetching dashboard statistics:', error);
+      throw new Error(`Failed to retrieve dashboard statistics: ${error.message}`);
     }
 
     return stats;

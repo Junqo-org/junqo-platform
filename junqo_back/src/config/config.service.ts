@@ -48,7 +48,18 @@ function validatePort(port: number): number {
 // Register app configuration
 export const appConfig = registerAs('app', () => {
   const backPort = validatePort(parseInt(process.env.BACK_PORT ?? '4200'));
-  const corsOrigins = process.env.CORS_ORIGINS?.split(',') || /.*/;
+  let corsOrigins: string[] | RegExp | undefined = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',')
+    : undefined;
+
+  // Guard: Production must have explicit CORS_ORIGINS
+  if (process.env.NODE_ENV === 'production' && !corsOrigins) {
+    throw new Error(
+      'CORS_ORIGINS must be explicitly set in production environment',
+    );
+  } else if (!corsOrigins) {
+    corsOrigins = /.*/; // Allow all origins in development if not set
+  }
 
   // Disable credentials when using wildcard CORS origins for security
   const isWildcard =
