@@ -45,6 +45,7 @@ WS_URL=http://localhost:4200
 ## Examples
 
 ### Local Development
+
 ```bash
 # No .env file needed
 npm run dev
@@ -52,6 +53,7 @@ npm run dev
 ```
 
 ### With Remote Server
+
 ```bash
 # Create .env with:
 echo "API_URL=http://dev.junqo.fr:4200/api/v1" > .env
@@ -67,4 +69,3 @@ After modifying the `.env` file, **restart the development server**:
 # Ctrl+C to stop
 npm run dev
 ```
-

@@ -64,6 +64,7 @@ export class ExperienceDTO {
   @Type(() => String)
   skills?: string[];
 
+  @Expose()
   @ApiProperty({
     description: 'ID of the student profile this experience belongs to',
   })

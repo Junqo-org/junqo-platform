@@ -50,16 +50,9 @@ export default function OfferDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
-    console.log('=== OfferDetailPage mounted ===')
-    console.log('Search params:', Object.fromEntries(searchParams.entries()))
-    console.log('Offer ID from params:', offerId)
-    console.log('User:', user)
-
     if (offerId) {
-      console.log('Loading offer...')
       loadOffer()
     } else {
-      console.error('No offer ID in params!')
       toast.error('No offer ID provided')
       navigate('/offers')
     }
@@ -71,33 +64,26 @@ export default function OfferDetailPage() {
 
     setIsLoading(true)
     try {
-      console.log('Loading offer with id:', offerId)
       const data = await apiService.getOffer(offerId)
-      console.log('Received offer data:', data)
       setOffer(data)
 
       // Check if already applied
       if (isStudent && offerId) {
         try {
           const applications = await apiService.getMyApplications()
-          console.log('User applications:', applications)
           const applicationsArray = Array.isArray(applications) ? applications : (applications.items || applications.data || [])
           const hasAppliedToThis = applicationsArray.some((app: any) => app.offerId === offerId)
           setHasApplied(hasAppliedToThis)
         } catch (appError) {
-          console.error('Failed to load applications:', appError)
           // Don't show error to user, just assume not applied
         }
       }
     } catch (error: any) {
-      console.error('Failed to load offer:', error)
-      console.error('Error response:', error.response?.data)
       toast.error(error.response?.data?.message || 'Erreur lors du chargement de l\'offre')
     } finally {
       setIsLoading(false)
     }
   }
-
   const handleApply = async () => {
     if (!offerId) return
 
