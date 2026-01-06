@@ -16,7 +16,7 @@ export class OffersRepository {
     private readonly offerModel: typeof OfferModel,
     @InjectModel(OfferSeenModel)
     private readonly offerSeenModel: typeof OfferSeenModel,
-  ) {}
+  ) { }
 
   public async findAll(): Promise<OfferDTO[]> {
     try {
@@ -77,6 +77,9 @@ export class OffersRepository {
     }
     if (status) {
       whereClause.status = status;
+    } else {
+      // Default to ACTIVE status if not specified
+      whereClause.status = 'ACTIVE';
     }
     if (offerType) {
       whereClause.offerType = offerType;

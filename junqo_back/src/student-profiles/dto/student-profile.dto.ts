@@ -16,6 +16,7 @@ import {
 import { ExperienceDTO } from '../../experiences/dto/experience.dto';
 import { Expose, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { SchoolProfileDTO } from '../../school-profiles/dto/school-profile.dto';
 
 // Student Profile retrieved from database
 export class StudentProfileDTO {
@@ -116,6 +117,23 @@ export class StudentProfileDTO {
     message: 'Each experience must be a valid ExperienceDTO',
   })
   experiences?: ExperienceDTO[];
+
+  @ApiPropertyOptional({
+    description: 'ID of the linked school',
+    format: 'uuid',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUUID('4', { message: 'Linked school ID must be a valid UUID' })
+  linkedSchoolId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Linked school profile',
+  })
+  @Expose()
+  @Type(() => SchoolProfileDTO)
+  @IsOptional()
+  linkedSchool?: SchoolProfileDTO;
 
   // Obligatory for use with casl ability
   constructor(data: Partial<StudentProfileDTO>) {
@@ -228,4 +246,12 @@ export class UpdateStudentProfileDTO {
   @IsString({ each: true })
   @Type(() => String)
   skills?: string[];
+
+  @ApiPropertyOptional({
+    description: 'ID of the linked school',
+    format: 'uuid',
+  })
+  @IsOptional()
+  @IsUUID('4', { message: 'Linked school ID must be a valid UUID' })
+  linkedSchoolId?: string;
 }

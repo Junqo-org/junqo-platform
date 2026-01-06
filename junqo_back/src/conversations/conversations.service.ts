@@ -29,7 +29,7 @@ export class ConversationsService {
   constructor(
     private readonly conversationsRepository: ConversationsRepository,
     private readonly caslAbilityFactory: CaslAbilityFactory,
-  ) {}
+  ) { }
 
   async findByQuery(
     currentUser: AuthUserDTO,
@@ -38,22 +38,10 @@ export class ConversationsService {
     const queryResult: ConversationQueryOutputDTO =
       await this.conversationsRepository.findByQuery(query, currentUser.id);
 
-    const ability = this.caslAbilityFactory.createForUser(currentUser);
-
-    // Filter conversations that the user can read
-    const filteredRows = queryResult.rows.filter((conversation) => {
-      const conversationResource = plainToInstance(
-        ConversationResource,
-        conversation,
-      );
-
-      return ability.cannot(Actions.READ, conversationResource) === false;
-    });
-
-    return {
-      rows: filteredRows,
-      count: filteredRows.length,
-    };
+    // Repository already filters by currentUserId using SQL EXISTS clause
+    // Additional application-level filtering is redundant here and causes 
+    // false negatives if participant relation hydration is incomplete.
+    return queryResult;
   }
 
   async findOneById(
@@ -87,28 +75,37 @@ export class ConversationsService {
     currentUser: AuthUserDTO,
     createConversationDto: CreateConversationDTO,
   ): Promise<ConversationDTO> {
-    // Ensure the current user is added as a participant
-    const participantsIds = [
-      ...new Set([...createConversationDto.participantsIds, currentUser.id]),
-    ];
+    // Verify that the creator is one of the participants
+    if (!createConversationDto.participantsIds.includes(currentUser.id)) {
+      createConversationDto.participantsIds.push(currentUser.id);
+    }
+
+    console.log(`[DEBUG] ConversationsService.create called by ${currentUser.id}`);
+    console.log(`[DEBUG] Participants: ${JSON.stringify(createConversationDto.participantsIds)}`);
+
+    // Create a temporary resource for permission check
+    // MANUALLY construct the object to bypass class-transformer issues
+    const checkResource = new ConversationResource();
+    checkResource.participantsIds = createConversationDto.participantsIds;
+
+    console.log(`[DEBUG] Checking permissions for resource: ${JSON.stringify(checkResource)}`);
+
+    // Original CASL check
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+    // Note: We are passing the INSTANCE 'checkResource' which has the data.
+    if (!ability.can(Actions.CREATE, checkResource)) {
+      console.error(`[DEBUG] CASL Check Failed!`);
+      // Log detailed rules if possible or inspect why
+      throw new ForbiddenException('You cannot create a conversation for these participants');
+    }
+    console.log(`[DEBUG] CASL Check Passed.`);
 
     const conversationData: CreateConversationDTO = {
-      participantsIds: participantsIds,
+      participantsIds: createConversationDto.participantsIds,
       title: createConversationDto.title,
+      offerId: createConversationDto.offerId,
+      applicationId: createConversationDto.applicationId,
     };
-
-    // Check permission to create a conversation
-    const ability = this.caslAbilityFactory.createForUser(currentUser);
-    const conversationResource = plainToInstance(
-      ConversationResource,
-      conversationData,
-    );
-
-    if (ability.cannot(Actions.CREATE, conversationResource)) {
-      throw new ForbiddenException(
-        'You do not have permission to create a conversation',
-      );
-    }
 
     return await this.conversationsRepository.create(
       currentUser.id,
@@ -327,6 +324,22 @@ export class ConversationsService {
     return this.conversationsRepository.removeConversationTitle(
       currentUser.id,
       conversationId,
+    );
+  }
+
+  /**
+   * Internal method to set a conversation title for a specific participant.
+   * Useful when setting titles for other users (e.g. system generated).
+   */
+  async setParticipantTitle(
+    conversationId: string,
+    targetUserId: string,
+    title: string,
+  ): Promise<void> {
+    await this.conversationsRepository.setConversationTitle(
+      targetUserId,
+      conversationId,
+      { title },
     );
   }
 

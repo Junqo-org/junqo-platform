@@ -12,6 +12,7 @@ import ProfilePage from './pages/ProfilePage'
 import OffersPage from './pages/OffersPage'
 import OfferDetailPage from './pages/OfferDetailPage'
 import OfferCreationPage from './pages/OfferCreationPage'
+import OfferEditPage from './pages/OfferEditPage'
 import CVPage from './pages/CVPage'
 import InterviewPage from './pages/InterviewPage'
 import InterviewChatPage from './pages/InterviewChatPage'
@@ -20,6 +21,7 @@ import RecruiterDashboardPage from './pages/RecruiterDashboardPage'
 import SwipingPage from './pages/SwipingPage'
 import ApplicationsTrackingPage from './pages/ApplicationsTrackingPage'
 import ApplicationManagementPage from './pages/ApplicationManagementPage'
+import SchoolDashboardPage from './pages/SchoolDashboardPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 // Layout
@@ -36,7 +38,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/user-type-selection" element={<UserTypeSelectionPage />} />
-          
+
           {/* Protected routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/home" element={<HomePage />} />
@@ -44,6 +46,7 @@ function App() {
             <Route path="/offers" element={<OffersPage />} />
             <Route path="/offers/details" element={<OfferDetailPage />} />
             <Route path="/offers/create" element={<OfferCreationPage />} />
+            <Route path="/offers/edit" element={<OfferEditPage />} />
             <Route path="/cv" element={<CVPage />} />
             <Route path="/interview" element={<InterviewPage />} />
             <Route path="/interview/chat" element={<InterviewChatPage />} />
@@ -52,6 +55,7 @@ function App() {
             <Route path="/recruiter/dashboard" element={<RecruiterDashboardPage />} />
             <Route path="/recruiter/applications" element={<ApplicationManagementPage />} />
             <Route path="/recruiter/swiping" element={<SwipingPage />} />
+            <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
           </Route>
 
           {/* 404 */}

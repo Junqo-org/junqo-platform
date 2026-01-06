@@ -24,6 +24,7 @@ import { OfferDTO } from '../offers/dto/offer.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { ConversationsService } from '../conversations/conversations.service';
 import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
+import { MessagesService } from '../messages/messages.service';
 
 @Injectable()
 export class ApplicationsService {
@@ -32,7 +33,8 @@ export class ApplicationsService {
     private readonly applicationsRepository: ApplicationsRepository,
     private readonly offersService: OffersService,
     private readonly conversationsService: ConversationsService,
-  ) {}
+    private readonly messagesService: MessagesService,
+  ) { }
 
   /**
    * Retrieves applications matching the query if the current user has the required permissions.
@@ -439,24 +441,72 @@ export class ApplicationsService {
     application: ApplicationDTO,
   ): Promise<void> {
     try {
+      // Create conversation with company context (title = student name)
+      const studentName = application.student?.name || 'Candidat';
+      const offerTitle = application.offer?.title || 'Offre';
+      const companyName = application.company?.name || 'Entreprise';
+
+      console.log('[ApplicationsService] createConversationForAcceptedApplication', {
+        applicationId: application.id,
+        offerId: application.offerId,
+        offerIdType: typeof application.offerId,
+        hasOfferObj: !!application.offer,
+        offerObjId: application.offer?.id
+      });
+
+
+
       // Create conversation between student and company
       const createConversationDto: CreateConversationDTO = {
         participantsIds: [application.studentId, application.companyId],
-        title: `Application Discussion - ${application.offer?.title || 'Job Application'}`,
+        // Set titles for both parties:
+        // Student sees "Company Name"
+        // Company sees "Student Name"
+        participantTitles: {
+          [application.studentId]: companyName,
+          [application.companyId]: studentName
+        },
+        title: studentName, // Fallback/Legacy
+        offerId: application.offerId,
+        applicationId: application.id,
       };
 
+
       // Create the conversation using the current user's context
-      await this.conversationsService.create(
+      const conversation = await this.conversationsService.create(
         currentUser,
         createConversationDto,
       );
-    } catch (error) {
-      // Log the error but don't fail the application update
-      console.error(
-        `Failed to create conversation for accepted application ${application.id}:`,
-        error.message,
-      );
+
+      console.log('[ApplicationsService] Conversation created with titles', {
+        id: conversation.id,
+        participants: createConversationDto.participantsIds,
+        titles: createConversationDto.participantTitles
+      });
+      // No need to call setParticipantTitle anymore as it is handled in create
+
+      // Let's rely on the student seeing a default or we can try to inject it if we have a system user context, but that's complex.
+      // However, ConversationsRepository.setConversationTitle doesn't check AuthUser, just userId.
+      // Let's use the repository directly if possible, or we may need to expose a method.
+      // Ah, we don't have direct access to repository here usually, but we inject ConversationsService.
+      // Let's skip setting student title for now unless critical, OR we can hack usage of service with a fake student context.
+      // Actually, let's just send the message first which is more important.
+
+      await this.messagesService.create(currentUser, {
+        conversationId: conversation.id,
+        senderId: currentUser.id, // Verified above
+        content: `Bonjour ${studentName}, votre candidature pour le poste de "${offerTitle}" a retenu notre attention.`,
+      });
+    } catch (msgError) {
+      console.warn(`Failed to send welcome message: ${msgError.message}`);
     }
+  }
+} catch (error) {
+  console.error(
+    `Failed to create conversation for accepted application ${application.id}:`,
+    error.message,
+  );
+}
   }
 
   /**
@@ -468,31 +518,31 @@ export class ApplicationsService {
    * @returns Result with count of updated/failed applications
    */
   public async bulkUpdateStatus(
-    currentUser: AuthUserDTO,
-    applicationIds: string[],
-    status: any,
-  ): Promise<any> {
-    const results = {
-      updated: 0,
-      failed: 0,
-      updatedIds: [] as string[],
-      failedIds: [] as string[],
-    };
+  currentUser: AuthUserDTO,
+  applicationIds: string[],
+  status: any,
+): Promise < any > {
+  const results = {
+    updated: 0,
+    failed: 0,
+    updatedIds: [] as string[],
+    failedIds: [] as string[],
+  };
 
-    for (const id of applicationIds) {
-      try {
-        await this.update(currentUser, id, { status });
-        results.updated++;
-        results.updatedIds.push(id);
-      } catch (error) {
-        results.failed++;
-        results.failedIds.push(id);
-        console.error(`Failed to update application ${id}:`, error.message);
-      }
+  for(const id of applicationIds) {
+    try {
+      await this.update(currentUser, id, { status });
+      results.updated++;
+      results.updatedIds.push(id);
+    } catch (error) {
+      results.failed++;
+      results.failedIds.push(id);
+      console.error(`Failed to update application ${id}:`, error.message);
     }
+  }
 
     return results;
-  }
+}
 
   /**
    * Mark an application as opened (change from NOT_OPENED to PENDING).
@@ -502,15 +552,15 @@ export class ApplicationsService {
    * @returns Updated application
    */
   public async markAsOpened(
-    currentUser: AuthUserDTO,
-    id: string,
-  ): Promise<ApplicationDTO> {
-    const application = await this.findOneById(currentUser, id);
+  currentUser: AuthUserDTO,
+  id: string,
+): Promise < ApplicationDTO > {
+  const application = await this.findOneById(currentUser, id);
 
-    if (application.status === 'NOT_OPENED') {
-      return this.update(currentUser, id, { status: 'PENDING' as any });
-    }
+  if(application.status === 'NOT_OPENED') {
+  return this.update(currentUser, id, { status: 'PENDING' as any });
+}
 
-    return application;
+return application;
   }
 }

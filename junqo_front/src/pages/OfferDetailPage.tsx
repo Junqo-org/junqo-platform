@@ -6,23 +6,33 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { 
-  ArrowLeft, 
-  Briefcase, 
-  MapPin, 
-  Clock, 
-  TrendingUp, 
+import {
+  ArrowLeft,
+  Briefcase,
+  MapPin,
+  Clock,
+  TrendingUp,
   Eye,
   Calendar,
   CheckCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  Edit,
+  Trash2
 } from 'lucide-react'
 import { apiService } from '@/services/api'
 import { Offer } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'sonner'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 export default function OfferDetailPage() {
   const [searchParams] = useSearchParams()
@@ -31,18 +41,20 @@ export default function OfferDetailPage() {
   const user = useAuthStore((state) => state.user)
   const isStudent = user?.type === 'STUDENT'
   const isCompany = user?.type === 'COMPANY'
-  
+
   const [offer, setOffer] = useState<Offer | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
   const [hasApplied, setHasApplied] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     console.log('=== OfferDetailPage mounted ===')
     console.log('Search params:', Object.fromEntries(searchParams.entries()))
     console.log('Offer ID from params:', offerId)
     console.log('User:', user)
-    
+
     if (offerId) {
       console.log('Loading offer...')
       loadOffer()
@@ -56,14 +68,14 @@ export default function OfferDetailPage() {
 
   const loadOffer = async () => {
     if (!offerId) return
-    
+
     setIsLoading(true)
     try {
       console.log('Loading offer with id:', offerId)
       const data = await apiService.getOffer(offerId)
       console.log('Received offer data:', data)
       setOffer(data)
-      
+
       // Check if already applied
       if (isStudent && offerId) {
         try {
@@ -88,7 +100,7 @@ export default function OfferDetailPage() {
 
   const handleApply = async () => {
     if (!offerId) return
-    
+
     setIsApplying(true)
     try {
       await apiService.applyToOffer(offerId)
@@ -99,6 +111,27 @@ export default function OfferDetailPage() {
       toast.error(error.response?.data?.message || 'Erreur lors de la candidature')
     } finally {
       setIsApplying(false)
+    }
+  }
+
+  const handleEdit = () => {
+    navigate(`/offers/edit?id=${offerId}`)
+  }
+
+  const handleDelete = async () => {
+    if (!offerId) return
+
+    setIsDeleting(true)
+    try {
+      await apiService.deleteOffer(offerId)
+      toast.success('Offre supprimée avec succès')
+      navigate('/offers')
+    } catch (error: any) {
+      console.error('Failed to delete offer:', error)
+      toast.error(error.response?.data?.message || 'Erreur lors de la suppression')
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteDialog(false)
     }
   }
 
@@ -182,167 +215,223 @@ export default function OfferDetailPage() {
           Retour aux offres
         </Button>
 
-      {/* Main Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <Card className="bg-card border-border shadow-lg">
-          <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="secondary">
-                    {offerTypeBadge.label}
-                  </Badge>
-                  {offer.status === 'ACTIVE' && (
+        {/* Main Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Card className="bg-card border-border shadow-lg">
+            <CardHeader>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-3">
                     <Badge variant="secondary">
-                      <CheckCircle className="mr-1 h-3 w-3 text-green-500" />
-                      Actif
+                      {offerTypeBadge.label}
                     </Badge>
-                  )}
-                </div>
-                <CardTitle className="text-3xl font-bold text-foreground mb-3 break-words break-all whitespace-normal">
-                  {offer.title}
-                </CardTitle>
-                <CardDescription className="flex flex-wrap items-center gap-4 text-base text-muted-foreground">
-                    <span className="flex items-center gap-1 whitespace-nowrap">
-                    <Clock className="h-4 w-4" />
-                    Publié {formatRelativeTime(new Date(offer.createdAt))}
-                  </span>
-                  <span className="flex items-center gap-1 whitespace-nowrap">
-                    <Eye className="h-4 w-4" />
-                    {offer.viewCount || 0} vues
-                  </span>
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            {/* Key Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
-                <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                <div>
-                  <div className="text-xs text-muted-foreground">Localisation</div>
-                  <p className="font-semibold text-foreground">{getLocationLabel(offer.workLocationType)}</p>
-                </div>
-              </div>
-
-              {offer.salary && offer.salary > 0 && (
-                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
-                  <TrendingUp className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                  <div>
-                    <div className="text-xs text-muted-foreground">Salaire</div>
-                    <p className="font-semibold text-foreground">€{offer.salary}/month</p>
-                  </div>
-                </div>
-              )}
-
-              {offer.duration && offer.duration > 0 && (
-                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
-                  <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                  <div>
-                    <div className="text-xs text-muted-foreground">Durée</div>
-                    <p className="font-semibold text-foreground">{offer.duration} months</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
-            {/* Description */}
-            <div>
-              <h3 className="text-xl font-bold text-foreground mb-3">Description du poste</h3>
-              <p className="text-card-foreground whitespace-pre-wrap leading-relaxed break-words">
-                {offer.description}
-              </p>
-            </div>
-
-            {/* Skills */}
-            {offer.skills && offer.skills.length > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">Compétences requises</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {offer.skills.map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="px-3 py-1 break-words">
-                        {skill}
+                    {offer.status === 'ACTIVE' && (
+                      <Badge variant="secondary">
+                        <CheckCircle className="mr-1 h-3 w-3 text-green-500" />
+                        Actif
                       </Badge>
-                    ))}
+                    )}
+                  </div>
+                  <CardTitle className="text-3xl font-bold text-foreground mb-3 break-words break-all whitespace-normal">
+                    {offer.title}
+                  </CardTitle>
+                  <CardDescription className="flex flex-wrap items-center gap-4 text-base text-muted-foreground">
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Clock className="h-4 w-4" />
+                      Publié {formatRelativeTime(new Date(offer.createdAt))}
+                    </span>
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Eye className="h-4 w-4" />
+                      {offer.viewCount || 0} vues
+                    </span>
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {/* Key Info */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
+                  <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  <div>
+                    <div className="text-xs text-muted-foreground">Localisation</div>
+                    <p className="font-semibold text-foreground">{getLocationLabel(offer.workLocationType)}</p>
                   </div>
                 </div>
-              </>
-            )}
 
-            {/* Benefits */}
-            {offer.benefits && offer.benefits.length > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">Avantages</h3>
-                  <ul className="space-y-2">
-                    {offer.benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-start gap-2 text-card-foreground">
-                        <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="break-words">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </>
-            )}
+                {offer.salary && offer.salary > 0 && (
+                  <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
+                    <TrendingUp className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <div className="text-xs text-muted-foreground">Salaire</div>
+                      <p className="font-semibold text-foreground">€{offer.salary}/month</p>
+                    </div>
+                  </div>
+                )}
 
-            {/* Education Level */}
-            {offer.educationLevel && offer.educationLevel > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Niveau d'études requis</h3>
-                  <p className="text-muted-foreground">
-                    Bac +{offer.educationLevel}
-                  </p>
-                </div>
-              </>
-            )}
-          </CardContent>
+                {offer.duration && offer.duration > 0 && (
+                  <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
+                    <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <div className="text-xs text-muted-foreground">Durée</div>
+                      <p className="font-semibold text-foreground">{offer.duration} months</p>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-          <CardFooter className="flex gap-4 bg-muted/30 border-t border-border">
-            {isStudent && (
-              hasApplied ? (
-                <Button disabled variant="secondary" className="flex-1 cursor-not-allowed">
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Déjà postulé
-                </Button>
-              ) : (
-                <Button 
-                  onClick={handleApply} 
-                  disabled={isApplying || offer.status !== 'ACTIVE'}
-                  className="flex-1"
-                  size="lg"
-                >
-                  {isApplying ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Candidature en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      Postuler
-                    </>
-                  )}
-                </Button>
-              )
-            )}
-            {/* Companies cannot edit offers as per API specifications */}
-          </CardFooter>
-        </Card>
-      </motion.div>
+              <Separator />
+
+              {/* Description */}
+              <div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Description du poste</h3>
+                <p className="text-card-foreground whitespace-pre-wrap leading-relaxed break-words">
+                  {offer.description}
+                </p>
+              </div>
+
+              {/* Skills */}
+              {offer.skills && offer.skills.length > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground mb-3">Compétences requises</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {offer.skills.map((skill, index) => (
+                        <Badge key={index} variant="secondary" className="px-3 py-1 break-words">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Benefits */}
+              {offer.benefits && offer.benefits.length > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">Avantages</h3>
+                    <ul className="space-y-2">
+                      {offer.benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-start gap-2 text-card-foreground">
+                          <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                          <span className="break-words">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+
+              {/* Education Level */}
+              {offer.educationLevel && offer.educationLevel > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Niveau d'études requis</h3>
+                    <p className="text-muted-foreground">
+                      Bac +{offer.educationLevel}
+                    </p>
+                  </div>
+                </>
+              )}
+            </CardContent>
+
+            <CardFooter className="flex gap-4 bg-muted/30 border-t border-border">
+              {isStudent && (
+                hasApplied ? (
+                  <Button disabled variant="secondary" className="flex-1 cursor-not-allowed">
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Déjà postulé
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleApply}
+                    disabled={isApplying || offer.status !== 'ACTIVE'}
+                    className="flex-1"
+                    size="lg"
+                  >
+                    {isApplying ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Candidature en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        Postuler
+                      </>
+                    )}
+                  </Button>
+                )
+              )}
+              {isCompany && offer.userId === user?.id && (
+                <>
+                  <Button
+                    onClick={handleEdit}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Modifier
+                  </Button>
+                  <Button
+                    onClick={() => setShowDeleteDialog(true)}
+                    variant="destructive"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Supprimer
+                  </Button>
+                </>
+              )}
+            </CardFooter>
+          </Card>
+        </motion.div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Êtes-vous sûr ?</DialogTitle>
+            <DialogDescription>
+              Cette action est irréversible. L'offre "{offer?.title}" sera définitivement supprimée.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Suppression...
+                </>
+              ) : (
+                'Supprimer'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

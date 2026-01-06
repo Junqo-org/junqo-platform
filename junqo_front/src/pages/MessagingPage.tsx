@@ -1,16 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Send, Loader2, MessageSquare, Search } from 'lucide-react'
+import { Send, Loader2, MessageSquare, Search, User, Building } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { apiService } from '@/services/api'
 import { getInitials, formatRelativeTime } from '@/lib/utils'
 import { toast } from 'sonner'
+import { StudentProfileModal } from '@/components/candidates/StudentProfileModal'
+import { CompanyProfileModal } from '@/components/companies/CompanyProfileModal'
+
+// ... existing interfaces ...
 
 interface ConversationData {
   id: string
@@ -25,6 +30,8 @@ interface ConversationData {
   createdAt: string
   updatedAt: string
   title?: string
+  offerId?: string
+  applicationId?: string
 }
 
 interface MessageData {
@@ -37,6 +44,7 @@ interface MessageData {
 
 export default function MessagingPage() {
   const user = useAuthStore((state) => state.user)
+  const navigate = useNavigate()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const [conversations, setConversations] = useState<ConversationData[]>([])
@@ -48,19 +56,49 @@ export default function MessagingPage() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
   const [isSending, setIsSending] = useState(false)
 
+  // Profile Modal State
+  const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
+
+  // Company Modal State
+  const [companyModalOpen, setCompanyModalOpen] = useState(false)
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null)
+
   const { sendMessage, joinRoom, leaveRoom } = useWebSocket({
     onMessage: handleNewMessage,
   })
+
+  const location = useLocation()
 
   useEffect(() => {
     loadConversations()
   }, [])
 
+  // Auto-select conversation from location state (e.g. redirected from ApplicationManagement)
+  useEffect(() => {
+    if (location.state && (location.state as any).studentId) {
+      const studentId = (location.state as any).studentId
+
+      // If we have conversations, try to find it
+      if (conversations.length > 0) {
+        const targetConversation = conversations.find(conv =>
+          conv.participantsIds.includes(studentId)
+        )
+
+        if (targetConversation) {
+          setSelectedConversation(targetConversation)
+        } else {
+          console.warn('[MessagingPage] Conversation not found for studentId:', studentId)
+        }
+      }
+    }
+  }, [conversations, location.state])
+
   useEffect(() => {
     if (selectedConversation) {
       loadMessages(selectedConversation.id)
       joinRoom(selectedConversation.id)
-      
+
       return () => {
         leaveRoom(selectedConversation.id)
       }
@@ -81,7 +119,10 @@ export default function MessagingPage() {
     setIsLoadingConversations(true)
     try {
       const data = await apiService.getConversations()
-      setConversations(Array.isArray(data) ? data : data.items || [])
+      // Backend returns { rows: [], count: 0 } or [] depending on query
+      // Checking for data.rows first, then fallback to array, then data.items (legacy)
+      const convList = data.rows || (Array.isArray(data) ? data : data.items || [])
+      setConversations(convList)
     } catch (error: any) {
       console.error('Failed to load conversations:', error)
       toast.error('Erreur lors du chargement des conversations')
@@ -95,7 +136,9 @@ export default function MessagingPage() {
     setIsLoadingMessages(true)
     try {
       const data = await apiService.getMessages(conversationId)
-      setMessages(Array.isArray(data) ? data : data.items || [])
+      // Backend returns newest first (DESC), but chat UI needs oldest first (ASC)
+      const msgList = data.rows || (Array.isArray(data) ? data : data.items || [])
+      setMessages([...msgList].reverse())
     } catch (error: any) {
       console.error('Failed to load messages:', error)
       toast.error('Erreur lors du chargement des messages')
@@ -107,21 +150,44 @@ export default function MessagingPage() {
 
   function handleNewMessage(message: MessageData) {
     if (selectedConversation && message.conversationId === selectedConversation.id) {
-      setMessages((prev) => [...prev, message])
+      setMessages((prev) => {
+        // Check if we have a temporary message that matches this new one
+        // (same content, same sender, and is a temp message)
+        const tempMessageIndex = prev.findIndex(
+          (m) =>
+            m.senderId === message.senderId &&
+            m.content === message.content &&
+            m.id.startsWith('temp-')
+        )
+
+        if (tempMessageIndex !== -1) {
+          // Replace the temp message with the real one
+          const newMessages = [...prev]
+          newMessages[tempMessageIndex] = message
+          return newMessages
+        }
+
+        // Check if message already exists (to prevent duplicates if WS sends multiple times or race conditions)
+        if (prev.some(m => m.id === message.id)) {
+          return prev
+        }
+
+        return [...prev, message]
+      })
     }
-    
+
     // Update last message in conversations list
     setConversations((prev) =>
       prev.map((conv) =>
         conv.id === message.conversationId
-          ? { 
-              ...conv, 
-              lastMessage: { 
-                ...message, 
-                createdAt: message.createdAt || new Date().toISOString() 
-              }, 
-              updatedAt: new Date().toISOString() 
-            }
+          ? {
+            ...conv,
+            lastMessage: {
+              ...message,
+              createdAt: message.createdAt || new Date().toISOString()
+            },
+            updatedAt: new Date().toISOString()
+          }
           : conv
       )
     )
@@ -143,15 +209,16 @@ export default function MessagingPage() {
     setIsSending(true)
 
     try {
-      // Send via WebSocket for real-time delivery
+      // Send via WebSocket for real-time delivery (Gateway saves to DB)
       sendMessage({
         conversationId: selectedConversation.id,
         senderId: user.id,
         content: tempMessage.content,
       })
 
-      // Also send via HTTP for persistence
-      await apiService.createMessage(selectedConversation.id, tempMessage.content)
+      // NOTE: We do NOT call apiService.createMessage here because the WebSocket Gateway 
+      // already handles saving the message to the database. Calling it would create duplicates.
+
     } catch (error: any) {
       console.error('Failed to send message:', error)
       toast.error('Erreur lors de l\'envoi du message')
@@ -168,6 +235,30 @@ export default function MessagingPage() {
       handleSendMessage()
     }
   }
+
+  const handleViewProfile = () => {
+    if (!selectedConversation || !user) return
+
+    // Identify the "other" participant
+    const otherParticipantId = selectedConversation.participantsIds.find(id => id !== user.id)
+
+    if (!otherParticipantId) {
+      toast.error("Impossible de trouver le participant")
+      return
+    }
+
+    if (user.type === 'COMPANY') {
+      setSelectedStudentId(otherParticipantId)
+      setProfileModalOpen(true)
+    } else if (user.type === 'STUDENT') {
+      setSelectedCompanyId(otherParticipantId)
+      setCompanyModalOpen(true)
+    }
+  }
+
+
+
+
 
   const filteredConversations = conversations.filter((conv) => {
     if (!searchQuery) return true
@@ -210,11 +301,10 @@ export default function MessagingPage() {
                 <div
                   key={conv.id}
                   onClick={() => setSelectedConversation(conv)}
-                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedConversation?.id === conv.id
-                      ? 'bg-primary/10'
-                      : 'hover:bg-accent'
-                  }`}
+                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedConversation?.id === conv.id
+                    ? 'bg-primary/10'
+                    : 'hover:bg-accent'
+                    }`}
                 >
                   <Avatar>
                     <AvatarFallback>
@@ -245,12 +335,33 @@ export default function MessagingPage() {
       <Card className="flex-1 flex flex-col">
         {selectedConversation ? (
           <>
-            <CardHeader className="border-b">
-              <CardTitle>
-                {selectedConversation.title || 'Conversation'}
-              </CardTitle>
+            <CardHeader className="border-b flex flex-row items-center justify-between">
+              <div className="flex-1 min-w-0 mr-4">
+                <CardTitle className="truncate">
+                  {selectedConversation.title || 'Conversation'}
+                </CardTitle>
+                {/* DEBUG: Log render state */}
+                <div style={{ display: 'none' }}>
+                  {(() => {
+                    console.log('[MessagingPage] Render State:', {
+                      offerId: selectedConversation.offerId,
+                      applicationId: selectedConversation.applicationId,
+                      hasOfferId: !!selectedConversation.offerId,
+                      participants: selectedConversation.participantsIds,
+                      userType: user?.type
+                    });
+                    return null;
+                  })()}
+                </div>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Button variant="outline" size="sm" onClick={handleViewProfile}>
+                  {user?.type === 'COMPANY' ? <User className="h-4 w-4 mr-2" /> : <Building className="h-4 w-4 mr-2" />}
+                  Profil
+                </Button>
+              </div>
             </CardHeader>
-            
+
             <ScrollArea className="flex-1 p-6">
               {isLoadingMessages ? (
                 <div className="flex items-center justify-center py-12">
@@ -267,7 +378,7 @@ export default function MessagingPage() {
                   <AnimatePresence>
                     {messages.map((message) => {
                       const isOwn = message.senderId === user?.id
-                      
+
                       return (
                         <motion.div
                           key={message.id}
@@ -281,14 +392,13 @@ export default function MessagingPage() {
                               {isOwn ? getInitials(user.name || user.email) : '👤'}
                             </AvatarFallback>
                           </Avatar>
-                          
+
                           <div className={`flex-1 max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col`}>
                             <div
-                              className={`rounded-lg p-3 ${
-                                isOwn
-                                  ? 'bg-primary text-primary-foreground'
-                                  : 'bg-muted'
-                              }`}
+                              className={`rounded-lg p-3 ${isOwn
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted'
+                                }`}
                             >
                               <p className="text-sm whitespace-pre-wrap break-words">
                                 {message.content}
@@ -345,6 +455,18 @@ export default function MessagingPage() {
           </CardContent>
         )}
       </Card>
+
+      <StudentProfileModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        studentId={selectedStudentId}
+      />
+
+      <CompanyProfileModal
+        open={companyModalOpen}
+        onClose={() => setCompanyModalOpen(false)}
+        companyId={selectedCompanyId}
+      />
     </div>
   )
 }

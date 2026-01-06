@@ -5,6 +5,7 @@ import { ApplicationsRepositoryModule } from './repository/applications.reposito
 import { OffersModule } from '../offers/offers.module';
 import { ApplicationsService } from './applications.service';
 import { ConversationsModule } from '../conversations/conversations.module';
+import { MessagesModule } from '../messages/messages.module';
 
 @Module({
   controllers: [ApplicationsController],
@@ -14,7 +15,8 @@ import { ConversationsModule } from '../conversations/conversations.module';
     CaslModule,
     OffersModule,
     ConversationsModule,
+    MessagesModule,
   ],
   exports: [ApplicationsService],
 })
-export class ApplicationsModule {}
+export class ApplicationsModule { }

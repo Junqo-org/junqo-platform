@@ -11,6 +11,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { MessageDTO } from '../../messages/dto/message.dto';
 import { MAX_CONVERSATION_TITLE_LENGTH } from '../../shared/user-validation-constants';
+import { OfferDTO } from '../../offers/dto/offer.dto';
+import { ApplicationDTO } from '../../applications/dto/application.dto';
 
 // Conversation retrieved from database
 export class ConversationDTO {
@@ -87,6 +89,24 @@ export class ConversationDTO {
   @IsOptional()
   title?: string;
 
+  @ApiPropertyOptional({
+    description: 'ID of the related offer',
+    format: 'uuid',
+  })
+  @Expose()
+  @IsUUID('4', { message: 'Offer ID must be a valid UUID' })
+  @IsOptional()
+  offerId?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID of the related application',
+    format: 'uuid',
+  })
+  @Expose()
+  @IsUUID('4', { message: 'Application ID must be a valid UUID' })
+  @IsOptional()
+  applicationId?: string;
+
   // Obligatory for use with casl ability
   constructor(data: Partial<ConversationDTO>) {
     Object.assign(this, data);
@@ -123,6 +143,32 @@ export class CreateConversationDTO {
   @IsString()
   @IsOptional()
   title?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID of the related offer',
+    format: 'uuid',
+  })
+  @Expose()
+  @IsUUID('4', { message: 'Offer ID must be a valid UUID' })
+  @IsOptional()
+  offerId?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID of the related application',
+    format: 'uuid',
+  })
+  @Expose()
+  @IsUUID('4', { message: 'Application ID must be a valid UUID' })
+  @ApiPropertyOptional({
+    description: 'Map of user IDs to their custom conversation titles',
+    example: {
+      '123e4567-e89b-12d3-a456-426614174000': 'Company Name',
+      '223e4567-e89b-12d3-a456-426614174001': 'Student Name',
+    },
+  })
+  @Expose()
+  @IsOptional()
+  participantTitles?: Record<string, string>;
 }
 
 // Expected values to add participants to a Conversation

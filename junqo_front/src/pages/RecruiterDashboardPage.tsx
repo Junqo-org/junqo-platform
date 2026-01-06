@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  Briefcase, 
-  Eye, 
-  Users, 
-  TrendingUp, 
-  CheckCircle, 
+import {
+  Briefcase,
+  Eye,
+  Users,
+  TrendingUp,
+  CheckCircle,
   XCircle,
   Clock,
   ArrowUpRight,
@@ -16,20 +16,20 @@ import {
 import { apiService } from '@/services/api'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { 
-  BarChart, 
-  Bar, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  LineChart, 
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
   Line,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from 'recharts'
 
 interface DashboardStats {
@@ -136,18 +136,25 @@ export default function RecruiterDashboardPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button 
+            <Button
               onClick={() => navigate('/offers/create')}
               className="bg-blue-600 hover:bg-blue-700"
             >
               <Briefcase className="h-4 w-4 mr-2" />
               Créer une offre
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => navigate('/offers')}
             >
               Voir toutes les offres
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/recruiter/applications')}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Examiner les candidats
             </Button>
           </div>
         </div>
@@ -331,10 +338,10 @@ export default function RecruiterDashboardPage() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="rate" 
-                      stroke="#8b5cf6" 
+                    <Line
+                      type="monotone"
+                      dataKey="rate"
+                      stroke="#8b5cf6"
                       strokeWidth={2}
                       name="Taux de conversion (%)"
                     />
