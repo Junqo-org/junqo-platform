@@ -26,6 +26,7 @@ import { OfferDTO } from '../offers/dto/offer.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { ConversationsService } from '../conversations/conversations.service';
 import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
+import { MessagesService } from '../messages/messages.service';
 
 @Injectable()
 export class ApplicationsService {
@@ -36,6 +37,7 @@ export class ApplicationsService {
     private readonly applicationsRepository: ApplicationsRepository,
     private readonly offersService: OffersService,
     private readonly conversationsService: ConversationsService,
+    private readonly messagesService: MessagesService,
   ) {}
 
   /**
@@ -442,27 +444,43 @@ export class ApplicationsService {
     currentUser: AuthUserDTO,
     application: ApplicationDTO,
   ): Promise<void> {
+    const studentName = application.student?.name || 'Student';
+    const offerTitle = application.offer?.title || 'Offer';
+    const companyName = application.company?.name || 'Company';
+
     try {
       // Create conversation between student and company
       const createConversationDto: CreateConversationDTO = {
         participantsIds: [application.studentId, application.companyId],
-        title: `Application Discussion - ${application.offer?.title || 'Job Application'}`,
+        participantTitles: {
+          [application.studentId]: `${offerTitle} - ${companyName}`,
+          [application.companyId]: `${offerTitle} - ${studentName}`,
+        },
+        title: `Application Discussion - ${offerTitle || 'Job Application'}`,
+        offerId: application.offerId,
+        applicationId: application.id,
       };
 
       // Create the conversation using the current user's context
-      await this.conversationsService.create(
+      const conversation = await this.conversationsService.create(
         currentUser,
         createConversationDto,
       );
+
+      try {
+        await this.messagesService.create(currentUser, {
+          conversationId: conversation.id,
+          senderId: currentUser.id,
+          content: `Bonjour ${studentName}, votre candidature pour le poste de "${offerTitle}" a retenu notre attention.`,
+        });
+      } catch (msgError) {
+        console.warn(`Failed to send welcome message: ${msgError.message}`);
+      }
     } catch (error) {
       // Log the error but don't fail the application update
-      this.logger.error(
-        `Failed to create conversation for accepted application ${application.id}`,
-        {
-          applicationId: application.id,
-          error: error.message,
-          stack: error.stack,
-        },
+      console.error(
+        `Failed to create conversation for accepted application ${application.id}:`,
+        error.message,
       );
     }
   }
@@ -520,7 +538,6 @@ export class ApplicationsService {
         });
       }
     }
-
     return results;
   }
 
@@ -542,7 +559,6 @@ export class ApplicationsService {
         status: ApplicationStatus.PENDING,
       });
     }
-
     return application;
   }
 }

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { Camera, Mail, User as UserIcon, Building, Plus } from 'lucide-react'
+import { Camera, Mail, User as UserIcon, Building, Plus, School, Search, X, Check, Clock, XCircle } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import { apiService } from '@/services/api'
 import { ProfileCompletionCard } from '@/components/profile/ProfileCompletionCard'
@@ -26,12 +26,20 @@ export default function ProfilePage() {
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false)
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null)
 
+  // School linking state
+  const [schoolSearch, setSchoolSearch] = useState('')
+  const [schoolSearchResults, setSchoolSearchResults] = useState<any[]>([])
+  const [isSearchingSchools, setIsSearchingSchools] = useState(false)
+  const [schoolLinkRequests, setSchoolLinkRequests] = useState<any[]>([])
+  const [isSendingRequest, setIsSendingRequest] = useState(false)
+
   const isStudent = user?.type === 'STUDENT'
 
   useEffect(() => {
     loadProfile()
     if (isStudent) {
       loadExperiences()
+      loadSchoolLinkRequests()
     }
   }, [])
 
@@ -56,6 +64,62 @@ export default function ProfilePage() {
       console.error('Failed to load experiences', error)
     }
   }
+
+  const loadSchoolLinkRequests = async () => {
+    try {
+      const data = await apiService.getMySchoolLinkRequests()
+      setSchoolLinkRequests(data)
+    } catch (error) {
+      console.error('Failed to load school link requests', error)
+    }
+  }
+
+  const handleSearchSchools = async (query: string) => {
+    setSchoolSearch(query)
+    if (query.length < 2) {
+      setSchoolSearchResults([])
+      return
+    }
+    setIsSearchingSchools(true)
+    try {
+      const results = await apiService.searchSchools(query)
+      setSchoolSearchResults(results || [])
+    } catch (error) {
+      console.error('Failed to search schools', error)
+      setSchoolSearchResults([])
+    } finally {
+      setIsSearchingSchools(false)
+    }
+  }
+
+  const handleSendSchoolRequest = async (schoolId: string) => {
+    setIsSendingRequest(true)
+    try {
+      await apiService.createSchoolLinkRequest(schoolId)
+      toast.success('Request sent to school!')
+      setSchoolSearch('')
+      setSchoolSearchResults([])
+      await loadSchoolLinkRequests()
+    } catch (error: any) {
+      console.error('Failed to send request', error)
+      toast.error(error.response?.data?.message || 'Failed to send request')
+    } finally {
+      setIsSendingRequest(false)
+    }
+  }
+
+  const handleCancelSchoolRequest = async (requestId: string) => {
+    try {
+      await apiService.cancelSchoolLinkRequest(requestId)
+      toast.success('Request cancelled')
+      await loadSchoolLinkRequests()
+    } catch (error) {
+      console.error('Failed to cancel request', error)
+      toast.error('Failed to cancel request')
+    }
+  }
+
+  const pendingRequest = schoolLinkRequests.find(r => r.status === 'PENDING')
 
   const handleAddExperience = () => {
     setEditingExperience(null)
@@ -102,27 +166,27 @@ export default function ProfilePage() {
     setIsLoading(true)
     try {
       if (!user) return
-      
+
       // Filter only the fields that can be updated
       const updateData = isStudent
         ? {
-            avatar: profile?.avatar,
-            bio: profile?.bio,
-            phoneNumber: profile?.phoneNumber,
-            linkedinUrl: profile?.linkedinUrl,
-            educationLevel: profile?.educationLevel,
-            skills: profile?.skills,
-          }
+          avatar: profile?.avatar,
+          bio: profile?.bio,
+          phoneNumber: profile?.phoneNumber,
+          linkedinUrl: profile?.linkedinUrl,
+          educationLevel: profile?.educationLevel,
+          skills: profile?.skills,
+        }
         : {
-            avatar: profile?.avatar,
-            description: profile?.description,
-            phoneNumber: profile?.phoneNumber,
-            address: profile?.address,
-            websiteUrl: profile?.websiteUrl,
-            logoUrl: profile?.logoUrl,
-            industry: profile?.industry,
-          }
-      
+          avatar: profile?.avatar,
+          description: profile?.description,
+          phoneNumber: profile?.phoneNumber,
+          address: profile?.address,
+          websiteUrl: profile?.websiteUrl,
+          logoUrl: profile?.logoUrl,
+          industry: profile?.industry,
+        }
+
       // Update using the 'my' endpoint
       const updatedProfile = isStudent
         ? await apiService.updateStudentProfile(updateData)
@@ -426,6 +490,124 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      {/* My School Section - Only for Students */}
+      {isStudent && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <School className="h-5 w-5" />
+              <div>
+                <CardTitle>My School</CardTitle>
+                <CardDescription>Link your profile to your school</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Already linked to a school */}
+            {profile?.linkedSchool ? (
+              <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
+                    <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{profile.linkedSchool.name}</p>
+                    <p className="text-sm text-muted-foreground">You are linked to this school</p>
+                  </div>
+                </div>
+                <Badge variant="default" className="bg-green-600">Linked</Badge>
+              </div>
+            ) : pendingRequest ? (
+              /* Pending request */
+              <div className="flex items-center justify-between p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-yellow-100 dark:bg-yellow-800 rounded-full flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{pendingRequest.school?.name || 'School'}</p>
+                    <p className="text-sm text-muted-foreground">Request pending approval</p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCancelSchoolRequest(pendingRequest.id)}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              /* Search and request to link */
+              <div className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search for your school..."
+                    value={schoolSearch}
+                    onChange={(e) => handleSearchSchools(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+
+                {/* Search results */}
+                {schoolSearchResults.length > 0 && (
+                  <div className="border rounded-lg divide-y">
+                    {schoolSearchResults.map((school) => (
+                      <div
+                        key={school.userId}
+                        className="flex items-center justify-between p-3 hover:bg-muted/50"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={school.avatar} />
+                            <AvatarFallback>{getInitials(school.name)}</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">{school.name}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => handleSendSchoolRequest(school.userId)}
+                          disabled={isSendingRequest}
+                        >
+                          Request to Join
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {schoolSearch.length >= 2 && schoolSearchResults.length === 0 && !isSearchingSchools && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No schools found matching "{schoolSearch}"
+                  </p>
+                )}
+
+                {isSearchingSchools && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Searching...
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Show rejected requests */}
+            {schoolLinkRequests.filter(r => r.status === 'REJECTED').length > 0 && (
+              <div className="mt-4 pt-4 border-t">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Previous Requests</p>
+                {schoolLinkRequests.filter(r => r.status === 'REJECTED').map((request) => (
+                  <div key={request.id} className="flex items-center gap-2 text-sm text-red-600">
+                    <XCircle className="h-4 w-4" />
+                    <span>{request.school?.name || 'School'} - Rejected</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Experiences Section - Only for Students */}
       {isStudent && (

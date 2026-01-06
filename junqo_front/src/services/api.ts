@@ -55,7 +55,7 @@ class ApiService {
     // Transform data to match backend DTO
     const name = `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'User'
     const type = data.userType.toUpperCase() // Convert to enum format: STUDENT, COMPANY, SCHOOL
-    
+
     const response = await this.client.post('/auth/register', {
       email: data.email,
       password: data.password,
@@ -317,6 +317,48 @@ class ApiService {
 
   async getOfferAnalytics(offerId: string) {
     const response = await this.client.get(`/offers/${offerId}/analytics`)
+    return response.data
+  }
+
+  // School Link Requests endpoints
+  async searchSchools(name: string) {
+    const response = await this.client.get('/school-profiles/search', { params: { name } })
+    return response.data
+  }
+
+  async createSchoolLinkRequest(schoolId: string, message?: string) {
+    const response = await this.client.post('/school-link-requests', { schoolId, message })
+    return response.data
+  }
+
+  async getMySchoolLinkRequests() {
+    const response = await this.client.get('/school-link-requests/my')
+    return response.data
+  }
+
+  async cancelSchoolLinkRequest(requestId: string) {
+    const response = await this.client.delete(`/school-link-requests/${requestId}`)
+    return response.data
+  }
+
+  async getPendingSchoolLinkRequests() {
+    const response = await this.client.get('/school-link-requests/pending')
+    return response.data
+  }
+
+  async acceptSchoolLinkRequest(requestId: string) {
+    const response = await this.client.patch(`/school-link-requests/${requestId}/accept`)
+    return response.data
+  }
+
+  async rejectSchoolLinkRequest(requestId: string, responseMessage?: string) {
+    const response = await this.client.patch(`/school-link-requests/${requestId}/reject`, { responseMessage })
+    return response.data
+  }
+
+  // School Students endpoints
+  async getMyLinkedStudents() {
+    const response = await this.client.get('/school-profiles/my/students')
     return response.data
   }
 }

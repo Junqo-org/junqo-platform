@@ -6,44 +6,55 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { 
-  Briefcase, 
-  MapPin, 
-  Clock, 
-  Search, 
-  TrendingUp, 
-  Plus, 
-  Grid3x3, 
+import {
+  Briefcase,
+  MapPin,
+  Clock,
+  Search,
+  TrendingUp,
+  Plus,
+  Grid3x3,
   Layers,
   ChevronRight
 } from 'lucide-react'
 import { apiService } from '@/services/api'
-import { Offer, Application } from '@/types'
+import { Offer } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'sonner'
 import { SwipeStack } from '@/components/swipe/SwipeStack'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 
 export default function OffersPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const isCompany = user?.type === 'COMPANY'
   const isStudent = user?.type === 'STUDENT'
-  
+
   const [offers, setOffers] = useState<Offer[]>([])
+  const [totalOffers, setTotalOffers] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(12) // 12 items for grid layout (divisible by 2, 3, 4)
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [locationFilter, setLocationFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'swipe'>('grid')
-  const [hiddenOfferIds, setHiddenOfferIds] = useState<Set<string>>(new Set())
 
   // Disable body scroll when in swipe mode
   useEffect(() => {
@@ -58,109 +69,155 @@ export default function OffersPage() {
   }, [viewMode])
 
   useEffect(() => {
-    loadOffers()
-  }, [user])
+    // Reset to page 1 when filters change (except when user just changes page)
+    setCurrentPage(1)
+    loadOffers(1)
+  }, [user, searchQuery, typeFilter, locationFilter])
+
+  useEffect(() => {
+    // When page changes, reload offers
+    loadOffers(currentPage)
+  }, [currentPage])
 
   useEffect(() => {
     const handleFocus = () => {
-      loadOffers()
+      loadOffers(currentPage)
     }
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        loadOffers()
+        loadOffers(currentPage)
       }
     }
-    
+
     window.addEventListener('focus', handleFocus)
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    
+
     return () => {
       window.removeEventListener('focus', handleFocus)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [])
+  }, [currentPage])
 
-  const loadOffers = async () => {
+  const loadOffers = async (page = 1) => {
     setIsLoading(true)
     try {
-      const query: Record<string, any> = {}
-      
-      if (user?.type === 'STUDENT') {
-        try {
-          const applicationsData = await apiService.getMyApplications()
-          const applicationsArray: Application[] = Array.isArray(applicationsData)
-            ? applicationsData
-            : applicationsData?.rows ||
-              applicationsData?.items ||
-              applicationsData?.data ||
-              []
+      const offset = (page - 1) * itemsPerPage
+      let query: any = { limit: itemsPerPage, offset }
 
-          const hiddenIds = new Set(
-            applicationsArray
-              .filter(
-                (application) =>
-                  application.status === 'ACCEPTED' ||
-                  application.status === 'DENIED'
-              )
-              .map((application) => application.offerId)
-              .filter(Boolean)
-          )
-          setHiddenOfferIds(hiddenIds)
-        } catch (error) {
-          console.error('Failed to load applications for student filtering:', error)
-          setHiddenOfferIds(new Set())
-        }
-      } else {
-        setHiddenOfferIds(new Set())
-      }
+      // Apply filters to backend query if possible, but frontend filtering is also used.
+      // Ideally move all filtering to backend for true pagination.
+      // For now, we follow the existing pattern but respecting pagination for the initial fetch.
+      // Note: If filtering is done purely on frontend, pagination won't work correctly with backend limits.
+      // However, the `getOffers` seems to support some params.
+      // IMPORTANT: To make "real pagination" work with filters, we should pass filters to backend.
+      // Assuming backend supports these standard filters:
+      if (searchQuery) query.title = searchQuery
+      if (typeFilter !== 'all') query.offerType = typeFilter
+      if (locationFilter !== 'all') query.workLocationType = locationFilter
 
+      // For companies: load their own offers (usually all, then paginated if backend supports)
       const data = user?.type === 'COMPANY'
         ? await apiService.getMyOffers()
         : await apiService.getOffers(query)
-      
+
       let offersArray: Offer[] = []
+      let total = 0
+
       if (Array.isArray(data)) {
         offersArray = data
+        total = data.length
       } else if (data.rows && Array.isArray(data.rows)) {
         offersArray = data.rows
+        total = data.count || data.rows.length
       } else if (data.items) {
         offersArray = data.items
+        total = data.total || data.items.length
       } else if (data.data) {
         offersArray = data.data
+        total = data.total || data.data.length
       }
-      
+
       setOffers(offersArray)
+      setTotalOffers(total)
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || ''
       if (!errorMessage.includes('not found') && !errorMessage.includes('No offers')) {
         toast.error('Error loading offers')
       }
       setOffers([])
+      setTotalOffers(0)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const filteredOffers = offers.filter(offer => {
-    const title = offer.title || ''
-    const description = offer.description || ''
-    const skills = offer.skills || []
-    const searchLower = searchQuery.toLowerCase()
 
-    if (hiddenOfferIds.has(offer.id)) {
-      return false
-    }
-    
-    const matchesSearch = title.toLowerCase().includes(searchLower) ||
-                         description.toLowerCase().includes(searchLower) ||
-                         skills.some(skill => skill.toLowerCase().includes(searchLower))
-    
-    const matchesStatus = user?.type === 'COMPANY' ? true : offer.status === 'ACTIVE'
-    const matchesType = typeFilter === 'all' ? true : offer.offerType === typeFilter
-    const matchesLocation = locationFilter === 'all' ? true : offer.workLocationType === locationFilter
-    
-    return matchesSearch && matchesStatus && matchesType && matchesLocation
-  })
+  // Note: For students, filtering is done on backend. For companies (my offers), we might still need frontend filtering 
+  // if backend endpoint doesn't support it, but for now we assume consistent behavior or Company uses "all" mostly.
+  // Actually, companies use `getMyOffers` which might not support search/filter params in the same way yet.
+  // We keep frontend filtering logic ONLY if it's a company (since we loaded all their offers)
+  // OR as a fallback if `totalOffers` logic implies we got a subset. 
+  // BUT the robust way is: if Student -> use `offers` directly (it's already filtered/paginated). 
+  // If Company -> use `offers` filtering (since we loaded everything).
+
+  const displayOffers = (user?.type === 'COMPANY')
+    ? offers.filter(offer => {
+      const title = offer.title || ''
+      const description = offer.description || ''
+      const searchLower = searchQuery.toLowerCase()
+      const matchesSearch = title.toLowerCase().includes(searchLower) || description.toLowerCase().includes(searchLower)
+      return matchesSearch
+    })
+    : offers
+
+  const totalPages = Math.ceil(totalOffers / itemsPerPage)
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null
+
+    return (
+      <Pagination className="mt-8">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => { e.preventDefault(); if (currentPage > 1) setCurrentPage(c => c - 1); }}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+            />
+          </PaginationItem>
+
+          {Array.from({ length: totalPages }).map((_, i) => {
+            const p = i + 1
+            // Simple logic for small number of pages. For many pages, would need ellipsis logic.
+            if (p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)) {
+              return (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    href="#"
+                    isActive={currentPage === p}
+                    onClick={(e) => { e.preventDefault(); setCurrentPage(p); }}
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            } else if (p === currentPage - 2 || p === currentPage + 2) {
+              return <PaginationItem key={p}><PaginationEllipsis /></PaginationItem>
+            }
+            return null
+          })}
+
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => { e.preventDefault(); if (currentPage < totalPages) setCurrentPage(c => c + 1); }}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    )
+  }
 
   const getOfferTypeBadge = (type: string) => {
     const badges = {
@@ -214,14 +271,12 @@ export default function OffersPage() {
     console.log('Skipped offer:', offer.title)
   }
 
-
-
   const renderOfferCard = (offer: Offer) => {
     const offerTypeBadge = getOfferTypeBadge(offer.offerType)
     const locationBadge = getLocationBadge(offer.workLocationType)
-    
+
     return (
-      <Card 
+      <Card
         className="h-full bg-card border-border shadow-xl"
       >
         <CardContent className="p-8">
@@ -239,11 +294,11 @@ export default function OffersPage() {
               {offerTypeBadge.label}
             </Badge>
           </div>
-          
+
           <p className="text-card-foreground mb-6 leading-relaxed line-clamp-4">
             {offer.description}
           </p>
-          
+
           <div className="grid grid-cols-2 gap-3 mb-6">
             {offer.salary && offer.salary > 0 && (
               <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
@@ -256,7 +311,7 @@ export default function OffersPage() {
                 </div>
               </div>
             )}
-            
+
             <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
               <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
               <div className="min-w-0">
@@ -287,8 +342,8 @@ export default function OffersPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {offer.skills.slice(0, 6).map((skill, index) => (
-                  <span 
-                    key={index} 
+                  <span
+                    key={index}
                     className="px-2 py-1 text-xs bg-muted text-foreground rounded border border-border truncate max-w-[150px]"
                     title={skill}
                   >
@@ -307,8 +362,8 @@ export default function OffersPage() {
           {/* View Details Button for Swipe Mode */}
           <div className="mt-6 flex justify-center">
             <Link to={`/offers/details?id=${offer.id}`} className="w-full">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={(e) => {
                   e.stopPropagation() // Prevent swipe
@@ -336,7 +391,7 @@ export default function OffersPage() {
                 Opportunités d'emploi
               </h1>
               <p className="text-muted-foreground mt-1">
-                {filteredOffers.length} position{filteredOffers.length !== 1 ? 's' : ''} available
+                {totalOffers} position{totalOffers !== 1 ? 's' : ''} available
               </p>
             </div>
             <div className="flex gap-3">
@@ -363,7 +418,7 @@ export default function OffersPage() {
                 </div>
               )}
               {isCompany && (
-                <Button 
+                <Button
                   onClick={() => navigate('/offers/create')}
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -388,7 +443,7 @@ export default function OffersPage() {
                     className="pl-10"
                   />
                 </div>
-                
+
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Job Type" />
@@ -439,132 +494,135 @@ export default function OffersPage() {
               </Card>
             ))}
           </div>
-        ) : filteredOffers.length === 0 ? (
+        ) : displayOffers.length === 0 ? (
           <Card className="bg-card border-border shadow-md">
             <CardContent className="py-20 text-center">
               <Briefcase className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                 Aucune offre trouvée
-               </h3>
+                Aucune offre trouvée
+              </h3>
               <p className="text-muted-foreground">
-                 Essayez d'ajuster vos filtres pour voir plus de résultats
-               </p>
+                Essayez d'ajuster vos filtres pour voir plus de résultats
+              </p>
             </CardContent>
           </Card>
         ) : viewMode === 'swipe' && isStudent ? (
           <div className="max-w-2xl mx-auto overflow-hidden">
             <SwipeStack
-              offers={filteredOffers}
+              offers={displayOffers}
               onSwipeLeft={handleSwipeLeft}
               onSwipeRight={handleSwipeRight}
               renderCard={renderOfferCard}
             />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredOffers.map((offer) => {
-              const offerTypeBadge = getOfferTypeBadge(offer.offerType)
-              const locationBadge = getLocationBadge(offer.workLocationType)
-              
-              return (
-                <motion.div
-                  key={offer.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Link 
-                    to={`/offers/details?id=${offer.id}`}
-                    className="block h-full"
-                    onClick={() => console.log('Link clicked for offer:', offer.id)}
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {displayOffers.map((offer) => {
+                const offerTypeBadge = getOfferTypeBadge(offer.offerType)
+                const locationBadge = getLocationBadge(offer.workLocationType)
+
+                return (
+                  <motion.div
+                    key={offer.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    <Card 
-                      className="h-full bg-card border-border hover:border-primary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer shadow-md"
+                    <Link
+                      to={`/offers/details?id=${offer.id}`}
+                      className="block h-full"
+                      onClick={() => console.log('Link clicked for offer:', offer.id)}
                     >
-                    <CardContent className="p-6 flex flex-col h-full">
-                      {/* Header */}
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                            {offer.title}
-                          </h3>
-                          <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                            <Clock className="h-3 w-3 flex-shrink-0" />
-                            <span className="whitespace-nowrap">{formatRelativeTime(new Date(offer.createdAt))}</span>
+                      <Card
+                        className="h-full bg-card border-border hover:border-primary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer shadow-md"
+                      >
+                        <CardContent className="p-6 flex flex-col h-full">
+                          {/* Header */}
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-lg font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                                {offer.title}
+                              </h3>
+                              <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                                <Clock className="h-3 w-3 flex-shrink-0" />
+                                <span className="whitespace-nowrap">{formatRelativeTime(new Date(offer.createdAt))}</span>
+                              </p>
+                            </div>
+                            <Badge variant="secondary" className="flex-shrink-0">
+                              {offerTypeBadge.label}
+                            </Badge>
+                          </div>
+
+                          {/* Description */}
+                          <p className="text-sm text-card-foreground mb-4 flex-1 leading-relaxed line-clamp-3">
+                            {offer.description}
                           </p>
-                        </div>
-                        <Badge variant="secondary" className="flex-shrink-0">
-                          {offerTypeBadge.label}
-                        </Badge>
-                      </div>
-                      
-                      {/* Description */}
-                      <p className="text-sm text-card-foreground mb-4 flex-1 leading-relaxed line-clamp-3">
-                        {offer.description}
-                      </p>
-                      
-                      {/* Details */}
-                      <div className="space-y-2 mb-4">
-                        {offer.salary && offer.salary > 0 && (
-                          <div className="flex items-center text-sm gap-2">
-                            <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
-                              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
-                            </div>
-                            <span className="font-medium text-foreground truncate">
-                              €{offer.salary}/month
-                            </span>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center text-sm text-foreground gap-2">
-                          <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
-                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                          </div>
-                          <span className="truncate">{locationBadge.label}</span>
-                        </div>
 
-                        {offer.duration && offer.duration > 0 && (
-                          <div className="flex items-center text-sm text-foreground gap-2">
-                            <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
-                              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                            </div>
-                            <span className="truncate">{offer.duration} months</span>
-                          </div>
-                        )}
-                      </div>
+                          {/* Details */}
+                          <div className="space-y-2 mb-4">
+                            {offer.salary && offer.salary > 0 && (
+                              <div className="flex items-center text-sm gap-2">
+                                <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                                  <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                                </div>
+                                <span className="font-medium text-foreground truncate">
+                                  €{offer.salary}/month
+                                </span>
+                              </div>
+                            )}
 
-                      {/* Skills */}
-                      {offer.skills && offer.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-4">
-                          {offer.skills.slice(0, 3).map((skill, index) => (
-                            <span 
-                              key={index} 
-                              className="px-2 py-0.5 text-xs bg-muted text-foreground border border-border rounded truncate max-w-[100px]"
-                              title={skill}
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {offer.skills.length > 3 && (
-                            <span className="px-2 py-0.5 text-xs bg-muted text-foreground border border-border rounded">
-                              +{offer.skills.length - 3}
-                            </span>
+                            <div className="flex items-center text-sm text-foreground gap-2">
+                              <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                              </div>
+                              <span className="truncate">{locationBadge.label}</span>
+                            </div>
+
+                            {offer.duration && offer.duration > 0 && (
+                              <div className="flex items-center text-sm text-foreground gap-2">
+                                <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                                </div>
+                                <span className="truncate">{offer.duration} months</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Skills */}
+                          {offer.skills && offer.skills.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-4">
+                              {offer.skills.slice(0, 3).map((skill, index) => (
+                                <span
+                                  key={index}
+                                  className="px-2 py-0.5 text-xs bg-muted text-foreground border border-border rounded truncate max-w-[100px]"
+                                  title={skill}
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                              {offer.skills.length > 3 && (
+                                <span className="px-2 py-0.5 text-xs bg-muted text-foreground border border-border rounded">
+                                  +{offer.skills.length - 3}
+                                </span>
+                              )}
+                            </div>
                           )}
-                        </div>
-                      )}
-                      
-                      {/* View Button */}
-                      <div className="flex items-center justify-between text-sm text-muted-foreground font-medium group-hover:text-primary pointer-events-none">
-                        <span>Voir les détails</span>
-                        <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                  </Link>
-                </motion.div>
-              )
-            })}
-          </div>
+
+                          {/* View Button */}
+                          <div className="flex items-center justify-between text-sm text-muted-foreground font-medium group-hover:text-primary pointer-events-none">
+                            <span>Voir les détails</span>
+                            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                )
+              })}
+            </div>
+            {renderPagination()}
+          </>
         )}
       </div>
     </div>

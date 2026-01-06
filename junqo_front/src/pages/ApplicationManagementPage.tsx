@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,7 +16,9 @@ import {
   Briefcase,
   Eye,
   Phone,
-  Linkedin
+  Linkedin,
+  User,
+  MessageSquare
 } from 'lucide-react'
 import { apiService } from '@/services/api'
 import { Application } from '@/types'
@@ -29,15 +32,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { StudentProfileModal } from '@/components/candidates/StudentProfileModal'
 
 export default function ApplicationManagementPage() {
+  const navigate = useNavigate()
   const [applications, setApplications] = useState<Application[]>([])
   const [filteredApplications, setFilteredApplications] = useState<Application[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
+  const [offerFilter, setOfferFilter] = useState<string>('ALL')
   const [selectedApplications, setSelectedApplications] = useState<Set<string>>(new Set())
   const [isUpdating, setIsUpdating] = useState(false)
+  const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
+  const [selectedStudentName, setSelectedStudentName] = useState<string | undefined>(undefined)
+  const [showHistory, setShowHistory] = useState(false)
 
   useEffect(() => {
     loadApplications()
@@ -45,7 +55,18 @@ export default function ApplicationManagementPage() {
 
   useEffect(() => {
     filterApplications()
-  }, [applications, searchQuery, statusFilter])
+  }, [applications, searchQuery, statusFilter, offerFilter, showHistory])
+
+  // Get unique offers for filter dropdown
+  const uniqueOffers = useMemo(() => {
+    const offers = new Map<string, { id: string; title: string }>()
+    applications.forEach((app) => {
+      if (app.offer?.id && app.offer?.title) {
+        offers.set(app.offer.id, { id: app.offer.id, title: app.offer.title })
+      }
+    })
+    return Array.from(offers.values())
+  }, [applications])
 
   const loadApplications = async () => {
     try {
@@ -62,9 +83,18 @@ export default function ApplicationManagementPage() {
   const filterApplications = () => {
     let filtered = applications
 
-    // Filter by status
+    // Filter by status/history
+    if (!showHistory && statusFilter === 'ALL') {
+      filtered = filtered.filter(app => app.status !== 'ACCEPTED' && app.status !== 'DENIED')
+    }
+
     if (statusFilter !== 'ALL') {
       filtered = filtered.filter((app) => app.status === statusFilter)
+    }
+
+    // Filter by offer
+    if (offerFilter !== 'ALL') {
+      filtered = filtered.filter((app) => app.offer?.id === offerFilter)
     }
 
     // Filter by search query
@@ -79,6 +109,12 @@ export default function ApplicationManagementPage() {
     setFilteredApplications(filtered)
   }
 
+  const handleViewProfile = (studentId: string, studentName?: string) => {
+    setSelectedStudentId(studentId)
+    setSelectedStudentName(studentName)
+    setProfileModalOpen(true)
+  }
+
   const handleUpdateStatus = async (applicationId: string, newStatus: string) => {
     try {
       setIsUpdating(true)
@@ -91,7 +127,25 @@ export default function ApplicationManagementPage() {
         )
       )
 
-      toast.success(`Candidature ${newStatus === 'ACCEPTED' ? 'acceptée' : 'refusée'}`)
+      if (newStatus === 'ACCEPTED') {
+        // Find studentId for the application 
+        const app = applications.find(a => a.id === applicationId)
+
+        toast.success('Candidature acceptée', {
+          action: {
+            label: 'Ouvrir la conversation',
+            onClick: () => {
+              if (app?.studentId) {
+                navigate('/messaging', { state: { studentId: app.studentId } })
+              }
+            }
+          },
+          duration: 5000,
+        })
+      } else {
+        toast.success(`Candidature ${newStatus === 'ACCEPTED' ? 'acceptée' : 'refusée'}`)
+      }
+
     } catch (error) {
       console.error('Failed to update application:', error)
       toast.error('Échec de la mise à jour')
@@ -129,6 +183,14 @@ export default function ApplicationManagementPage() {
   }
 
   const toggleSelection = (applicationId: string) => {
+    // Find the application to check its status
+    const application = applications.find(app => app.id === applicationId)
+    // Don't allow selecting finalized applications (ACCEPTED or DENIED)
+    if (application && (application.status === 'ACCEPTED' || application.status === 'DENIED')) {
+      toast.error('Cette candidature a déjà été traitée')
+      return
+    }
+
     setSelectedApplications(prev => {
       const newSet = new Set(prev)
       if (newSet.has(applicationId)) {
@@ -140,11 +202,18 @@ export default function ApplicationManagementPage() {
     })
   }
 
+
+
   const toggleSelectAll = () => {
-    if (selectedApplications.size === filteredApplications.length) {
+    // Only select potentially actionable applications (not ACCEPTED or DENIED)
+    const actionableApplications = filteredApplications.filter(
+      app => app.status !== 'ACCEPTED' && app.status !== 'DENIED'
+    )
+
+    if (selectedApplications.size === actionableApplications.length && actionableApplications.length > 0) {
       setSelectedApplications(new Set())
     } else {
-      setSelectedApplications(new Set(filteredApplications.map(app => app.id)))
+      setSelectedApplications(new Set(actionableApplications.map(app => app.id)))
     }
   }
 
@@ -290,7 +359,7 @@ export default function ApplicationManagementPage() {
                   />
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-[200px]">
                     <Filter className="h-4 w-4 mr-2" />
@@ -304,9 +373,38 @@ export default function ApplicationManagementPage() {
                     <SelectItem value="DENIED">Refusées</SelectItem>
                   </SelectContent>
                 </Select>
+                <Select value={offerFilter} onValueChange={setOfferFilter}>
+                  <SelectTrigger className="w-[250px]">
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Filtrer par offre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">Toutes les offres</SelectItem>
+                    {uniqueOffers.map((offer) => (
+                      <SelectItem key={offer.id} value={offer.id}>
+                        {offer.title.length > 30 ? offer.title.substring(0, 30) + '...' : offer.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardHeader>
+          <CardContent className="pb-4 pt-0">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="show-history"
+                checked={showHistory}
+                onCheckedChange={(checked) => setShowHistory(checked as boolean)}
+              />
+              <label
+                htmlFor="show-history"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Afficher l'historique (acceptées/refusées)
+              </label>
+            </div>
+          </CardContent>
         </Card>
 
         {/* Bulk Actions */}
@@ -441,6 +539,25 @@ export default function ApplicationManagementPage() {
                                 </div>
 
                                 <div className="flex gap-2 flex-wrap">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleViewProfile(application.studentId, application.student?.name)}
+                                  >
+                                    <User className="h-3 w-3 mr-1" />
+                                    Voir profil
+                                  </Button>
+                                  {application.status === 'ACCEPTED' && (
+                                    <Button
+                                      size="sm"
+                                      variant="default"
+                                      className="bg-blue-600 hover:bg-blue-700"
+                                      onClick={() => navigate('/messaging', { state: { studentId: application.studentId } })}
+                                    >
+                                      <MessageSquare className="h-3 w-3 mr-1" />
+                                      Contacter
+                                    </Button>
+                                  )}
                                   {application.status !== 'ACCEPTED' && application.status !== 'DENIED' && (
                                     <>
                                       <Button
@@ -488,6 +605,14 @@ export default function ApplicationManagementPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Student Profile Modal */}
+      <StudentProfileModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        studentId={selectedStudentId}
+        studentName={selectedStudentName}
+      />
     </div>
   )
 }

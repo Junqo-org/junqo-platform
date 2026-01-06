@@ -2,6 +2,7 @@ import {
   BelongsTo,
   Column,
   DataType,
+  ForeignKey,
   HasMany,
   Model,
   PrimaryKey,
@@ -15,6 +16,7 @@ import {
 import { StudentProfileDTO } from '../../dto/student-profile.dto';
 import { plainToInstance } from 'class-transformer';
 import { UserModel } from '../../../users/repository/models/user.model';
+import { SchoolProfileModel } from '../../../school-profiles/repository/models/school-profile.model';
 
 @Table({ tableName: 'StudentProfiles', timestamps: true, paranoid: true })
 export class StudentProfileModel extends Model {
@@ -83,6 +85,19 @@ export class StudentProfileModel extends Model {
   @HasMany(() => ExperienceModel, 'studentProfileId')
   experiences: ExperienceModel[];
 
+  @ForeignKey(() => SchoolProfileModel)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  linkedSchoolId?: string;
+
+  @BelongsTo(() => SchoolProfileModel, {
+    foreignKey: 'linkedSchoolId',
+    onDelete: 'SET NULL',
+  })
+  linkedSchool?: SchoolProfileModel;
+
   public toStudentProfileDTO(): StudentProfileDTO {
     return plainToInstance(StudentProfileDTO, {
       userId: this.userId,
@@ -94,6 +109,8 @@ export class StudentProfileModel extends Model {
       educationLevel: this.educationLevel,
       skills: this.skills,
       experiences: this.experiences?.map((exp) => exp.toExperienceDTO()) || [],
+      linkedSchoolId: this.linkedSchoolId,
+      linkedSchool: this.linkedSchool?.toSchoolProfileDTO?.() || undefined,
     });
   }
 }

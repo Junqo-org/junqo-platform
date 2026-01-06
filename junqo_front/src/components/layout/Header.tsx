@@ -11,14 +11,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
-import { 
-  Home, 
-  Briefcase, 
-  MessageSquare, 
-  User, 
+import {
+  Home,
+  Briefcase,
+  MessageSquare,
+  User,
   LogOut,
   FileText,
-  BarChart3
+  BarChart3,
+  School,
+  Users
 } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import { motion } from 'framer-motion'
@@ -35,9 +37,10 @@ export function Header() {
 
   const isStudent = user?.type === 'STUDENT'
   const isCompany = user?.type === 'COMPANY'
+  const isSchool = user?.type === 'SCHOOL'
 
   return (
-    <motion.header 
+    <motion.header
       className="sticky top-0 z-50 w-full border-b backdrop-blur bg-background/80 border-border shadow-sm"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -59,7 +62,7 @@ export function Header() {
                 </Button>
               </motion.div>
             </Link>
-            
+
             {isStudent && (
               <>
                 <Link to="/offers">
@@ -110,6 +113,19 @@ export function Header() {
               </>
             )}
 
+            {isSchool && (
+              <>
+                <Link to="/school/dashboard">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button variant="ghost" size="sm">
+                      <Users className="mr-2 h-4 w-4" />
+                      Mes Étudiants
+                    </Button>
+                  </motion.div>
+                </Link>
+              </>
+            )}
+
             <Link to="/messaging">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button variant="ghost" size="sm">
@@ -140,7 +156,7 @@ export function Header() {
             <DropdownMenuContent align="end" className="w-56 bg-popover text-popover-foreground">
               <DropdownMenuLabel className="font-semibold text-sm">Mon Compte</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => navigate('/profile')}
                 className="cursor-pointer"
               >
@@ -148,7 +164,7 @@ export function Header() {
                 Profil
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={handleLogout}
                 className="cursor-pointer text-destructive"
               >
