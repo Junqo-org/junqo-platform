@@ -25,6 +25,7 @@ export default function HomePage() {
   const user = useAuthStore((state) => state.user)
   const isStudent = user?.type === 'STUDENT'
   const isCompany = user?.type === 'COMPANY'
+  const isSchool = user?.type == 'SCHOOL'
   const [stats, setStats] = useState<DashboardStatistics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -76,6 +77,7 @@ export default function HomePage() {
           <p className="text-lg text-slate-600 dark:text-slate-400">
             {isStudent && "Let's find your next opportunity"}
             {isCompany && "Manage your recruitment activities"}
+            {isSchool  && "Aide & Accompagne tes etudiants"}
           </p>
         </motion.div>
 
@@ -304,6 +306,106 @@ export default function HomePage() {
               </motion.div>
             </>
           )}
+
+          {isSchool && (
+              <>
+                  <motion.div variants={item}>
+                      <Link to="/school/dashboard/students" className="block h-full">
+                          <Card className="h-full border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-border transition-all duration-200 cursor-pointer group">
+                              <CardHeader>
+                                  <div className="flex items-center gap-4">
+                                      <div className="h-12 w-12 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
+                                          <Users className="h-6 w-6 text-primary" />
+                                      </div>
+                                      <div className="flex-1">
+                                          <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                                              Gérer les étudiants
+                                          </CardTitle>
+                                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                              Consulter et suivre les étudiants
+                                          </p>
+                                      </div>
+                                      <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                  </div>
+                              </CardHeader>
+                          </Card>
+                      </Link>
+                  </motion.div>
+
+                  <motion.div variants={item}>
+                      <Link to="/school/dashboard/offers" className="block h-full">
+                          <Card className="h-full border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-emerald-300 dark:hover:border-emerald-700 transition-all duration-200 cursor-pointer group">
+                              <CardHeader>
+                                  <div className="flex items-center gap-4">
+                                      <div className="h-12 w-12 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center flex-shrink-0">
+                                          <Briefcase className="h-6 w-6 text-emerald-600" />
+                                      </div>
+                                      <div className="flex-1">
+                                          <CardTitle className="text-lg group-hover:text-emerald-600 transition-colors">
+                                              Offres partenaires
+                                          </CardTitle>
+                                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                              Explorer les offres pour vos étudiants
+                                          </p>
+                                      </div>
+                                      <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
+                                  </div>
+                              </CardHeader>
+                          </Card>
+                      </Link>
+                  </motion.div>
+
+                  <motion.div variants={item}>
+                      <Link to="/school/dashboard/statistics" className="block h-full">
+                          <Card className="h-full border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-200 cursor-pointer group">
+                              <CardHeader>
+                                  <div className="flex items-center gap-4">
+                                      <div className="h-12 w-12 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center flex-shrink-0">
+                                          <BarChart3 className="h-6 w-6 text-amber-600" />
+                                      </div>
+                                      <div className="flex-1">
+                                          <CardTitle className="text-lg group-hover:text-amber-600 transition-colors">
+                                              Statistiques
+                                          </CardTitle>
+                                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                              [Placeholder: données statistiques]
+                                          </p>
+                                      </div>
+                                      <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
+                                  </div>
+                              </CardHeader>
+                          </Card>
+                      </Link>
+                  </motion.div>
+
+                  <motion.div variants={item} className="md:col-span-2">
+                      <Link to="/school/dashboard/messages" className="block h-full">
+                          <Card className="h-full border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-border transition-all duration-200 cursor-pointer group">
+                              <CardHeader>
+                                  <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-4">
+                                          <div className="h-14 w-14 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
+                                              <MessageSquare className="h-7 w-7 text-primary" />
+                                          </div>
+                                          <div>
+                                              <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                                                  Messages
+                                              </CardTitle>
+                                              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                                  [Placeholder: liste des messages]
+                                              </p>
+                                          </div>
+                                      </div>
+                                      <ArrowRight className="h-6 w-6 text-slate-400 group-hover:text-primary group-hover:translate-x-2 transition-all" />
+                                  </div>
+                              </CardHeader>
+                          </Card>
+                      </Link>
+                  </motion.div>
+              </>
+          )}
+
+
         </motion.div>
 
         {/* Quick Stats */}
