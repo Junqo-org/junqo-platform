@@ -38,22 +38,10 @@ export class ConversationsService {
     const queryResult: ConversationQueryOutputDTO =
       await this.conversationsRepository.findByQuery(query, currentUser.id);
 
-    const ability = this.caslAbilityFactory.createForUser(currentUser);
-
-    // Filter conversations that the user can read
-    const filteredRows = queryResult.rows.filter((conversation) => {
-      const conversationResource = plainToInstance(
-        ConversationResource,
-        conversation,
-      );
-
-      return ability.cannot(Actions.READ, conversationResource) === false;
-    });
-
-    return {
-      rows: filteredRows,
-      count: filteredRows.length,
-    };
+    // Repository already filters by currentUserId using SQL EXISTS clause
+    // Additional application-level filtering is redundant here and causes
+    // false negatives if participant relation hydration is incomplete.
+    return queryResult;
   }
 
   async findOneById(
@@ -95,6 +83,8 @@ export class ConversationsService {
     const conversationData: CreateConversationDTO = {
       participantsIds: participantsIds,
       title: createConversationDto.title,
+      offerId: createConversationDto.offerId,
+      applicationId: createConversationDto.applicationId,
     };
 
     // Check permission to create a conversation
@@ -327,6 +317,22 @@ export class ConversationsService {
     return this.conversationsRepository.removeConversationTitle(
       currentUser.id,
       conversationId,
+    );
+  }
+
+  /**
+   * Internal method to set a conversation title for a specific participant.
+   * Useful when setting titles for other users (e.g. system generated).
+   */
+  async setParticipantTitle(
+    conversationId: string,
+    targetUserId: string,
+    title: string,
+  ): Promise<void> {
+    await this.conversationsRepository.setConversationTitle(
+      targetUserId,
+      conversationId,
+      { title },
     );
   }
 

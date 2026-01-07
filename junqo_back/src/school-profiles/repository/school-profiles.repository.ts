@@ -15,13 +15,36 @@ import {
   SchoolProfileQueryDTO,
   SchoolProfileQueryOutputDTO,
 } from '../dto/school-profile-query.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class SchoolProfilesRepository {
   constructor(
     @InjectModel(SchoolProfileModel)
     private readonly schoolProfileModel: typeof SchoolProfileModel,
-  ) {}
+  ) { }
+
+  /**
+   * Search school profiles by name (partial match).
+   */
+  public async searchByName(name: string): Promise<SchoolProfileDTO[]> {
+    try {
+      const profiles = await this.schoolProfileModel.findAll({
+        where: {
+          name: {
+            [Op.iLike]: `%${name}%`,
+          },
+        },
+        limit: 10,
+      });
+
+      return profiles.map((p) => p.toSchoolProfileDTO());
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to search schools: ${error.message}`,
+      );
+    }
+  }
 
   /**
    * Retrieves school profiles matching the query.

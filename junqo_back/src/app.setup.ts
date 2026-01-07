@@ -31,8 +31,11 @@ export async function AppSetup(app: INestApplication<any>) {
 
   app.enableCors({
     origin: configService.get('app.corsOrigins'),
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: configService.get('app.credentials'),
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   const config = new DocumentBuilder()

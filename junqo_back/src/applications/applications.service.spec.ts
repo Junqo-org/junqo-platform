@@ -522,7 +522,7 @@ describe('ApplicationsService', () => {
       );
       expect(conversationsService.create).toHaveBeenCalledWith(
         currentUser,
-        createConversationDto
+        createConversationDto,
       );
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,

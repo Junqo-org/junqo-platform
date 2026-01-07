@@ -225,4 +225,41 @@ export class OffersController {
   ): Promise<void> {
     await this.offersService.markOfferAsViewed(currentUser, id);
   }
+
+  @Get(':id/analytics')
+  @ApiOperation({ summary: 'Get analytics for a specific offer' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the offer',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    description: 'Offer analytics retrieved successfully',
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to view analytics for this offer',
+  })
+  @ApiNotFoundResponse({ description: 'Offer not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async getOfferAnalytics(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<any> {
+    return this.offersService.getOfferAnalytics(currentUser, id);
+  }
+
+  @Get('analytics/all')
+  @ApiOperation({ summary: 'Get analytics for all user offers' })
+  @ApiOkResponse({
+    description: 'All offers analytics retrieved successfully',
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async getAllOffersAnalytics(
+    @CurrentUser() currentUser: AuthUserDTO,
+  ): Promise<any> {
+    return this.offersService.getAllOffersAnalytics(currentUser);
+  }
 }

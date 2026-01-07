@@ -30,6 +30,10 @@ import {
   ApplicationQueryDTO,
   ApplicationQueryOutputDTO,
 } from './dto/application-query.dto';
+import {
+  BulkUpdateApplicationsDTO,
+  BulkUpdateResultDTO,
+} from './dto/bulk-update-applications.dto';
 
 @ApiBearerAuth()
 @Controller('applications')
@@ -144,5 +148,59 @@ export class ApplicationsController {
     @Body() applicationInput: UpdateApplicationDTO,
   ): Promise<ApplicationDTO> {
     return this.applicationsService.update(currentUser, id, applicationInput);
+  }
+
+  @Post('bulk/update-status')
+  @ApiOperation({ summary: 'Bulk update application status (companies only)' })
+  @ApiBody({
+    type: BulkUpdateApplicationsDTO,
+    description: 'Application IDs and new status',
+  })
+  @ApiOkResponse({
+    description: 'Applications updated successfully',
+    type: BulkUpdateResultDTO,
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to update these applications',
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async bulkUpdateStatus(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Body() bulkUpdateDto: any,
+  ): Promise<any> {
+    return this.applicationsService.bulkUpdateStatus(
+      currentUser,
+      bulkUpdateDto.applicationIds,
+      bulkUpdateDto.status,
+    );
+  }
+
+  @Patch(':id/mark-opened')
+  @ApiOperation({
+    summary:
+      'Mark an application as opened (changes from NOT_OPENED to PENDING)',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the application',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    description: 'Application marked as opened',
+    type: ApplicationDTO,
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to mark this application as opened',
+  })
+  @ApiNotFoundResponse({ description: 'Application not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async markAsOpened(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<ApplicationDTO> {
+    return this.applicationsService.markAsOpened(currentUser, id);
   }
 }

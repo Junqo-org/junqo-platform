@@ -18,13 +18,17 @@ import {
   SchoolProfileQueryDTO,
   SchoolProfileQueryOutputDTO,
 } from './dto/school-profile-query.dto';
+import { StudentProfilesRepository } from '../student-profiles/repository/student-profiles.repository';
+import { StudentProfileDTO } from '../student-profiles/dto/student-profile.dto';
+import { UserType } from '../users/dto/user-type.enum';
 
 @Injectable()
 export class SchoolProfilesService {
   constructor(
     private readonly caslAbilityFactory: CaslAbilityFactory,
     private readonly profilesRepository: SchoolProfilesRepository,
-  ) {}
+    private readonly studentProfilesRepository: StudentProfilesRepository,
+  ) { }
 
   /**
    * Retrieves school profiles matching the query if the current user has the required permissions.
@@ -255,5 +259,36 @@ export class SchoolProfilesService {
         `Failed to delete profile: ${error.message}`,
       );
     }
+  }
+
+  /**
+   * Search schools by name (for students to find schools to link with).
+   */
+  public async searchByName(
+    currentUser: AuthUserDTO,
+    name: string,
+  ): Promise<SchoolProfileDTO[]> {
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(Actions.READ, new SchoolProfileResource())) {
+      throw new ForbiddenException(
+        'You do not have permission to search school profiles',
+      );
+    }
+
+    return this.profilesRepository.searchByName(name);
+  }
+
+  /**
+   * Get all students linked to the current school.
+   */
+  public async getLinkedStudents(
+    currentUser: AuthUserDTO,
+  ): Promise<StudentProfileDTO[]> {
+    if (currentUser.type !== UserType.SCHOOL) {
+      throw new ForbiddenException('Only schools can view their linked students');
+    }
+
+    return this.studentProfilesRepository.findByLinkedSchoolId(currentUser.id);
   }
 }

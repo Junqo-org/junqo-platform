@@ -13,12 +13,15 @@ import { CreateUserDTO, UpdateUserDTO, UserDTO } from './dto/user.dto';
 import { UserResource } from '../casl/dto/user-resource.dto';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
+import { DashboardStatisticsDTO } from './dto/user-statistics.dto';
+import { StatisticsService } from './statistics.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly caslAbilityFactory: CaslAbilityFactory,
     private readonly usersRepository: UsersRepository,
+    private readonly statisticsService: StatisticsService,
   ) {}
 
   /**
@@ -263,5 +266,17 @@ export class UsersService {
     const result = await bcrypt.compare(password, userDto.hashedPassword);
 
     return result;
+  }
+
+  /**
+   * Gets dashboard statistics for the current user.
+   *
+   * @param currentUser - The authenticated user requesting statistics
+   * @returns A Promise that resolves to dashboard statistics
+   */
+  public async getDashboardStatistics(
+    currentUser: AuthUserDTO,
+  ): Promise<DashboardStatisticsDTO> {
+    return this.statisticsService.getDashboardStatistics(currentUser);
   }
 }
