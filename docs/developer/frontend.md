@@ -59,15 +59,15 @@ Its main goal is to provide a user interface to interact with the backend.
 
 ### Configuration
 
-The frontend uses environment variables to configure the backend API connection.
+The frontend uses environment variables to configure the backend API connection. Note: Vite only exposes variables prefixed with `VITE_` to the client.
 
 #### Local Mode (Default Development)
 
-**Do NOT create a `.env` file** or leave `API_URL` empty:
+**Do NOT create a `.env` file** or leave `VITE_API_URL` empty:
 
 ```env
 # .env (or no file at all)
-# API_URL=
+# VITE_API_URL=
 ```
 
 ➡️ The Vite proxy will automatically redirect to `http://localhost:4200`
@@ -78,7 +78,7 @@ Create a `.env` file at the root of `junqo_front/` with:
 
 ```env
 # .env
-API_URL=http://dev.junqo.fr:4200/api/v1
+VITE_API_URL=http://dev.junqo.fr:4200/api/v1
 ```
 
 ➡️ The Vite proxy will redirect to the remote server
@@ -87,15 +87,15 @@ API_URL=http://dev.junqo.fr:4200/api/v1
 
 ```env
 # .env.production
-API_URL=https://api.junqo.fr/api/v1
+VITE_API_URL=https://api.junqo.fr/api/v1
 ```
 
 #### WebSocket (Optional)
 
-By default, the WebSocket URL is derived from `API_URL`. You can specify it manually if needed:
+By default, the WebSocket URL is derived from `VITE_API_URL`. You can specify it manually if needed:
 
 ```env
-WS_URL=http://localhost:4200
+VITE_WS_URL=http://localhost:4200
 ```
 
 **Note:** After modifying the `.env` file, **restart the development server** (Ctrl+C then `npm run dev`).
