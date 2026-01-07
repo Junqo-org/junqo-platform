@@ -25,7 +25,7 @@ export default function HomePage() {
   const user = useAuthStore((state) => state.user)
   const isStudent = user?.type === 'STUDENT'
   const isCompany = user?.type === 'COMPANY'
-  const isSchool = user?.type == 'SCHOOL'
+  const isSchool = user?.type === 'SCHOOL'
   const [stats, setStats] = useState<DashboardStatistics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -77,7 +77,7 @@ export default function HomePage() {
           <p className="text-lg text-slate-600 dark:text-slate-400">
             {isStudent && "Let's find your next opportunity"}
             {isCompany && "Manage your recruitment activities"}
-            {isSchool  && "Aide & Accompagne tes etudiants"}
+            {isSchool  && "Aide & Accompagne tes étudiants"}
           </p>
         </motion.div>
 
@@ -379,7 +379,7 @@ export default function HomePage() {
                   </motion.div>
 
                   <motion.div variants={item} className="md:col-span-2">
-                      <Link to="/school/dashboard/messages" className="block h-full">
+                      <Link to="/school/" className="block h-full">
                           <Card className="h-full border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-border transition-all duration-200 cursor-pointer group">
                               <CardHeader>
                                   <div className="flex items-center justify-between">
