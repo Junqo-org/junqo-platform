@@ -70,7 +70,7 @@ export default function SchoolDashboardPage() {
             setLinkedStudents(students || [])
         } catch (error) {
             console.error('Failed to load dashboard data', error)
-            toast.error('Failed to load dashboard data')
+            toast.error('Échec du chargement des données')
         } finally {
             setIsLoading(false)
         }
@@ -79,22 +79,22 @@ export default function SchoolDashboardPage() {
     const handleAcceptRequest = async (requestId: string) => {
         try {
             await apiService.acceptSchoolLinkRequest(requestId)
-            toast.success('Student request accepted!')
+            toast.success('Demande de l\'étudiant acceptée !')
             await loadData()
         } catch (error) {
             console.error('Failed to accept request', error)
-            toast.error('Failed to accept request')
+            toast.error('Échec de l\'acceptation de la demande')
         }
     }
 
     const handleRejectRequest = async (requestId: string) => {
         try {
             await apiService.rejectSchoolLinkRequest(requestId)
-            toast.success('Student request rejected')
+            toast.success('Demande de l\'étudiant refusée')
             await loadData()
         } catch (error) {
             console.error('Failed to reject request', error)
-            toast.error('Failed to reject request')
+            toast.error('Échec du rejet de la demande')
         }
     }
 
@@ -114,8 +114,8 @@ export default function SchoolDashboardPage() {
                     <School className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold">School Dashboard</h1>
-                    <p className="text-muted-foreground">Manage your students and requests</p>
+                    <h1 className="text-2xl font-bold">Tableau de bord École</h1>
+                    <p className="text-muted-foreground">Gérez vos étudiants et demandes</p>
                 </div>
             </div>
 
@@ -125,7 +125,7 @@ export default function SchoolDashboardPage() {
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Students</p>
+                                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Étudiants</p>
                                 <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{linkedStudents.length}</p>
                             </div>
                             <Users className="h-10 w-10 text-blue-500" />
@@ -137,7 +137,7 @@ export default function SchoolDashboardPage() {
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">Pending Requests</p>
+                                <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">Demandes en attente</p>
                                 <p className="text-3xl font-bold text-yellow-700 dark:text-yellow-300">{pendingRequests.length}</p>
                             </div>
                             <UserPlus className="h-10 w-10 text-yellow-500" />
@@ -149,7 +149,7 @@ export default function SchoolDashboardPage() {
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-green-600 dark:text-green-400 font-medium">Active This Month</p>
+                                <p className="text-sm text-green-600 dark:text-green-400 font-medium">Actifs ce mois</p>
                                 <p className="text-3xl font-bold text-green-700 dark:text-green-300">{linkedStudents.length}</p>
                             </div>
                             <GraduationCap className="h-10 w-10 text-green-500" />
@@ -163,9 +163,9 @@ export default function SchoolDashboardPage() {
                 <CardHeader>
                     <div className="flex items-center gap-2">
                         <UserPlus className="h-5 w-5 text-yellow-500" />
-                        <CardTitle>Pending Requests</CardTitle>
+                        <CardTitle>Demandes en attente</CardTitle>
                     </div>
-                    <CardDescription>Students who want to join your school</CardDescription>
+                    <CardDescription>Étudiants qui veulent rejoindre votre école</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {pendingRequests.length > 0 ? (
@@ -185,7 +185,7 @@ export default function SchoolDashboardPage() {
                                         <div>
                                             <p className="font-medium">{request.student?.name}</p>
                                             <p className="text-sm text-muted-foreground">
-                                                {request.student?.educationLevel || 'Student'}
+                                                {request.student?.educationLevel || 'Étudiant'}
                                             </p>
                                             {request.message && (
                                                 <p className="text-sm text-muted-foreground mt-1 italic">
@@ -202,7 +202,7 @@ export default function SchoolDashboardPage() {
                                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                         >
                                             <X className="h-4 w-4 mr-1" />
-                                            Reject
+                                            Refuser
                                         </Button>
                                         <Button
                                             size="sm"
@@ -210,7 +210,7 @@ export default function SchoolDashboardPage() {
                                             className="bg-green-600 hover:bg-green-700"
                                         >
                                             <Check className="h-4 w-4 mr-1" />
-                                            Accept
+                                            Accepter
                                         </Button>
                                     </div>
                                 </motion.div>
@@ -219,8 +219,8 @@ export default function SchoolDashboardPage() {
                     ) : (
                         <div className="text-center py-8 text-muted-foreground">
                             <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            <p>No pending requests</p>
-                            <p className="text-sm">Students will appear here when they request to join your school</p>
+                            <p>Aucune demande en attente</p>
+                            <p className="text-sm">Les étudiants apparaîtront ici lorsqu'ils demanderont à rejoindre votre école</p>
                         </div>
                     )}
                 </CardContent>
@@ -231,9 +231,9 @@ export default function SchoolDashboardPage() {
                 <CardHeader>
                     <div className="flex items-center gap-2">
                         <Users className="h-5 w-5 text-blue-500" />
-                        <CardTitle>My Students</CardTitle>
+                        <CardTitle>Mes Étudiants</CardTitle>
                     </div>
-                    <CardDescription>Students linked to your school</CardDescription>
+                    <CardDescription>Étudiants liés à votre école</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {linkedStudents.length > 0 ? (
@@ -252,7 +252,7 @@ export default function SchoolDashboardPage() {
                                             <div>
                                                 <p className="font-medium">{student.name}</p>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {student.educationLevel || 'Student'}
+                                                    {student.educationLevel || 'Étudiant'}
                                                 </p>
                                             </div>
                                         </div>
@@ -310,14 +310,14 @@ export default function SchoolDashboardPage() {
                                                                 className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
                                                             >
                                                                 <ExternalLink className="h-4 w-4" />
-                                                                <span>LinkedIn Profile</span>
+                                                                <span>Profil LinkedIn</span>
                                                             </a>
                                                         )}
                                                     </div>
 
                                                     {student.skills && student.skills.length > 0 && (
                                                         <div>
-                                                            <p className="text-sm font-medium text-muted-foreground mb-2">Skills</p>
+                                                            <p className="text-sm font-medium text-muted-foreground mb-2">Compétences</p>
                                                             <div className="flex flex-wrap gap-2">
                                                                 {student.skills.map((skill, i) => (
                                                                     <Badge key={i} variant="secondary">
@@ -337,8 +337,8 @@ export default function SchoolDashboardPage() {
                     ) : (
                         <div className="text-center py-8 text-muted-foreground">
                             <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            <p>No students yet</p>
-                            <p className="text-sm">Students will appear here once they join your school</p>
+                            <p>Aucun étudiant pour le moment</p>
+                            <p className="text-sm">Les étudiants apparaîtront ici une fois qu'ils auront rejoint votre école</p>
                         </div>
                     )}
                 </CardContent>

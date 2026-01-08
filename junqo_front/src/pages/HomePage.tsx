@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { 
-  Briefcase, 
-  FileText, 
-  MessageSquare, 
+import {
+  Briefcase,
+  FileText,
+  MessageSquare,
   Users,
   PlusCircle,
   BarChart3,
@@ -25,6 +25,7 @@ export default function HomePage() {
   const user = useAuthStore((state) => state.user)
   const isStudent = user?.type === 'STUDENT'
   const isCompany = user?.type === 'COMPANY'
+  const isSchool = user?.type === 'SCHOOL'
   const [stats, setStats] = useState<DashboardStatistics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -39,7 +40,7 @@ export default function HomePage() {
       setStats(data)
     } catch (error: any) {
       console.error('Failed to load statistics:', error)
-      toast.error('Failed to load dashboard statistics')
+      toast.error('Échec du chargement des statistiques')
     } finally {
       setIsLoading(false)
     }
@@ -71,11 +72,12 @@ export default function HomePage() {
           className="mb-12"
         >
           <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50 mb-2">
-            Welcome back, <span className="text-primary">{user?.name?.split(' ')[0] || 'User'}</span>
+            Bon retour, <span className="text-primary">{user?.name?.split(' ')[0] || 'Utilisateur'}</span>
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            {isStudent && "Let's find your next opportunity"}
-            {isCompany && "Manage your recruitment activities"}
+            {isStudent && "Trouvons votre prochaine opportunité"}
+            {isCompany && "Gérez vos activités de recrutement"}
+            {isSchool && "Gérez vos étudiants et suivez leur parcours"}
           </p>
         </motion.div>
 
@@ -304,79 +306,110 @@ export default function HomePage() {
               </motion.div>
             </>
           )}
+
+          {isSchool && (
+            <>
+              <motion.div variants={item} className="md:col-span-2 lg:col-span-3">
+                <Link to="/school/dashboard" className="block h-full">
+                  <Card className="h-full border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-border transition-all duration-200 cursor-pointer group">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="h-14 w-14 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
+                            <Users className="h-7 w-7 text-primary" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                              Mes Étudiants
+                            </CardTitle>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                              Gérez vos étudiants et les demandes de liaison
+                            </p>
+                          </div>
+                        </div>
+                        <ArrowRight className="h-6 w-6 text-slate-400 group-hover:text-primary group-hover:translate-x-2 transition-all" />
+                      </div>
+                    </CardHeader>
+                  </Card>
+                </Link>
+              </motion.div>
+            </>
+          )}
         </motion.div>
 
-        {/* Quick Stats */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mt-12"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Your Activity</h2>
-            {isLoading && <Loader2 className="h-5 w-5 text-slate-400 animate-spin" />}
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="border-slate-200 dark:border-slate-700">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
-                      {isStudent ? "Candidatures envoyées" : "Annonces actives"}
-                    </p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-                      {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : (stats?.totalActive || 0)}
-                    </p>
-                  </div>
-                  <div className="h-12 w-12 rounded-full bg-accent flex items-center justify-center">
-                    {isStudent ? <Briefcase className="h-6 w-6 text-primary" /> : <TrendingUp className="h-6 w-6 text-primary" />}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Quick Stats - Only for Students and Companies */}
+        {(isStudent || isCompany) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="mt-12"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Votre activité</h2>
+              {isLoading && <Loader2 className="h-5 w-5 text-slate-400 animate-spin" />}
+            </div>
 
-            <Card className="border-slate-200 dark:border-slate-700">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
-                      {isStudent ? "Acceptées" : isCompany ? "Vues" : "Candidatures reçues"}
-                    </p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-                      {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : (isStudent ? (stats?.acceptedApplications || 0) : (stats?.totalViews || 0))}
-                    </p>
-                  </div>
-                  <div className="h-12 w-12 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                    {isStudent ? <CheckCircle className="h-6 w-6 text-emerald-600" /> : <Eye className="h-6 w-6 text-emerald-600" />}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 dark:border-slate-700">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Messages</p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-                      {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : (stats?.totalConversations || 0)}
-                    </p>
-                    {!isLoading && stats && stats.unreadMessages > 0 && (
-                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                        {stats.unreadMessages} non lus
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="border-slate-200 dark:border-slate-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                        {isStudent ? "Candidatures envoyées" : "Annonces actives"}
                       </p>
-                    )}
+                      <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+                        {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : (stats?.totalActive || 0)}
+                      </p>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-accent flex items-center justify-center">
+                      {isStudent ? <Briefcase className="h-6 w-6 text-primary" /> : <TrendingUp className="h-6 w-6 text-primary" />}
+                    </div>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
-                    <MessageSquare className="h-6 w-6 text-amber-600" />
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 dark:border-slate-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                        {isStudent ? "Acceptées" : "Vues"}
+                      </p>
+                      <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+                        {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : (isStudent ? (stats?.acceptedApplications || 0) : (stats?.totalViews || 0))}
+                      </p>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                      {isStudent ? <CheckCircle className="h-6 w-6 text-emerald-600" /> : <Eye className="h-6 w-6 text-emerald-600" />}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </motion.div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 dark:border-slate-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Messages</p>
+                      <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+                        {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : (stats?.totalConversations || 0)}
+                      </p>
+                      {!isLoading && stats && stats.unreadMessages > 0 && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                          {stats.unreadMessages} non lus
+                        </p>
+                      )}
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                      <MessageSquare className="h-6 w-6 text-amber-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+        )}
 
         {/* CTA Section */}
         <motion.div
@@ -390,17 +423,19 @@ export default function HomePage() {
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-2">
-                    {isStudent ? "Ready to find your dream job?" : "Looking for top talent?"}
+                    {isStudent ? "Prêt à trouver votre emploi idéal ?" : isCompany ? "Vous cherchez des talents ?" : "Gérez vos étudiants"}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-400 text-lg">
-                    {isStudent 
-                      ? "Browse thousands of opportunities and apply with one click" 
-                      : "Post your job listing and connect with qualified candidates"}
+                    {isStudent
+                      ? "Parcourez des milliers d'opportunités et postulez en un clic"
+                      : isCompany
+                        ? "Publiez votre offre d'emploi et connectez-vous avec des candidats qualifiés"
+                        : "Suivez le parcours de vos étudiants et approuvez les nouvelles demandes"}
                   </p>
                 </div>
-                <Link to={isStudent ? "/offers" : "/offers/create"}>
+                <Link to={isStudent ? "/offers" : isCompany ? "/offers/create" : "/school/dashboard"}>
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8">
-                    {isStudent ? "Browse Jobs" : "Post a Job"}
+                    {isStudent ? "Voir les offres" : isCompany ? "Publier une offre" : "Accéder au tableau de bord"}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
@@ -417,7 +452,7 @@ export default function HomePage() {
           className="mt-12 mb-8"
         >
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">
-            {isStudent ? "Quick Tips" : "Best Practices"}
+            {isStudent ? "Conseils rapides" : isCompany ? "Bonnes pratiques" : "Conseils pour les écoles"}
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="border-slate-200 dark:border-slate-700">
@@ -426,14 +461,16 @@ export default function HomePage() {
                   <div className="h-8 w-8 rounded bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                     <FileText className="h-4 w-4 text-blue-600" />
                   </div>
-                  {isStudent ? "Optimize Your Profile" : "Write Clear Job Descriptions"}
+                  {isStudent ? "Optimisez votre profil" : isCompany ? "Rédigez des descriptions claires" : "Suivez vos étudiants"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 dark:text-slate-400">
-                  {isStudent 
-                    ? "Keep your profile up-to-date with your latest skills and experience to attract more opportunities." 
-                    : "Include specific requirements and responsibilities to attract the right candidates."}
+                  {isStudent
+                    ? "Gardez votre profil à jour avec vos dernières compétences et expériences pour attirer plus d'opportunités."
+                    : isCompany
+                      ? "Incluez des exigences et responsabilités spécifiques pour attirer les bons candidats."
+                      : "Consultez régulièrement les demandes de liaison des étudiants pour les valider rapidement."}
                 </p>
               </CardContent>
             </Card>
@@ -444,14 +481,16 @@ export default function HomePage() {
                   <div className="h-8 w-8 rounded bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                     <BarChart3 className="h-4 w-4 text-emerald-600" />
                   </div>
-                  {isStudent ? "Practice Makes Perfect" : "Respond Quickly"}
+                  {isStudent ? "La pratique rend parfait" : isCompany ? "Répondez rapidement" : "Accompagnez vos étudiants"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 dark:text-slate-400">
-                  {isStudent 
-                    ? "Use our AI-powered interview practice tool to prepare for your upcoming interviews." 
-                    : "Quick responses to applications show professionalism and keep candidates engaged."}
+                  {isStudent
+                    ? "Utilisez notre outil d'entraînement aux entretiens par IA pour vous préparer."
+                    : isCompany
+                      ? "Des réponses rapides aux candidatures montrent le professionnalisme et maintiennent l'engagement des candidats."
+                      : "Suivez le parcours de vos étudiants et assurez-vous qu'ils mettent à jour leurs profils régulièrement."}
                 </p>
               </CardContent>
             </Card>

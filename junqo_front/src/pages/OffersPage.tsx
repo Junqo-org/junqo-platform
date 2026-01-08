@@ -142,7 +142,7 @@ export default function OffersPage() {
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || ''
       if (!errorMessage.includes('not found') && !errorMessage.includes('No offers')) {
-        toast.error('Error loading offers')
+        toast.error('Erreur lors du chargement des offres')
       }
       setOffers([])
       setTotalOffers(0)
@@ -252,15 +252,15 @@ export default function OffersPage() {
     try {
       await apiService.applyToOffer(offer.id)
       setAppliedOffers(prev => new Set([...prev, offer.id]))
-      toast.success(`Application sent for "${offer.title}"`)
+      toast.success(`Candidature envoyée pour "${offer.title}"`)
     } catch (error: any) {
       console.error('Application error:', error)
       const errorMsg = error.response?.data?.message || ''
       if (errorMsg.includes('already applied') || errorMsg.includes('duplicate')) {
-        toast.info('You already applied to this position')
+        toast.info('Vous avez déjà postulé à cette offre')
         setAppliedOffers(prev => new Set([...prev, offer.id]))
       } else {
-        toast.error('Application error')
+        toast.error('Erreur lors de la candidature')
       }
     } finally {
       setIsApplying(false)
@@ -328,7 +328,7 @@ export default function OffersPage() {
                 <div className="min-w-0">
                   <div className="text-xs text-muted-foreground">Durée</div>
                   <div className="font-semibold text-foreground truncate">
-                    {offer.duration} months
+                    {offer.duration} mois
                   </div>
                 </div>
               </div>
@@ -352,7 +352,7 @@ export default function OffersPage() {
                 ))}
                 {offer.skills.length > 6 && (
                   <span className="px-2 py-1 text-xs bg-muted text-foreground rounded border border-border">
-                    +{offer.skills.length - 6} more
+                    +{offer.skills.length - 6} de plus
                   </span>
                 )}
               </div>
@@ -391,7 +391,7 @@ export default function OffersPage() {
                 Opportunités d'emploi
               </h1>
               <p className="text-muted-foreground mt-1">
-                {totalOffers} position{totalOffers !== 1 ? 's' : ''} available
+                {totalOffers} position{totalOffers !== 1 ? 's' : ''} disponible{totalOffers !== 1 ? 's' : ''}
               </p>
             </div>
             <div className="flex gap-3">
@@ -567,7 +567,7 @@ export default function OffersPage() {
                                   <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
                                 </div>
                                 <span className="font-medium text-foreground truncate">
-                                  €{offer.salary}/month
+                                  €{offer.salary}/mois
                                 </span>
                               </div>
                             )}
@@ -584,7 +584,7 @@ export default function OffersPage() {
                                 <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
                                   <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                                 </div>
-                                <span className="truncate">{offer.duration} months</span>
+                                <span className="truncate">{offer.duration} mois</span>
                               </div>
                             )}
                           </div>
