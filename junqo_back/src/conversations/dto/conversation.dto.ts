@@ -11,8 +11,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { MessageDTO } from '../../messages/dto/message.dto';
 import { MAX_CONVERSATION_TITLE_LENGTH } from '../../shared/user-validation-constants';
-import { OfferDTO } from '../../offers/dto/offer.dto';
-import { ApplicationDTO } from '../../applications/dto/application.dto';
 
 // Conversation retrieved from database
 export class ConversationDTO {
@@ -152,6 +150,15 @@ export class CreateConversationDTO {
   @IsUUID('4', { message: 'Offer ID must be a valid UUID' })
   @IsOptional()
   offerId?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID of the related application',
+    format: 'uuid',
+  })
+  @Expose()
+  @IsUUID('4', { message: 'Application ID must be a valid UUID' })
+  @IsOptional()
+  applicationId?: string;
 
   @ApiPropertyOptional({
     description: 'ID of the related application',

@@ -5,11 +5,11 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  
+
   // Determine backend target from environment variable or use localhost
   // Support both API_URL and VITE_API_URL for backwards compatibility
   const apiUrl = env.API_URL || env.VITE_API_URL
-  const backendTarget = apiUrl 
+  const backendTarget = apiUrl
     ? apiUrl.replace('/api/v1', '') // Remove /api/v1 if present
     : 'http://localhost:4200'
 

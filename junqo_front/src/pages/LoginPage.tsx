@@ -41,7 +41,6 @@ export default function LoginPage() {
     setIsLoading(true)
     try {
       const response = await apiService.login(data.email, data.password)
-      console.log('Login response:', response) // Debug
       login(response.user, response.token) // Backend returns 'token', not 'access_token'
       toast.success('Bon retour parmi nous !')
       navigate('/home')

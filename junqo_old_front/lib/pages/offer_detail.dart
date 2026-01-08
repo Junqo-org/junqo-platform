@@ -7,7 +7,6 @@ import 'package:junqo_front/services/offer_service.dart';
 import 'package:junqo_front/pages/offer_creation.dart';
 import 'package:junqo_front/core/client.dart';
 import 'package:junqo_front/shared/dto/application_data.dart';
-import 'package:junqo_front/shared/dto/application_query_result_data.dart';
 import 'package:intl/intl.dart';
 import 'package:junqo_front/core/api/api_service.dart';
 import 'application_detail.dart';

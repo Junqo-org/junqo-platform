@@ -33,7 +33,7 @@ export async function AppSetup(app: INestApplication<any>) {
     origin: configService.get('app.corsOrigins'),
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    credentials: true,
+    credentials: configService.get('app.credentials'),
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });

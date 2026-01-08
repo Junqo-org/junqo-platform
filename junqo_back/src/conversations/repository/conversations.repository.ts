@@ -31,7 +31,7 @@ export class ConversationsRepository {
     private readonly conversationModel: typeof ConversationModel,
     @InjectModel(UserConversationTitleModel)
     private readonly userConversationTitleModel: typeof UserConversationTitleModel,
-  ) { }
+  ) {}
 
   /**
    * Gets the include options for conversation queries with user-specific title
@@ -101,58 +101,58 @@ export class ConversationsRepository {
         );
       }
 
-    }
-
       // Handle individual titles for participants if provided
       if (createConversationDto.participantTitles) {
-      for (const [userId, title] of Object.entries(createConversationDto.participantTitles)) {
-        if (title && createConversationDto.participantsIds.includes(userId)) {
-          await this.userConversationTitleModel.create(
-            {
-              userId,
-              conversationId: conversation.id,
-              title,
-            },
-            { transaction },
-          );
+        for (const [userId, title] of Object.entries(
+          createConversationDto.participantTitles,
+        )) {
+          if (title && createConversationDto.participantsIds.includes(userId)) {
+            await this.userConversationTitleModel.create(
+              {
+                userId,
+                conversationId: conversation.id,
+                title,
+              },
+              { transaction },
+            );
+          }
         }
       }
-    }
-    // Fallback: If no specific title for current user in map, and "title" is provided
-    else if (createConversationDto.title && currentUserId) {
-      await this.userConversationTitleModel.create(
+      // Fallback: If no specific title for current user in map, and "title" is provided
+      else if (createConversationDto.title && currentUserId) {
+        await this.userConversationTitleModel.create(
+          {
+            userId: currentUserId,
+            conversationId: conversation.id,
+            title: createConversationDto.title,
+          },
+          { transaction },
+        );
+      }
+
+      await conversation.save({ transaction });
+
+      const createdConversation = await this.conversationModel.findByPk(
+        conversation.id,
         {
-          userId: currentUserId,
-          conversationId: conversation.id,
-          title: createConversationDto.title,
+          include: this.getIncludeOptions(currentUserId),
+          transaction,
         },
-        { transaction },
       );
+
+      await transaction.commit();
+      return createdConversation.toConversationDTO(currentUserId);
+    } catch (error) {
+      await transaction.rollback();
+      if (error instanceof Sequelize.ForeignKeyConstraintError)
+        throw new BadRequestException('Referenced ID does not exist');
+      this.logger.error(
+        `Error creating conversation: ${error.message}`,
+        error.stack,
+      );
+      throw error;
     }
-
-    await conversation.save({ transaction });
-
-    const createdConversation = await this.conversationModel.findByPk(
-      conversation.id,
-      {
-        include: this.getIncludeOptions(currentUserId),
-        transaction,
-      },
-    );
-
-    await transaction.commit();
-    return createdConversation.toConversationDTO(currentUserId);
-  } catch(error) {
-    await transaction.rollback();
-    if (error instanceof Sequelize.ForeignKeyConstraintError)
-      throw new BadRequestException('Referenced ID does not exist');
-    this.logger.error(
-      `Error creating conversation: ${error.message}`,
-      error.stack,
-    );
-    throw error;
   }
-}
 
   /**
    * Updates a conversation by its ID (patch-style, only updates specified fields)
@@ -165,57 +165,57 @@ export class ConversationsRepository {
    * @throws InternalServerErrorException if update fails
    */
   async update(
-  id: string,
-  updateData: UpdateConversationDTO,
-  currentUserId ?: string,
-): Promise < ConversationDTO > {
-  const transaction = await this.conversationModel.sequelize.transaction();
+    id: string,
+    updateData: UpdateConversationDTO,
+    currentUserId?: string,
+  ): Promise<ConversationDTO> {
+    const transaction = await this.conversationModel.sequelize.transaction();
 
-  try {
-    const conversation = await this.conversationModel.findByPk(id, {
-      transaction,
-    });
+    try {
+      const conversation = await this.conversationModel.findByPk(id, {
+        transaction,
+      });
 
-    if(!conversation) {
-      await transaction.rollback();
-      throw new NotFoundException(`Conversation with ID ${id} not found`);
-    }
+      if (!conversation) {
+        await transaction.rollback();
+        throw new NotFoundException(`Conversation with ID ${id} not found`);
+      }
 
-      if(updateData.participantsIds) {
-  await conversation.$set('participants', updateData.participantsIds, {
-    transaction,
-  });
-}
+      if (updateData.participantsIds) {
+        await conversation.$set('participants', updateData.participantsIds, {
+          transaction,
+        });
+      }
 
-if (updateData.lastMessageId) {
-  await conversation.update(
-    { lastMessageId: updateData.lastMessageId },
-    { transaction },
-  );
-}
+      if (updateData.lastMessageId) {
+        await conversation.update(
+          { lastMessageId: updateData.lastMessageId },
+          { transaction },
+        );
+      }
 
-const updatedConversation = await this.conversationModel.findByPk(id, {
-  include: this.getIncludeOptions(currentUserId),
-  transaction,
-});
+      const updatedConversation = await this.conversationModel.findByPk(id, {
+        include: this.getIncludeOptions(currentUserId),
+        transaction,
+      });
 
-await transaction.commit();
+      await transaction.commit();
 
-return updatedConversation.toConversationDTO(currentUserId);
+      return updatedConversation.toConversationDTO(currentUserId);
     } catch (error) {
-  await transaction.rollback();
-  if (error instanceof Sequelize.ForeignKeyConstraintError)
-    throw new BadRequestException('Referenced ID does not exist');
+      await transaction.rollback();
+      if (error instanceof Sequelize.ForeignKeyConstraintError)
+        throw new BadRequestException('Referenced ID does not exist');
 
-  // Only log unexpected errors, not business logic errors like NotFoundException
-  if (!(error instanceof NotFoundException)) {
-    this.logger.error(
-      `Error updating conversation ${id}: ${error.message}`,
-      error.stack,
-    );
-  }
-  throw error;
-}
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error updating conversation ${id}: ${error.message}`,
+          error.stack,
+        );
+      }
+      throw error;
+    }
   }
 
   /**
@@ -226,71 +226,71 @@ return updatedConversation.toConversationDTO(currentUserId);
    * @throws InternalServerErrorException if query execution fails
    */
   async findByQuery(
-  query: ConversationQueryDTO,
-  currentUserId: string,
-): Promise < ConversationQueryOutputDTO > {
-  try {
-    const includeOptions = this.getIncludeOptions(currentUserId);
-    let whereCondition = {};
+    query: ConversationQueryDTO,
+    currentUserId: string,
+  ): Promise<ConversationQueryOutputDTO> {
+    try {
+      const includeOptions = this.getIncludeOptions(currentUserId);
+      let whereCondition = {};
 
-    const conversationsWithCurrentUser = Sequelize.literal(
-      `EXISTS (
+      const conversationsWithCurrentUser = Sequelize.literal(
+        `EXISTS (
           SELECT 1 FROM "ConversationParticipants" AS "cp1"
           WHERE "cp1"."conversationId" = "ConversationModel"."id"
           AND "cp1"."userId" = :currentUserId
         )`,
-    );
-    whereCondition = { [Sequelize.Op.and]: [conversationsWithCurrentUser] };
+      );
+      whereCondition = { [Sequelize.Op.and]: [conversationsWithCurrentUser] };
 
-    if(query.participantId) {
-  const conversationsWithParticipant = Sequelize.literal(
-    `EXISTS (
+      if (query.participantId) {
+        const conversationsWithParticipant = Sequelize.literal(
+          `EXISTS (
             SELECT 1 FROM "ConversationParticipants" AS "cp2"
             WHERE "cp2"."conversationId" = "ConversationModel"."id"
             AND "cp2"."userId" = :participantId
           )`,
-  );
-  whereCondition[Sequelize.Op.and].push(conversationsWithParticipant);
-}
+        );
+        whereCondition[Sequelize.Op.and].push(conversationsWithParticipant);
+      }
 
-const { count, rows } = await this.conversationModel.findAndCountAll({
-  where: whereCondition,
-  include: includeOptions,
-  distinct: true,
-  order: [
-    [
-      Sequelize.fn(
-        'COALESCE',
-        Sequelize.col('lastMessage.updatedAt'),
-        Sequelize.col('ConversationModel.updatedAt'),
-      ),
-      'DESC',
-    ],
-  ],
-  limit: query.limit,
-  offset: query.offset,
-  subQuery: false,
-  replacements: {
-    currentUserId,
-    ...(query.participantId && { participantId: query.participantId }),
-  },
-});
+      const { count, rows } = await this.conversationModel.findAndCountAll({
+        where: whereCondition,
+        include: includeOptions,
+        distinct: true,
+        order: [
+          [
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('lastMessage.updatedAt'),
+              Sequelize.col('ConversationModel.updatedAt'),
+            ),
+            'DESC',
+          ],
+        ],
+        limit: query.limit,
+        offset: query.offset,
+        subQuery: false,
+        replacements: {
+          currentUserId,
+          ...(query.participantId && { participantId: query.participantId }),
+        },
+      });
 
-const queryOutput: ConversationQueryOutputDTO = {
-  rows: rows.map((conversation) =>
-    conversation?.toConversationDTO(currentUserId),
-  ),
-  count,
-};
+      const queryOutput: ConversationQueryOutputDTO = {
+        rows: rows.map((conversation) =>
+          conversation?.toConversationDTO(currentUserId),
+        ),
+        count,
+      };
 
-return queryOutput;
+      return queryOutput;
     } catch (error) {
-  this.logger.error(
-    `Error finding conversations by query: ${error.message}`,
-    error.stack,
-  );
-  throw error;
-}
+      this.logger.error(
+        `Error finding conversations by query: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   /**
@@ -300,25 +300,25 @@ return queryOutput;
    * @returns Promise resolving to the found ConversationDTO or null if not found
    * @throws InternalServerErrorException if query execution fails
    */
-  async findOneById(id: string): Promise < ConversationDTO | null > {
-  try {
-    const conversation = await this.conversationModel.findByPk(id, {
-      include: this.getIncludeOptions(),
-    });
+  async findOneById(id: string): Promise<ConversationDTO | null> {
+    try {
+      const conversation = await this.conversationModel.findByPk(id, {
+        include: this.getIncludeOptions(),
+      });
 
-    if(!conversation) {
-      return null;
-    }
+      if (!conversation) {
+        return null;
+      }
 
       return conversation.toConversationDTO();
-  } catch(error) {
-    this.logger.error(
-      `Error finding conversation by ID ${id}: ${error.message}`,
-      error.stack,
-    );
-    throw error;
+    } catch (error) {
+      this.logger.error(
+        `Error finding conversation by ID ${id}: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
-}
 
   /**
    * Removes a conversation by its ID
@@ -328,26 +328,26 @@ return queryOutput;
    * @throws NotFoundException if conversation not found
    * @throws InternalServerErrorException if deletion fails
    */
-  async remove(id: string): Promise < void> {
-  try {
-    const conversation = await this.conversationModel.findByPk(id);
+  async remove(id: string): Promise<void> {
+    try {
+      const conversation = await this.conversationModel.findByPk(id);
 
-    if(!conversation) {
-      throw new NotFoundException(`Conversation with ID ${id} not found`);
-    }
+      if (!conversation) {
+        throw new NotFoundException(`Conversation with ID ${id} not found`);
+      }
 
       await conversation.destroy();
-  } catch(error) {
-    // Only log unexpected errors, not business logic errors like NotFoundException
-    if (!(error instanceof NotFoundException)) {
-      this.logger.error(
-        `Error removing conversation ${id}: ${error.message}`,
-        error.stack,
-      );
+    } catch (error) {
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error removing conversation ${id}: ${error.message}`,
+          error.stack,
+        );
+      }
+      throw error;
     }
-    throw error;
   }
-}
 
   /**
    * Sets or updates a custom title for a conversation for a specific user
@@ -358,52 +358,52 @@ return queryOutput;
    * @returns UserConversationTitleDTO with the new title
    */
   async setConversationTitle(
-  userId: string,
-  conversationId: string,
-  titleDto: SetConversationTitleDTO,
-): Promise < UserConversationTitleDTO > {
-  try {
-    // Check if conversation exists
-    const conversation =
-      await this.conversationModel.findByPk(conversationId);
+    userId: string,
+    conversationId: string,
+    titleDto: SetConversationTitleDTO,
+  ): Promise<UserConversationTitleDTO> {
+    try {
+      // Check if conversation exists
+      const conversation =
+        await this.conversationModel.findByPk(conversationId);
 
-    if(!conversation) {
-      throw new NotFoundException(
-        `Conversation with ID ${conversationId} not found`,
-      );
-    }
+      if (!conversation) {
+        throw new NotFoundException(
+          `Conversation with ID ${conversationId} not found`,
+        );
+      }
 
       // Check if user is participant in the conversation
       const isParticipant = await conversation.$has('participants', userId);
-    if(!isParticipant) {
-      throw new NotFoundException(
-        `User ${userId} is not a participant in conversation ${conversationId}`,
-      );
-    }
+      if (!isParticipant) {
+        throw new NotFoundException(
+          `User ${userId} is not a participant in conversation ${conversationId}`,
+        );
+      }
 
       // Upsert (update or insert) the title
       const [userTitle] = await this.userConversationTitleModel.upsert({
-      userId,
-      conversationId,
-      title: titleDto.title,
-    });
+        userId,
+        conversationId,
+        title: titleDto.title,
+      });
 
-    return new UserConversationTitleDTO({
-      userId: userTitle.userId,
-      conversationId: userTitle.conversationId,
-      title: userTitle.title,
-    });
-  } catch(error) {
-    // Only log unexpected errors, not business logic errors like NotFoundException
-    if (!(error instanceof NotFoundException)) {
-      this.logger.error(
-        `Error setting conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
-        error.stack,
-      );
+      return new UserConversationTitleDTO({
+        userId: userTitle.userId,
+        conversationId: userTitle.conversationId,
+        title: userTitle.title,
+      });
+    } catch (error) {
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error setting conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
+          error.stack,
+        );
+      }
+      throw error;
     }
-    throw error;
   }
-}
 
   /**
    * Gets a custom title for a conversation for a specific user
@@ -413,37 +413,37 @@ return queryOutput;
    * @returns UserConversationTitleDTO with the title or null if not set
    */
   async getConversationTitle(
-  userId: string,
-  conversationId: string,
-): Promise < UserConversationTitleDTO | null > {
-  try {
-    const userTitle = await this.userConversationTitleModel.findOne({
-      where: {
-        userId,
-        conversationId,
-      },
-    });
+    userId: string,
+    conversationId: string,
+  ): Promise<UserConversationTitleDTO | null> {
+    try {
+      const userTitle = await this.userConversationTitleModel.findOne({
+        where: {
+          userId,
+          conversationId,
+        },
+      });
 
-    if(!userTitle) {
-      return null;
-    }
+      if (!userTitle) {
+        return null;
+      }
 
       return new UserConversationTitleDTO({
-      userId: userTitle.userId,
-      conversationId: userTitle.conversationId,
-      title: userTitle.title,
-    });
-  } catch(error) {
-    // Only log unexpected errors, not business logic errors like NotFoundException
-    if (!(error instanceof NotFoundException)) {
-      this.logger.error(
-        `Error getting conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
-        error.stack,
-      );
+        userId: userTitle.userId,
+        conversationId: userTitle.conversationId,
+        title: userTitle.title,
+      });
+    } catch (error) {
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error getting conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
+          error.stack,
+        );
+      }
+      throw error;
     }
-    throw error;
   }
-}
 
   /**
    * Removes a custom title for a conversation for a specific user
@@ -452,31 +452,31 @@ return queryOutput;
    * @param conversationId - ID of the conversation
    */
   async removeConversationTitle(
-  userId: string,
-  conversationId: string,
-): Promise < void> {
-  try {
-    const deleteCount = await this.userConversationTitleModel.destroy({
-      where: {
-        userId,
-        conversationId,
-      },
-    });
+    userId: string,
+    conversationId: string,
+  ): Promise<void> {
+    try {
+      const deleteCount = await this.userConversationTitleModel.destroy({
+        where: {
+          userId,
+          conversationId,
+        },
+      });
 
-    if(deleteCount === 0) {
-  throw new NotFoundException(
-    `Title for user ${userId} in conversation ${conversationId} not found`,
-  );
-}
+      if (deleteCount === 0) {
+        throw new NotFoundException(
+          `Title for user ${userId} in conversation ${conversationId} not found`,
+        );
+      }
     } catch (error) {
-  // Only log unexpected errors, not business logic errors like NotFoundException
-  if (!(error instanceof NotFoundException)) {
-    this.logger.error(
-      `Error removing conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
-      error.stack,
-    );
-  }
-  throw error;
-}
+      // Only log unexpected errors, not business logic errors like NotFoundException
+      if (!(error instanceof NotFoundException)) {
+        this.logger.error(
+          `Error removing conversation title for user ${userId} in conversation ${conversationId}: ${error.message}`,
+          error.stack,
+        );
+      }
+      throw error;
+    }
   }
 }

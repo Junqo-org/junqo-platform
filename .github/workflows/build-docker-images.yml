@@ -64,6 +64,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.owner }}/junqo-front-prod:${{ env.tag_suffix }}
           build-args: |
+            FLUTTER_VERSION=${{ vars.FLUTTER_VERSION }}
             API_URL=${{ vars.PROD_API_URL }}
 
       - name: Build and push development backend image
@@ -83,3 +84,4 @@ jobs:
           tags: ghcr.io/${{ env.owner }}/junqo-front-dev:${{ env.tag_suffix }}
           build-args: |
             API_URL=${{ vars.DEV_API_URL }}
+            FLUTTER_VERSION=${{ vars.FLUTTER_VERSION }}

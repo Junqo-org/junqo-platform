@@ -16,13 +16,13 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           ref={ref}
           checked={checked}
           onChange={(e) => onCheckedChange?.(e.target.checked)}
-          className="sr-only"
+          className="peer sr-only"
           {...props}
         />
         <div
-          onClick={() => onCheckedChange?.(!checked)}
+          onClick={() => !props.disabled && onCheckedChange?.(!checked)}
           className={cn(
-            "peer h-4 w-4 shrink-0 rounded-sm border border-slate-300 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition-colors",
+            "h-4 w-4 shrink-0 rounded-sm border border-slate-300 ring-offset-white peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-slate-950 peer-focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition-colors",
             checked ? "bg-slate-900 text-slate-50 border-slate-900 dark:bg-slate-50 dark:text-slate-900 dark:border-slate-50" : "bg-white dark:bg-slate-950 dark:border-slate-800",
             className
           )}
