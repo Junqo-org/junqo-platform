@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { Eye, EyeOff } from 'lucide-react'
 import junqoLogo from '/assets/images/junqo_logo.png'
 
 import { Button } from '@/components/ui/button'
@@ -46,11 +47,13 @@ export default function RegisterPage() {
   const location = useLocation()
   const login = useAuthStore((state) => state.login)
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const userType = (location.state as any)?.userType || 'student'
   const isStudent = userType === 'student'
   const isCompany = userType === 'company'
   const isSchool = userType === 'school'
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // Use different schema based on user type
   const studentForm = useForm<StudentFormData>({
@@ -187,12 +190,22 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="password">Mot de passe</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    {...studentForm.register('password')}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      {...studentForm.register('password')}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {studentForm.formState.errors.password && (
                     <p className="text-sm text-destructive">{studentForm.formState.errors.password.message}</p>
                   )}
@@ -200,12 +213,22 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    {...studentForm.register('confirmPassword')}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      {...studentForm.register('confirmPassword')}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {studentForm.formState.errors.confirmPassword && (
                     <p className="text-sm text-destructive">{studentForm.formState.errors.confirmPassword.message}</p>
                   )}
@@ -253,12 +276,22 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="password">Mot de passe</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    {...organizationForm.register('password')}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      {...organizationForm.register('password')}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {organizationForm.formState.errors.password && (
                     <p className="text-sm text-destructive">{organizationForm.formState.errors.password.message}</p>
                   )}
@@ -266,12 +299,22 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    {...organizationForm.register('confirmPassword')}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      {...organizationForm.register('confirmPassword')}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {organizationForm.formState.errors.confirmPassword && (
                     <p className="text-sm text-destructive">{organizationForm.formState.errors.confirmPassword.message}</p>
                   )}

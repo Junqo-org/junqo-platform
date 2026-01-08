@@ -18,16 +18,16 @@ interface ProfileCompletionCardProps {
 
 const fieldLabels: Record<string, string> = {
   bio: 'Bio',
-  phoneNumber: 'Phone Number',
-  linkedinUrl: 'LinkedIn Profile',
-  educationLevel: 'Education Level',
-  skills: 'Skills',
-  experiences: 'Work Experiences',
-  description: 'Company Description',
-  address: 'Address',
-  websiteUrl: 'Website',
-  logoUrl: 'Company Logo',
-  industry: 'Industry',
+  phoneNumber: 'Numéro de téléphone',
+  linkedinUrl: 'Profil LinkedIn',
+  educationLevel: 'Niveau d\'études',
+  skills: 'Compétences',
+  experiences: 'Expériences professionnelles',
+  description: 'Description de l\'entreprise',
+  address: 'Adresse',
+  websiteUrl: 'Site web',
+  logoUrl: 'Logo de l\'entreprise',
+  industry: 'Secteur d\'activité',
 }
 
 export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardProps) {
@@ -59,8 +59,8 @@ export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardP
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Profile Completion</CardTitle>
-          <CardDescription>Loading...</CardDescription>
+          <CardTitle>Complétion du profil</CardTitle>
+          <CardDescription>Chargement...</CardDescription>
         </CardHeader>
       </Card>
     )
@@ -75,10 +75,10 @@ export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardP
   }
 
   const getCompletionStatus = (percentage: number) => {
-    if (percentage === 100) return 'Complete! 🎉'
-    if (percentage >= 80) return 'Almost there!'
-    if (percentage >= 50) return 'Good progress'
-    return 'Getting started'
+    if (percentage === 100) return 'Terminé ! 🎉'
+    if (percentage >= 80) return 'Presque terminé !'
+    if (percentage >= 50) return 'Bonne progression'
+    return 'Début prometteur'
   }
 
   return (
@@ -86,7 +86,7 @@ export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardP
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Profile Completion</CardTitle>
+            <CardTitle>Complétion du profil</CardTitle>
             <CardDescription>{getCompletionStatus(completion.percentage)}</CardDescription>
           </div>
           <Badge variant={completion.percentage === 100 ? 'default' : 'secondary'} className="text-lg">
@@ -100,7 +100,7 @@ export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardP
         {completion.missingFields.length > 0 && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium text-muted-foreground">
-              Complete your profile by adding:
+              Complétez votre profil en ajoutant :
             </h4>
             <div className="space-y-1">
               {completion.missingFields.map((field) => (
@@ -115,7 +115,7 @@ export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardP
 
         {completion.completedFields.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-muted-foreground">Completed:</h4>
+            <h4 className="text-sm font-medium text-muted-foreground">Complété :</h4>
             <div className="flex flex-wrap gap-2">
               {completion.completedFields.map((field) => (
                 <Badge key={field} variant="outline" className="gap-1">

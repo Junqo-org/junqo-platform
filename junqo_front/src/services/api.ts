@@ -113,6 +113,17 @@ class ApiService {
     return response.data
   }
 
+  // School Profile endpoints
+  async getMySchoolProfile() {
+    const response = await this.client.get('/school-profiles/my')
+    return response.data
+  }
+
+  async updateSchoolProfile(data: any) {
+    const response = await this.client.patch('/school-profiles/my', data)
+    return response.data
+  }
+
   // Offers endpoints
   async getOffers(query?: Record<string, any>) {
     const response = await this.client.get('/offers', { params: query })

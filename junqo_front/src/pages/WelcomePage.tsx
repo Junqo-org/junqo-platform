@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { 
-  Briefcase, 
-  Users, 
-  Sparkles, 
-  TrendingUp, 
-  Target, 
+import {
+  Briefcase,
+  Users,
+  Sparkles,
+  TrendingUp,
+  Target,
   Shield,
   ArrowRight,
   CheckCircle
@@ -25,7 +25,7 @@ export default function WelcomePage() {
           className="text-center max-w-4xl mx-auto mb-20"
         >
           {/* Logo */}
-          <motion.div 
+          <motion.div
             className="flex justify-center mb-8"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -35,37 +35,37 @@ export default function WelcomePage() {
               <Briefcase className="h-10 w-10 text-primary" />
             </div>
           </motion.div>
-          
+
           {/* Main Heading */}
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
-            Welcome to{' '}
+            Bienvenue sur{' '}
             <span className="text-foreground">
               Junqo
             </span>
           </h1>
-          
+
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            Your gateway to exceptional career opportunities. Connect with top companies and land your dream job.
+            Votre passerelle vers des opportunités de carrière exceptionnelles. Connectez-vous avec les meilleures entreprises et décrochez l'emploi de vos rêves.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link to="/user-type-selection">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="px-8 py-6 text-lg"
               >
-                Get Started
+                Commencer
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/login">
-              <Button 
-                size="lg" 
-                variant="outline" 
+              <Button
+                size="lg"
+                variant="outline"
                 className="px-8 py-6 text-lg"
               >
-                Sign In
+                Se connecter
               </Button>
             </Link>
           </div>
@@ -87,10 +87,10 @@ export default function WelcomePage() {
                 </div>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-3">
-                Find Opportunities
+                Trouver des opportunités
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Discover internships and jobs perfectly matched to your profile with our AI-powered platform
+                Découvrez des stages et emplois parfaitement adaptés à votre profil grâce à notre plateforme alimentée par l'IA
               </p>
             </CardContent>
           </Card>
@@ -104,10 +104,10 @@ export default function WelcomePage() {
                 </div>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-3">
-                Connect with Companies
+                Connectez-vous aux entreprises
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Network with recruiters from leading organizations worldwide
+                Créez des liens avec des recruteurs d'organisations de premier plan dans le monde entier
               </p>
             </CardContent>
           </Card>
@@ -121,10 +121,10 @@ export default function WelcomePage() {
                 </div>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-3">
-                AI-Powered Tools
+                Outils alimentés par l'IA
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Enhance your CV and prepare for interviews with artificial intelligence
+                Améliorez votre CV et préparez vos entretiens avec l'intelligence artificielle
               </p>
             </CardContent>
           </Card>
@@ -138,9 +138,9 @@ export default function WelcomePage() {
           className="max-w-4xl mx-auto mb-20"
         >
           <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-            Why Choose Junqo?
+            Pourquoi choisir Junqo ?
           </h2>
-          
+
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex gap-4">
               <div className="flex-shrink-0">
@@ -150,10 +150,10 @@ export default function WelcomePage() {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2">
-                  Smart Matching
+                  Matching intelligent
                 </h3>
                 <p className="text-muted-foreground text-sm">
-                  Our AI analyzes your profile and matches you with the most relevant opportunities
+                  Notre IA analyse votre profil et vous met en relation avec les opportunités les plus pertinentes
                 </p>
               </div>
             </div>
@@ -166,10 +166,10 @@ export default function WelcomePage() {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2">
-                  Targeted Applications
+                  Candidatures ciblées
                 </h3>
                 <p className="text-muted-foreground text-sm">
-                  Apply directly to companies and track your applications in real-time
+                  Postulez directement aux entreprises et suivez vos candidatures en temps réel
                 </p>
               </div>
             </div>
@@ -182,10 +182,10 @@ export default function WelcomePage() {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2">
-                  Career Growth
+                  Évolution de carrière
                 </h3>
                 <p className="text-muted-foreground text-sm">
-                  Access resources and tools to accelerate your professional development
+                  Accédez à des ressources et outils pour accélérer votre développement professionnel
                 </p>
               </div>
             </div>
@@ -198,10 +198,10 @@ export default function WelcomePage() {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-2">
-                  Secure & Private
+                  Sécurisé et privé
                 </h3>
                 <p className="text-muted-foreground text-sm">
-                  Your data is protected with enterprise-grade security standards
+                  Vos données sont protégées par des normes de sécurité de niveau entreprise
                 </p>
               </div>
             </div>
@@ -223,7 +223,7 @@ export default function WelcomePage() {
                     10K+
                   </div>
                   <div className="text-sm text-muted-foreground font-medium">
-                    Active Opportunities
+                    Opportunités actives
                   </div>
                 </div>
                 <div>
@@ -231,7 +231,7 @@ export default function WelcomePage() {
                     5K+
                   </div>
                   <div className="text-sm text-muted-foreground font-medium">
-                    Partner Companies
+                    Entreprises partenaires
                   </div>
                 </div>
                 <div>
@@ -239,7 +239,7 @@ export default function WelcomePage() {
                     98%
                   </div>
                   <div className="text-sm text-muted-foreground font-medium">
-                    Satisfaction Rate
+                    Taux de satisfaction
                   </div>
                 </div>
               </div>
@@ -255,17 +255,17 @@ export default function WelcomePage() {
           className="text-center mt-20"
         >
           <h2 className="text-2xl font-semibold text-foreground mb-4">
-            Ready to Start Your Journey?
+            Prêt à commencer votre parcours ?
           </h2>
           <p className="text-muted-foreground mb-8">
-            Join thousands of professionals who trust Junqo for their career advancement
+            Rejoignez des milliers de professionnels qui font confiance à Junqo pour leur évolution de carrière
           </p>
           <Link to="/user-type-selection">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="px-10 py-6 text-lg"
             >
-              Create Your Account
+              Créer votre compte
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>

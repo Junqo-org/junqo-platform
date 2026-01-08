@@ -9,22 +9,22 @@ export default function UserTypeSelectionPage() {
   const userTypes = [
     {
       type: 'student',
-      title: 'Student',
-      description: 'Looking for internships and job opportunities',
+      title: 'Étudiant',
+      description: 'À la recherche de stages et d\'opportunités d\'emploi',
       icon: GraduationCap,
       color: 'from-blue-600 to-cyan-600',
     },
     {
       type: 'company',
-      title: 'Company',
-      description: 'Recruiting talented students and professionals',
+      title: 'Entreprise',
+      description: 'Recrutement d\'étudiants et de professionnels talentueux',
       icon: Building,
       color: 'from-purple-600 to-pink-600',
     },
     {
       type: 'school',
-      title: 'School',
-      description: 'Managing student placements and partnerships',
+      title: 'École',
+      description: 'Gestion des placements étudiants et des partenariats',
       icon: Users,
       color: 'from-green-600 to-teal-600',
     },
@@ -39,9 +39,9 @@ export default function UserTypeSelectionPage() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl font-bold mb-4 text-foreground">Choose Your Profile Type</h1>
+          <h1 className="text-4xl font-bold mb-4 text-foreground">Choisissez votre type de profil</h1>
           <p className="text-muted-foreground text-lg">
-            Select the option that best describes you
+            Sélectionnez l'option qui vous correspond le mieux
           </p>
         </motion.div>
 
@@ -68,7 +68,7 @@ export default function UserTypeSelectionPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      Click to continue as {userType.title.toLowerCase()}
+                      Cliquez pour continuer en tant que {userType.title.toLowerCase()}
                     </p>
                   </CardContent>
                 </Card>
@@ -84,9 +84,9 @@ export default function UserTypeSelectionPage() {
           className="text-center mt-8"
         >
           <p className="text-muted-foreground">
-            Already have an account?{' '}
+            Vous avez déjà un compte ?{' '}
             <a href="/login" className="text-primary hover:underline">
-              Sign in
+              Se connecter
             </a>
           </p>
         </motion.div>

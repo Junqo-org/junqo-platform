@@ -46,13 +46,18 @@ export default function ProfilePage() {
   const loadProfile = async () => {
     try {
       if (!user) return
-      const data = isStudent
-        ? await apiService.getMyStudentProfile()
-        : await apiService.getMyCompanyProfile()
+      let data
+      if (user.type === 'STUDENT') {
+        data = await apiService.getMyStudentProfile()
+      } else if (user.type === 'SCHOOL') {
+        data = await apiService.getMySchoolProfile()
+      } else {
+        data = await apiService.getMyCompanyProfile()
+      }
       setProfile(data)
     } catch (error) {
       console.error('Failed to load profile', error)
-      toast.error('Failed to load profile')
+      toast.error('Erreur lors du chargement du profil')
     }
   }
 
@@ -167,17 +172,41 @@ export default function ProfilePage() {
     try {
       if (!user) return
 
-      // Filter only the fields that can be updated
-      const updateData = isStudent
-        ? {
+      // Helper to clean data - removes undefined and empty string URL values
+      const cleanData = (data: Record<string, any>) => {
+        const cleaned: Record<string, any> = {}
+        for (const [key, value] of Object.entries(data)) {
+          // Skip undefined values
+          if (value === undefined) continue
+          // For URL fields, skip empty strings
+          if (['avatar', 'linkedinUrl', 'websiteUrl', 'logoUrl'].includes(key) && value?.trim() === '') {
+            continue
+          }
+          cleaned[key] = value
+        }
+        return cleaned
+      }
+
+      // Filter only the fields that can be updated based on user type
+      let updateData: Record<string, any>
+      if (user.type === 'STUDENT') {
+        updateData = cleanData({
           avatar: profile?.avatar,
           bio: profile?.bio,
           phoneNumber: profile?.phoneNumber,
           linkedinUrl: profile?.linkedinUrl,
           educationLevel: profile?.educationLevel,
           skills: profile?.skills,
-        }
-        : {
+        })
+      } else if (user.type === 'SCHOOL') {
+        updateData = cleanData({
+          avatar: profile?.avatar,
+          description: profile?.description,
+          websiteUrl: profile?.websiteUrl,
+        })
+      } else {
+        // COMPANY
+        updateData = cleanData({
           avatar: profile?.avatar,
           description: profile?.description,
           phoneNumber: profile?.phoneNumber,
@@ -185,20 +214,35 @@ export default function ProfilePage() {
           websiteUrl: profile?.websiteUrl,
           logoUrl: profile?.logoUrl,
           industry: profile?.industry,
-        }
+        })
+      }
 
       // Update using the 'my' endpoint
-      const updatedProfile = isStudent
-        ? await apiService.updateStudentProfile(updateData)
-        : await apiService.updateCompanyProfile(updateData)
+      let updatedProfile
+      if (user.type === 'STUDENT') {
+        updatedProfile = await apiService.updateStudentProfile(updateData)
+      } else if (user.type === 'SCHOOL') {
+        updatedProfile = await apiService.updateSchoolProfile(updateData)
+      } else {
+        updatedProfile = await apiService.updateCompanyProfile(updateData)
+      }
       setProfile(updatedProfile)
-      toast.success('Profile updated successfully')
+      toast.success('Profil mis à jour avec succès')
       setIsEditing(false)
       // Trigger profile completion refresh
       setRefreshTrigger(prev => prev + 1)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update profile', error)
-      toast.error('Failed to update profile')
+      // Check if error is URL validation related
+      const errorMessage = error.response?.data?.message
+      if (errorMessage && (
+        (typeof errorMessage === 'string' && (errorMessage.includes('URL') || errorMessage.includes('url'))) ||
+        (Array.isArray(errorMessage) && errorMessage.some((m: string) => m.toLowerCase().includes('url')))
+      )) {
+        toast.error('URL invalide')
+      } else {
+        toast.error('Erreur lors de la mise à jour du profil')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -233,7 +277,7 @@ export default function ProfilePage() {
               <h2 className="text-2xl font-bold">
                 {isStudent
                   ? user?.name
-                  : profile?.companyName || 'Company Name'}
+                  : profile?.companyName || 'Nom de l\'entreprise'}
               </h2>
               <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2 mt-1">
                 <Mail className="h-4 w-4" />
@@ -249,14 +293,14 @@ export default function ProfilePage() {
 
             <div>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+                <Button onClick={() => setIsEditing(true)}>Modifier le profil</Button>
               ) : (
                 <div className="flex gap-2">
                   <Button onClick={handleSave} disabled={isLoading}>
-                    {isLoading ? 'Saving...' : 'Save'}
+                    {isLoading ? 'Enregistrement...' : 'Enregistrer'}
                   </Button>
                   <Button variant="outline" onClick={() => setIsEditing(false)}>
-                    Cancel
+                    Annuler
                   </Button>
                 </div>
               )}
@@ -268,9 +312,9 @@ export default function ProfilePage() {
       {/* Profile Details */}
       <Card>
         <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
+          <CardTitle>Informations du profil</CardTitle>
           <CardDescription>
-            {isEditing ? 'Update your profile information' : 'Your profile details'}
+            {isEditing ? 'Mettez à jour vos informations' : 'Vos détails de profil'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -282,19 +326,19 @@ export default function ProfilePage() {
                   <Textarea
                     value={profile?.bio || ''}
                     onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                    placeholder="Tell us about yourself and your career goals..."
+                    placeholder="Parlez-nous de vous et de vos objectifs de carrière..."
                     rows={4}
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    {profile?.bio || 'No bio added yet'}
+                    {profile?.bio || 'Aucune bio ajoutée'}
                   </p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Phone Number</Label>
+                  <Label>Numéro de téléphone</Label>
                   {isEditing ? (
                     <Input
                       type="tel"
@@ -304,35 +348,35 @@ export default function ProfilePage() {
                     />
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      {profile?.phoneNumber || 'Not specified'}
+                      {profile?.phoneNumber || 'Non spécifié'}
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Education Level</Label>
+                  <Label>Niveau d'études</Label>
                   {isEditing ? (
                     <Input
                       value={profile?.educationLevel || ''}
                       onChange={(e) => setProfile({ ...profile, educationLevel: e.target.value })}
-                      placeholder="e.g., Bachelor in Computer Science"
+                      placeholder="ex: Licence en informatique"
                     />
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      {profile?.educationLevel || 'Not specified'}
+                      {profile?.educationLevel || 'Non spécifié'}
                     </p>
                   )}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>LinkedIn Profile</Label>
+                <Label>Profil LinkedIn</Label>
                 {isEditing ? (
                   <Input
                     type="url"
                     value={profile?.linkedinUrl || ''}
                     onChange={(e) => setProfile({ ...profile, linkedinUrl: e.target.value })}
-                    placeholder="https://linkedin.com/in/yourprofile"
+                    placeholder="https://linkedin.com/in/votreprofil"
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground">
@@ -341,14 +385,14 @@ export default function ProfilePage() {
                         {profile.linkedinUrl}
                       </a>
                     ) : (
-                      'Not specified'
+                      'Non spécifié'
                     )}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label>Skills</Label>
+                <Label>Compétences</Label>
                 {isEditing ? (
                   <Input
                     value={profile?.skills?.join(', ') || ''}
@@ -358,7 +402,7 @@ export default function ProfilePage() {
                         skills: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
                       })
                     }
-                    placeholder="JavaScript, React, Node.js (comma separated)"
+                    placeholder="JavaScript, React, Node.js (séparés par des virgules)"
                   />
                 ) : (
                   <div className="flex flex-wrap gap-2">
@@ -369,7 +413,7 @@ export default function ProfilePage() {
                         </Badge>
                       ))
                     ) : (
-                      <p className="text-sm text-muted-foreground">No skills added yet</p>
+                      <p className="text-sm text-muted-foreground">Aucune compétence ajoutée</p>
                     )}
                   </div>
                 )}
@@ -383,19 +427,19 @@ export default function ProfilePage() {
                   <Textarea
                     value={profile?.description || ''}
                     onChange={(e) => setProfile({ ...profile, description: e.target.value })}
-                    placeholder="Describe your company and what you do..."
+                    placeholder="Décrivez votre entreprise et ce que vous faites..."
                     rows={4}
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    {profile?.description || 'No description added yet'}
+                    {profile?.description || 'Aucune description ajoutée'}
                   </p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Phone Number</Label>
+                  <Label>Numéro de téléphone</Label>
                   {isEditing ? (
                     <Input
                       type="tel"
@@ -405,51 +449,51 @@ export default function ProfilePage() {
                     />
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      {profile?.phoneNumber || 'Not specified'}
+                      {profile?.phoneNumber || 'Non spécifié'}
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Industry</Label>
+                  <Label>Secteur d'activité</Label>
                   {isEditing ? (
                     <Input
                       value={profile?.industry || ''}
                       onChange={(e) => setProfile({ ...profile, industry: e.target.value })}
-                      placeholder="e.g., Technology, Finance"
+                      placeholder="ex: Technologie, Finance"
                     />
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      {profile?.industry || 'Not specified'}
+                      {profile?.industry || 'Non spécifié'}
                     </p>
                   )}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Address</Label>
+                <Label>Adresse</Label>
                 {isEditing ? (
                   <Input
                     value={profile?.address || ''}
                     onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                    placeholder="123 Main St, Paris, France"
+                    placeholder="123 Rue Principale, Paris, France"
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    {profile?.address || 'Not specified'}
+                    {profile?.address || 'Non spécifié'}
                   </p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Website URL</Label>
+                  <Label>URL du site web</Label>
                   {isEditing ? (
                     <Input
                       type="url"
                       value={profile?.websiteUrl || ''}
                       onChange={(e) => setProfile({ ...profile, websiteUrl: e.target.value })}
-                      placeholder="https://www.example.com"
+                      placeholder="https://www.exemple.com"
                     />
                   ) : (
                     <p className="text-sm text-muted-foreground">
@@ -458,29 +502,29 @@ export default function ProfilePage() {
                           {profile.websiteUrl}
                         </a>
                       ) : (
-                        'Not specified'
+                        'Non spécifié'
                       )}
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Logo URL</Label>
+                  <Label>URL du logo</Label>
                   {isEditing ? (
                     <Input
                       type="url"
                       value={profile?.logoUrl || ''}
                       onChange={(e) => setProfile({ ...profile, logoUrl: e.target.value })}
-                      placeholder="https://example.com/logo.png"
+                      placeholder="https://exemple.com/logo.png"
                     />
                   ) : (
                     <p className="text-sm text-muted-foreground">
                       {profile?.logoUrl ? (
                         <a href={profile.logoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                          View Logo
+                          Voir le logo
                         </a>
                       ) : (
-                        'Not specified'
+                        'Non spécifié'
                       )}
                     </p>
                   )}
@@ -498,8 +542,8 @@ export default function ProfilePage() {
             <div className="flex items-center gap-2">
               <School className="h-5 w-5" />
               <div>
-                <CardTitle>My School</CardTitle>
-                <CardDescription>Link your profile to your school</CardDescription>
+                <CardTitle>Mon école</CardTitle>
+                <CardDescription>Liez votre profil à votre école</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -513,10 +557,10 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <p className="font-medium">{profile.linkedSchool.name}</p>
-                    <p className="text-sm text-muted-foreground">You are linked to this school</p>
+                    <p className="text-sm text-muted-foreground">Vous êtes lié à cette école</p>
                   </div>
                 </div>
-                <Badge variant="default" className="bg-green-600">Linked</Badge>
+                <Badge variant="default" className="bg-green-600">Lié</Badge>
               </div>
             ) : pendingRequest ? (
               /* Pending request */
@@ -526,8 +570,8 @@ export default function ProfilePage() {
                     <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                   </div>
                   <div>
-                    <p className="font-medium">{pendingRequest.school?.name || 'School'}</p>
-                    <p className="text-sm text-muted-foreground">Request pending approval</p>
+                    <p className="font-medium">{pendingRequest.school?.name || 'École'}</p>
+                    <p className="text-sm text-muted-foreground">Demande en attente d'approbation</p>
                   </div>
                 </div>
                 <Button
@@ -536,7 +580,7 @@ export default function ProfilePage() {
                   onClick={() => handleCancelSchoolRequest(pendingRequest.id)}
                 >
                   <X className="h-4 w-4 mr-2" />
-                  Cancel
+                  Annuler
                 </Button>
               </div>
             ) : (
@@ -545,7 +589,7 @@ export default function ProfilePage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search for your school..."
+                    placeholder="Rechercher votre école..."
                     value={schoolSearch}
                     onChange={(e) => handleSearchSchools(e.target.value)}
                     className="pl-10"
@@ -572,7 +616,7 @@ export default function ProfilePage() {
                           onClick={() => handleSendSchoolRequest(school.userId)}
                           disabled={isSendingRequest}
                         >
-                          Request to Join
+                          Demander à rejoindre
                         </Button>
                       </div>
                     ))}
@@ -581,13 +625,13 @@ export default function ProfilePage() {
 
                 {schoolSearch.length >= 2 && schoolSearchResults.length === 0 && !isSearchingSchools && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No schools found matching "{schoolSearch}"
+                    Aucune école trouvée pour "{schoolSearch}"
                   </p>
                 )}
 
                 {isSearchingSchools && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    Searching...
+                    Recherche...
                   </p>
                 )}
               </div>
@@ -596,11 +640,11 @@ export default function ProfilePage() {
             {/* Show rejected requests */}
             {schoolLinkRequests.filter(r => r.status === 'REJECTED').length > 0 && (
               <div className="mt-4 pt-4 border-t">
-                <p className="text-sm font-medium text-muted-foreground mb-2">Previous Requests</p>
+                <p className="text-sm font-medium text-muted-foreground mb-2">Demandes précédentes</p>
                 {schoolLinkRequests.filter(r => r.status === 'REJECTED').map((request) => (
                   <div key={request.id} className="flex items-center gap-2 text-sm text-red-600">
                     <XCircle className="h-4 w-4" />
-                    <span>{request.school?.name || 'School'} - Rejected</span>
+                    <span>{request.school?.name || 'École'} - Refusée</span>
                   </div>
                 ))}
               </div>
@@ -615,12 +659,12 @@ export default function ProfilePage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Work Experience</CardTitle>
-                <CardDescription>Your professional experience and internships</CardDescription>
+                <CardTitle>Expérience professionnelle</CardTitle>
+                <CardDescription>Vos expériences professionnelles et stages</CardDescription>
               </div>
               <Button onClick={handleAddExperience}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Experience
+                Ajouter une expérience
               </Button>
             </div>
           </CardHeader>
@@ -636,7 +680,7 @@ export default function ProfilePage() {
               ))
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                <p>No experiences added yet. Click "Add Experience" to get started!</p>
+                <p>Aucune expérience ajoutée. Cliquez sur "Ajouter une expérience" pour commencer !</p>
               </div>
             )}
           </CardContent>
