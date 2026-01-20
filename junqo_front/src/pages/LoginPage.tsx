@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { Eye, EyeOff } from 'lucide-react'
 // import junqoLogo from '/assets/images/junqo_logo.png'
 
 import { Button } from '@/components/ui/button'
@@ -16,8 +17,8 @@ import { useAuthStore } from '@/store/authStore'
 import { apiService } from '@/services/api'
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Adresse email invalide'),
+  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
@@ -26,6 +27,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const login = useAuthStore((state) => state.login)
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -40,10 +42,11 @@ export default function LoginPage() {
     try {
       const response = await apiService.login(data.email, data.password)
       login(response.user, response.token) // Backend returns 'token', not 'access_token'
-      toast.success('Welcome back!')
+      toast.success('Bon retour parmi nous !')
       navigate('/home')
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Login failed')
+      console.error('Login error:', error) // Debug
+      toast.error(error.response?.data?.message || 'Échec de la connexion')
     } finally {
       setIsLoading(false)
     }
@@ -68,8 +71,8 @@ export default function LoginPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>Sign in to your account to continue</CardDescription>
+            <CardTitle>Bon retour</CardTitle>
+            <CardDescription>Connectez-vous à votre compte pour continuer</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
@@ -78,7 +81,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="vous@exemple.com"
                   {...register('email')}
                 />
                 {errors.email && (
@@ -87,13 +90,23 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  {...register('password')}
-                />
+                <Label htmlFor="password">Mot de passe</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    {...register('password')}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-destructive">{errors.password.message}</p>
                 )}
@@ -101,12 +114,12 @@ export default function LoginPage() {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? 'Connexion...' : 'Se connecter'}
               </Button>
               <div className="text-sm text-center text-muted-foreground">
-                Don't have an account?{' '}
+                Vous n'avez pas de compte ?{' '}
                 <Link to="/user-type-selection" className="text-primary hover:underline">
-                  Sign up
+                  S'inscrire
                 </Link>
               </div>
             </CardFooter>

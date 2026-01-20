@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { 
-  Briefcase, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Briefcase,
+  Clock,
+  CheckCircle,
+  XCircle,
   Search,
   Filter,
   Calendar,
@@ -70,13 +70,13 @@ export default function ApplicationsTrackingPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'NOT_OPENED':
-        return { label: 'Not Viewed', color: 'bg-slate-100 text-slate-700 border-slate-200' }
+        return { label: 'Non vue', color: 'bg-slate-100 text-slate-700 border-slate-200' }
       case 'PENDING':
-        return { label: 'Under Review', color: 'bg-amber-100 text-amber-700 border-amber-200' }
+        return { label: 'En cours d\'examen', color: 'bg-amber-100 text-amber-700 border-amber-200' }
       case 'ACCEPTED':
-        return { label: 'Accepted', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
+        return { label: 'Acceptée', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
       case 'DENIED':
-        return { label: 'Rejected', color: 'bg-red-100 text-red-700 border-red-200' }
+        return { label: 'Refusée', color: 'bg-red-100 text-red-700 border-red-200' }
       default:
         return { label: status, color: 'bg-slate-100 text-slate-700 border-slate-200' }
     }
@@ -110,7 +110,7 @@ export default function ApplicationsTrackingPage() {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading applications...</p>
+          <p className="text-slate-600 dark:text-slate-400">Chargement des candidatures...</p>
         </div>
       </div>
     )
@@ -122,10 +122,10 @@ export default function ApplicationsTrackingPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-            My Applications
+            Mes candidatures
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Track the status of your job applications
+            Suivez l'état de vos candidatures
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export default function ApplicationsTrackingPage() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-slate-600">{stats.notOpened}</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Not Viewed</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Non vues</p>
               </div>
             </CardContent>
           </Card>
@@ -153,7 +153,7 @@ export default function ApplicationsTrackingPage() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-amber-600">{stats.pending}</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Under Review</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">En cours</p>
               </div>
             </CardContent>
           </Card>
@@ -162,7 +162,7 @@ export default function ApplicationsTrackingPage() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-emerald-600">{stats.accepted}</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Accepted</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Acceptées</p>
               </div>
             </CardContent>
           </Card>
@@ -171,7 +171,7 @@ export default function ApplicationsTrackingPage() {
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-red-600">{stats.denied}</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Rejected</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Refusées</p>
               </div>
             </CardContent>
           </Card>
@@ -184,7 +184,7 @@ export default function ApplicationsTrackingPage() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Search by job title or company..."
+                  placeholder="Rechercher par titre ou entreprise..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -196,14 +196,14 @@ export default function ApplicationsTrackingPage() {
                   onClick={() => setStatusFilter('ALL')}
                   size="sm"
                 >
-                  All
+                  Tous
                 </Button>
                 <Button
                   variant={statusFilter === 'PENDING' ? 'default' : 'outline'}
                   onClick={() => setStatusFilter('PENDING')}
                   size="sm"
                 >
-                  Review
+                  En cours
                 </Button>
                 <Button
                   variant={statusFilter === 'ACCEPTED' ? 'default' : 'outline'}
@@ -211,7 +211,7 @@ export default function ApplicationsTrackingPage() {
                   size="sm"
                   className="text-emerald-600 border-emerald-600 hover:bg-emerald-50"
                 >
-                  Accepted
+                  Acceptées
                 </Button>
                 <Button
                   variant={statusFilter === 'DENIED' ? 'default' : 'outline'}
@@ -219,7 +219,7 @@ export default function ApplicationsTrackingPage() {
                   size="sm"
                   className="text-red-600 border-red-600 hover:bg-red-50"
                 >
-                  Rejected
+                  Refusées
                 </Button>
               </div>
             </div>
@@ -233,16 +233,16 @@ export default function ApplicationsTrackingPage() {
               <div className="text-center">
                 <Briefcase className="h-16 w-16 mx-auto mb-4 text-slate-300" />
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
-                  No applications found
+                  Aucune candidature trouvée
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mb-6">
                   {searchQuery || statusFilter !== 'ALL'
-                    ? 'Try adjusting your filters'
-                    : "You haven't applied to any offers yet"}
+                    ? 'Essayez d\'ajuster vos filtres'
+                    : "Vous n'avez pas encore postulé à des offres"}
                 </p>
                 {!searchQuery && statusFilter === 'ALL' && (
                   <Button asChild>
-                    <Link to="/offers">Browse Offers</Link>
+                    <Link to="/offers">Voir les offres</Link>
                   </Button>
                 )}
               </div>
@@ -269,7 +269,7 @@ export default function ApplicationsTrackingPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-3 mb-3">
                               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 line-clamp-1">
-                                {application.offer?.title || 'Untitled Offer'}
+                                {application.offer?.title || 'Offre sans titre'}
                               </h3>
                               <Badge className={statusBadge.color}>
                                 <span className="flex items-center gap-1">
@@ -283,7 +283,7 @@ export default function ApplicationsTrackingPage() {
                               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                                 <Building className="h-4 w-4 flex-shrink-0" />
                                 <span className="truncate">
-                                  {application.company?.companyName || 'Unknown Company'}
+                                  {application.company?.companyName || 'Entreprise inconnue'}
                                 </span>
                               </div>
 
@@ -297,7 +297,7 @@ export default function ApplicationsTrackingPage() {
                               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                                 <Calendar className="h-4 w-4 flex-shrink-0" />
                                 <span>
-                                  Applied {formatRelativeTime(new Date(application.createdAt))}
+                                  Postulé {formatRelativeTime(new Date(application.createdAt))}
                                 </span>
                               </div>
                             </div>
