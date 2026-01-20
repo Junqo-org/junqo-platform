@@ -22,6 +22,8 @@ import ApplicationsTrackingPage from './pages/ApplicationsTrackingPage'
 import ApplicationManagementPage from './pages/ApplicationManagementPage'
 import SchoolDashboardPage from './pages/SchoolDashboardPage'
 import NotFoundPage from './pages/NotFoundPage'
+import CGUPage from './pages/CGUPage'
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 
 // Layout
 import PrivateRoute from './components/layout/PrivateRoute'
@@ -37,6 +39,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/user-type-selection" element={<UserTypeSelectionPage />} />
+          <Route path="/cgu" element={<CGUPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
           {/* Protected routes */}
           <Route element={<PrivateRoute />}>
