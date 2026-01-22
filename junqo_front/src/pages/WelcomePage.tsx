@@ -270,6 +270,33 @@ export default function WelcomePage() {
             </Button>
           </Link>
         </motion.div>
+
+        {/* Footer Links */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.6 }}
+          className="text-center mt-16 pt-8 border-t border-border"
+        >
+          <div className="flex justify-center gap-6 text-sm">
+            <Link 
+              to="/cgu" 
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              Conditions Générales d'Utilisation
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link 
+              to="/privacy-policy" 
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              Politique de Confidentialité
+            </Link>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4">
+            © 2026 Junqo. Tous droits réservés.
+          </p>
+        </motion.div>
       </div>
     </div>
   )
