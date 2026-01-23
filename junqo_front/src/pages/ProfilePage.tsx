@@ -419,6 +419,46 @@ export default function ProfilePage() {
                 )}
               </div>
             </>
+          ) : user?.type === 'SCHOOL' ? (
+            <>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                {isEditing ? (
+                  <Textarea
+                    value={profile?.description || ''}
+                    onChange={(e) => setProfile({ ...profile, description: e.target.value })}
+                    placeholder="Décrivez votre école et vos programmes..."
+                    rows={4}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    {profile?.description || 'Aucune description ajoutée'}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>URL du site web</Label>
+                {isEditing ? (
+                  <Input
+                    type="url"
+                    value={profile?.websiteUrl || ''}
+                    onChange={(e) => setProfile({ ...profile, websiteUrl: e.target.value })}
+                    placeholder="https://www.exemple.com"
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    {profile?.websiteUrl ? (
+                      <a href={profile.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        {profile.websiteUrl}
+                      </a>
+                    ) : (
+                      'Non spécifié'
+                    )}
+                  </p>
+                )}
+              </div>
+            </>
           ) : (
             <>
               <div className="space-y-2">

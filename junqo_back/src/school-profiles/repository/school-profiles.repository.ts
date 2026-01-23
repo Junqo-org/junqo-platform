@@ -183,10 +183,10 @@ export class SchoolProfilesRepository {
                   avatar: updateSchoolProfileDto.avatar,
                 }),
                 ...(updateSchoolProfileDto.description != undefined && {
-                  skills: updateSchoolProfileDto.description,
+                  description: updateSchoolProfileDto.description,
                 }),
                 ...(updateSchoolProfileDto.websiteUrl != undefined && {
-                  skills: updateSchoolProfileDto.websiteUrl,
+                  websiteUrl: updateSchoolProfileDto.websiteUrl,
                 }),
               },
               {
