@@ -71,7 +71,6 @@ const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
 describe('ConversationsService', () => {
   let service: ConversationsService;
   let conversationsRepository: Mocked<ConversationsRepository>;
-  let caslAbilityFactory: Mocked<CaslAbilityFactory>;
   let mockAbility: any;
 
   beforeEach(async () => {
@@ -91,7 +90,6 @@ describe('ConversationsService', () => {
 
     service = unit;
     conversationsRepository = unitRef.get(ConversationsRepository);
-    caslAbilityFactory = unitRef.get(CaslAbilityFactory);
   });
 
   it('should be defined', () => {
