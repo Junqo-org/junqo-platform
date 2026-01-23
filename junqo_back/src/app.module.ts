@@ -17,6 +17,7 @@ import { InterviewSimulationModule } from './interview-simulation/interview-simu
 import { CvImprovementModule } from './cv-improvement/cv-improvement.module';
 import { MessagesModule } from './messages/messages.module';
 import { ConversationsModule } from './conversations/conversations.module';
+import { SchoolLinkRequestsModule } from './school-link-requests/school-link-requests.module';
 
 @Module({
   imports: [
@@ -49,8 +50,9 @@ import { ConversationsModule } from './conversations/conversations.module';
     CvImprovementModule,
     ConversationsModule,
     MessagesModule,
+    SchoolLinkRequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

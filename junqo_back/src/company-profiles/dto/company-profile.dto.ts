@@ -63,6 +63,24 @@ export class CompanyProfileDTO {
   description?: string;
 
   @ApiPropertyOptional({
+    description: 'Company phone number',
+    example: '+33123456789',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Phone number must be a string' })
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({
+    description: 'Company address',
+    example: '123 Main St, Paris, France',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Address must be a string' })
+  address?: string;
+
+  @ApiPropertyOptional({
     description: 'Company website URL',
     example: 'https://www.acmecorp.com',
   })
@@ -70,6 +88,24 @@ export class CompanyProfileDTO {
   @IsOptional()
   @IsUrl({}, { message: 'Website must be a valid URL' })
   websiteUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'URL to company logo',
+    example: 'https://example.com/logo.png',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl({}, { message: 'Logo URL must be valid' })
+  logoUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'Company industry',
+    example: 'Technology',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Industry must be a string' })
+  industry?: string;
 
   // Obligatory for use with casl ability
   constructor(data: Partial<CompanyProfileDTO>) {
@@ -102,6 +138,24 @@ export class UpdateCompanyProfileDTO {
   description?: string;
 
   @ApiPropertyOptional({
+    description: 'Company phone number',
+    example: '+33123456789',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Phone number must be a string' })
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({
+    description: 'Company address',
+    example: '123 Main St, Paris, France',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Address must be a string' })
+  address?: string;
+
+  @ApiPropertyOptional({
     description: 'Company website URL',
     example: 'https://www.acmecorp.com',
   })
@@ -109,4 +163,22 @@ export class UpdateCompanyProfileDTO {
   @IsOptional()
   @IsUrl({}, { message: 'Website must be a valid URL' })
   websiteUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'URL to company logo',
+    example: 'https://example.com/logo.png',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl({}, { message: 'Logo URL must be valid' })
+  logoUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'Company industry',
+    example: 'Technology',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Industry must be a string' })
+  industry?: string;
 }

@@ -23,7 +23,7 @@ export class StudentProfilesRepository {
   constructor(
     @InjectModel(StudentProfileModel)
     private readonly studentProfileModel: typeof StudentProfileModel,
-  ) {}
+  ) { }
 
   private includeOptions: Includeable[] = [ExperienceModel];
 
@@ -181,11 +181,26 @@ export class StudentProfilesRepository {
 
             const updatedStudentProfile = await studentProfile.update(
               {
-                ...(updateStudentProfileDto.avatar != undefined && {
+                ...(updateStudentProfileDto.avatar !== undefined && {
                   avatar: updateStudentProfileDto.avatar,
                 }),
-                ...(updateStudentProfileDto.skills != undefined && {
+                ...(updateStudentProfileDto.skills !== undefined && {
                   skills: updateStudentProfileDto.skills,
+                }),
+                ...(updateStudentProfileDto.bio !== undefined && {
+                  bio: updateStudentProfileDto.bio,
+                }),
+                ...(updateStudentProfileDto.phoneNumber !== undefined && {
+                  phoneNumber: updateStudentProfileDto.phoneNumber,
+                }),
+                ...(updateStudentProfileDto.linkedinUrl !== undefined && {
+                  linkedinUrl: updateStudentProfileDto.linkedinUrl,
+                }),
+                ...(updateStudentProfileDto.educationLevel !== undefined && {
+                  educationLevel: updateStudentProfileDto.educationLevel,
+                }),
+                ...(updateStudentProfileDto.linkedSchoolId !== undefined && {
+                  linkedSchoolId: updateStudentProfileDto.linkedSchoolId,
                 }),
               },
               {
@@ -236,6 +251,24 @@ export class StudentProfilesRepository {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to delete student profile: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Find all students linked to a specific school.
+   */
+  public async findByLinkedSchoolId(schoolId: string): Promise<StudentProfileDTO[]> {
+    try {
+      const profiles = await this.studentProfileModel.findAll({
+        where: { linkedSchoolId: schoolId },
+        include: this.includeOptions,
+      });
+
+      return profiles.map((p) => p.toStudentProfileDTO());
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to fetch linked students: ${error.message}`,
       );
     }
   }

@@ -9,4 +9,4 @@ import { InterviewSimulationService } from './interview-simulation.service';
   providers: [InterviewSimulationService],
   exports: [InterviewSimulationService],
 })
-export class InterviewSimulationModule {} 
+export class InterviewSimulationModule {}

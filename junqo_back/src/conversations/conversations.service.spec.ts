@@ -71,7 +71,6 @@ const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
 describe('ConversationsService', () => {
   let service: ConversationsService;
   let conversationsRepository: Mocked<ConversationsRepository>;
-  let caslAbilityFactory: Mocked<CaslAbilityFactory>;
   let mockAbility: any;
 
   beforeEach(async () => {
@@ -91,7 +90,6 @@ describe('ConversationsService', () => {
 
     service = unit;
     conversationsRepository = unitRef.get(ConversationsRepository);
-    caslAbilityFactory = unitRef.get(CaslAbilityFactory);
   });
 
   it('should be defined', () => {
@@ -117,25 +115,21 @@ describe('ConversationsService', () => {
         query,
         currentUser.id,
       );
-      expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
-        currentUser,
-      );
     });
 
-    it('should filter out conversations user cannot read', async () => {
+    it('should return conversations filtered by repository', async () => {
       const query: ConversationQueryDTO = {
         limit: 10,
         offset: 0,
       };
 
-      conversationsRepository.findByQuery.mockResolvedValue(
-        mockConversationQueryOutput,
-      );
+      // Repository already handles filtering by participant
+      const filteredResult: ConversationQueryOutputDTO = {
+        rows: [mockConversationsList[1]],
+        count: 1,
+      };
 
-      // Mock that user cannot read the first conversation
-      mockAbility.cannot
-        .mockReturnValueOnce(true) // Cannot read first conversation
-        .mockReturnValueOnce(false); // Can read second conversation
+      conversationsRepository.findByQuery.mockResolvedValue(filteredResult);
 
       const result = await service.findByQuery(currentUser, query);
 

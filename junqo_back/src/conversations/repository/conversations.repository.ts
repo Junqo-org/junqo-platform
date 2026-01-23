@@ -83,7 +83,10 @@ export class ConversationsRepository {
 
     try {
       const conversation = await this.conversationModel.create(
-        {},
+        {
+          offerId: createConversationDto.offerId,
+          applicationId: createConversationDto.applicationId,
+        },
         { transaction },
       );
 
@@ -98,7 +101,25 @@ export class ConversationsRepository {
         );
       }
 
-      if (createConversationDto.title && currentUserId) {
+      // Handle individual titles for participants if provided
+      if (createConversationDto.participantTitles) {
+        for (const [userId, title] of Object.entries(
+          createConversationDto.participantTitles,
+        )) {
+          if (title && createConversationDto.participantsIds.includes(userId)) {
+            await this.userConversationTitleModel.create(
+              {
+                userId,
+                conversationId: conversation.id,
+                title,
+              },
+              { transaction },
+            );
+          }
+        }
+      }
+      // Fallback: If no specific title for current user in map, and "title" is provided
+      else if (createConversationDto.title && currentUserId) {
         await this.userConversationTitleModel.create(
           {
             userId: currentUserId,

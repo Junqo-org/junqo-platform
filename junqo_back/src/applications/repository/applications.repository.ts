@@ -23,7 +23,7 @@ export class ApplicationsRepository {
   constructor(
     @InjectModel(ApplicationModel)
     private readonly applicationModel: typeof ApplicationModel,
-  ) {}
+  ) { }
 
   private includeOption = {
     include: [StudentProfileModel, CompanyProfileModel, OfferModel],
@@ -223,6 +223,13 @@ export class ApplicationsRepository {
                 transaction,
               },
             );
+
+            // Reload with associations to ensure offer/student/company data is available for conversation creation
+            await updatedApplication.reload({
+              ...this.includeOption,
+              transaction,
+            });
+
             return updatedApplication;
           },
         );

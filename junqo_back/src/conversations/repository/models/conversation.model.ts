@@ -47,6 +47,18 @@ export class ConversationModel extends Model {
   })
   lastMessage?: MessageModel;
 
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  offerId?: string;
+
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  applicationId?: string;
+
   @HasMany(() => MessageModel)
   messages: MessageModel[];
 
@@ -81,6 +93,8 @@ export class ConversationModel extends Model {
       participantsIds: this.participants?.map((p) => p.id) || [],
       lastMessage: this.lastMessage?.toMessageDTO() || null,
       title: title,
+      offerId: this.offerId,
+      applicationId: this.applicationId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     });

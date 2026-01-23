@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { AuthUserDTO } from '../shared/dto/auth-user.dto';
@@ -24,14 +26,18 @@ import { OfferDTO } from '../offers/dto/offer.dto';
 import { UserType } from '../users/dto/user-type.enum';
 import { ConversationsService } from '../conversations/conversations.service';
 import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
+import { MessagesService } from '../messages/messages.service';
 
 @Injectable()
 export class ApplicationsService {
+  private readonly logger = new Logger(ApplicationsService.name);
+
   constructor(
     private readonly caslAbilityFactory: CaslAbilityFactory,
     private readonly applicationsRepository: ApplicationsRepository,
     private readonly offersService: OffersService,
     private readonly conversationsService: ConversationsService,
+    private readonly messagesService: MessagesService,
   ) {}
 
   /**
@@ -427,7 +433,7 @@ export class ApplicationsService {
     }
   }
 
-    /**
+  /**
    * Creates a conversation between the student and company when an application is accepted
    *
    * @param currentUser - The authenticated user who accepted the application
@@ -438,15 +444,38 @@ export class ApplicationsService {
     currentUser: AuthUserDTO,
     application: ApplicationDTO,
   ): Promise<void> {
+    const studentName = application.student?.name || 'Student';
+    const offerTitle = application.offer?.title || 'Offer';
+    const companyName = application.company?.name || 'Company';
+
     try {
       // Create conversation between student and company
       const createConversationDto: CreateConversationDTO = {
         participantsIds: [application.studentId, application.companyId],
-        title: `Application Discussion - ${application.offer?.title || 'Job Application'}`,
+        participantTitles: {
+          [application.studentId]: `${offerTitle} - ${companyName}`,
+          [application.companyId]: `${offerTitle} - ${studentName}`,
+        },
+        title: `Application Discussion - ${offerTitle || 'Job Application'}`,
+        offerId: application.offerId,
+        applicationId: application.id,
       };
 
       // Create the conversation using the current user's context
-      await this.conversationsService.create(currentUser, createConversationDto);
+      const conversation = await this.conversationsService.create(
+        currentUser,
+        createConversationDto,
+      );
+
+      try {
+        await this.messagesService.create(currentUser, {
+          conversationId: conversation.id,
+          senderId: currentUser.id,
+          content: `Bonjour ${studentName}, votre candidature pour le poste de "${offerTitle}" a retenu notre attention.`,
+        });
+      } catch (msgError) {
+        console.warn(`Failed to send welcome message: ${msgError.message}`);
+      }
     } catch (error) {
       // Log the error but don't fail the application update
       console.error(
@@ -454,5 +483,82 @@ export class ApplicationsService {
         error.message,
       );
     }
+  }
+
+  /**
+   * Bulk update status of multiple applications (companies only).
+   *
+   * @param currentUser - The authenticated company user
+   * @param applicationIds - Array of application IDs to update
+   * @param status - New status to apply
+   * @returns Result with count of updated/failed applications
+   * @throws BadRequestException if applicationIds array is empty or exceeds maximum batch size
+   */
+  public async bulkUpdateStatus(
+    currentUser: AuthUserDTO,
+    applicationIds: string[],
+    status: ApplicationStatus,
+  ): Promise<{
+    updated: number;
+    failed: number;
+    updatedIds: string[];
+    failedIds: string[];
+  }> {
+    const MAX_BATCH_SIZE = 100;
+
+    if (!applicationIds || applicationIds.length === 0) {
+      throw new BadRequestException('applicationIds array cannot be empty');
+    }
+
+    if (applicationIds.length > MAX_BATCH_SIZE) {
+      throw new BadRequestException(
+        `Batch size exceeds maximum of ${MAX_BATCH_SIZE}`,
+      );
+    }
+
+    const results = {
+      updated: 0,
+      failed: 0,
+      updatedIds: [] as string[],
+      failedIds: [] as string[],
+    };
+
+    for (const id of applicationIds) {
+      try {
+        await this.update(currentUser, id, { status });
+        results.updated++;
+        results.updatedIds.push(id);
+      } catch (error) {
+        results.failed++;
+        results.failedIds.push(id);
+        this.logger.error(`Failed to update application ${id}`, {
+          applicationId: id,
+          error: error.message,
+          stack: error.stack,
+        });
+      }
+    }
+    return results;
+  }
+
+  /**
+   * Mark an application as opened (change from NOT_OPENED to PENDING).
+   *
+   * @param currentUser - The authenticated user
+   * @param id - Application ID
+   * @returns Updated application
+   */
+  public async markAsOpened(
+    currentUser: AuthUserDTO,
+    id: string,
+  ): Promise<ApplicationDTO> {
+    const application = await this.findOneById(currentUser, id);
+
+    if (application.status === ApplicationStatus.NOT_OPENED) {
+      return this.update(currentUser, id, {
+        status: ApplicationStatus.PENDING,
+      });
+    }
+    return application;
   }
 }

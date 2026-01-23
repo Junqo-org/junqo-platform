@@ -1,16 +1,34 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { InterviewSimulationService } from './interview-simulation.service';
-import { InterviewSimulationRequestDto, InterviewSimulationResponseDto } from './dto/interview-simulation.dto';
+import {
+  InterviewSimulationRequestDto,
+  InterviewSimulationResponseDto,
+} from './dto/interview-simulation.dto';
 
 @ApiTags('interview-simulation')
 @Controller('interview-simulation')
 export class InterviewSimulationController {
-  constructor(private readonly interviewSimulationService: InterviewSimulationService) {}
+  constructor(
+    private readonly interviewSimulationService: InterviewSimulationService,
+  ) {}
 
   @Post()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Générer une réponse pour une simulation d\'entretien' })
+  @ApiOperation({
+    summary: "Générer une réponse pour une simulation d'entretien",
+  })
   @ApiResponse({
     status: 200,
     description: 'Réponse générée avec succès',
@@ -32,7 +50,7 @@ export class InterviewSimulationController {
         interviewRequest.message,
         interviewRequest.context,
       );
-      
+
       return { response };
     } catch (error) {
       // Log the original error for more detailed debugging on the server side
@@ -44,4 +62,4 @@ export class InterviewSimulationController {
       );
     }
   }
-} 
+}

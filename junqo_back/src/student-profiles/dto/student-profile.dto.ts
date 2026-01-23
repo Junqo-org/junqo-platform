@@ -16,6 +16,7 @@ import {
 import { ExperienceDTO } from '../../experiences/dto/experience.dto';
 import { Expose, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { SchoolProfileDTO } from '../../school-profiles/dto/school-profile.dto';
 
 // Student Profile retrieved from database
 export class StudentProfileDTO {
@@ -56,6 +57,42 @@ export class StudentProfileDTO {
   avatar?: string;
 
   @ApiPropertyOptional({
+    description: "Student's bio/description",
+    example: 'Passionate software developer with 3 years of experience...',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Bio must be a string' })
+  bio?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's phone number",
+    example: '+33612345678',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Phone number must be a string' })
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({
+    description: 'LinkedIn profile URL',
+    example: 'https://linkedin.com/in/johndoe',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUrl({}, { message: 'LinkedIn URL must be valid' })
+  linkedinUrl?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's education level",
+    example: 'Bachelor in Computer Science',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString({ message: 'Education level must be a string' })
+  educationLevel?: string;
+
+  @ApiPropertyOptional({
     description: 'List of student skills',
     example: ['JavaScript', 'React', 'Node.js'],
     isArray: true,
@@ -80,6 +117,23 @@ export class StudentProfileDTO {
     message: 'Each experience must be a valid ExperienceDTO',
   })
   experiences?: ExperienceDTO[];
+
+  @ApiPropertyOptional({
+    description: 'ID of the linked school',
+    format: 'uuid',
+  })
+  @Expose()
+  @IsOptional()
+  @IsUUID('4', { message: 'Linked school ID must be a valid UUID' })
+  linkedSchoolId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Linked school profile',
+  })
+  @Expose()
+  @Type(() => SchoolProfileDTO)
+  @IsOptional()
+  linkedSchool?: SchoolProfileDTO;
 
   // Obligatory for use with casl ability
   constructor(data: Partial<StudentProfileDTO>) {
@@ -145,10 +199,41 @@ export class UpdateStudentProfileDTO {
     description: "URL to student's avatar image",
     example: 'https://example.com/avatar.jpg',
   })
-  @Expose()
   @IsOptional()
-  @IsUrl()
+  @IsUrl({}, { message: 'Avatar must be a valid URL' })
   avatar?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's bio/description",
+    example: 'Passionate software developer with 3 years of experience...',
+  })
+  @IsOptional()
+  @IsString({ message: 'Bio must be a string' })
+  bio?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's phone number",
+    example: '+33612345678',
+  })
+  @IsOptional()
+  @IsString({ message: 'Phone number must be a string' })
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({
+    description: 'LinkedIn profile URL',
+    example: 'https://linkedin.com/in/johndoe',
+  })
+  @IsOptional()
+  @IsUrl({}, { message: 'LinkedIn URL must be a valid URL' })
+  linkedinUrl?: string;
+
+  @ApiPropertyOptional({
+    description: "Student's education level",
+    example: 'Bachelor in Computer Science',
+  })
+  @IsOptional()
+  @IsString({ message: 'Education level must be a string' })
+  educationLevel?: string;
 
   @ApiPropertyOptional({
     description: 'List of student skills',
@@ -156,10 +241,17 @@ export class UpdateStudentProfileDTO {
     isArray: true,
     type: [String],
   })
-  @Expose()
   @IsOptional()
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true })
   @Type(() => String)
   skills?: string[];
+
+  @ApiPropertyOptional({
+    description: 'ID of the linked school',
+    format: 'uuid',
+  })
+  @IsOptional()
+  @IsUUID('4', { message: 'Linked school ID must be a valid UUID' })
+  linkedSchoolId?: string;
 }

@@ -31,6 +31,7 @@ import {
   CompanyProfileQueryDTO,
   CompanyProfileQueryOutputDTO,
 } from './dto/company-profile-query.dto';
+import { ProfileCompletionDTO } from './dto/profile-completion.dto';
 
 @ApiTags('company-profiles')
 @ApiBearerAuth()
@@ -56,6 +57,19 @@ export class CompanyProfilesController {
     @Query() query: CompanyProfileQueryDTO,
   ): Promise<CompanyProfileQueryOutputDTO> {
     return this.companyProfilesService.findByQuery(currentUser, query);
+  }
+
+  @Get('completion')
+  @ApiOperation({ summary: "Get current user's profile completion status" })
+  @ApiOkResponse({
+    description: 'Profile completion retrieved successfully',
+    type: ProfileCompletionDTO,
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiNotFoundResponse({ description: 'Company profile not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async getMyCompletion(@CurrentUser() currentUser: AuthUserDTO) {
+    return this.companyProfilesService.getProfileCompletion(currentUser);
   }
 
   @Get('my')

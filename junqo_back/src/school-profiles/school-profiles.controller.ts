@@ -36,7 +36,7 @@ import {
 @ApiBearerAuth()
 @Controller('school-profiles')
 export class SchoolProfilesController {
-  constructor(private readonly schoolProfilesService: SchoolProfilesService) {}
+  constructor(private readonly schoolProfilesService: SchoolProfilesService) { }
 
   @Get()
   @ApiOperation({ summary: 'Get school profiles by query parameters' })
@@ -56,6 +56,19 @@ export class SchoolProfilesController {
     return this.schoolProfilesService.findByQuery(currentUser, query);
   }
 
+  @Get('search')
+  @ApiOperation({ summary: 'Search schools by name' })
+  @ApiOkResponse({
+    description: 'Schools matching the search query',
+    type: [SchoolProfileDTO],
+  })
+  public async searchByName(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Query('name') name: string,
+  ) {
+    return this.schoolProfilesService.searchByName(currentUser, name || '');
+  }
+
   @Get('my')
   @ApiOperation({ summary: "Get current user's school profile" })
   @ApiOkResponse({
@@ -67,6 +80,16 @@ export class SchoolProfilesController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   public async findMy(@CurrentUser() currentUser: AuthUserDTO) {
     return this.schoolProfilesService.findOneById(currentUser, currentUser.id);
+  }
+
+  @Get('my/students')
+  @ApiOperation({ summary: 'Get students linked to this school (School only)' })
+  @ApiOkResponse({
+    description: 'List of linked students',
+  })
+  @ApiForbiddenResponse({ description: 'Only schools can view their students' })
+  public async getLinkedStudents(@CurrentUser() currentUser: AuthUserDTO) {
+    return this.schoolProfilesService.getLinkedStudents(currentUser);
   }
 
   @Get(':id')
@@ -118,3 +141,4 @@ export class SchoolProfilesController {
     );
   }
 }
+

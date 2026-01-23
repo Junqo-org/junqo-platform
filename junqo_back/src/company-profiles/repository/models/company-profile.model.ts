@@ -60,7 +60,31 @@ export class CompanyProfileModel extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
+  phoneNumber?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  address?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
   websiteUrl?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  logoUrl?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  industry?: string;
 
   public toCompanyProfileDTO(): CompanyProfileDTO {
     return plainToInstance(CompanyProfileDTO, {
@@ -68,7 +92,11 @@ export class CompanyProfileModel extends Model {
       name: this.name,
       avatar: this.avatar,
       description: this.description,
+      phoneNumber: this.phoneNumber,
+      address: this.address,
       websiteUrl: this.websiteUrl,
+      logoUrl: this.logoUrl,
+      industry: this.industry,
     });
   }
 }
