@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -64,6 +64,51 @@ export default function MessagingPage() {
   const [companyModalOpen, setCompanyModalOpen] = useState(false)
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null)
 
+  // Stabilize handleNewMessage with useCallback to prevent recreations
+  const handleNewMessage = useCallback((message: MessageData) => {
+    // Always add to messages state - we'll filter by conversation in the render
+    setMessages((prev) => {
+      // Check if we have a temporary message that matches this new one
+      // (same content, same sender, and is a temp message)
+      const tempMessageIndex = prev.findIndex(
+        (m) =>
+          m.senderId === message.senderId &&
+          m.content === message.content &&
+          m.id.startsWith('temp-')
+      )
+
+      if (tempMessageIndex !== -1) {
+        // Replace the temp message with the real one
+        const newMessages = [...prev]
+        newMessages[tempMessageIndex] = message
+        return newMessages
+      }
+
+      // Check if message already exists (to prevent duplicates)
+      if (prev.some(m => m.id === message.id)) {
+        return prev
+      }
+
+      return [...prev, message]
+    })
+
+    // Update last message in conversations list
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === message.conversationId
+          ? {
+            ...conv,
+            lastMessage: {
+              ...message,
+              createdAt: message.createdAt || new Date().toISOString()
+            },
+            updatedAt: new Date().toISOString()
+          }
+          : conv
+      )
+    )
+  }, []) // Empty deps - uses only setters which are stable
+
   const { sendMessage, joinRoom, leaveRoom } = useWebSocket({
     onMessage: handleNewMessage,
   })
@@ -103,17 +148,23 @@ export default function MessagingPage() {
         leaveRoom(selectedConversation.id)
       }
     }
-  }, [selectedConversation])
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+  }, [selectedConversation, joinRoom, leaveRoom])
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }
+
+  // Filter messages for the selected conversation only
+  const displayedMessages = selectedConversation
+    ? messages.filter((m: { conversationId: any }) => m.conversationId === selectedConversation.id)
+    : []
+
+  // Scroll when displayed messages change
+  useEffect(() => {
+    scrollToBottom()
+  }, [displayedMessages.length, selectedConversation?.id])
 
   const loadConversations = async () => {
     setIsLoadingConversations(true)
@@ -138,59 +189,20 @@ export default function MessagingPage() {
       const data = await apiService.getMessages(conversationId)
       // Backend returns newest first (DESC), but chat UI needs oldest first (ASC)
       const msgList = data.rows || (Array.isArray(data) ? data : data.items || [])
-      setMessages([...msgList].reverse())
+      
+      // Replace only messages for this conversation, keep others
+      setMessages((prev: any[]) => {
+        // Remove old messages from this conversation
+        const otherMessages = prev.filter((m: { conversationId: string }) => m.conversationId !== conversationId)
+        // Add new messages from this conversation
+        return [...otherMessages, ...[...msgList].reverse()]
+      })
     } catch (error: any) {
       console.error('Failed to load messages:', error)
       toast.error('Erreur lors du chargement des messages')
-      setMessages([])
     } finally {
       setIsLoadingMessages(false)
     }
-  }
-
-  function handleNewMessage(message: MessageData) {
-    if (selectedConversation && message.conversationId === selectedConversation.id) {
-      setMessages((prev) => {
-        // Check if we have a temporary message that matches this new one
-        // (same content, same sender, and is a temp message)
-        const tempMessageIndex = prev.findIndex(
-          (m) =>
-            m.senderId === message.senderId &&
-            m.content === message.content &&
-            m.id.startsWith('temp-')
-        )
-
-        if (tempMessageIndex !== -1) {
-          // Replace the temp message with the real one
-          const newMessages = [...prev]
-          newMessages[tempMessageIndex] = message
-          return newMessages
-        }
-
-        // Check if message already exists (to prevent duplicates if WS sends multiple times or race conditions)
-        if (prev.some(m => m.id === message.id)) {
-          return prev
-        }
-
-        return [...prev, message]
-      })
-    }
-
-    // Update last message in conversations list
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === message.conversationId
-          ? {
-            ...conv,
-            lastMessage: {
-              ...message,
-              createdAt: message.createdAt || new Date().toISOString()
-            },
-            updatedAt: new Date().toISOString()
-          }
-          : conv
-      )
-    )
   }
 
   const handleSendMessage = async () => {
@@ -266,6 +278,7 @@ export default function MessagingPage() {
     return title.toLowerCase().includes(searchQuery.toLowerCase())
   })
 
+
   return (
     <div className="h-[calc(100vh-8rem)] flex gap-4">
       {/* Conversations List */}
@@ -340,19 +353,6 @@ export default function MessagingPage() {
                 <CardTitle className="truncate">
                   {selectedConversation.title || 'Conversation'}
                 </CardTitle>
-                {/* DEBUG: Log render state */}
-                <div style={{ display: 'none' }}>
-                  {(() => {
-                    console.log('[MessagingPage] Render State:', {
-                      offerId: selectedConversation.offerId,
-                      applicationId: selectedConversation.applicationId,
-                      hasOfferId: !!selectedConversation.offerId,
-                      participants: selectedConversation.participantsIds,
-                      userType: user?.type
-                    });
-                    return null;
-                  })()}
-                </div>
               </div>
               <div className="flex gap-2 shrink-0">
                 <Button variant="outline" size="sm" onClick={handleViewProfile}>
@@ -367,7 +367,7 @@ export default function MessagingPage() {
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
-              ) : messages.length === 0 ? (
+              ) : displayedMessages.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
                   <p>Aucun message</p>
@@ -376,46 +376,46 @@ export default function MessagingPage() {
               ) : (
                 <div className="space-y-4">
                   <AnimatePresence>
-                    {messages.map((message) => {
+                    {displayedMessages.map((message) => {
                       const isOwn = message.senderId === user?.id
 
                       return (
-                        <motion.div
-                          key={message.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className={`flex gap-3 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
-                        >
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className={isOwn ? 'bg-primary text-primary-foreground' : ''}>
-                              {isOwn ? getInitials(user.name || user.email) : '👤'}
-                            </AvatarFallback>
-                          </Avatar>
+                          <motion.div
+                            key={message.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className={`flex gap-3 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
+                          >
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className={isOwn ? 'bg-primary text-primary-foreground' : ''}>
+                                {isOwn ? getInitials(user.name || user.email) : '👤'}
+                              </AvatarFallback>
+                            </Avatar>
 
-                          <div className={`flex-1 max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col`}>
-                            <div
-                              className={`rounded-lg p-3 ${isOwn
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted'
-                                }`}
-                            >
-                              <p className="text-sm whitespace-pre-wrap break-words">
-                                {message.content}
-                              </p>
+                            <div className={`flex-1 max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col`}>
+                              <div
+                                className={`rounded-lg p-3 ${isOwn
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-muted'
+                                  }`}
+                              >
+                                <p className="text-sm whitespace-pre-wrap break-words">
+                                  {message.content}
+                                </p>
+                              </div>
+                              {message.createdAt && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {new Date(message.createdAt).toLocaleTimeString('fr-FR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                              )}
                             </div>
-                            {message.createdAt && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {new Date(message.createdAt).toLocaleTimeString('fr-FR', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                              </p>
-                            )}
-                          </div>
-                        </motion.div>
-                      )
-                    })}
+                          </motion.div>
+                        )
+                      })}
                   </AnimatePresence>
                   <div ref={scrollRef} />
                 </div>

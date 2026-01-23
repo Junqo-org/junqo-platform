@@ -29,7 +29,13 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import PrivateRoute from './components/layout/PrivateRoute'
 import { ThemeProvider } from './components/layout/ThemeProvider'
 
+// Hooks
+import { useWebSocketConnection } from './hooks/useWebSocketConnection'
+
 function App() {
+  // Établir la connexion WebSocket globale (se connecte/déconnecte avec l'auth)
+  useWebSocketConnection()
+
   return (
     <ThemeProvider defaultTheme="system" storageKey="junqo-theme">
       <Router>

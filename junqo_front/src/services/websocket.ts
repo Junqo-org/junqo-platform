@@ -26,18 +26,27 @@ class WebSocketService {
   private socket: Socket | null = null
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
+  private isConnecting = false
 
   connect() {
+    // Si déjà connecté, retourner la socket existante
     if (this.socket?.connected) {
       return this.socket
     }
 
+    // Si en cours de connexion, retourner la socket en cours
+    if (this.isConnecting && this.socket) {
+      return this.socket
+    }
+
     const token = useAuthStore.getState().token
-    
+
     if (!token) {
       console.warn('No auth token available for WebSocket connection')
       return null
     }
+
+    this.isConnecting = true
 
     this.socket = io(config.wsUrl, {
       auth: {
@@ -50,18 +59,19 @@ class WebSocketService {
     })
 
     this.socket.on('connect', () => {
-      console.log('WebSocket connected:', this.socket?.id)
       this.reconnectAttempts = 0
+      this.isConnecting = false
     })
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('WebSocket disconnected:', reason)
+    this.socket.on('disconnect', () => {
+      this.isConnecting = false
     })
 
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', (error: any) => {
       console.error('WebSocket connection error:', error)
       this.reconnectAttempts++
-      
+      this.isConnecting = false
+
       if (this.reconnectAttempts >= this.maxReconnectAttempts) {
         console.error('Max reconnection attempts reached')
         this.disconnect()
@@ -75,6 +85,7 @@ class WebSocketService {
     if (this.socket) {
       this.socket.disconnect()
       this.socket = null
+      this.isConnecting = false
     }
   }
 
@@ -115,12 +126,12 @@ class WebSocketService {
 
   // Listen for typing indicators
   onTyping(callback: (data: { userId: string; conversationId: string }) => void) {
-    this.socket?.on('userTyping', callback)
+    this.socket?.on('userStartTyping', callback)
   }
 
   // Remove typing listener
   offTyping() {
-    this.socket?.off('userTyping')
+    this.socket?.off('userStartTyping')
   }
 
   // Listen for stop typing

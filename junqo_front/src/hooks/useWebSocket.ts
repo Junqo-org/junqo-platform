@@ -14,53 +14,61 @@ interface UseWebSocketOptions {
 
 export function useWebSocket(options: UseWebSocketOptions = {}) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const isConnectedRef = useRef(false)
 
+  // Use refs to keep the latest callbacks without recreating listeners
+  const optionsRef = useRef(options)
+
+  // Update ref when options change
+  useEffect(() => {
+    optionsRef.current = options
+  }, [options])
+
+  // Set up event listeners with useCallback to stabilize references
+  // These callbacks use the ref to always call the latest version
+  const onMessage = useCallback((message: any) => {
+    optionsRef.current.onMessage?.(message)
+  }, [])
+
+  const onTyping = useCallback((data: { userId: string; conversationId: string }) => {
+    optionsRef.current.onTyping?.(data)
+  }, [])
+
+  const onStopTyping = useCallback((data: { userId: string; conversationId: string }) => {
+    optionsRef.current.onStopTyping?.(data)
+  }, [])
+
+  const onUserStatus = useCallback((data: { userId: string; status: 'online' | 'offline' }) => {
+    optionsRef.current.onUserStatus?.(data)
+  }, [])
+
+  const onMessageRead = useCallback((data: { messageId: string; userId: string }) => {
+    optionsRef.current.onMessageRead?.(data)
+  }, [])
+
+  const onMessageUpdated = useCallback((message: any) => {
+    optionsRef.current.onMessageUpdated?.(message)
+  }, [])
+
+  const onMessageDeleted = useCallback((data: { messageId: string; conversationId: string }) => {
+    optionsRef.current.onMessageDeleted?.(data)
+  }, [])
+
+  // Set up event listeners (connexion gérée par useWebSocketConnection dans App.tsx)
   useEffect(() => {
     if (!isAuthenticated) {
       return
     }
 
-    // Connect to WebSocket
-    const socket = websocketService.connect()
-    
-    if (!socket) {
-      console.error('Failed to connect to WebSocket')
-      return
-    }
+    // Register all listeners using the stable callback refs
+    websocketService.onMessage(onMessage)
+    websocketService.onTyping(onTyping)
+    websocketService.onStopTyping(onStopTyping)
+    websocketService.onUserStatus(onUserStatus)
+    websocketService.onMessageRead(onMessageRead)
+    websocketService.onMessageUpdated(onMessageUpdated)
+    websocketService.onMessageDeleted(onMessageDeleted)
 
-    isConnectedRef.current = true
-
-    // Set up event listeners
-    if (options.onMessage) {
-      websocketService.onMessage(options.onMessage)
-    }
-
-    if (options.onTyping) {
-      websocketService.onTyping(options.onTyping)
-    }
-
-    if (options.onStopTyping) {
-      websocketService.onStopTyping(options.onStopTyping)
-    }
-
-    if (options.onUserStatus) {
-      websocketService.onUserStatus(options.onUserStatus)
-    }
-
-    if (options.onMessageRead) {
-      websocketService.onMessageRead(options.onMessageRead)
-    }
-
-    if (options.onMessageUpdated) {
-      websocketService.onMessageUpdated(options.onMessageUpdated)
-    }
-
-    if (options.onMessageDeleted) {
-      websocketService.onMessageDeleted(options.onMessageDeleted)
-    }
-
-    // Cleanup on unmount or when auth changes
+    // Cleanup listeners when component unmounts or auth changes
     return () => {
       websocketService.offMessage()
       websocketService.offTyping()
@@ -69,13 +77,17 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       websocketService.offMessageRead()
       websocketService.offMessageUpdated()
       websocketService.offMessageDeleted()
-      
-      if (isConnectedRef.current) {
-        websocketService.disconnect()
-        isConnectedRef.current = false
-      }
     }
-  }, [isAuthenticated, options])
+  }, [
+    isAuthenticated,
+    onMessage,
+    onTyping,
+    onStopTyping,
+    onUserStatus,
+    onMessageRead,
+    onMessageUpdated,
+    onMessageDeleted,
+  ])
 
   // Join a conversation room
   const joinRoom = useCallback((conversationId: string) => {
