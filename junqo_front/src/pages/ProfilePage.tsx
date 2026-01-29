@@ -209,10 +209,10 @@ export default function ProfilePage() {
       await apiService.deleteExperience(experienceToDelete)
       await loadExperiences()
       setRefreshTrigger(prev => prev + 1)
-      toast.success('Expérience supprimée avec succès')
+      toast.success('Experience deleted successfully')
     } catch (error) {
       console.error('Failed to delete experience', error)
-      toast.error("Erreur lors de la suppression de l'expérience")
+      toast.error('Failed to delete experience')
     } finally {
       setExperienceToDelete(null)
     }
