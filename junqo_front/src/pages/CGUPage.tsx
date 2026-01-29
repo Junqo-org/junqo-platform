@@ -111,7 +111,7 @@ export default function CGUPage() {
             <section>
               <CardTitle className="text-xl mb-4">10. Hébergement</CardTitle>
               <p className="text-muted-foreground leading-relaxed">
-                Le service est hébergé chez OVH par l'intermédiaire de EPITECH.
+                Le site est hébergé par la société <a href="https://www.ovhcloud.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">OVH SAS</a> (2 rue Kellermann, 59100 Roubaix - Tél: <a href="tel:1007" className="text-primary hover:underline">1007</a>), via l'infrastructure mise à disposition par l'Association <a href="https://www.epitech.eu/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">EPITECH</a> (24 rue Pasteur, 94270 Le Kremlin-Bicêtre - Tél: <a href="tel:+33144080101" className="text-primary hover:underline">01 44 08 01 01</a>).
               </p>
             </section>
           </CardContent>
