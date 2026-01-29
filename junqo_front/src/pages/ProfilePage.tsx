@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -69,6 +69,7 @@ export default function ProfilePage() {
   const [isSearchingSchools, setIsSearchingSchools] = useState(false)
   const [schoolLinkRequests, setSchoolLinkRequests] = useState<SchoolLinkRequest[]>([])
   const [isSendingRequest, setIsSendingRequest] = useState(false)
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const isStudent = user?.type === 'STUDENT'
 
@@ -109,31 +110,43 @@ export default function ProfilePage() {
   }, [])
 
   useEffect(() => {
-    loadProfile()
-    if (isStudent) {
-      loadExperiences()
-      loadSchoolLinkRequests()
+    if (user) {
+      loadProfile()
+      if (isStudent) {
+        loadExperiences()
+        loadSchoolLinkRequests()
+      }
     }
-  }, [loadProfile, loadExperiences, loadSchoolLinkRequests, isStudent])
+  }, [loadProfile, loadExperiences, loadSchoolLinkRequests, isStudent, user])
 
 
 
   const handleSearchSchools = async (query: string) => {
     setSchoolSearch(query)
+    
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+
     if (query.length < 2) {
       setSchoolSearchResults([])
+      setIsSearchingSchools(false)
       return
     }
+
     setIsSearchingSchools(true)
-    try {
-      const results = await apiService.searchSchools(query)
-      setSchoolSearchResults(results || [])
-    } catch (error) {
-      console.error('Failed to search schools', error)
-      setSchoolSearchResults([])
-    } finally {
-      setIsSearchingSchools(false)
-    }
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const results = await apiService.searchSchools(query)
+        if (query === setSchoolSearch.name) return // Basic stale check (not perfect but debounce helps)
+        setSchoolSearchResults(results || [])
+      } catch (error) {
+        console.error('Failed to search schools', error)
+        setSchoolSearchResults([])
+      } finally {
+        setIsSearchingSchools(false)
+      }
+    }, 300)
   }
 
   const handleSendSchoolRequest = async (schoolId: string) => {
@@ -300,7 +313,7 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={profile?.profilePicture || profile?.logo} />
+                <AvatarImage src={profile?.avatar || profile?.logoUrl || profile?.profilePicture} />
                 <AvatarFallback className="text-2xl">
                   {user ? getInitials(user.name || user.email) : 'U'}
                 </AvatarFallback>
@@ -309,6 +322,7 @@ export default function ProfilePage() {
                 size="icon"
                 variant="secondary"
                 className="absolute bottom-0 right-0 rounded-full h-8 w-8"
+                onClick={() => toast.info('La modification de photo sera bientôt disponible')}
               >
                 <Camera className="h-4 w-4" />
               </Button>

@@ -30,21 +30,27 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    loadStatistics()
-  }, [])
-
-  const loadStatistics = async () => {
-    setIsLoading(true)
-    try {
-      const data = await apiService.getDashboardStatistics()
-      setStats(data)
-    } catch (error: unknown) {
-      console.error('Failed to load statistics:', error)
-      toast.error('Échec du chargement des statistiques')
-    } finally {
-      setIsLoading(false)
+    let isMounted = true
+    
+    const loadStatistics = async () => {
+      setIsLoading(true)
+      try {
+        const data = await apiService.getDashboardStatistics()
+        if (isMounted) setStats(data)
+      } catch (error: unknown) {
+        console.error('Failed to load statistics:', error)
+        if (isMounted) toast.error('Échec du chargement des statistiques')
+      } finally {
+        if (isMounted) setIsLoading(false)
+      }
     }
-  }
+
+    loadStatistics()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const container = {
     hidden: { opacity: 0 },

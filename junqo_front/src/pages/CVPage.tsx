@@ -30,6 +30,18 @@ export default function CVPage() {
       'application/pdf': ['.pdf'],
     },
     maxFiles: 1,
+    maxSize: 10 * 1024 * 1024, // 10MB
+    onDropRejected: (fileRejections) => {
+      fileRejections.forEach((rejection) => {
+        rejection.errors.forEach((error) => {
+          if (error.code === 'file-too-large') {
+            toast.error('Le fichier est trop volumineux. Max 10 MB.')
+          } else {
+            toast.error(`Erreur: ${error.message}`)
+          }
+        })
+      })
+    },
     onDrop: async (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
         const selectedFile = acceptedFiles[0]

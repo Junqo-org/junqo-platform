@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -55,6 +55,7 @@ export default function OffersPage() {
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [locationFilter, setLocationFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'swipe'>('grid')
+  const latestRequestIdRef = useRef(0)
 
   // Disable body scroll when in swipe mode
   useEffect(() => {
@@ -69,6 +70,7 @@ export default function OffersPage() {
   }, [viewMode])
 
   const loadOffers = useCallback(async (page = 1) => {
+    const requestId = ++latestRequestIdRef.current
     setIsLoading(true)
     try {
       const offset = (page - 1) * itemsPerPage
@@ -81,6 +83,9 @@ export default function OffersPage() {
       const data = user?.type === 'COMPANY'
         ? await apiService.getMyOffers()
         : await apiService.getOffers(query)
+
+      // Guard against stale responses
+      if (requestId !== latestRequestIdRef.current) return
 
       let offersArray: Offer[] = []
       let total = 0
@@ -102,6 +107,8 @@ export default function OffersPage() {
       setOffers(offersArray)
       setTotalOffers(total)
     } catch (error: unknown) {
+      if (requestId !== latestRequestIdRef.current) return
+      
       const axiosError = error as { response?: { data?: { message?: string } } }
       const errorMessage = axiosError.response?.data?.message || ''
       if (!errorMessage.includes('not found') && !errorMessage.includes('No offers')) {
@@ -110,7 +117,9 @@ export default function OffersPage() {
       setOffers([])
       setTotalOffers(0)
     } finally {
-      setIsLoading(false)
+      if (requestId === latestRequestIdRef.current) {
+        setIsLoading(false)
+      }
     }
   }, [user, searchQuery, typeFilter, locationFilter, itemsPerPage])
 
@@ -155,16 +164,28 @@ export default function OffersPage() {
   // BUT the robust way is: if Student -> use `offers` directly (it's already filtered/paginated). 
   // If Company -> use `offers` filtering (since we loaded everything).
 
-  const displayOffers = (user?.type === 'COMPANY')
+  // Client-side filtering and pagination for companies (who get all offers at once)
+  const isClientSideFiltering = user?.type === 'COMPANY'
+  
+  const filteredOffers = isClientSideFiltering
     ? offers.filter(offer => {
       const title = (offer.title || '').toLowerCase()
       const description = (offer.description || '').toLowerCase()
       const searchLower = searchQuery.toLowerCase()
-      return title.includes(searchLower) || description.includes(searchLower)
+      const matchesSearch = title.includes(searchLower) || description.includes(searchLower)
+      const matchesType = typeFilter === 'all' || offer.offerType === typeFilter
+      const matchesLocation = locationFilter === 'all' || offer.workLocationType === locationFilter
+      return matchesSearch && matchesType && matchesLocation
     })
     : offers
 
-  const totalPages = Math.ceil(totalOffers / itemsPerPage)
+  const effectiveTotalOffers = isClientSideFiltering ? filteredOffers.length : totalOffers
+
+  const displayOffers = isClientSideFiltering
+    ? filteredOffers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    : filteredOffers
+
+  const totalPages = Math.ceil(effectiveTotalOffers / itemsPerPage)
 
   const renderPagination = () => {
     if (totalPages <= 1) return null

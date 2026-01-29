@@ -105,7 +105,10 @@ export default function SwipingPage() {
             </div>
           </CardContent>
         </Card>
-        <Button onClick={() => setCurrentIndex(0)}>
+        <Button onClick={() => {
+          setCurrentIndex(0)
+          setStats({ viewed: 0, liked: 0, matches: 0 })
+        }}>
           Start Again
         </Button>
       </div>
@@ -220,6 +223,7 @@ export default function SwipingPage() {
           variant="outline"
           className="h-16 w-16 rounded-full"
           onClick={() => handleSwipe('left')}
+          aria-label="Passer"
         >
           <X className="h-8 w-8 text-destructive" />
         </Button>
@@ -227,6 +231,7 @@ export default function SwipingPage() {
           size="lg"
           className="h-16 w-16 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
           onClick={() => handleSwipe('right')}
+          aria-label="Liker"
         >
           <Heart className="h-8 w-8" />
         </Button>
@@ -235,6 +240,7 @@ export default function SwipingPage() {
           variant="outline"
           className="h-16 w-16 rounded-full"
           onClick={() => toast.info('Message feature coming soon!')}
+          aria-label="Envoyer un message"
         >
           <Mail className="h-8 w-8 text-primary" />
         </Button>

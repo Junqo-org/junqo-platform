@@ -217,7 +217,7 @@ export default function WelcomePage() {
         >
           <Card className="bg-card">
             <CardContent className="p-12">
-              <div className="grid grid-cols-3 gap-8 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
                 <div>
                   <div className="text-4xl font-bold text-foreground mb-2">
                     10K+

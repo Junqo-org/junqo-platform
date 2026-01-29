@@ -93,7 +93,7 @@ export default function OfferCreationPage() {
       }
 
       // Add optional fields only if they have values
-      if (data.duration && data.duration.trim()) {
+      if (data.duration && data.duration.trim() && data.offerType === 'INTERNSHIP') {
         offerData.duration = parseInt(data.duration)
       }
       if (data.salary && data.salary.trim()) {
@@ -109,7 +109,6 @@ export default function OfferCreationPage() {
         offerData.benefits = benefits
       }
 
-      console.log('Creating offer with data:', offerData)
       await apiService.createOffer(offerData)
       toast.success('Offre créée avec succès!')
       // Force navigation to offers page to trigger refresh

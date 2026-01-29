@@ -41,6 +41,7 @@ interface MessageData {
   senderId: string
   content: string
   createdAt?: string | Date
+  clientId?: string
 }
 
 interface LocationState {
@@ -75,16 +76,16 @@ export default function MessagingPage() {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null)
 
   // Stabilize handleNewMessage with useCallback to prevent recreations
-  const handleNewMessage = useCallback((message: Message) => {
+  const handleNewMessage = useCallback((message: Message & { clientId?: string }) => {
     // Always add to messages state - we'll filter by conversation in the render
     setMessages((prev) => {
       // Check if we have a temporary message that matches this new one
-      // (same content, same sender, and is a temp message)
       const tempMessageIndex = prev.findIndex(
         (m) =>
-          m.senderId === message.senderId &&
-          m.content === message.content &&
-          m.id.startsWith('temp-')
+          (message.clientId && m.clientId === message.clientId) ||
+          (m.senderId === message.senderId &&
+            m.content === message.content &&
+            m.id.startsWith('temp-'))
       )
 
       if (tempMessageIndex !== -1) {
@@ -119,7 +120,7 @@ export default function MessagingPage() {
     )
   }, []) // Empty deps - uses only setters which are stable
 
-  const { sendMessage, joinRoom, leaveRoom } = useWebSocket({
+  const { sendMessage, joinRoom, leaveRoom, isConnected } = useWebSocket({
     onMessage: handleNewMessage,
   })
 
@@ -227,6 +228,7 @@ export default function MessagingPage() {
       senderId: user.id,
       content: newMessage.trim(),
       createdAt: new Date().toISOString(),
+      clientId: `client-${Date.now()}`,
     }
 
     setMessages((prev) => [...prev, tempMessage])
@@ -234,12 +236,18 @@ export default function MessagingPage() {
     setIsSending(true)
 
     try {
+      if (!isConnected()) {
+        throw new Error('Vous êtes hors ligne. Veuillez vérifier votre connexion.')
+      }
+
       // Send via WebSocket for real-time delivery (Gateway saves to DB)
       sendMessage({
         conversationId: selectedConversation.id,
         senderId: user.id,
         content: tempMessage.content,
-      })
+        clientId: tempMessage.clientId, // Attempt to pass clientId
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any) // Type assertion if MessagePayload doesn't support clientId yet
 
       // NOTE: We do NOT call apiService.createMessage here because the WebSocket Gateway 
       // already handles saving the message to the database. Calling it would create duplicates.

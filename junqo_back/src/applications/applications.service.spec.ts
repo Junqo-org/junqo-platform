@@ -45,12 +45,14 @@ const applications: ApplicationDTO[] = [
     updatedAt: new Date('2024-01-02T00:00:00Z'),
     student: plainToInstance(StudentProfileDTO, {
       id: currentUser.id,
+      userId: currentUser.id,
       firstName: 'Student',
       lastName: 'User',
       name: 'Student',
     }),
     company: plainToInstance(CompanyProfileDTO, {
       id: 'c19cc25b-0cc4-4032-83c2-0d34c84318ba',
+      userId: 'c19cc25b-0cc4-4032-83c2-0d34c84318ba',
       name: 'Company',
     }),
     offer: plainToInstance(OfferDTO, {
@@ -687,6 +689,15 @@ describe('ApplicationsService', () => {
     it('should throw InternalServerErrorException if delete fails', async () => {
       applicationsRepository.findOneById.mockResolvedValue(applications[0]);
       applicationsRepository.delete.mockRejectedValue(new Error());
+
+      await expect(
+        applicationsService.delete(currentUser, applications[0].id),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+
+    it('should throw InternalServerErrorException if delete returns false', async () => {
+      applicationsRepository.findOneById.mockResolvedValue(applications[0]);
+      applicationsRepository.delete.mockResolvedValue(false);
 
       await expect(
         applicationsService.delete(currentUser, applications[0].id),

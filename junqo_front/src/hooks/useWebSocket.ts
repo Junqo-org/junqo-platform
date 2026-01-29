@@ -71,13 +71,13 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     // Cleanup listeners when component unmounts or auth changes
     return () => {
-      websocketService.offMessage()
-      websocketService.offTyping()
-      websocketService.offStopTyping()
-      websocketService.offUserStatus()
-      websocketService.offMessageRead()
-      websocketService.offMessageUpdated()
-      websocketService.offMessageDeleted()
+      websocketService.offMessage(onMessage)
+      websocketService.offTyping(onTyping)
+      websocketService.offStopTyping(onStopTyping)
+      websocketService.offUserStatus(onUserStatus)
+      websocketService.offMessageRead(onMessageRead)
+      websocketService.offMessageUpdated(onMessageUpdated)
+      websocketService.offMessageDeleted(onMessageDeleted)
     }
   }, [
     isAuthenticated,

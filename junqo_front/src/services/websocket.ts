@@ -111,8 +111,8 @@ class WebSocketService {
   }
 
   // Remove message listener
-  offMessage() {
-    this.socket?.off('receiveMessage')
+  offMessage(callback?: (message: Message) => void) {
+    this.socket?.off('receiveMessage', callback)
   }
 
   // Start typing indicator
@@ -131,8 +131,8 @@ class WebSocketService {
   }
 
   // Remove typing listener
-  offTyping() {
-    this.socket?.off('userStartTyping')
+  offTyping(callback?: (data: { userId: string; conversationId: string }) => void) {
+    this.socket?.off('userStartTyping', callback)
   }
 
   // Listen for stop typing
@@ -141,8 +141,8 @@ class WebSocketService {
   }
 
   // Remove stop typing listener
-  offStopTyping() {
-    this.socket?.off('userStopTyping')
+  offStopTyping(callback?: (data: { userId: string; conversationId: string }) => void) {
+    this.socket?.off('userStopTyping', callback)
   }
 
   // Listen for user status changes
@@ -151,8 +151,8 @@ class WebSocketService {
   }
 
   // Remove user status listener
-  offUserStatus() {
-    this.socket?.off('userStatus')
+  offUserStatus(callback?: (data: UserStatusPayload) => void) {
+    this.socket?.off('userStatus', callback)
   }
 
   // Mark message as read
@@ -166,8 +166,8 @@ class WebSocketService {
   }
 
   // Remove message read listener
-  offMessageRead() {
-    this.socket?.off('messageRead')
+  offMessageRead(callback?: (data: { messageId: string; userId: string }) => void) {
+    this.socket?.off('messageRead', callback)
   }
 
   // Update a message
@@ -181,8 +181,8 @@ class WebSocketService {
   }
 
   // Remove message updated listener
-  offMessageUpdated() {
-    this.socket?.off('messageUpdated')
+  offMessageUpdated(callback?: (message: Message) => void) {
+    this.socket?.off('messageUpdated', callback)
   }
 
   // Delete a message
@@ -196,8 +196,8 @@ class WebSocketService {
   }
 
   // Remove message deleted listener
-  offMessageDeleted() {
-    this.socket?.off('messageDeleted')
+  offMessageDeleted(callback?: (data: { messageId: string; conversationId: string }) => void) {
+    this.socket?.off('messageDeleted', callback)
   }
 
   // Get message history

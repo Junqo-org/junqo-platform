@@ -129,7 +129,7 @@ export default function OfferEditPage() {
         workLocationType: data.workLocationType,
       }
 
-      if (data.duration && data.duration.trim()) {
+      if (data.duration && data.duration.trim() && data.offerType === 'INTERNSHIP') {
         offerData.duration = parseInt(data.duration)
       }
       if (data.salary && data.salary.trim()) {

@@ -198,13 +198,14 @@ export function ExperienceModal({ open, onClose, onSave, experience }: Experienc
               </div>
               {formData.skills.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {formData.skills.map((skill, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
+                  {formData.skills.map((skill) => (
+                    <Badge key={skill} variant="secondary" className="gap-1">
                       {skill}
                       <button
                         type="button"
                         onClick={() => handleRemoveSkill(skill)}
                         className="ml-1 hover:text-destructive"
+                        aria-label={`Remove skill ${skill}`}
                       >
                         <X className="h-3 w-3" />
                       </button>

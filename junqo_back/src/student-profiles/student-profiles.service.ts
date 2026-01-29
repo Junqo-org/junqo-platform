@@ -25,7 +25,7 @@ export class StudentProfilesService {
   constructor(
     private readonly caslAbilityFactory: CaslAbilityFactory,
     private readonly profilesRepository: StudentProfilesRepository,
-  ) {}
+  ) { }
 
   /**
    * Retrieves student profiles matching the query if the current user has the required permissions.
@@ -309,6 +309,7 @@ export class StudentProfilesService {
       };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
+      if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to calculate profile completion: ${error.message}`,
       );

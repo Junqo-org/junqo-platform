@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -61,17 +61,7 @@ export default function OfferDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  useEffect(() => {
-    if (offerId) {
-      loadOffer()
-    } else {
-      toast.error('No offer ID provided')
-      navigate('/offers')
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [offerId])
-
-  const loadOffer = async () => {
+  const loadOffer = useCallback(async () => {
     if (!offerId) return
 
     setIsLoading(true)
@@ -96,7 +86,16 @@ export default function OfferDetailPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [offerId, isStudent])
+
+  useEffect(() => {
+    if (offerId) {
+      loadOffer()
+    } else {
+      toast.error('No offer ID provided')
+      navigate('/offers')
+    }
+  }, [offerId, loadOffer, navigate])
   const handleApply = async () => {
     if (!offerId) return
 
@@ -125,6 +124,7 @@ export default function OfferDetailPage() {
     try {
       await apiService.deleteOffer(offerId)
       toast.success('Offre supprimée avec succès')
+      setShowDeleteDialog(false)
       navigate('/offers')
     } catch (error: unknown) {
       const axiosError = error as AxiosErrorResponse
@@ -132,7 +132,6 @@ export default function OfferDetailPage() {
       toast.error(axiosError.response?.data?.message || 'Erreur lors de la suppression')
     } finally {
       setIsDeleting(false)
-      setShowDeleteDialog(false)
     }
   }
 

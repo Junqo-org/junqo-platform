@@ -218,7 +218,7 @@ export default function ApplicationManagementPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: Application['status']) => {
     switch (status) {
       case 'NOT_OPENED':
         return { label: 'Non lue', color: 'bg-muted text-muted-foreground border-border' }
@@ -233,7 +233,7 @@ export default function ApplicationManagementPage() {
     }
   }
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: Application['status']) => {
     switch (status) {
       case 'NOT_OPENED':
         return <Clock className="h-4 w-4" />
@@ -483,7 +483,7 @@ export default function ApplicationManagementPage() {
                       key={application.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
+                      transition={{ delay: Math.min(index * 0.05, 0.5) }}
                     >
                       <Card className="bg-card border-border hover:border-primary transition-colors shadow-sm">
                         <CardContent className="pt-6">

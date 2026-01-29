@@ -15,13 +15,7 @@ type ThemeProviderState = {
   setTheme: (theme: Theme) => void
 }
 
-const initialState: ThemeProviderState = {
-  theme: "system",
-  resolvedTheme: "light",
-  setTheme: () => null,
-}
-
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined)
 
 export function ThemeProvider({
   children,
@@ -29,9 +23,13 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  )
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      return (localStorage.getItem(storageKey) as Theme) || defaultTheme
+    } catch {
+      return defaultTheme
+    }
+  })
   
   const [systemTheme, setSystemTheme] = useState<"dark" | "light">(() => {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
@@ -53,6 +51,11 @@ export function ThemeProvider({
       const mql = window.matchMedia("(prefers-color-scheme: dark)")
       const currentSystemTheme = mql.matches ? "dark" : "light"
 
+      if (systemTheme !== currentSystemTheme) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSystemTheme(currentSystemTheme)
+      }
+
       root.classList.add(currentSystemTheme)
 
       const onChange = (e: MediaQueryListEvent) => {
@@ -69,13 +72,17 @@ export function ThemeProvider({
     }
 
     root.classList.add(theme)
-  }, [theme])
+  }, [theme, systemTheme])
 
   const value = {
     theme,
     resolvedTheme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme)
+      try {
+        localStorage.setItem(storageKey, theme)
+      } catch (e) {
+        console.warn('Failed to save theme preference:', e)
+      }
       setTheme(theme)
     },
   }
