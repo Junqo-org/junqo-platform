@@ -18,8 +18,6 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { apiService } from '@/services/api'
-import { useAuthStore } from '@/store/authStore'
-import { getInitials } from '@/lib/utils'
 
 interface Message {
   id: string
@@ -31,8 +29,7 @@ interface Message {
 export default function InterviewChatPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const user = useAuthStore((state) => state.user)
-  const context = (location.state as any)?.context || 'general'
+  const context = (location.state as { context?: string })?.context || 'general'
   
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -81,7 +78,7 @@ export default function InterviewChatPage() {
       }
 
       setMessages((prev) => [...prev, assistantMessage])
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Interview error:', error)
       toast.error('Erreur lors de la communication avec le recruteur')
       

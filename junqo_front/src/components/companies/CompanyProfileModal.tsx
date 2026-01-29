@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -15,8 +15,7 @@ import {
     Globe,
     MapPin,
     ExternalLink,
-    Loader2,
-    Mail
+    Loader2
 } from 'lucide-react'
 import { apiService } from '@/services/api'
 import { getInitials } from '@/lib/utils'
@@ -50,13 +49,7 @@ export function CompanyProfileModal({
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        if (open && companyId) {
-            loadProfile()
-        }
-    }, [open, companyId])
-
-    const loadProfile = async () => {
+    const loadProfile = useCallback(async () => {
         if (!companyId) return
 
         setIsLoading(true)
@@ -65,14 +58,20 @@ export function CompanyProfileModal({
         try {
             const data = await apiService.getCompanyProfile(companyId)
             setProfile(data)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Failed to load company profile:', err)
             setError('Impossible de charger le profil de l\'entreprise')
             toast.error('Échec du chargement du profil')
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [companyId])
+
+    useEffect(() => {
+        if (open && companyId) {
+            loadProfile()
+        }
+    }, [open, companyId, loadProfile])
 
     return (
         <Dialog open={open} onOpenChange={onClose}>

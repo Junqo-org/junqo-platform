@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
@@ -37,11 +37,7 @@ export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardP
 
   const isStudent = user?.type === 'STUDENT'
 
-  useEffect(() => {
-    loadCompletion()
-  }, [refreshTrigger])
-
-  const loadCompletion = async () => {
+  const loadCompletion = useCallback(async () => {
     try {
       setIsLoading(true)
       const data = isStudent
@@ -53,7 +49,11 @@ export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardP
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [isStudent])
+
+  useEffect(() => {
+    loadCompletion()
+  }, [refreshTrigger, loadCompletion])
 
   if (isLoading) {
     return (
@@ -68,11 +68,7 @@ export function ProfileCompletionCard({ refreshTrigger }: ProfileCompletionCardP
 
   if (!completion) return null
 
-  const getCompletionColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-green-600'
-    if (percentage >= 50) return 'text-yellow-600'
-    return 'text-red-600'
-  }
+
 
   const getCompletionStatus = (percentage: number) => {
     if (percentage === 100) return 'Terminé ! 🎉'

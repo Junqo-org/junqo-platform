@@ -11,7 +11,6 @@ import {
     X,
     School,
     GraduationCap,
-    Mail,
     Phone,
     ExternalLink,
     ChevronDown,

@@ -36,6 +36,25 @@ const offerSchema = z.object({
 
 type OfferFormData = z.infer<typeof offerSchema>
 
+interface OfferCreateData {
+  title: string
+  description: string
+  status: 'ACTIVE' | 'INACTIVE' | 'CLOSED'
+  offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT'
+  workLocationType: 'ON_SITE' | 'TELEWORKING' | 'HYBRID'
+  duration?: number
+  salary?: number
+  educationLevel?: number
+  skills?: string[]
+  benefits?: string[]
+}
+
+interface AxiosErrorResponse {
+  response?: {
+    data?: { message?: string }
+  }
+}
+
 export default function OfferCreationPage() {
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -65,7 +84,7 @@ export default function OfferCreationPage() {
     setIsSubmitting(true)
     try {
       // Convert strings to numbers, handle empty values
-      const offerData: any = {
+      const offerData: OfferCreateData = {
         title: data.title,
         description: data.description,
         status: data.status,
@@ -91,13 +110,14 @@ export default function OfferCreationPage() {
       }
 
       console.log('Creating offer with data:', offerData)
-      const createdOffer = await apiService.createOffer(offerData)
+      await apiService.createOffer(offerData)
       toast.success('Offre créée avec succès!')
       // Force navigation to offers page to trigger refresh
       navigate('/offers', { replace: true, state: { refresh: Date.now() } })
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
       console.error('Failed to create offer:', error)
-      toast.error(error.response?.data?.message || 'Erreur lors de la création de l\'offre')
+      toast.error(axiosError.response?.data?.message || 'Erreur lors de la création de l\'offre')
     } finally {
       setIsSubmitting(false)
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -17,8 +17,7 @@ import {
     GraduationCap,
     Briefcase,
     ExternalLink,
-    Loader2,
-    Mail
+    Loader2
 } from 'lucide-react'
 import { apiService } from '@/services/api'
 import { getInitials } from '@/lib/utils'
@@ -54,20 +53,13 @@ interface StudentProfile {
 export function StudentProfileModal({
     open,
     onClose,
-    studentId,
-    studentName
-}: StudentProfileModalProps) {
+    studentId
+}: Omit<StudentProfileModalProps, 'studentName'> & { studentName?: string }) {
     const [profile, setProfile] = useState<StudentProfile | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        if (open && studentId) {
-            loadProfile()
-        }
-    }, [open, studentId])
-
-    const loadProfile = async () => {
+    const loadProfile = useCallback(async () => {
         if (!studentId) return
 
         setIsLoading(true)
@@ -76,14 +68,20 @@ export function StudentProfileModal({
         try {
             const data = await apiService.getStudentProfile(studentId)
             setProfile(data)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Failed to load student profile:', err)
             setError('Impossible de charger le profil')
             toast.error('Échec du chargement du profil')
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [studentId])
+
+    useEffect(() => {
+        if (open && studentId) {
+            loadProfile()
+        }
+    }, [open, studentId, loadProfile])
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString)

@@ -1,14 +1,15 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { websocketService, MessagePayload } from '@/services/websocket'
 import { useAuthStore } from '@/store/authStore'
+import { Message } from '@/types'
 
 interface UseWebSocketOptions {
-  onMessage?: (message: any) => void
+  onMessage?: (message: Message) => void
   onTyping?: (data: { userId: string; conversationId: string }) => void
   onStopTyping?: (data: { userId: string; conversationId: string }) => void
   onUserStatus?: (data: { userId: string; status: 'online' | 'offline' }) => void
   onMessageRead?: (data: { messageId: string; userId: string }) => void
-  onMessageUpdated?: (message: any) => void
+  onMessageUpdated?: (message: Message) => void
   onMessageDeleted?: (data: { messageId: string; conversationId: string }) => void
 }
 
@@ -25,7 +26,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
   // Set up event listeners with useCallback to stabilize references
   // These callbacks use the ref to always call the latest version
-  const onMessage = useCallback((message: any) => {
+  const onMessage = useCallback((message: Message) => {
     optionsRef.current.onMessage?.(message)
   }, [])
 
@@ -45,7 +46,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     optionsRef.current.onMessageRead?.(data)
   }, [])
 
-  const onMessageUpdated = useCallback((message: any) => {
+  const onMessageUpdated = useCallback((message: Message) => {
     optionsRef.current.onMessageUpdated?.(message)
   }, [])
 

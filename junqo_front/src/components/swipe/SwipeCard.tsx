@@ -15,7 +15,7 @@ export function SwipeCard({ children, onSwipeLeft, onSwipeRight, className = '' 
   const rotate = useTransform(x, [-200, 200], [-25, 25])
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0])
 
-  const handleDragEnd = (event: any, info: PanInfo) => {
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (Math.abs(info.offset.x) > 100) {
       setExitX(info.offset.x > 0 ? 200 : -200)
       if (info.offset.x > 0) {

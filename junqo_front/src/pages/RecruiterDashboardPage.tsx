@@ -73,7 +73,7 @@ export default function RecruiterDashboardPage() {
         if (analyticsData && analyticsData.analytics) {
           // Get offer titles
           const enrichedAnalytics = await Promise.all(
-            analyticsData.analytics.slice(0, 5).map(async (analytics: any) => {
+            analyticsData.analytics.slice(0, 5).map(async (analytics: OfferAnalytics) => {
               try {
                 const offer = await apiService.getOffer(analytics.offerId)
                 return { ...analytics, offerTitle: offer.title }

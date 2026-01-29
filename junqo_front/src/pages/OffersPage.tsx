@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -68,54 +68,16 @@ export default function OffersPage() {
     }
   }, [viewMode])
 
-  useEffect(() => {
-    // Reset to page 1 when filters change (except when user just changes page)
-    setCurrentPage(1)
-    loadOffers(1)
-  }, [user, searchQuery, typeFilter, locationFilter])
-
-  useEffect(() => {
-    // When page changes, reload offers
-    loadOffers(currentPage)
-  }, [currentPage])
-
-  useEffect(() => {
-    const handleFocus = () => {
-      loadOffers(currentPage)
-    }
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        loadOffers(currentPage)
-      }
-    }
-
-    window.addEventListener('focus', handleFocus)
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    return () => {
-      window.removeEventListener('focus', handleFocus)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [currentPage])
-
-  const loadOffers = async (page = 1) => {
+  const loadOffers = useCallback(async (page = 1) => {
     setIsLoading(true)
     try {
       const offset = (page - 1) * itemsPerPage
-      let query: any = { limit: itemsPerPage, offset }
+      const query: Record<string, string | number> = { limit: itemsPerPage, offset }
 
-      // Apply filters to backend query if possible, but frontend filtering is also used.
-      // Ideally move all filtering to backend for true pagination.
-      // For now, we follow the existing pattern but respecting pagination for the initial fetch.
-      // Note: If filtering is done purely on frontend, pagination won't work correctly with backend limits.
-      // However, the `getOffers` seems to support some params.
-      // IMPORTANT: To make "real pagination" work with filters, we should pass filters to backend.
-      // Assuming backend supports these standard filters:
       if (searchQuery) query.title = searchQuery
       if (typeFilter !== 'all') query.offerType = typeFilter
       if (locationFilter !== 'all') query.workLocationType = locationFilter
 
-      // For companies: load their own offers (usually all, then paginated if backend supports)
       const data = user?.type === 'COMPANY'
         ? await apiService.getMyOffers()
         : await apiService.getOffers(query)
@@ -139,8 +101,9 @@ export default function OffersPage() {
 
       setOffers(offersArray)
       setTotalOffers(total)
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || ''
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } }
+      const errorMessage = axiosError.response?.data?.message || ''
       if (!errorMessage.includes('not found') && !errorMessage.includes('No offers')) {
         toast.error('Erreur lors du chargement des offres')
       }
@@ -149,7 +112,39 @@ export default function OffersPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user, searchQuery, typeFilter, locationFilter, itemsPerPage])
+
+  useEffect(() => {
+    // Reset to page 1 when filters change
+    setCurrentPage(1)
+    loadOffers(1)
+  }, [loadOffers])
+
+  useEffect(() => {
+    // When page changes, reload offers
+    loadOffers(currentPage)
+  }, [currentPage, loadOffers])
+
+  useEffect(() => {
+    const handleFocus = () => {
+      loadOffers(currentPage)
+    }
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadOffers(currentPage)
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [currentPage, loadOffers])
+
+  // Note: For students, filtering is done on backend. For companies (my offers), we might still need frontend filtering
 
 
   // Note: For students, filtering is done on backend. For companies (my offers), we might still need frontend filtering 
@@ -253,9 +248,10 @@ export default function OffersPage() {
       await apiService.applyToOffer(offer.id)
       setAppliedOffers(prev => new Set([...prev, offer.id]))
       toast.success(`Candidature envoyée pour "${offer.title}"`)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } }
       console.error('Application error:', error)
-      const errorMsg = error.response?.data?.message || ''
+      const errorMsg = axiosError.response?.data?.message || ''
       if (errorMsg.includes('already applied') || errorMsg.includes('duplicate')) {
         toast.info('Vous avez déjà postulé à cette offre')
         setAppliedOffers(prev => new Set([...prev, offer.id]))

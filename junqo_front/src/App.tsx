@@ -1,29 +1,31 @@
+import { Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import LoadingSpinner from './components/layout/LoadingSpinner'
 
 // Pages
-import WelcomePage from './pages/WelcomePage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import UserTypeSelectionPage from './pages/UserTypeSelectionPage'
-import HomePage from './pages/HomePage'
-import ProfilePage from './pages/ProfilePage'
-import OffersPage from './pages/OffersPage'
-import OfferDetailPage from './pages/OfferDetailPage'
-import OfferCreationPage from './pages/OfferCreationPage'
-import OfferEditPage from './pages/OfferEditPage'
-import CVPage from './pages/CVPage'
-import InterviewPage from './pages/InterviewPage'
-import InterviewChatPage from './pages/InterviewChatPage'
-import MessagingPage from './pages/MessagingPage'
-import RecruiterDashboardPage from './pages/RecruiterDashboardPage'
-import SwipingPage from './pages/SwipingPage'
-import ApplicationsTrackingPage from './pages/ApplicationsTrackingPage'
-import ApplicationManagementPage from './pages/ApplicationManagementPage'
-import SchoolDashboardPage from './pages/SchoolDashboardPage'
-import NotFoundPage from './pages/NotFoundPage'
-import CGUPage from './pages/CGUPage'
-import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
+const WelcomePage = lazy(() => import('./pages/WelcomePage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const UserTypeSelectionPage = lazy(() => import('./pages/UserTypeSelectionPage'))
+const HomePage = lazy(() => import('./pages/HomePage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const OffersPage = lazy(() => import('./pages/OffersPage'))
+const OfferDetailPage = lazy(() => import('./pages/OfferDetailPage'))
+const OfferCreationPage = lazy(() => import('./pages/OfferCreationPage'))
+const OfferEditPage = lazy(() => import('./pages/OfferEditPage'))
+const CVPage = lazy(() => import('./pages/CVPage'))
+const InterviewPage = lazy(() => import('./pages/InterviewPage'))
+const InterviewChatPage = lazy(() => import('./pages/InterviewChatPage'))
+const MessagingPage = lazy(() => import('./pages/MessagingPage'))
+const RecruiterDashboardPage = lazy(() => import('./pages/RecruiterDashboardPage'))
+const SwipingPage = lazy(() => import('./pages/SwipingPage'))
+const ApplicationsTrackingPage = lazy(() => import('./pages/ApplicationsTrackingPage'))
+const ApplicationManagementPage = lazy(() => import('./pages/ApplicationManagementPage'))
+const SchoolDashboardPage = lazy(() => import('./pages/SchoolDashboardPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const CGUPage = lazy(() => import('./pages/CGUPage'))
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'))
 
 // Layout
 import PrivateRoute from './components/layout/PrivateRoute'
@@ -39,38 +41,40 @@ function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="junqo-theme">
       <Router>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/user-type-selection" element={<UserTypeSelectionPage />} />
-          <Route path="/cgu" element={<CGUPage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<WelcomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/user-type-selection" element={<UserTypeSelectionPage />} />
+            <Route path="/cgu" element={<CGUPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
-          {/* Protected routes */}
-          <Route element={<PrivateRoute />}>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/offers" element={<OffersPage />} />
-            <Route path="/offers/details" element={<OfferDetailPage />} />
-            <Route path="/offers/create" element={<OfferCreationPage />} />
-            <Route path="/offers/edit" element={<OfferEditPage />} />
-            <Route path="/cv" element={<CVPage />} />
-            <Route path="/interview" element={<InterviewPage />} />
-            <Route path="/interview/chat" element={<InterviewChatPage />} />
-            <Route path="/messaging" element={<MessagingPage />} />
-            <Route path="/applications" element={<ApplicationsTrackingPage />} />
-            <Route path="/recruiter/dashboard" element={<RecruiterDashboardPage />} />
-            <Route path="/recruiter/applications" element={<ApplicationManagementPage />} />
-            <Route path="/recruiter/swiping" element={<SwipingPage />} />
-            <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
-          </Route>
+            {/* Protected routes */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/offers" element={<OffersPage />} />
+              <Route path="/offers/details" element={<OfferDetailPage />} />
+              <Route path="/offers/create" element={<OfferCreationPage />} />
+              <Route path="/offers/edit" element={<OfferEditPage />} />
+              <Route path="/cv" element={<CVPage />} />
+              <Route path="/interview" element={<InterviewPage />} />
+              <Route path="/interview/chat" element={<InterviewChatPage />} />
+              <Route path="/messaging" element={<MessagingPage />} />
+              <Route path="/applications" element={<ApplicationsTrackingPage />} />
+              <Route path="/recruiter/dashboard" element={<RecruiterDashboardPage />} />
+              <Route path="/recruiter/applications" element={<ApplicationManagementPage />} />
+              <Route path="/recruiter/swiping" element={<SwipingPage />} />
+              <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
+            </Route>
 
-          {/* 404 */}
-          <Route path="/404" element={<NotFoundPage />} />
-          <Route path="*" element={<Navigate to="/404" replace />} />
-        </Routes>
+            {/* 404 */}
+            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="*" element={<Navigate to="/404" replace />} />
+          </Routes>
+        </Suspense>
       </Router>
       <Toaster position="top-right" richColors />
     </ThemeProvider>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,7 @@ import { getInitials, formatRelativeTime } from '@/lib/utils'
 import { toast } from 'sonner'
 import { StudentProfileModal } from '@/components/candidates/StudentProfileModal'
 import { CompanyProfileModal } from '@/components/companies/CompanyProfileModal'
+import { Message } from '@/types'
 
 // ... existing interfaces ...
 
@@ -25,7 +26,7 @@ interface ConversationData {
     senderId: string
     conversationId: string
     content: string
-    createdAt: string
+    createdAt: string | Date
   }
   createdAt: string
   updatedAt: string
@@ -39,12 +40,21 @@ interface MessageData {
   conversationId: string
   senderId: string
   content: string
-  createdAt?: string
+  createdAt?: string | Date
+}
+
+interface LocationState {
+  studentId?: string
+}
+
+interface AxiosErrorResponse {
+  response?: {
+    data?: { message?: string }
+  }
 }
 
 export default function MessagingPage() {
   const user = useAuthStore((state) => state.user)
-  const navigate = useNavigate()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const [conversations, setConversations] = useState<ConversationData[]>([])
@@ -65,7 +75,7 @@ export default function MessagingPage() {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null)
 
   // Stabilize handleNewMessage with useCallback to prevent recreations
-  const handleNewMessage = useCallback((message: MessageData) => {
+  const handleNewMessage = useCallback((message: Message) => {
     // Always add to messages state - we'll filter by conversation in the render
     setMessages((prev) => {
       // Check if we have a temporary message that matches this new one
@@ -121,8 +131,9 @@ export default function MessagingPage() {
 
   // Auto-select conversation from location state (e.g. redirected from ApplicationManagement)
   useEffect(() => {
-    if (location.state && (location.state as any).studentId) {
-      const studentId = (location.state as any).studentId
+    const state = location.state as LocationState | null
+    if (state?.studentId) {
+      const studentId = state.studentId
 
       // If we have conversations, try to find it
       if (conversations.length > 0) {
@@ -158,7 +169,7 @@ export default function MessagingPage() {
 
   // Filter messages for the selected conversation only
   const displayedMessages = selectedConversation
-    ? messages.filter((m: { conversationId: any }) => m.conversationId === selectedConversation.id)
+    ? messages.filter((m: MessageData) => m.conversationId === selectedConversation.id)
     : []
 
   // Scroll when displayed messages change
@@ -174,8 +185,9 @@ export default function MessagingPage() {
       // Checking for data.rows first, then fallback to array, then data.items (legacy)
       const convList = data.rows || (Array.isArray(data) ? data : data.items || [])
       setConversations(convList)
-    } catch (error: any) {
-      console.error('Failed to load conversations:', error)
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
+      console.error('Failed to load conversations:', axiosError)
       toast.error('Erreur lors du chargement des conversations')
       setConversations([])
     } finally {
@@ -191,14 +203,15 @@ export default function MessagingPage() {
       const msgList = data.rows || (Array.isArray(data) ? data : data.items || [])
       
       // Replace only messages for this conversation, keep others
-      setMessages((prev: any[]) => {
+      setMessages((prev: MessageData[]) => {
         // Remove old messages from this conversation
-        const otherMessages = prev.filter((m: { conversationId: string }) => m.conversationId !== conversationId)
+        const otherMessages = prev.filter((m: MessageData) => m.conversationId !== conversationId)
         // Add new messages from this conversation
         return [...otherMessages, ...[...msgList].reverse()]
       })
-    } catch (error: any) {
-      console.error('Failed to load messages:', error)
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
+      console.error('Failed to load messages:', axiosError)
       toast.error('Erreur lors du chargement des messages')
     } finally {
       setIsLoadingMessages(false)
@@ -231,8 +244,9 @@ export default function MessagingPage() {
       // NOTE: We do NOT call apiService.createMessage here because the WebSocket Gateway 
       // already handles saving the message to the database. Calling it would create duplicates.
 
-    } catch (error: any) {
-      console.error('Failed to send message:', error)
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
+      console.error('Failed to send message:', axiosError)
       toast.error('Erreur lors de l\'envoi du message')
       // Remove temp message on error
       setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id))

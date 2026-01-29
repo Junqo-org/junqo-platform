@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client'
 import { config } from '@/config/env'
 import { useAuthStore } from '@/store/authStore'
+import { Message } from '@/types'
 
 export interface MessagePayload {
   conversationId: string
@@ -67,7 +68,7 @@ class WebSocketService {
       this.isConnecting = false
     })
 
-    this.socket.on('connect_error', (error: any) => {
+    this.socket.on('connect_error', (error: Error) => {
       console.error('WebSocket connection error:', error)
       this.reconnectAttempts++
       this.isConnecting = false
@@ -105,7 +106,7 @@ class WebSocketService {
   }
 
   // Listen for incoming messages
-  onMessage(callback: (message: any) => void) {
+  onMessage(callback: (message: Message) => void) {
     this.socket?.on('receiveMessage', callback)
   }
 
@@ -175,7 +176,7 @@ class WebSocketService {
   }
 
   // Listen for message updates
-  onMessageUpdated(callback: (message: any) => void) {
+  onMessageUpdated(callback: (message: Message) => void) {
     this.socket?.on('messageUpdated', callback)
   }
 
@@ -216,7 +217,7 @@ class WebSocketService {
   }
 
   // Generic event listener
-  on(event: string, callback: (...args: any[]) => void) {
+  on(event: string, callback: (...args: unknown[]) => void) {
     this.socket?.on(event, callback)
   }
 

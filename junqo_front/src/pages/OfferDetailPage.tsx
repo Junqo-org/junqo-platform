@@ -23,6 +23,18 @@ import {
 import { apiService } from '@/services/api'
 import { Offer } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
+
+interface Application {
+  id: string
+  offerId: string
+  status: string
+}
+
+interface AxiosErrorResponse {
+  response?: {
+    data?: { message?: string }
+  }
+}
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'sonner'
 import {
@@ -72,14 +84,15 @@ export default function OfferDetailPage() {
         try {
           const applications = await apiService.getMyApplications()
           const applicationsArray = Array.isArray(applications) ? applications : (applications.items || applications.data || [])
-          const hasAppliedToThis = applicationsArray.some((app: any) => app.offerId === offerId)
+          const hasAppliedToThis = applicationsArray.some((app: Application) => app.offerId === offerId)
           setHasApplied(hasAppliedToThis)
         } catch (appError) {
           // Don't show error to user, just assume not applied
         }
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Erreur lors du chargement de l\'offre')
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
+      toast.error(axiosError.response?.data?.message || 'Erreur lors du chargement de l\'offre')
     } finally {
       setIsLoading(false)
     }
@@ -92,9 +105,10 @@ export default function OfferDetailPage() {
       await apiService.applyToOffer(offerId)
       setHasApplied(true)
       toast.success('Candidature envoyée avec succès!')
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
       console.error('Failed to apply:', error)
-      toast.error(error.response?.data?.message || 'Erreur lors de la candidature')
+      toast.error(axiosError.response?.data?.message || 'Erreur lors de la candidature')
     } finally {
       setIsApplying(false)
     }
@@ -112,9 +126,10 @@ export default function OfferDetailPage() {
       await apiService.deleteOffer(offerId)
       toast.success('Offre supprimée avec succès')
       navigate('/offers')
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
       console.error('Failed to delete offer:', error)
-      toast.error(error.response?.data?.message || 'Erreur lors de la suppression')
+      toast.error(axiosError.response?.data?.message || 'Erreur lors de la suppression')
     } finally {
       setIsDeleting(false)
       setShowDeleteDialog(false)

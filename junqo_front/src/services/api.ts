@@ -1,6 +1,50 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 import { config } from '@/config/env'
 import { useAuthStore } from '@/store/authStore'
+import { CreateOfferInput } from '@/types'
+
+// Profile update interfaces
+interface StudentProfileUpdate {
+  avatar?: string
+  bio?: string
+  phoneNumber?: string
+  linkedinUrl?: string
+  educationLevel?: string
+  skills?: string[]
+}
+
+interface CompanyProfileUpdate {
+  description?: string
+  phoneNumber?: string
+  address?: string
+  websiteUrl?: string
+  logoUrl?: string
+  industry?: string
+}
+
+interface SchoolProfileUpdate {
+  description?: string
+  phoneNumber?: string
+  address?: string
+  websiteUrl?: string
+  logoUrl?: string
+}
+
+interface UserUpdate {
+  name?: string
+  email?: string
+}
+
+interface ExperienceData {
+  title?: string
+  company?: string
+  startDate?: string
+  endDate?: string
+  description?: string
+  skills?: string[]
+}
+
+type QueryParams = Record<string, string | number | boolean | undefined>
 
 class ApiService {
   private client: AxiosInstance
@@ -29,8 +73,12 @@ class ApiService {
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
-          // Token expired or invalid
+        // Get the request URL to check if it's an auth endpoint
+        const requestUrl = error.config?.url || ''
+        const isAuthEndpoint = requestUrl.startsWith('/auth/')
+
+        if (error.response?.status === 401 && !isAuthEndpoint) {
+          // Token expired or invalid (but not during login/register attempts)
           useAuthStore.getState().logout()
           window.location.href = '/login'
         }
@@ -76,7 +124,7 @@ class ApiService {
   }
 
   // User endpoints
-  async updateUser(id: string, data: any) {
+  async updateUser(id: string, data: UserUpdate) {
     const response = await this.client.patch(`/users/${id}`, data)
     return response.data
   }
@@ -92,7 +140,7 @@ class ApiService {
     return response.data
   }
 
-  async updateStudentProfile(data: any) {
+  async updateStudentProfile(data: StudentProfileUpdate) {
     const response = await this.client.patch('/student-profiles/my', data)
     return response.data
   }
@@ -108,7 +156,7 @@ class ApiService {
     return response.data
   }
 
-  async updateCompanyProfile(data: any) {
+  async updateCompanyProfile(data: CompanyProfileUpdate) {
     const response = await this.client.patch('/company-profiles/my', data)
     return response.data
   }
@@ -119,13 +167,13 @@ class ApiService {
     return response.data
   }
 
-  async updateSchoolProfile(data: any) {
+  async updateSchoolProfile(data: SchoolProfileUpdate) {
     const response = await this.client.patch('/school-profiles/my', data)
     return response.data
   }
 
   // Offers endpoints
-  async getOffers(query?: Record<string, any>) {
+  async getOffers(query?: QueryParams) {
     const response = await this.client.get('/offers', { params: query })
     return response.data
   }
@@ -140,12 +188,12 @@ class ApiService {
     return response.data
   }
 
-  async createOffer(data: any) {
+  async createOffer(data: CreateOfferInput) {
     const response = await this.client.post('/offers', data)
     return response.data
   }
 
-  async updateOffer(id: string, data: any) {
+  async updateOffer(id: string, data: Partial<CreateOfferInput>) {
     const response = await this.client.patch(`/offers/${id}`, data)
     return response.data
   }
@@ -166,7 +214,7 @@ class ApiService {
     return response.data
   }
 
-  async getApplications(query?: Record<string, any>) {
+  async getApplications(query?: QueryParams) {
     const response = await this.client.get('/applications', { params: query })
     return response.data
   }
@@ -205,7 +253,7 @@ class ApiService {
   }
 
   // Conversations endpoints
-  async getConversations(query?: Record<string, any>) {
+  async getConversations(query?: QueryParams) {
     const response = await this.client.get('/conversations', { params: query })
     return response.data
   }
@@ -229,7 +277,7 @@ class ApiService {
   }
 
   // Messages endpoints
-  async getMessages(conversationId: string, query?: Record<string, any>) {
+  async getMessages(conversationId: string, query?: QueryParams) {
     const response = await this.client.get(`/conversations/${conversationId}/messages`, {
       params: query,
     })
@@ -254,10 +302,6 @@ class ApiService {
   async deleteMessage(messageId: string) {
     const response = await this.client.delete(`/messages/${messageId}`)
     return response.data
-  }
-
-  private getCurrentUserId(): string {
-    return useAuthStore.getState().user?.id || ''
   }
 
   // Interview endpoints
@@ -306,12 +350,12 @@ class ApiService {
     return response.data
   }
 
-  async createExperience(data: any) {
+  async createExperience(data: ExperienceData) {
     const response = await this.client.post('/experiences/my', data)
     return response.data
   }
 
-  async updateExperience(id: string, data: any) {
+  async updateExperience(id: string, data: Partial<ExperienceData>) {
     const response = await this.client.patch(`/experiences/my/${id}`, data)
     return response.data
   }

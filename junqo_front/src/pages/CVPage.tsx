@@ -48,7 +48,7 @@ export default function CVPage() {
         const page = await pdf.getPage(i)
         const textContent = await page.getTextContent()
         const pageText = textContent.items
-          .map((item: any) => item.str)
+          .map((item) => ('str' in item ? item.str : ''))
           .join(' ')
         fullText += pageText + '\n\n'
       }
@@ -77,7 +77,7 @@ export default function CVPage() {
       )
       setAnalysis(result.recommendations)
       toast.success('Analyse terminée !')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('CV analysis error:', error)
       toast.error('Erreur lors de l\'analyse du CV')
     } finally {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,6 +35,25 @@ const offerSchema = z.object({
 
 type OfferFormData = z.infer<typeof offerSchema>
 
+interface OfferUpdateData {
+  title: string
+  description: string
+  status: 'ACTIVE' | 'INACTIVE' | 'CLOSED'
+  offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT'
+  workLocationType: 'ON_SITE' | 'TELEWORKING' | 'HYBRID'
+  duration?: number
+  salary?: number
+  educationLevel?: number
+  skills?: string[]
+  benefits?: string[]
+}
+
+interface AxiosErrorResponse {
+  response?: {
+    data?: { message?: string }
+  }
+}
+
 export default function OfferEditPage() {
   const [searchParams] = useSearchParams()
   const offerId = searchParams.get('id')
@@ -59,16 +78,7 @@ export default function OfferEditPage() {
 
   const offerType = watch('offerType')
 
-  useEffect(() => {
-    if (offerId) {
-      loadOffer()
-    } else {
-      toast.error('ID de l\'offre manquant')
-      navigate('/offers')
-    }
-  }, [offerId])
-
-  const loadOffer = async () => {
+  const loadOffer = useCallback(async () => {
     if (!offerId) return
 
     setIsLoading(true)
@@ -88,21 +98,30 @@ export default function OfferEditPage() {
 
       if (offer.skills) setSkills(offer.skills)
       if (offer.benefits) setBenefits(offer.benefits)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load offer:', error)
       toast.error('Erreur lors du chargement de l\'offre')
       navigate('/offers')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [offerId, reset, navigate])
+
+  useEffect(() => {
+    if (offerId) {
+      loadOffer()
+    } else {
+      toast.error('ID de l\'offre manquant')
+      navigate('/offers')
+    }
+  }, [offerId, loadOffer, navigate])
 
   const onSubmit = async (data: OfferFormData) => {
     if (!offerId) return
 
     setIsSubmitting(true)
     try {
-      const offerData: any = {
+      const offerData: OfferUpdateData = {
         title: data.title,
         description: data.description,
         status: data.status,
@@ -129,9 +148,10 @@ export default function OfferEditPage() {
       await apiService.updateOffer(offerId, offerData)
       toast.success('Offre modifiée avec succès!')
       navigate(`/offers/details?id=${offerId}`)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
       console.error('Failed to update offer:', error)
-      toast.error(error.response?.data?.message || 'Erreur lors de la modification')
+      toast.error(axiosError.response?.data?.message || 'Erreur lors de la modification')
     } finally {
       setIsSubmitting(false)
     }

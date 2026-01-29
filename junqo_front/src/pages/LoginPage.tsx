@@ -39,14 +39,35 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
+    
     try {
       const response = await apiService.login(data.email, data.password)
-      login(response.user, response.token) // Backend returns 'token', not 'access_token'
+      
+      if (!response || !response.token || !response.user) {
+        throw new Error('Invalid response from server')
+      }
+      
+      login(response.user, response.token)
       toast.success('Bon retour parmi nous !')
       navigate('/home')
-    } catch (error: any) {
-      console.error('Login error:', error) // Debug
-      toast.error(error.response?.data?.message || 'Échec de la connexion')
+    } catch (error: unknown) {
+      let errorMessage = 'Email ou mot de passe incorrect'
+      const axiosError = error as { message?: string; response?: { data?: { message?: string; error?: string }; status?: number } }
+      
+      if (axiosError.message === 'Network Error' || !axiosError.response) {
+        errorMessage = 'Erreur de connexion au serveur. Vérifiez que le backend est démarré.'
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message
+      } else if (axiosError.response?.data?.error) {
+        errorMessage = axiosError.response.data.error
+      } else if (axiosError.response?.status === 401) {
+        errorMessage = 'Email ou mot de passe incorrect'
+      }
+      
+      toast.error(errorMessage, {
+        duration: 5000,
+        position: 'top-center',
+      })
     } finally {
       setIsLoading(false)
     }
@@ -74,7 +95,7 @@ export default function LoginPage() {
             <CardTitle>Bon retour</CardTitle>
             <CardDescription>Connectez-vous à votre compte pour continuer</CardDescription>
           </CardHeader>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

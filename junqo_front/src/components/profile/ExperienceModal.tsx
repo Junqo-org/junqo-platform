@@ -76,7 +76,7 @@ export function ExperienceModal({ open, onClose, onSave, experience }: Experienc
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Remove empty strings and empty arrays to avoid validation errors
-    const cleanedData: any = {
+    const cleanedData: Partial<Experience> = {
       title: formData.title,
       company: formData.company,
       startDate: formData.startDate,

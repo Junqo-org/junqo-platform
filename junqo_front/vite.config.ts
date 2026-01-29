@@ -35,14 +35,14 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
           ws: true,
-          configure: (proxy, _options) => {
-            proxy.on('error', (err, _req, _res) => {
+          configure: (proxy) => {
+            proxy.on('error', (err) => {
               console.log('proxy error', err);
             });
-            proxy.on('proxyReq', (proxyReq, req, _res) => {
+            proxy.on('proxyReq', (proxyReq, req) => {
               console.log('Sending Request to the Target:', req.method, req.url);
             });
-            proxy.on('proxyRes', (proxyRes, req, _res) => {
+            proxy.on('proxyRes', (proxyRes, req) => {
               console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
             });
           },
@@ -53,6 +53,17 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       sourcemap: false,
       minify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            ui: ['@radix-ui/react-avatar', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-label', '@radix-ui/react-progress', '@radix-ui/react-scroll-area', '@radix-ui/react-select', '@radix-ui/react-separator', '@radix-ui/react-slot', '@radix-ui/react-switch', '@radix-ui/react-tabs', '@radix-ui/react-toast', '@radix-ui/react-tooltip', 'lucide-react', 'framer-motion', 'class-variance-authority', 'clsx', 'tailwind-merge'],
+            pdf: ['pdfjs-dist'],
+            utils: ['date-fns', 'zod', 'axios', 'socket.io-client', 'sonner', 'react-hook-form', '@hookform/resolvers'],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000,
     },
   }
 })

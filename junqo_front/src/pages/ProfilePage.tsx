@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { Camera, Mail, User as UserIcon, Building, Plus, School, Search, X, Check, Clock, XCircle } from 'lucide-react'
+import { Camera, Mail, Plus, School, Search, X, Check, Clock, XCircle } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import { apiService } from '@/services/api'
 import { ProfileCompletionCard } from '@/components/profile/ProfileCompletionCard'
@@ -16,11 +16,48 @@ import { ExperienceCard } from '@/components/profile/ExperienceCard'
 import { ExperienceModal } from '@/components/profile/ExperienceModal'
 import { Experience } from '@/types'
 
+interface ProfileData {
+  id?: string
+  avatar?: string
+  profilePicture?: string
+  logo?: string
+  bio?: string
+  description?: string
+  phoneNumber?: string
+  linkedinUrl?: string
+  websiteUrl?: string
+  logoUrl?: string
+  educationLevel?: string
+  skills?: string[]
+  address?: string
+  industry?: string
+  companyName?: string
+  lookingFor?: string
+  linkedSchool?: { id: string; name: string }
+  User?: { firstName?: string; lastName?: string; email?: string }
+  name?: string
+}
+
+interface SchoolResult {
+  id: string
+  userId?: string
+  name: string
+  description?: string
+  avatar?: string
+}
+
+interface SchoolLinkRequest {
+  id: string
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
+  School?: { id: string; name: string }
+  school?: { id: string; name: string }
+}
+
 export default function ProfilePage() {
   const { user } = useAuthStore()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [profile, setProfile] = useState<any>(null)
+  const [profile, setProfile] = useState<ProfileData | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [experiences, setExperiences] = useState<Experience[]>([])
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false)
@@ -28,22 +65,14 @@ export default function ProfilePage() {
 
   // School linking state
   const [schoolSearch, setSchoolSearch] = useState('')
-  const [schoolSearchResults, setSchoolSearchResults] = useState<any[]>([])
+  const [schoolSearchResults, setSchoolSearchResults] = useState<SchoolResult[]>([])
   const [isSearchingSchools, setIsSearchingSchools] = useState(false)
-  const [schoolLinkRequests, setSchoolLinkRequests] = useState<any[]>([])
+  const [schoolLinkRequests, setSchoolLinkRequests] = useState<SchoolLinkRequest[]>([])
   const [isSendingRequest, setIsSendingRequest] = useState(false)
 
   const isStudent = user?.type === 'STUDENT'
 
-  useEffect(() => {
-    loadProfile()
-    if (isStudent) {
-      loadExperiences()
-      loadSchoolLinkRequests()
-    }
-  }, [])
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       if (!user) return
       let data
@@ -59,25 +88,35 @@ export default function ProfilePage() {
       console.error('Failed to load profile', error)
       toast.error('Erreur lors du chargement du profil')
     }
-  }
+  }, [user])
 
-  const loadExperiences = async () => {
+  const loadExperiences = useCallback(async () => {
     try {
       const data = await apiService.getMyExperiences()
       setExperiences(data)
     } catch (error) {
       console.error('Failed to load experiences', error)
     }
-  }
+  }, [])
 
-  const loadSchoolLinkRequests = async () => {
+  const loadSchoolLinkRequests = useCallback(async () => {
     try {
       const data = await apiService.getMySchoolLinkRequests()
       setSchoolLinkRequests(data)
     } catch (error) {
       console.error('Failed to load school link requests', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadProfile()
+    if (isStudent) {
+      loadExperiences()
+      loadSchoolLinkRequests()
+    }
+  }, [loadProfile, loadExperiences, loadSchoolLinkRequests, isStudent])
+
+
 
   const handleSearchSchools = async (query: string) => {
     setSchoolSearch(query)
@@ -105,9 +144,10 @@ export default function ProfilePage() {
       setSchoolSearch('')
       setSchoolSearchResults([])
       await loadSchoolLinkRequests()
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } }
       console.error('Failed to send request', error)
-      toast.error(error.response?.data?.message || 'Failed to send request')
+      toast.error(axiosError.response?.data?.message || 'Failed to send request')
     } finally {
       setIsSendingRequest(false)
     }
@@ -173,13 +213,13 @@ export default function ProfilePage() {
       if (!user) return
 
       // Helper to clean data - removes undefined and empty string URL values
-      const cleanData = (data: Record<string, any>) => {
-        const cleaned: Record<string, any> = {}
+      const cleanData = (data: Record<string, string | string[] | undefined>) => {
+        const cleaned: Record<string, string | string[]> = {}
         for (const [key, value] of Object.entries(data)) {
           // Skip undefined values
           if (value === undefined) continue
           // For URL fields, skip empty strings
-          if (['avatar', 'linkedinUrl', 'websiteUrl', 'logoUrl'].includes(key) && value?.trim() === '') {
+          if (['avatar', 'linkedinUrl', 'websiteUrl', 'logoUrl'].includes(key) && typeof value === 'string' && value.trim() === '') {
             continue
           }
           cleaned[key] = value
@@ -188,7 +228,7 @@ export default function ProfilePage() {
       }
 
       // Filter only the fields that can be updated based on user type
-      let updateData: Record<string, any>
+      let updateData: Record<string, string | string[]>
       if (user.type === 'STUDENT') {
         updateData = cleanData({
           avatar: profile?.avatar,
@@ -231,10 +271,11 @@ export default function ProfilePage() {
       setIsEditing(false)
       // Trigger profile completion refresh
       setRefreshTrigger(prev => prev + 1)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string | string[] } } }
       console.error('Failed to update profile', error)
       // Check if error is URL validation related
-      const errorMessage = error.response?.data?.message
+      const errorMessage = axiosError.response?.data?.message
       if (errorMessage && (
         (typeof errorMessage === 'string' && (errorMessage.includes('URL') || errorMessage.includes('url'))) ||
         (Array.isArray(errorMessage) && errorMessage.some((m: string) => m.toLowerCase().includes('url')))
@@ -653,8 +694,8 @@ export default function ProfilePage() {
                         </div>
                         <Button
                           size="sm"
-                          onClick={() => handleSendSchoolRequest(school.userId)}
-                          disabled={isSendingRequest}
+                          onClick={() => school.userId && handleSendSchoolRequest(school.userId)}
+                          disabled={isSendingRequest || !school.userId}
                         >
                           Demander à rejoindre
                         </Button>

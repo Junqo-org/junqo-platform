@@ -14,7 +14,6 @@ interface SwipeStackProps {
 
 export function SwipeStack({ offers, onSwipeLeft, onSwipeRight, renderCard }: SwipeStackProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [direction, setDirection] = useState<'left' | 'right' | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
   const currentOffer = offers[currentIndex]
@@ -22,11 +21,9 @@ export function SwipeStack({ offers, onSwipeLeft, onSwipeRight, renderCard }: Sw
   const handleSwipeLeft = useCallback(() => {
     if (currentOffer && !isProcessing) {
       setIsProcessing(true)
-      setDirection('left')
       onSwipeLeft(currentOffer)
       setTimeout(() => {
         setCurrentIndex((prev) => prev + 1)
-        setDirection(null)
         setIsProcessing(false)
       }, 300)
     }
@@ -35,7 +32,6 @@ export function SwipeStack({ offers, onSwipeLeft, onSwipeRight, renderCard }: Sw
   const handleSwipeRight = useCallback(async () => {
     if (currentOffer && !isProcessing) {
       setIsProcessing(true)
-      setDirection('right')
       
       // Call the async function and wait for it
       try {
@@ -46,7 +42,6 @@ export function SwipeStack({ offers, onSwipeLeft, onSwipeRight, renderCard }: Sw
       
       setTimeout(() => {
         setCurrentIndex((prev) => prev + 1)
-        setDirection(null)
         setIsProcessing(false)
       }, 300)
     }
@@ -55,7 +50,6 @@ export function SwipeStack({ offers, onSwipeLeft, onSwipeRight, renderCard }: Sw
   const handleUndo = useCallback(() => {
     if (currentIndex > 0 && !isProcessing) {
       setCurrentIndex((prev) => prev - 1)
-      setDirection(null)
     }
   }, [currentIndex, isProcessing])
 

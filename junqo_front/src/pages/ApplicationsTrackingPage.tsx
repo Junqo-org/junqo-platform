@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useEffect, useState, useCallback } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,6 @@ import {
   CheckCircle,
   XCircle,
   Search,
-  Filter,
   Calendar,
   Building,
   MapPin,
@@ -29,25 +28,20 @@ export default function ApplicationsTrackingPage() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
 
   useEffect(() => {
+    const loadApplications = async () => {
+      try {
+        const data = await apiService.getMyApplications()
+        setApplications(data)
+      } catch (error) {
+        console.error('Failed to load applications:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
     loadApplications()
   }, [])
 
-  useEffect(() => {
-    filterApplications()
-  }, [applications, searchQuery, statusFilter])
-
-  const loadApplications = async () => {
-    try {
-      const data = await apiService.getMyApplications()
-      setApplications(data)
-    } catch (error) {
-      console.error('Failed to load applications:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const filterApplications = () => {
+  const filterApplications = useCallback(() => {
     let filtered = applications
 
     // Filter by status
@@ -60,12 +54,18 @@ export default function ApplicationsTrackingPage() {
       filtered = filtered.filter(
         (app) =>
           app.offer?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          app.company?.companyName?.toLowerCase().includes(searchQuery.toLowerCase())
+          app.company?.name?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
     setFilteredApplications(filtered)
-  }
+  }, [applications, searchQuery, statusFilter])
+
+  useEffect(() => {
+    filterApplications()
+  }, [filterApplications])
+
+
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -283,7 +283,7 @@ export default function ApplicationsTrackingPage() {
                               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                                 <Building className="h-4 w-4 flex-shrink-0" />
                                 <span className="truncate">
-                                  {application.company?.companyName || 'Entreprise inconnue'}
+                                  {application.company?.name || 'Entreprise inconnue'}
                                 </span>
                               </div>
 

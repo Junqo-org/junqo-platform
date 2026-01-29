@@ -38,7 +38,7 @@ export default function HomePage() {
     try {
       const data = await apiService.getDashboardStatistics()
       setStats(data)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load statistics:', error)
       toast.error('Échec du chargement des statistiques')
     } finally {

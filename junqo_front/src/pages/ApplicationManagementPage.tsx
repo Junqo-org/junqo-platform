@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -49,38 +49,7 @@ export default function ApplicationManagementPage() {
   const [selectedStudentName, setSelectedStudentName] = useState<string | undefined>(undefined)
   const [showHistory, setShowHistory] = useState(false)
 
-  useEffect(() => {
-    loadApplications()
-  }, [])
-
-  useEffect(() => {
-    filterApplications()
-  }, [applications, searchQuery, statusFilter, offerFilter, showHistory])
-
-  // Get unique offers for filter dropdown
-  const uniqueOffers = useMemo(() => {
-    const offers = new Map<string, { id: string; title: string }>()
-    applications.forEach((app) => {
-      if (app.offer?.id && app.offer?.title) {
-        offers.set(app.offer.id, { id: app.offer.id, title: app.offer.title })
-      }
-    })
-    return Array.from(offers.values())
-  }, [applications])
-
-  const loadApplications = async () => {
-    try {
-      const data = await apiService.getMyApplications()
-      setApplications(data)
-    } catch (error) {
-      console.error('Failed to load applications:', error)
-      toast.error('Échec du chargement des candidatures')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const filterApplications = () => {
+  const filterApplications = useCallback(() => {
     let filtered = applications
 
     // Filter by status/history
@@ -107,6 +76,37 @@ export default function ApplicationManagementPage() {
     }
 
     setFilteredApplications(filtered)
+  }, [applications, searchQuery, statusFilter, offerFilter, showHistory])
+
+  useEffect(() => {
+    loadApplications()
+  }, [])
+
+  useEffect(() => {
+    filterApplications()
+  }, [filterApplications])
+
+  // Get unique offers for filter dropdown
+  const uniqueOffers = useMemo(() => {
+    const offers = new Map<string, { id: string; title: string }>()
+    applications.forEach((app) => {
+      if (app.offer?.id && app.offer?.title) {
+        offers.set(app.offer.id, { id: app.offer.id, title: app.offer.title })
+      }
+    })
+    return Array.from(offers.values())
+  }, [applications])
+
+  const loadApplications = async () => {
+    try {
+      const data = await apiService.getMyApplications()
+      setApplications(data)
+    } catch (error) {
+      console.error('Failed to load applications:', error)
+      toast.error('Échec du chargement des candidatures')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleViewProfile = (studentId: string, studentName?: string) => {
@@ -123,7 +123,7 @@ export default function ApplicationManagementPage() {
       // Update local state
       setApplications(prev =>
         prev.map(app =>
-          app.id === applicationId ? { ...app, status: newStatus as any } : app
+          app.id === applicationId ? { ...app, status: newStatus as Application['status'] } : app
         )
       )
 
@@ -168,7 +168,7 @@ export default function ApplicationManagementPage() {
       // Update local state
       setApplications(prev =>
         prev.map(app =>
-          selectedApplications.has(app.id) ? { ...app, status: status as any } : app
+          selectedApplications.has(app.id) ? { ...app, status: status as Application['status'] } : app
         )
       )
 

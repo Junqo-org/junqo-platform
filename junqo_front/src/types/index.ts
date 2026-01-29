@@ -81,9 +81,9 @@ export interface Application {
   createdAt: string | Date
   updatedAt: string | Date
   deletedAt?: string | Date
-  student?: any  // StudentProfile
-  company?: any  // CompanyProfile
-  offer?: any  // Offer
+  student?: StudentProfile  // StudentProfile
+  company?: CompanyProfile  // CompanyProfile
+  offer?: Offer  // Offer
 }
 
 export interface Message {

@@ -48,7 +48,7 @@ export default function RegisterPage() {
   const login = useAuthStore((state) => state.login)
   const [isLoading, setIsLoading] = useState(false)
 
-  const userType = (location.state as any)?.userType || 'student'
+  const userType = (location.state as { userType?: string } | null)?.userType || 'student'
   const isStudent = userType === 'student'
   const isCompany = userType === 'company'
   const isSchool = userType === 'school'
@@ -78,9 +78,10 @@ export default function RegisterPage() {
       login(response.user, response.token)
       toast.success('Compte créé avec succès!')
       navigate('/home')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Register error:', error)
-      toast.error(error.response?.data?.message || 'Erreur lors de l\'inscription')
+      const message = error instanceof Error ? error.message : 'Erreur lors de l\'inscription'
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
@@ -100,9 +101,10 @@ export default function RegisterPage() {
       login(response.user, response.token)
       toast.success('Compte créé avec succès!')
       navigate('/home')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Register error:', error)
-      toast.error(error.response?.data?.message || 'Erreur lors de l\'inscription')
+      const message = error instanceof Error ? error.message : 'Erreur lors de l\'inscription'
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
@@ -147,7 +149,7 @@ export default function RegisterPage() {
           </CardHeader>
 
           {isStudent ? (
-            <form onSubmit={studentForm.handleSubmit(onSubmitStudent)}>
+            <form onSubmit={studentForm.handleSubmit(onSubmitStudent)} noValidate>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -247,7 +249,7 @@ export default function RegisterPage() {
               </CardFooter>
             </form>
           ) : (
-            <form onSubmit={organizationForm.handleSubmit(onSubmitOrganization)}>
+            <form onSubmit={organizationForm.handleSubmit(onSubmitOrganization)} noValidate>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="organizationName">{getFieldLabel()}</Label>

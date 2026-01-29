@@ -19,7 +19,6 @@ import {
   LogOut,
   FileText,
   BarChart3,
-  School,
   Users
 } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
