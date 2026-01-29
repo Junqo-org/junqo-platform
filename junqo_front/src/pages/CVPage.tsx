@@ -9,10 +9,13 @@ import { toast } from 'sonner'
 import { Upload, FileText, Sparkles, Loader2, TrendingUp, AlertCircle } from 'lucide-react'
 import { apiService } from '@/services/api'
 import { motion, AnimatePresence } from 'framer-motion'
+import ReactMarkdown from 'react-markdown'
 import * as pdfjsLib from 'pdfjs-dist'
 
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker
 
 export default function CVPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -199,7 +202,7 @@ export default function CVPage() {
               <CardContent>
                 <div className="prose dark:prose-invert max-w-none">
                   <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {analysis}
+                    <ReactMarkdown>{analysis}</ReactMarkdown>
                   </div>
                 </div>
               </CardContent>
