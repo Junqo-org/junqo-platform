@@ -18,12 +18,14 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { apiService } from '@/services/api'
+import ReactMarkdown from 'react-markdown'
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  feedback?: string
 }
 
 export default function InterviewChatPage() {
@@ -41,6 +43,7 @@ export default function InterviewChatPage() {
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [loadingFeedbackId, setLoadingFeedbackId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -92,6 +95,42 @@ export default function InterviewChatPage() {
       setMessages((prev) => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGetFeedback = async (message: Message) => {
+    if (message.feedback || loadingFeedbackId) return;
+    
+    setLoadingFeedbackId(message.id)
+
+    const messageIndex = messages.findIndex(m => m.id === message.id)
+    if (messageIndex === -1) {
+        setLoadingFeedbackId(null)
+        return
+    }
+
+    const history = messages.slice(0, messageIndex + 1).map(m => ({
+      role: m.role,
+      content: m.content
+    }))
+
+    toast.info('Analyse de votre réponse en cours...')
+    
+    try {
+        const response = await apiService.getInterviewFeedback(history, context)
+        
+        setMessages(prev => prev.map(m => {
+            if (m.id === message.id) {
+                return { ...m, feedback: response.response }
+            }
+            return m
+        }))
+        toast.success('Feedback reçu !')
+    } catch (error) {
+        console.error('Feedback error:', error)
+        toast.error('Erreur lors de la récupération du feedback')
+    } finally {
+        setLoadingFeedbackId(null)
     }
   }
 
@@ -162,26 +201,63 @@ export default function InterviewChatPage() {
                       </AvatarFallback>
                     </Avatar>
 
-                    <div
-                      className={`flex-1 max-w-[80%] rounded-lg p-4 ${
-                        message.role === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}
-                    >
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {message.content}
-                      </p>
-                      <p className={`text-xs mt-2 ${
-                        message.role === 'user' 
-                          ? 'text-primary-foreground/70' 
-                          : 'text-muted-foreground'
-                      }`}>
-                        {message.timestamp.toLocaleTimeString('fr-FR', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
+                    <div className={`flex flex-col max-w-[80%] ${
+                      message.role === 'user' ? 'items-end' : 'items-start'
+                    }`}>
+                      <div
+                        className={`rounded-lg p-4 ${
+                          message.role === 'user'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
+                        }`}
+                      >
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {message.content}
+                        </p>
+                        <p className={`text-xs mt-2 ${
+                          message.role === 'user' 
+                            ? 'text-primary-foreground/70' 
+                            : 'text-muted-foreground'
+                        }`}>
+                          {message.timestamp.toLocaleTimeString('fr-FR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                      
+                      {message.role === 'user' && !message.feedback && (
+                        <Button
+                          variant="ghost" 
+                          size="sm" 
+                          className="mt-1 h-6 text-xs text-muted-foreground hover:text-primary"
+                          onClick={() => handleGetFeedback(message)}
+                          disabled={!!loadingFeedbackId}
+                        >
+                          {loadingFeedbackId === message.id ? (
+                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                          ) : (
+                            <Sparkles className="mr-1 h-3 w-3" />
+                          )}
+                          Obtenir un feedback
+                        </Button>
+                      )}
+
+                      {message.feedback && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="mt-2 p-3 bg-yellow-50/50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900 rounded-lg text-sm text-muted-foreground"
+                        >
+                            <div className="flex items-center gap-2 mb-1 text-yellow-600 dark:text-yellow-500 font-semibold">
+                                <Sparkles className="h-3 w-3" />
+                                Feedback du coach
+                            </div>
+                           <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+                             <ReactMarkdown>{message.feedback}</ReactMarkdown>
+                           </div>
+                        </motion.div>
+                      )}
                     </div>
                   </motion.div>
                 ))}

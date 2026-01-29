@@ -313,6 +313,14 @@ class ApiService {
     return response.data
   }
 
+  async getInterviewFeedback(messages: Array<{ role: string; content: string }>, context?: string) {
+    const response = await this.client.post('/interview-simulation/feedback', {
+      messages,
+      context,
+    })
+    return response.data
+  }
+
   // CV Improvement endpoints
   async analyzeCvContent(cvContent: string, jobContext?: string) {
     const response = await this.client.post('/cv-improvement/analyze', {

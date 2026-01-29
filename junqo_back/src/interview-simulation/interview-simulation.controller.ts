@@ -15,6 +15,7 @@ import { InterviewSimulationService } from './interview-simulation.service';
 import {
   InterviewSimulationRequestDto,
   InterviewSimulationResponseDto,
+  FeedbackRequestDto,
 } from './dto/interview-simulation.dto';
 
 @ApiTags('interview-simulation')
@@ -22,7 +23,7 @@ import {
 export class InterviewSimulationController {
   constructor(
     private readonly interviewSimulationService: InterviewSimulationService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiBearerAuth()
@@ -58,6 +59,34 @@ export class InterviewSimulationController {
       throw new HttpException(
         // Include error message in the response for better client-side info (optional)
         `Failed to generate interview response: ${error.message || error.toString()}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('feedback')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Obtenir un feedback sur une réponse du candidat",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Feedback généré avec succès',
+    type: InterviewSimulationResponseDto,
+  })
+  async getFeedback(
+    @Body() feedbackRequest: FeedbackRequestDto,
+  ): Promise<InterviewSimulationResponseDto> {
+    try {
+      const response = await this.interviewSimulationService.generateFeedback(
+        feedbackRequest.messages,
+        feedbackRequest.context,
+      );
+      return { response };
+    } catch (error) {
+      console.error('Error in getFeedback:', error);
+      throw new HttpException(
+        `Failed to generate feedback: ${error.message || error.toString()}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
