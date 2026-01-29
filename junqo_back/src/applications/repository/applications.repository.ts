@@ -114,9 +114,7 @@ export class ApplicationsRepository {
       });
 
       if (!applicationsModels || applicationsModels.length === 0) {
-        throw new NotFoundException(
-          `No applications found for user ${companyId}`,
-        );
+        return [];
       }
 
       return applicationsModels.map((application) =>
@@ -138,9 +136,7 @@ export class ApplicationsRepository {
       });
 
       if (!applicationsModels || applicationsModels.length === 0) {
-        throw new NotFoundException(
-          `No applications found for user ${studentId}`,
-        );
+        return [];
       }
 
       return applicationsModels.map((application) =>
