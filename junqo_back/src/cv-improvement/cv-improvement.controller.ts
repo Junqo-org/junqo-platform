@@ -1,7 +1,21 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CvImprovementService } from './cv-improvement.service';
-import { CvImprovementRequestDto, CvImprovementResponseDto } from './dto/cv-improvement.dto';
+import {
+  CvImprovementRequestDto,
+  CvImprovementResponseDto,
+} from './dto/cv-improvement.dto';
 
 @ApiTags('cv-improvement')
 @Controller('cv-improvement')
@@ -10,7 +24,9 @@ export class CvImprovementController {
 
   @Post('analyze')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Analyser un CV et fournir des recommandations d\'amélioration' })
+  @ApiOperation({
+    summary: "Analyser un CV et fournir des recommandations d'amélioration",
+  })
   @ApiResponse({
     status: 200,
     description: 'Analyse et recommandations générées avec succès',
@@ -32,7 +48,7 @@ export class CvImprovementController {
         cvRequest.cvContent,
         cvRequest.jobContext,
       );
-      
+
       return { recommendations };
     } catch (error) {
       // Log the original error for more detailed debugging on the server side
@@ -43,4 +59,4 @@ export class CvImprovementController {
       );
     }
   }
-} 
+}

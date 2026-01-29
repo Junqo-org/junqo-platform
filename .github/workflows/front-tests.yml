@@ -29,29 +29,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          channel: stable
-          flutter-version-file: junqo_front/pubspec.yaml
-
-      - run: flutter --version
-
-      - name: Restore pub cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_front/pubspec.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_front/pubspec.yaml') }}
-            ${{ runner.os }}-pub-cache
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: junqo_front/package-lock.json
 
       - name: Install dependencies
-        run: flutter pub get
+        run: npm ci
         working-directory: junqo_front
 
-      - name: Run Flutter tests
-        run: flutter test
+      - name: Run TypeScript type check
+        run: npx tsc --noEmit
+        working-directory: junqo_front
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: junqo_front
+
+      - name: Build frontend
+        run: npm run build
         working-directory: junqo_front
 
   front-tests-ok:
