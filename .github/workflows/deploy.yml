@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_run:
+    workflows: ["Build and Push Docker Images"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev' }}
+    environment:
+      name: development
+    steps:
+      - name: Deploy to Development
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEVELOPMENT_IP }}
+          username: ${{ secrets.DEVELOPMENT_USER }}
+          key: ${{ secrets.DEPLOYMENT_SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ vars.DEVELOPMENT_PATH }}
+            git pull origin dev
+            docker compose -f docker-compose.dev.yaml pull
+            docker compose -f docker-compose.dev.yaml up -d --remove-orphans
+            docker system prune -f
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    environment:
+      name: production
+    steps:
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PRODUCTION_IP }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.DEPLOYMENT_SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ vars.PRODUCTION_PATH }}
+            git pull origin main
+            docker compose -f docker-compose.yaml pull
+            docker compose -f docker-compose.yaml up -d --remove-orphans
+            docker system prune -f
