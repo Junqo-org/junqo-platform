@@ -13,12 +13,8 @@ export default tseslint.config(
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 'latest',
       globals: globals.browser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
     },
     plugins: {
       'react-hooks': reactHooks,
@@ -34,6 +30,7 @@ export default tseslint.config(
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
       'react-hooks/exhaustive-deps': 'warn',
+      // Disable new stricter rules from eslint-plugin-react-hooks v7 to maintain compatibility
       'react-hooks/set-state-in-effect': 'off',
       'react-hooks/immutability': 'off',
     },
