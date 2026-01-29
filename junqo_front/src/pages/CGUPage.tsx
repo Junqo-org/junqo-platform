@@ -3,23 +3,27 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 
+const LAST_UPDATED = '29 janvier 2026'
+const CONTACT_EMAIL = 'junqo-project@junqo.fr'
+const CONTACT_MAILTO = `mailto:${CONTACT_EMAIL}`
+
 export default function CGUPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <Link to="/">
-            <Button variant="ghost" className="mb-4">
+          <Button variant="ghost" className="mb-4" asChild>
+            <Link to="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour à l'accueil
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <h1 className="text-4xl font-bold text-foreground mb-2">
             Conditions Générales d'Utilisation (CGU)
           </h1>
           <p className="text-muted-foreground">
-            Dernière mise à jour : 8 juin 2025
+            Dernière mise à jour : {LAST_UPDATED}
           </p>
         </div>
 
@@ -102,6 +106,14 @@ export default function CGUPage() {
                 Les présentes CGU sont régies par le droit français. En cas de litige, les tribunaux compétents seront ceux du ressort du siège social de l'éditeur.
               </p>
             </section>
+
+            {/* Section 10 */}
+            <section>
+              <CardTitle className="text-xl mb-4">10. Hébergement</CardTitle>
+              <p className="text-muted-foreground leading-relaxed">
+                Le service est hébergé chez OVH par l'intermédiaire de EPITECH.
+              </p>
+            </section>
           </CardContent>
         </Card>
 
@@ -109,15 +121,15 @@ export default function CGUPage() {
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             Pour toute question concernant ces conditions, veuillez nous contacter à{' '}
-            <a href="mailto:junqo-project@junqo.fr" className="text-primary hover:underline">
-              junqo-project@junqo.fr
+            <a href={CONTACT_MAILTO} className="text-primary hover:underline">
+              {CONTACT_EMAIL}
             </a>
           </p>
-          <Link to="/">
-            <Button>
+          <Button asChild>
+            <Link to="/">
               Retour à l'accueil
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

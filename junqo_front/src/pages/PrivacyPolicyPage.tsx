@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 
-const LAST_UPDATED = '22 juin 2025'
+const LAST_UPDATED = '29 janvier 2026'
 const CONTACT_EMAIL = 'junqo-project@junqo.fr'
 const CONTACT_MAILTO = `mailto:${CONTACT_EMAIL}`
 
