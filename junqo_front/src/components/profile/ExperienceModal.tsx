@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, FormEvent, KeyboardEvent } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -73,7 +73,7 @@ export function ExperienceModal({ open, onClose, onSave, experience }: Experienc
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     // Remove empty strings and empty arrays to avoid validation errors
     const cleanedData: Partial<Experience> = {
@@ -97,7 +97,7 @@ export function ExperienceModal({ open, onClose, onSave, experience }: Experienc
     onSave(cleanedData)
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       handleAddSkill()

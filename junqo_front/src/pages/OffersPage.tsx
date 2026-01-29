@@ -157,11 +157,10 @@ export default function OffersPage() {
 
   const displayOffers = (user?.type === 'COMPANY')
     ? offers.filter(offer => {
-      const title = offer.title || ''
-      const description = offer.description || ''
+      const title = (offer.title || '').toLowerCase()
+      const description = (offer.description || '').toLowerCase()
       const searchLower = searchQuery.toLowerCase()
-      const matchesSearch = title.toLowerCase().includes(searchLower) || description.toLowerCase().includes(searchLower)
-      return matchesSearch
+      return title.includes(searchLower) || description.includes(searchLower)
     })
     : offers
 

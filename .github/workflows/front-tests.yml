@@ -41,14 +41,12 @@ jobs:
         working-directory: junqo_front
 
       - name: Run TypeScript type check
-        run: npx tsc --noEmit || echo "TypeScript warnings detected but continuing..."
+        run: npx tsc --noEmit
         working-directory: junqo_front
-        continue-on-error: true
 
       - name: Run ESLint
-        run: npm run lint || echo "ESLint warnings detected but continuing..."
+        run: npm run lint
         working-directory: junqo_front
-        continue-on-error: true
 
       - name: Build frontend
         run: npm run build

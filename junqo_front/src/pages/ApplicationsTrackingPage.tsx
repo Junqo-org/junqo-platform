@@ -51,11 +51,12 @@ export default function ApplicationsTrackingPage() {
 
     // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(
-        (app) =>
-          app.offer?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          app.company?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter((app) => {
+        const title = app.offer?.title?.toLowerCase() || ''
+        const companyName = app.company?.name?.toLowerCase() || ''
+        return title.includes(query) || companyName.includes(query)
+      })
     }
 
     setFilteredApplications(filtered)

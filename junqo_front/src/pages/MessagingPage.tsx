@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react'
 import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -255,7 +255,7 @@ export default function MessagingPage() {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSendMessage()
@@ -288,8 +288,8 @@ export default function MessagingPage() {
 
   const filteredConversations = conversations.filter((conv) => {
     if (!searchQuery) return true
-    const title = conv.title || 'Conversation'
-    return title.toLowerCase().includes(searchQuery.toLowerCase())
+    const title = (conv.title || 'Conversation').toLowerCase()
+    return title.includes(searchQuery.toLowerCase())
   })
 
 

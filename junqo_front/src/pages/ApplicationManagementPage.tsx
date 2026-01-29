@@ -68,11 +68,12 @@ export default function ApplicationManagementPage() {
 
     // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(
-        (app) =>
-          app.student?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          app.offer?.title?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter((app) => {
+        const studentName = app.student?.name?.toLowerCase() || ''
+        const offerTitle = app.offer?.title?.toLowerCase() || ''
+        return studentName.includes(query) || offerTitle.includes(query)
+      })
     }
 
     setFilteredApplications(filtered)
