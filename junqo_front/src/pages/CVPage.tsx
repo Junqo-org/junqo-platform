@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import * as pdfjsLib from 'pdfjs-dist'
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
 
 export default function CVPage() {
   const [file, setFile] = useState<File | null>(null)
