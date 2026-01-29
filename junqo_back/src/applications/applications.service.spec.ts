@@ -23,7 +23,9 @@ import { OffersService } from '../offers/offers.service';
 import { OfferDTO } from '../offers/dto/offer.dto';
 import { OfferStatus } from '../offers/dto/offer-status.enum';
 import { ConversationsService } from '../conversations/conversations.service';
-import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
+import { CreateConversationDTO, ConversationDTO } from '../conversations/dto/conversation.dto';
+import { StudentProfileDTO } from '../student-profiles/dto/student-profile.dto';
+import { CompanyProfileDTO } from '../company-profiles/dto/company-profile.dto';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -41,6 +43,22 @@ const applications: ApplicationDTO[] = [
     status: ApplicationStatus.NOT_OPENED,
     createdAt: new Date('2024-01-01T00:00:00Z'),
     updatedAt: new Date('2024-01-02T00:00:00Z'),
+    student: plainToInstance(StudentProfileDTO, {
+      id: currentUser.id,
+      userId: currentUser.id,
+      firstName: 'Student',
+      lastName: 'User',
+      name: 'Student',
+    }),
+    company: plainToInstance(CompanyProfileDTO, {
+      id: 'c19cc25b-0cc4-4032-83c2-0d34c84318ba',
+      userId: 'c19cc25b-0cc4-4032-83c2-0d34c84318ba',
+      name: 'Company',
+    }),
+    offer: plainToInstance(OfferDTO, {
+      id: 'o19cc25b-0cc4-4032-83c2-0d34c84318ba',
+      title: 'Offer',
+    }),
   }),
   new ApplicationDTO({
     id: 'a2ec0948-58dd-40b2-b085-5a47244036c2',
@@ -504,11 +522,21 @@ describe('ApplicationsService', () => {
       );
       const createConversationDto: CreateConversationDTO = {
         participantsIds: [applications[0].studentId, applications[0].companyId],
-        title: `Application Discussion - ${applications[0].offer?.title || 'Job Application'}`,
+        participantTitles: {
+          [applications[0].studentId]: `${applications[0].offer?.title || 'Offer'} - ${applications[0].company?.name || 'Company'}`,
+          [applications[0].companyId]: `${applications[0].offer?.title || 'Offer'} - ${applications[0].student?.name || 'Student'}`,
+        },
+        title: `Application Discussion - ${applications[0].offer?.title || 'Offer'}`,
+        offerId: applications[0].offerId,
+        applicationId: applications[0].id,
       };
 
       applicationsRepository.findOneById.mockResolvedValue(applications[0]);
       applicationsRepository.update.mockResolvedValue(expectedApplication);
+      conversationsService.create.mockResolvedValue({
+        id: 'conv-123',
+        participantsIds: [applications[0].studentId, applications[0].companyId],
+      } as ConversationDTO);
 
       const result = await applicationsService.update(
         currentUser,
@@ -522,7 +550,7 @@ describe('ApplicationsService', () => {
       );
       expect(conversationsService.create).toHaveBeenCalledWith(
         currentUser,
-        createConversationDto
+        createConversationDto,
       );
       expect(caslAbilityFactory.createForUser).toHaveBeenCalledWith(
         currentUser,
@@ -661,6 +689,15 @@ describe('ApplicationsService', () => {
     it('should throw InternalServerErrorException if delete fails', async () => {
       applicationsRepository.findOneById.mockResolvedValue(applications[0]);
       applicationsRepository.delete.mockRejectedValue(new Error());
+
+      await expect(
+        applicationsService.delete(currentUser, applications[0].id),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+
+    it('should throw InternalServerErrorException if delete returns false', async () => {
+      applicationsRepository.findOneById.mockResolvedValue(applications[0]);
+      applicationsRepository.delete.mockResolvedValue(false);
 
       await expect(
         applicationsService.delete(currentUser, applications[0].id),

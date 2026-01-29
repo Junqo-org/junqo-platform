@@ -35,6 +35,8 @@ services:
           path: ./junqo_front
           ignore:
             - ./nginx.conf
+            - ./dist/
+            - ./node_modules/
 
   back:
     container_name: junqo_back_dev

@@ -1,0 +1,494 @@
+import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react'
+import { useLocation } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Send, Loader2, MessageSquare, Search, User, Building } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
+import { useWebSocket } from '@/hooks/useWebSocket'
+import { apiService } from '@/services/api'
+import { getInitials, formatRelativeTime } from '@/lib/utils'
+import { toast } from 'sonner'
+import { StudentProfileModal } from '@/components/candidates/StudentProfileModal'
+import { CompanyProfileModal } from '@/components/companies/CompanyProfileModal'
+import { Message } from '@/types'
+
+// ... existing interfaces ...
+
+interface ConversationData {
+  id: string
+  participantsIds: string[]
+  lastMessage?: {
+    id: string
+    senderId: string
+    conversationId: string
+    content: string
+    createdAt: string | Date
+  }
+  createdAt: string
+  updatedAt: string
+  title?: string
+  offerId?: string
+  applicationId?: string
+}
+
+interface MessageData {
+  id: string
+  conversationId: string
+  senderId: string
+  content: string
+  createdAt?: string | Date
+  clientId?: string
+}
+
+interface LocationState {
+  studentId?: string
+}
+
+interface AxiosErrorResponse {
+  response?: {
+    data?: { message?: string }
+  }
+}
+
+export default function MessagingPage() {
+  const user = useAuthStore((state) => state.user)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const [conversations, setConversations] = useState<ConversationData[]>([])
+  const [selectedConversation, setSelectedConversation] = useState<ConversationData | null>(null)
+  const [messages, setMessages] = useState<MessageData[]>([])
+  const [newMessage, setNewMessage] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true)
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+
+  // Profile Modal State
+  const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
+
+  // Company Modal State
+  const [companyModalOpen, setCompanyModalOpen] = useState(false)
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null)
+
+  // Stabilize handleNewMessage with useCallback to prevent recreations
+  const handleNewMessage = useCallback((message: Message & { clientId?: string }) => {
+    // Always add to messages state - we'll filter by conversation in the render
+    setMessages((prev) => {
+      // Check if we have a temporary message that matches this new one
+      const tempMessageIndex = prev.findIndex(
+        (m) =>
+          (message.clientId && m.clientId === message.clientId) ||
+          (m.senderId === message.senderId &&
+            m.content === message.content &&
+            m.id.startsWith('temp-'))
+      )
+
+      if (tempMessageIndex !== -1) {
+        // Replace the temp message with the real one
+        const newMessages = [...prev]
+        newMessages[tempMessageIndex] = message
+        return newMessages
+      }
+
+      // Check if message already exists (to prevent duplicates)
+      if (prev.some(m => m.id === message.id)) {
+        return prev
+      }
+
+      return [...prev, message]
+    })
+
+    // Update last message in conversations list
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === message.conversationId
+          ? {
+            ...conv,
+            lastMessage: {
+              ...message,
+              createdAt: message.createdAt || new Date().toISOString()
+            },
+            updatedAt: new Date().toISOString()
+          }
+          : conv
+      )
+    )
+  }, []) // Empty deps - uses only setters which are stable
+
+  const { sendMessage, joinRoom, leaveRoom, isConnected } = useWebSocket({
+    onMessage: handleNewMessage,
+  })
+
+  const location = useLocation()
+
+  useEffect(() => {
+    loadConversations()
+  }, [])
+
+  // Auto-select conversation from location state (e.g. redirected from ApplicationManagement)
+  useEffect(() => {
+    const state = location.state as LocationState | null
+    if (state?.studentId) {
+      const studentId = state.studentId
+
+      // If we have conversations, try to find it
+      if (conversations.length > 0) {
+        const targetConversation = conversations.find(conv =>
+          conv.participantsIds.includes(studentId)
+        )
+
+        if (targetConversation) {
+          setSelectedConversation(targetConversation)
+        } else {
+          console.warn('[MessagingPage] Conversation not found for studentId:', studentId)
+        }
+      }
+    }
+  }, [conversations, location.state])
+
+  useEffect(() => {
+    if (selectedConversation) {
+      loadMessages(selectedConversation.id)
+      joinRoom(selectedConversation.id)
+
+      return () => {
+        leaveRoom(selectedConversation.id)
+      }
+    }
+  }, [selectedConversation, joinRoom, leaveRoom])
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  // Filter messages for the selected conversation only
+  const displayedMessages = selectedConversation
+    ? messages.filter((m: MessageData) => m.conversationId === selectedConversation.id)
+    : []
+
+  // Scroll when displayed messages change
+  useEffect(() => {
+    scrollToBottom()
+  }, [displayedMessages.length, selectedConversation?.id])
+
+  const loadConversations = async () => {
+    setIsLoadingConversations(true)
+    try {
+      const data = await apiService.getConversations()
+      // Backend returns { rows: [], count: 0 } or [] depending on query
+      // Checking for data.rows first, then fallback to array, then data.items (legacy)
+      const convList = data.rows || (Array.isArray(data) ? data : data.items || [])
+      setConversations(convList)
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
+      console.error('Failed to load conversations:', axiosError)
+      toast.error('Erreur lors du chargement des conversations')
+      setConversations([])
+    } finally {
+      setIsLoadingConversations(false)
+    }
+  }
+
+  const loadMessages = async (conversationId: string) => {
+    setIsLoadingMessages(true)
+    try {
+      const data = await apiService.getMessages(conversationId)
+      // Backend returns newest first (DESC), but chat UI needs oldest first (ASC)
+      const msgList = data.rows || (Array.isArray(data) ? data : data.items || [])
+      
+      // Replace only messages for this conversation, keep others
+      setMessages((prev: MessageData[]) => {
+        // Remove old messages from this conversation
+        const otherMessages = prev.filter((m: MessageData) => m.conversationId !== conversationId)
+        // Add new messages from this conversation
+        return [...otherMessages, ...[...msgList].reverse()]
+      })
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
+      console.error('Failed to load messages:', axiosError)
+      toast.error('Erreur lors du chargement des messages')
+    } finally {
+      setIsLoadingMessages(false)
+    }
+  }
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation || !user) return
+
+    const tempMessage: MessageData = {
+      id: `temp-${Date.now()}`,
+      conversationId: selectedConversation.id,
+      senderId: user.id,
+      content: newMessage.trim(),
+      createdAt: new Date().toISOString(),
+      clientId: `client-${Date.now()}`,
+    }
+
+    setMessages((prev) => [...prev, tempMessage])
+    setNewMessage('')
+    setIsSending(true)
+
+    try {
+      if (!isConnected()) {
+        throw new Error('Vous êtes hors ligne. Veuillez vérifier votre connexion.')
+      }
+
+      // Send via WebSocket for real-time delivery (Gateway saves to DB)
+      sendMessage({
+        conversationId: selectedConversation.id,
+        senderId: user.id,
+        content: tempMessage.content,
+        clientId: tempMessage.clientId, // Attempt to pass clientId
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any) // Type assertion if MessagePayload doesn't support clientId yet
+
+      // NOTE: We do NOT call apiService.createMessage here because the WebSocket Gateway 
+      // already handles saving the message to the database. Calling it would create duplicates.
+
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse
+      console.error('Failed to send message:', axiosError)
+      toast.error('Erreur lors de l\'envoi du message')
+      // Remove temp message on error
+      setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id))
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
+  const handleViewProfile = () => {
+    if (!selectedConversation || !user) return
+
+    // Identify the "other" participant
+    const otherParticipantId = selectedConversation.participantsIds.find(id => id !== user.id)
+
+    if (!otherParticipantId) {
+      toast.error("Impossible de trouver le participant")
+      return
+    }
+
+    if (user.type === 'COMPANY') {
+      setSelectedStudentId(otherParticipantId)
+      setProfileModalOpen(true)
+    } else if (user.type === 'STUDENT') {
+      setSelectedCompanyId(otherParticipantId)
+      setCompanyModalOpen(true)
+    }
+  }
+
+
+
+
+
+  const filteredConversations = conversations.filter((conv) => {
+    if (!searchQuery) return true
+    const title = (conv.title || 'Conversation').toLowerCase()
+    return title.includes(searchQuery.toLowerCase())
+  })
+
+
+  return (
+    <div className="h-[calc(100vh-8rem)] flex gap-4">
+      {/* Conversations List */}
+      <Card className="w-80 flex flex-col">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Messages
+          </CardTitle>
+          <div className="relative mt-2">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Rechercher..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </CardHeader>
+        <ScrollArea className="flex-1">
+          <CardContent className="space-y-2 p-4">
+            {isLoadingConversations ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : filteredConversations.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aucune conversation</p>
+              </div>
+            ) : (
+              filteredConversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  onClick={() => setSelectedConversation(conv)}
+                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedConversation?.id === conv.id
+                    ? 'bg-primary/10'
+                    : 'hover:bg-accent'
+                    }`}
+                >
+                  <Avatar>
+                    <AvatarFallback>
+                      {conv.participantsIds.length > 0 ? '👤' : '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate text-sm">
+                      {conv.title || 'Conversation'}
+                    </p>
+                    {conv.lastMessage && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {conv.lastMessage.content}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {formatRelativeTime(new Date(conv.updatedAt))}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </ScrollArea>
+      </Card>
+
+      {/* Messages Area */}
+      <Card className="flex-1 flex flex-col">
+        {selectedConversation ? (
+          <>
+            <CardHeader className="border-b flex flex-row items-center justify-between">
+              <div className="flex-1 min-w-0 mr-4">
+                <CardTitle className="truncate">
+                  {selectedConversation.title || 'Conversation'}
+                </CardTitle>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Button variant="outline" size="sm" onClick={handleViewProfile}>
+                  {user?.type === 'COMPANY' ? <User className="h-4 w-4 mr-2" /> : <Building className="h-4 w-4 mr-2" />}
+                  Profil
+                </Button>
+              </div>
+            </CardHeader>
+
+            <ScrollArea className="flex-1 p-6">
+              {isLoadingMessages ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : displayedMessages.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>Aucun message</p>
+                  <p className="text-sm">Commencez la conversation !</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <AnimatePresence>
+                    {displayedMessages.map((message) => {
+                      const isOwn = message.senderId === user?.id
+
+                      return (
+                          <motion.div
+                            key={message.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className={`flex gap-3 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
+                          >
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className={isOwn ? 'bg-primary text-primary-foreground' : ''}>
+                                {isOwn ? getInitials(user.name || user.email) : '👤'}
+                              </AvatarFallback>
+                            </Avatar>
+
+                            <div className={`flex-1 max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col`}>
+                              <div
+                                className={`rounded-lg p-3 ${isOwn
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-muted'
+                                  }`}
+                              >
+                                <p className="text-sm whitespace-pre-wrap break-words">
+                                  {message.content}
+                                </p>
+                              </div>
+                              {message.createdAt && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {new Date(message.createdAt).toLocaleTimeString('fr-FR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                              )}
+                            </div>
+                          </motion.div>
+                        )
+                      })}
+                  </AnimatePresence>
+                  <div ref={scrollRef} />
+                </div>
+              )}
+            </ScrollArea>
+
+            <div className="border-t p-4">
+              <div className="flex gap-2">
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Tapez votre message..."
+                  disabled={isSending}
+                />
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!newMessage.trim() || isSending}
+                  size="icon"
+                >
+                  {isSending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <CardContent className="flex-1 flex items-center justify-center">
+            <div className="text-center text-muted-foreground">
+              <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg font-medium">Sélectionnez une conversation</p>
+              <p className="text-sm">Choisissez une conversation pour commencer</p>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      <StudentProfileModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        studentId={selectedStudentId}
+      />
+
+      <CompanyProfileModal
+        open={companyModalOpen}
+        onClose={() => setCompanyModalOpen(false)}
+        companyId={selectedCompanyId}
+      />
+    </div>
+  )
+}

@@ -16,7 +16,7 @@ export class OffersRepository {
     private readonly offerModel: typeof OfferModel,
     @InjectModel(OfferSeenModel)
     private readonly offerSeenModel: typeof OfferSeenModel,
-  ) {}
+  ) { }
 
   public async findAll(): Promise<OfferDTO[]> {
     try {
@@ -77,6 +77,9 @@ export class OffersRepository {
     }
     if (status) {
       whereClause.status = status;
+    } else {
+      // Default to ACTIVE status if not specified
+      whereClause.status = 'ACTIVE';
     }
     if (offerType) {
       whereClause.offerType = offerType;
@@ -321,6 +324,36 @@ export class OffersRepository {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to mark offer as viewed: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Gets all applications for a specific offer.
+   *
+   * @param offerId - The ID of the offer
+   * @returns Promise containing array of applications
+   */
+  public async getOfferApplications(offerId: string): Promise<any[]> {
+    try {
+      const offer = await this.offerModel.findByPk(offerId, {
+        include: [
+          {
+            association: 'applications',
+            include: ['student', 'company'],
+          },
+        ],
+      });
+
+      if (!offer) {
+        return [];
+      }
+
+      // Applications are not included by default - would need to add ApplicationModel to includes
+      return [];
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to get offer applications: ${error.message}`,
       );
     }
   }

@@ -64,6 +64,7 @@ export class ExperienceDTO {
   @Type(() => String)
   skills?: string[];
 
+  @Expose()
   @ApiProperty({
     description: 'ID of the student profile this experience belongs to',
   })
@@ -78,13 +79,11 @@ export class ExperienceDTO {
 
 export class CreateExperienceDTO {
   @ApiProperty({ description: 'Job title or position name' })
-  @Expose()
   @IsString()
   @IsNotEmpty()
   title: string;
 
   @ApiProperty({ description: 'Company or organization name' })
-  @Expose()
   @IsString()
   @IsNotEmpty()
   company: string;
@@ -93,7 +92,6 @@ export class CreateExperienceDTO {
     description: 'Start date of the experience',
     example: '2022-01-01',
   })
-  @Expose()
   @IsDateString()
   @IsNotEmpty()
   startDate: string;
@@ -102,7 +100,6 @@ export class CreateExperienceDTO {
     description: 'End date of the experience',
     example: '2023-01-01',
   })
-  @Expose()
   @IsDateString()
   @IsOptional()
   endDate?: string;
@@ -110,7 +107,6 @@ export class CreateExperienceDTO {
   @ApiPropertyOptional({
     description: 'Description of responsibilities and achievements',
   })
-  @Expose()
   @IsString()
   @IsOptional()
   description?: string;
@@ -118,7 +114,6 @@ export class CreateExperienceDTO {
   @ApiPropertyOptional({
     description: 'List of skill learned or practiced during this experience',
   })
-  @Expose()
   @IsArray({ message: 'Skills must be an array' })
   @IsString({ each: true })
   @IsOptional()

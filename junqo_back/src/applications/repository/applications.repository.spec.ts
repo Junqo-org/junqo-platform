@@ -234,10 +234,12 @@ describe('ApplicationsRepository', () => {
         ...mockApplicationModel,
         toApplicationDTO: jest.fn().mockResolvedValue(expectedApplication),
       };
-      applicationModel.update = jest.fn().mockResolvedValue({
+      const updatedModel = {
         ...applicationModel,
         ...updateData,
-      });
+        reload: jest.fn().mockResolvedValue(undefined),
+      };
+      applicationModel.update = jest.fn().mockResolvedValue(updatedModel);
 
       mockApplicationModel.findByPk.mockResolvedValue(applicationModel);
 

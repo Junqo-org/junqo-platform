@@ -15,8 +15,15 @@ import { StudentProfilesService } from '../student-profiles/student-profiles.ser
 import { CompanyProfilesService } from '../company-profiles/company-profiles.service';
 import { SchoolProfilesService } from '../school-profiles/school-profiles.service';
 import { UserType } from './dto/user-type.enum';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { DashboardStatisticsDTO } from './dto/user-statistics.dto';
 
+@ApiTags('users')
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
@@ -28,6 +35,11 @@ export class UsersController {
   ) {}
 
   @Get('me')
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiOkResponse({
+    description: 'User profile retrieved successfully',
+    type: UserDTO,
+  })
   async findMe(@CurrentUser() currentUser: AuthUserDTO): Promise<UserDTO> {
     const user: UserDTO = await this.usersService.findOneById(
       currentUser,
@@ -40,6 +52,18 @@ export class UsersController {
 
     delete user.hashedPassword;
     return user;
+  }
+
+  @Get('me/statistics')
+  @ApiOperation({ summary: 'Get dashboard statistics for current user' })
+  @ApiOkResponse({
+    description: 'Dashboard statistics retrieved successfully',
+    type: DashboardStatisticsDTO,
+  })
+  async getMyStatistics(
+    @CurrentUser() currentUser: AuthUserDTO,
+  ): Promise<DashboardStatisticsDTO> {
+    return this.usersService.getDashboardStatistics(currentUser);
   }
 
   @Patch('me')
@@ -62,6 +86,7 @@ export class UsersController {
   }
 
   @Delete('me')
+  @ApiOperation({ summary: 'Delete current user' })
   async deleteMe(
     @CurrentUser() currentUser: AuthUserDTO,
   ): Promise<{ isSuccessful: boolean }> {
