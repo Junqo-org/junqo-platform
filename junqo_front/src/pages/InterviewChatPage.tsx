@@ -60,7 +60,7 @@ export default function InterviewChatPage() {
     if (!input.trim() || isLoading) return
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       role: 'user',
       content: input,
       timestamp: new Date(),
@@ -74,7 +74,7 @@ export default function InterviewChatPage() {
       const response = await apiService.sendInterviewMessage(input, context)
       
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         role: 'assistant',
         content: response.response,
         timestamp: new Date(),
@@ -87,7 +87,7 @@ export default function InterviewChatPage() {
       
       // Fallback message
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         role: 'assistant',
         content: "Je suis désolé, j'ai rencontré un problème technique. Pouvez-vous reformuler votre réponse ?",
         timestamp: new Date(),
