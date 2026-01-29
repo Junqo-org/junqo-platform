@@ -64,7 +64,7 @@ export function ExperienceCard({ experience, onEdit, onDelete, isEditable = true
       {(experience.description || (experience.skills && experience.skills.length > 0)) && (
         <CardContent className="space-y-3">
           {experience.description && (
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
               {experience.description}
             </p>
           )}
