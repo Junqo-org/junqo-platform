@@ -23,18 +23,32 @@ interface ExperienceModalProps {
 }
 
 export function ExperienceModal({ open, onClose, onSave, experience }: ExperienceModalProps) {
-  const [formData, setFormData] = useState({
-    title: '',
-    company: '',
-    startDate: '',
-    endDate: '',
-    description: '',
-    skills: [] as string[],
+  const [formData, setFormData] = useState(() => {
+    if (experience) {
+      return {
+        title: experience.title || '',
+        company: experience.company || '',
+        startDate: experience.startDate || '',
+        endDate: experience.endDate || '',
+        description: experience.description || '',
+        skills: experience.skills || [],
+      }
+    }
+    return {
+      title: '',
+      company: '',
+      startDate: '',
+      endDate: '',
+      description: '',
+      skills: [] as string[],
+    }
   })
   const [skillInput, setSkillInput] = useState('')
 
+  // Update form data when experience prop changes - this is necessary to sync external state
   useEffect(() => {
     if (experience) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         title: experience.title || '',
         company: experience.company || '',
@@ -44,6 +58,7 @@ export function ExperienceModal({ open, onClose, onSave, experience }: Experienc
         skills: experience.skills || [],
       })
     } else {
+       
       setFormData({
         title: '',
         company: '',

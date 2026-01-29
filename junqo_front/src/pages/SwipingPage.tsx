@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -20,21 +20,10 @@ interface Candidate {
 }
 
 export default function SwipingPage() {
-  const [candidates, setCandidates] = useState<Candidate[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [stats, setStats] = useState({
-    viewed: 0,
-    liked: 0,
-    matches: 0,
-  })
-
-  useEffect(() => {
-    loadCandidates()
-  }, [])
-
-  const loadCandidates = () => {
+  const [candidates] = useState<Candidate[]>(() => {
     // Mock candidates
-    const mockCandidates: Candidate[] = [
+    return [
       {
         id: 1,
         name: 'Alice Johnson',
@@ -65,8 +54,12 @@ export default function SwipingPage() {
         experience: '4 years',
       },
     ]
-    setCandidates(mockCandidates)
-  }
+  })
+  const [stats, setStats] = useState({
+    viewed: 0,
+    liked: 0,
+    matches: 0,
+  })
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'right') {
@@ -112,7 +105,7 @@ export default function SwipingPage() {
             </div>
           </CardContent>
         </Card>
-        <Button onClick={() => { setCurrentIndex(0); loadCandidates() }}>
+        <Button onClick={() => setCurrentIndex(0)}>
           Start Again
         </Button>
       </div>

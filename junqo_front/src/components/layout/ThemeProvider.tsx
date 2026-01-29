@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from "react"
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react"
 
 type Theme = "dark" | "light" | "system"
 
@@ -32,8 +32,18 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   )
-  // Add a resolved theme that always reflects the effective mode
-  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light")
+  
+  const [systemTheme, setSystemTheme] = useState<"dark" | "light">(() => {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  })
+
+  // Compute resolved theme based on theme and systemTheme
+  const resolvedTheme = useMemo(() => {
+    if (theme === "system") {
+      return systemTheme
+    }
+    return theme === "dark" ? "dark" : "light"
+  }, [theme, systemTheme])
 
   useEffect(() => {
     const root = window.document.documentElement
@@ -41,16 +51,15 @@ export function ThemeProvider({
 
     if (theme === "system") {
       const mql = window.matchMedia("(prefers-color-scheme: dark)")
-      const systemTheme = mql.matches ? "dark" : "light"
+      const currentSystemTheme = mql.matches ? "dark" : "light"
 
-      root.classList.add(systemTheme)
-      setResolvedTheme(systemTheme)
+      root.classList.add(currentSystemTheme)
 
       const onChange = (e: MediaQueryListEvent) => {
         const next = e.matches ? "dark" : "light"
         root.classList.remove("light", "dark")
         root.classList.add(next)
-        setResolvedTheme(next)
+        setSystemTheme(next)
       }
 
       mql.addEventListener("change", onChange)
@@ -60,7 +69,6 @@ export function ThemeProvider({
     }
 
     root.classList.add(theme)
-    setResolvedTheme(theme === "dark" ? "dark" : "light")
   }, [theme])
 
   const value = {

@@ -86,7 +86,7 @@ export default function OfferDetailPage() {
           const applicationsArray = Array.isArray(applications) ? applications : (applications.items || applications.data || [])
           const hasAppliedToThis = applicationsArray.some((app: Application) => app.offerId === offerId)
           setHasApplied(hasAppliedToThis)
-        } catch (appError) {
+        } catch {
           // Don't show error to user, just assume not applied
         }
       }
