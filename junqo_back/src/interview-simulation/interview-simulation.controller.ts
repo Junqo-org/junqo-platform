@@ -1,16 +1,35 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { InterviewSimulationService } from './interview-simulation.service';
-import { InterviewSimulationRequestDto, InterviewSimulationResponseDto } from './dto/interview-simulation.dto';
+import {
+  InterviewSimulationRequestDto,
+  InterviewSimulationResponseDto,
+  FeedbackRequestDto,
+} from './dto/interview-simulation.dto';
 
 @ApiTags('interview-simulation')
 @Controller('interview-simulation')
 export class InterviewSimulationController {
-  constructor(private readonly interviewSimulationService: InterviewSimulationService) {}
+  constructor(
+    private readonly interviewSimulationService: InterviewSimulationService,
+  ) { }
 
   @Post()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Générer une réponse pour une simulation d\'entretien' })
+  @ApiOperation({
+    summary: "Générer une réponse pour une simulation d'entretien",
+  })
   @ApiResponse({
     status: 200,
     description: 'Réponse générée avec succès',
@@ -32,7 +51,7 @@ export class InterviewSimulationController {
         interviewRequest.message,
         interviewRequest.context,
       );
-      
+
       return { response };
     } catch (error) {
       // Log the original error for more detailed debugging on the server side
@@ -44,4 +63,32 @@ export class InterviewSimulationController {
       );
     }
   }
-} 
+
+  @Post('feedback')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Obtenir un feedback sur une réponse du candidat",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Feedback généré avec succès',
+    type: InterviewSimulationResponseDto,
+  })
+  async getFeedback(
+    @Body() feedbackRequest: FeedbackRequestDto,
+  ): Promise<InterviewSimulationResponseDto> {
+    try {
+      const response = await this.interviewSimulationService.generateFeedback(
+        feedbackRequest.messages,
+        feedbackRequest.context,
+      );
+      return { response };
+    } catch (error) {
+      console.error('Error in getFeedback:', error);
+      throw new HttpException(
+        `Failed to generate feedback: ${error.message || error.toString()}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+}

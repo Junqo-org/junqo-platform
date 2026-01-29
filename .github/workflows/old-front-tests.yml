@@ -1,0 +1,71 @@
+name: Frontend Flutter Tests
+
+on:
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+jobs:
+  changes-check:
+    runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.filter.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            any_changed:
+              - 'junqo_old_front/**'
+              - '.github/workflows/old-front-tests.yml'
+
+  front-tests:
+    needs: changes-check
+    if: needs.changes-check.outputs.any_changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: junqo_old_front/pubspec.yaml
+
+      - run: flutter --version
+
+      - name: Restore pub cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_old_front/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-cache-${{ hashFiles('junqo_old_front/pubspec.yaml') }}
+            ${{ runner.os }}-pub-cache
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: junqo_old_front
+
+      - name: Run Flutter tests
+        run: flutter test
+        working-directory: junqo_old_front
+
+  front-tests-ok:
+    needs: [changes-check, front-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Frontend tests status
+        run: |
+          if [[ "${{ needs.changes-check.outputs.any_changed }}" == "false" ]] ||
+            [[ "${{ needs.changes-check.outputs.any_changed }}" == "true" && "${{ needs.front-tests.result }}" == "success" ]]; then
+            echo "✅ Frontend tests condition met."
+            exit 0
+          else
+            echo "❌ Frontend tests failed or were required but skipped."
+            exit 1
+          fi
