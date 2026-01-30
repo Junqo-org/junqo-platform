@@ -1,5 +1,8 @@
 name: Deployment Test Template
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
     inputs:
