@@ -74,6 +74,14 @@ export class InterviewSimulationController {
     description: 'Feedback généré avec succès',
     type: InterviewSimulationResponseDto,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Requête invalide',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Erreur serveur',
+  })
   async getFeedback(
     @Body() feedbackRequest: FeedbackRequestDto,
   ): Promise<InterviewSimulationResponseDto> {
