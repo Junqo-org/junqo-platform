@@ -229,9 +229,21 @@ export default function OfferDetailPage() {
                       {offerTypeBadge.label}
                     </Badge>
                     {offer.status === 'ACTIVE' && (
-                      <Badge variant="secondary">
-                        <CheckCircle className="mr-1 h-3 w-3 text-green-500" />
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">
+                        <CheckCircle className="mr-1 h-3 w-3 text-green-600" />
                         Actif
+                      </Badge>
+                    )}
+                    {offer.status === 'INACTIVE' && (
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-yellow-200">
+                        <AlertCircle className="mr-1 h-3 w-3 text-yellow-600" />
+                        Inactif
+                      </Badge>
+                    )}
+                    {offer.status === 'CLOSED' && (
+                      <Badge variant="secondary" className="bg-red-100 text-red-800 hover:bg-red-100 border-red-200">
+                        <AlertCircle className="mr-1 h-3 w-3 text-red-600" />
+                        Fermée
                       </Badge>
                     )}
                   </div>
