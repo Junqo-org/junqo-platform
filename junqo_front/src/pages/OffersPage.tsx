@@ -491,8 +491,8 @@ export default function OffersPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tous les statuts</SelectItem>
-                    <SelectItem value="ACTIVE">Actif</SelectItem>
-                    <SelectItem value="INACTIVE">Inactif</SelectItem>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
                     <SelectItem value="CLOSED">Fermée</SelectItem>
                   </SelectContent>
                 </Select>

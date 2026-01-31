@@ -12,13 +12,13 @@ export function OfferStatusBadge({ status, className }: OfferStatusBadgeProps) {
     switch (status) {
       case 'ACTIVE':
         return {
-          label: 'Actif',
+          label: 'Active',
           className: 'bg-green-100 text-green-800 hover:bg-green-100 border-green-200',
           icon: <CheckCircle className="mr-1 h-3 w-3 text-green-600" />
         }
       case 'INACTIVE':
         return {
-          label: 'Inactif',
+          label: 'Inactive',
           className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-yellow-200',
           icon: <AlertCircle className="mr-1 h-3 w-3 text-yellow-600" />
         }

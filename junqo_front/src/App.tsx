@@ -26,6 +26,8 @@ const SchoolDashboardPage = lazy(() => import('./pages/SchoolDashboardPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const CGUPage = lazy(() => import('./pages/CGUPage'))
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'))
+const CompanyProfilePage = lazy(() => import('./pages/CompanyProfilePage'))
+
 
 // Layout
 import PrivateRoute from './components/layout/PrivateRoute'
@@ -57,6 +59,7 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/offers" element={<OffersPage />} />
               <Route path="/offers/details" element={<OfferDetailPage />} />
+              <Route path="/company/:id" element={<CompanyProfilePage />} />
               <Route path="/offers/create" element={<OfferCreationPage />} />
               <Route path="/offers/edit" element={<OfferEditPage />} />
               <Route path="/cv" element={<CVPage />} />
