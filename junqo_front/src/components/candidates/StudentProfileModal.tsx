@@ -48,6 +48,11 @@ interface StudentProfile {
         description?: string
         skills?: string[]
     }[]
+    linkedSchool?: {
+        id: string
+        name: string
+        avatar?: string
+    }
 }
 
 export function StudentProfileModal({
@@ -136,6 +141,24 @@ export function StudentProfileModal({
                                         <GraduationCap className="h-4 w-4" />
                                         {profile.educationLevel}
                                     </p>
+                                )}
+                                {profile.linkedSchool && (
+                                    <div className="flex items-center gap-2 mt-2 w-fit">
+                                        <div className="h-5 w-5 rounded-full overflow-hidden flex-shrink-0 bg-background border">
+                                            {profile.linkedSchool.avatar ? (
+                                                <img 
+                                                    src={profile.linkedSchool.avatar} 
+                                                    alt={profile.linkedSchool.name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="h-full w-full flex items-center justify-center bg-primary/10 text-[10px] font-bold">
+                                                    {getInitials(profile.linkedSchool.name)}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className="text-sm font-medium text-muted-foreground">{profile.linkedSchool.name}</span>
+                                    </div>
                                 )}
                             </div>
                         </div>
