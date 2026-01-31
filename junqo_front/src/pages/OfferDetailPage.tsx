@@ -23,6 +23,8 @@ import {
 import { apiService } from '@/services/api'
 import { Offer } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
+import { OfferStatusBadge } from '@/components/offers/OfferStatusBadge'
+import { OfferTypeBadge } from '@/components/offers/OfferTypeBadge'
 
 interface Application {
   id: string
@@ -135,16 +137,6 @@ export default function OfferDetailPage() {
     }
   }
 
-  const getOfferTypeBadge = (type: string) => {
-    const badges = {
-      'INTERNSHIP': { label: 'Stage', variant: 'default' as const },
-      'FULL_TIME': { label: 'CDI', variant: 'secondary' as const },
-      'PART_TIME': { label: 'Temps partiel', variant: 'outline' as const },
-      'CONTRACT': { label: 'Contrat', variant: 'outline' as const },
-    }
-    return badges[type as keyof typeof badges] || { label: type, variant: 'secondary' as const }
-  }
-
   const getLocationLabel = (location: string) => {
     const labels = {
       'ON_SITE': '🏢 Sur site',
@@ -153,6 +145,8 @@ export default function OfferDetailPage() {
     }
     return labels[location as keyof typeof labels] || location
   }
+
+
 
   if (isLoading) {
     return (
@@ -204,7 +198,7 @@ export default function OfferDetailPage() {
     )
   }
 
-  const offerTypeBadge = getOfferTypeBadge(offer.offerType)
+
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -225,27 +219,12 @@ export default function OfferDetailPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="secondary">
-                      {offerTypeBadge.label}
-                    </Badge>
-                    {offer.status === 'ACTIVE' && (
-                      <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">
-                        <CheckCircle className="mr-1 h-3 w-3 text-green-600" />
-                        Actif
-                      </Badge>
-                    )}
-                    {offer.status === 'INACTIVE' && (
-                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-yellow-200">
-                        <AlertCircle className="mr-1 h-3 w-3 text-yellow-600" />
-                        Inactif
-                      </Badge>
-                    )}
-                    {offer.status === 'CLOSED' && (
-                      <Badge variant="secondary" className="bg-red-100 text-red-800 hover:bg-red-100 border-red-200">
-                        <AlertCircle className="mr-1 h-3 w-3 text-red-600" />
-                        Fermée
-                      </Badge>
-                    )}
+                    <OfferTypeBadge type={offer.offerType} />
+                    <OfferStatusBadge 
+                      status={offer.status} 
+                      showDate 
+                      updatedAt={offer.updatedAt} 
+                    />
                   </div>
                   <CardTitle className="text-3xl font-bold text-foreground mb-3 break-words break-all whitespace-normal">
                     {offer.title}
