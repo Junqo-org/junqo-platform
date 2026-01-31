@@ -55,4 +55,4 @@ import { SchoolLinkRequestsModule } from './school-link-requests/school-link-req
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -71,8 +71,9 @@ export class InterviewSimulationService {
     context?: string,
   ): Promise<string> {
     try {
-      const systemPrompt = `Tu es un coach expert en entretien d'embauche. Analyse la DERNIÈRE réponse du candidat dans le contexte de la conversation suivante (pour un poste de ${context || 'non spécifié'
-        }). 
+      const systemPrompt = `Tu es un coach expert en entretien d'embauche. Analyse la DERNIÈRE réponse du candidat dans le contexte de la conversation suivante (pour un poste de ${
+        context || 'non spécifié'
+      }). 
       Donne un feedback constructif en français :
       1. Points forts de la réponse.
       2. Points à améliorer.
