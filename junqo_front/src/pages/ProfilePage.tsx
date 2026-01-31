@@ -215,21 +215,26 @@ export default function ProfilePage() {
 
       // Sync skills from experience to profile
       if (data.skills && data.skills.length > 0 && isStudent) {
-        const currentSkills = new Set(profile?.skills || [])
-        let hasNewSkills = false
-        
-        data.skills.forEach(skill => {
-          if (!currentSkills.has(skill)) {
-            currentSkills.add(skill)
-            hasNewSkills = true
-          }
-        })
+        try {
+          const currentSkills = new Set(profile?.skills || [])
+          let hasNewSkills = false
+          
+          data.skills.forEach(skill => {
+            if (!currentSkills.has(skill)) {
+              currentSkills.add(skill)
+              hasNewSkills = true
+            }
+          })
 
-        if (hasNewSkills) {
-          const updatedSkills = Array.from(currentSkills)
-          await apiService.updateStudentProfile({ skills: updatedSkills })
-          setProfile(prev => prev ? ({ ...prev, skills: updatedSkills }) : prev)
-          toast.info('Compétences du profil mises à jour automatiquement')
+          if (hasNewSkills) {
+            const updatedSkills = Array.from(currentSkills)
+            await apiService.updateStudentProfile({ skills: updatedSkills })
+            setProfile(prev => prev ? ({ ...prev, skills: updatedSkills }) : prev)
+            toast.info('Compétences du profil mises à jour automatiquement')
+          }
+        } catch (skillError) {
+          console.error('Failed to sync skills', skillError)
+          toast.warning('Expérience sauvegardée, mais échec de la synchronisation des compétences')
         }
       }
 
