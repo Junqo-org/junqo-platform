@@ -5,11 +5,9 @@ import { cn } from '@/lib/utils'
 interface OfferStatusBadgeProps {
   status: string
   className?: string
-  showDate?: boolean
-  updatedAt?: string | Date
 }
 
-export function OfferStatusBadge({ status, className, showDate, updatedAt }: OfferStatusBadgeProps) {
+export function OfferStatusBadge({ status, className }: OfferStatusBadgeProps) {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'ACTIVE':
@@ -45,12 +43,6 @@ export function OfferStatusBadge({ status, className, showDate, updatedAt }: Off
     <Badge variant="secondary" className={cn(config.className, className)}>
       {config.icon}
       {config.label}
-      {showDate && updatedAt && (status === 'INACTIVE' || status === 'CLOSED') && (
-        <>
-          {status === 'INACTIVE' ? ' depuis le ' : ' le '}
-          {new Date(updatedAt).toLocaleDateString()}
-        </>
-      )}
     </Badge>
   )
 }

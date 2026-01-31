@@ -222,8 +222,6 @@ export default function OfferDetailPage() {
                     <OfferTypeBadge type={offer.offerType} />
                     <OfferStatusBadge 
                       status={offer.status} 
-                      showDate 
-                      updatedAt={offer.updatedAt} 
                     />
                   </div>
                   <CardTitle className="text-3xl font-bold text-foreground mb-3 break-words break-all whitespace-normal">
