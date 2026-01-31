@@ -45,12 +45,13 @@ export function SkillsInput({ value = [], onChange, placeholder = "Add a skill" 
           placeholder={placeholder}
           className="flex-1"
         />
-        <Button 
+        <Button
           type="button" 
           onClick={handleAddSkill} 
           variant="secondary"
           size="icon"
           disabled={!inputValue.trim()}
+          aria-label="Add skill"
         >
           <Plus className="h-4 w-4" />
         </Button>
