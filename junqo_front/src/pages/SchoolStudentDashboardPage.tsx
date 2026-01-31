@@ -48,33 +48,34 @@ export default function SchoolStudentDashboardPage() {
     const [activeTab, setActiveTab] = useState<'applications' | 'accepted'>('applications')
 
     useEffect(() => {
-        if (!studentId) return
+        const loadData = async () => {
+            if (!studentId) return
+            
+            setIsLoading(true)
+            try {
+                // Need to implement or use existing endpoint to get specific student profile
+                // Currently apiService.getStudentProfile(userId) should work if backend allows
+                // For applications, we use the new query capability for schools
+                const [profileData, applicationsData] = await Promise.all([
+                    apiService.getStudentProfile(studentId),
+                    apiService.getApplications({ studentId: studentId, limit: 100 })
+                ])
+                
+                // Handle pagination wrapper if present
+                const apps = applicationsData.rows || applicationsData || []
+                
+                setProfile(profileData)
+                setApplications(apps)
+            } catch (error) {
+                console.error('Failed to load student data', error)
+                toast.error('Impossible de charger les données de l\'étudiant')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
         loadData()
     }, [studentId])
-
-    const loadData = async () => {
-        setIsLoading(true)
-        try {
-            // Need to implement or use existing endpoint to get specific student profile
-            // Currently apiService.getStudentProfile(userId) should work if backend allows
-            // For applications, we use the new query capability for schools
-            const [profileData, applicationsData] = await Promise.all([
-                apiService.getStudentProfile(studentId!),
-                apiService.getApplications({ studentId: studentId, limit: 100 })
-            ])
-            
-            // Handle pagination wrapper if present
-            const apps = applicationsData.rows || applicationsData || []
-            
-            setProfile(profileData)
-            setApplications(apps)
-        } catch (error) {
-            console.error('Failed to load student data', error)
-            toast.error('Impossible de charger les données de l\'étudiant')
-        } finally {
-            setIsLoading(false)
-        }
-    }
 
     if (isLoading) {
         return (

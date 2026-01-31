@@ -33,7 +33,7 @@ interface ProfileData {
   industry?: string
   companyName?: string
   lookingFor?: string
-  linkedSchool?: { id: string; name: string }
+  linkedSchool?: { id: string; name: string; avatar?: string }
   User?: { firstName?: string; lastName?: string; email?: string }
   name?: string
 }
@@ -647,8 +647,18 @@ export default function ProfilePage() {
             {profile?.linkedSchool ? (
               <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
-                    <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <div className="h-10 w-10 rounded-full flex items-center justify-center overflow-hidden">
+                    {profile.linkedSchool.avatar ? (
+                      <img 
+                        src={profile.linkedSchool.avatar} 
+                        alt={profile.linkedSchool.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-green-100 dark:bg-green-800 flex items-center justify-center">
+                        <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="font-medium">{profile.linkedSchool.name}</p>
