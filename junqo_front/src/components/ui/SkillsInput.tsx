@@ -1,4 +1,4 @@
-import { useState, KeyboardEvent } from 'react'
+import { useState, KeyboardEvent, useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,19 +13,37 @@ interface SkillsInputProps {
 export function SkillsInput({ value = [], onChange, placeholder = "Add a skill" }: SkillsInputProps) {
   const [inputValue, setInputValue] = useState('')
 
+  const dedupedSkills = useMemo(() => {
+    const unique: string[] = []
+    const seen = new Set<string>()
+    for (const skill of value) {
+      const lower = skill.toLowerCase()
+      if (!seen.has(lower)) {
+        seen.add(lower)
+        unique.push(skill)
+      }
+    }
+    return unique
+  }, [value])
+
   const handleAddSkill = () => {
     const trimmedSkill = inputValue.trim()
-    const existsCaseInsensitive = value.some(
+    if (!trimmedSkill) return
+
+    const exists = dedupedSkills.some(
       (skill) => skill.toLowerCase() === trimmedSkill.toLowerCase()
     )
-    if (trimmedSkill && !existsCaseInsensitive) {
-      onChange([...value, trimmedSkill])
+
+    if (!exists) {
+      onChange([...dedupedSkills, trimmedSkill])
       setInputValue('')
     }
   }
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    onChange(value.filter((skill) => skill !== skillToRemove))
+    onChange(dedupedSkills.filter((skill) => 
+      skill.toLowerCase() !== skillToRemove.toLowerCase()
+    ))
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -57,9 +75,9 @@ export function SkillsInput({ value = [], onChange, placeholder = "Add a skill" 
         </Button>
       </div>
       
-      {value.length > 0 && (
+      {dedupedSkills.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {value.map((skill) => (
+          {dedupedSkills.map((skill) => (
             <Badge key={skill} variant="secondary" className="pl-3 pr-1 py-1 gap-1 flex items-center">
               {skill}
               <button
