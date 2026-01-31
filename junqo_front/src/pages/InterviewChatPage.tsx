@@ -163,7 +163,7 @@ export default function InterviewChatPage() {
               <Sparkles className="h-8 w-8 text-purple-600" />
               {contextLabels[context] || (context !== 'general' ? 'Entretien Personnalisé' : 'Entretien Général')}
             </h1>
-            <p className="text-muted-foreground line-clamp-1 max-w-md" title={context}>
+            <p className="text-muted-foreground line-clamp-1 max-w-md" title={context === 'general' ? 'Pratiquez avec notre IA recruteur' : context}>
                {context === 'general' ? 'Pratiquez avec notre IA recruteur' : context}
             </p>
           </div>

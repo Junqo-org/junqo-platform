@@ -17,10 +17,22 @@ export function ApplicationInterviewCard({ application, onClick }: ApplicationIn
 
   if (!offer || !company) return null
 
+  const handleActivate = () => onClick(application)
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleActivate()
+    }
+  }
+
   return (
     <Card 
-      className="group cursor-pointer hover:border-purple-400 transition-all hover:shadow-md dark:hover:border-purple-600"
-      onClick={() => onClick(application)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      className="group cursor-pointer hover:border-purple-400 transition-all hover:shadow-md dark:hover:border-purple-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      onClick={handleActivate}
     >
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
@@ -34,7 +46,12 @@ export function ApplicationInterviewCard({ application, onClick }: ApplicationIn
               {offer.title}
             </CardTitle>
           </div>
-          <Button variant="ghost" size="icon" className="text-muted-foreground group-hover:text-purple-600">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-muted-foreground group-hover:text-purple-600"
+            aria-label="Voir la candidature"
+          >
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
