@@ -16,7 +16,7 @@ export class OffersRepository {
     private readonly offerModel: typeof OfferModel,
     @InjectModel(OfferSeenModel)
     private readonly offerSeenModel: typeof OfferSeenModel,
-  ) { }
+  ) {}
 
   public async findAll(): Promise<OfferDTO[]> {
     try {

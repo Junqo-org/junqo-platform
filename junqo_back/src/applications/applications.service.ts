@@ -27,6 +27,7 @@ import { UserType } from '../users/dto/user-type.enum';
 import { ConversationsService } from '../conversations/conversations.service';
 import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
 import { MessagesService } from '../messages/messages.service';
+import { StudentProfilesRepository } from '../student-profiles/repository/student-profiles.repository';
 
 @Injectable()
 export class ApplicationsService {
@@ -38,6 +39,7 @@ export class ApplicationsService {
     private readonly offersService: OffersService,
     private readonly conversationsService: ConversationsService,
     private readonly messagesService: MessagesService,
+    private readonly studentProfileRepository: StudentProfilesRepository,
   ) {}
 
   /**
@@ -63,6 +65,37 @@ export class ApplicationsService {
       case UserType.COMPANY:
         query.companyId = currentUser.id;
         break;
+      case UserType.SCHOOL:
+        if (!query.studentId) {
+          throw new BadRequestException(
+            'School users must provide a studentId to query applications',
+          );
+        }
+
+        // Verify that the student is actually linked to this school using CASL
+        const studentProfile = await this.studentProfileRepository.findOneById(
+          query.studentId,
+        );
+
+        const resource = new ApplicationResource(
+          query.studentId,
+          undefined,
+          studentProfile.linkedSchoolId,
+        );
+
+        this.logger.log(
+          `Checking School Application Access: SchoolID=${currentUser.id}, StudentID=${query.studentId}, StudentLinkedSchoolID=${studentProfile.linkedSchoolId}`,
+        );
+
+        if (!ability.can(Actions.READ, resource)) {
+          this.logger.warn(
+            `Access Denied: School ${currentUser.id} cannot read applications for student ${query.studentId} (Linked to: ${studentProfile.linkedSchoolId})`,
+          );
+          throw new ForbiddenException(
+            'You do not have permission to view applications for this student',
+          );
+        }
+        break;
       case UserType.ADMIN:
         break;
       default:
@@ -86,7 +119,16 @@ export class ApplicationsService {
           application,
         );
 
+        // Manually populate studentLinkedSchoolId if available in the nested student object
+        if (application.student?.linkedSchoolId) {
+          applicationResource.studentLinkedSchoolId =
+            application.student.linkedSchoolId;
+        }
+
         if (ability.cannot(Actions.READ, applicationResource)) {
+          this.logger.warn(
+            `Access Denied (Loop): User ${currentUser.id} cannot read application ${application.id}. StudentLinkedSchoolId: ${applicationResource.studentLinkedSchoolId}`,
+          );
           throw new ForbiddenException(
             'You do not have permission to read applications',
           );
@@ -221,6 +263,12 @@ export class ApplicationsService {
           excludeExtraneousValues: true,
         },
       );
+
+      // Manually populate studentLinkedSchoolId if available
+      if (application?.student?.linkedSchoolId) {
+        applicationResource.studentLinkedSchoolId =
+          application.student.linkedSchoolId;
+      }
 
       if (ability.cannot(Actions.READ, applicationResource)) {
         throw new ForbiddenException(

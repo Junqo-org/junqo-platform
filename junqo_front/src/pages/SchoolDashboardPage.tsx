@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -49,6 +50,7 @@ interface LinkedStudent {
 }
 
 export default function SchoolDashboardPage() {
+    const navigate = useNavigate()
     const [pendingRequests, setPendingRequests] = useState<SchoolLinkRequest[]>([])
     const [linkedStudents, setLinkedStudents] = useState<LinkedStudent[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -243,13 +245,16 @@ export default function SchoolDashboardPage() {
                                         className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
                                         onClick={() => setExpandedStudent(expandedStudent === student.userId ? null : student.userId)}
                                     >
-                                        <div className="flex items-center gap-4">
+                                        <div
+                                            className="flex items-center gap-4 cursor-pointer"
+                                            onClick={() => navigate(`/school/student/${student.userId}`)}
+                                        >
                                             <Avatar className="h-10 w-10">
                                                 <AvatarImage src={student.avatar} />
                                                 <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="font-medium">{student.name}</p>
+                                                <p className="font-medium hover:underline">{student.name}</p>
                                                 <p className="text-sm text-muted-foreground">
                                                     {student.educationLevel || 'Étudiant'}
                                                 </p>

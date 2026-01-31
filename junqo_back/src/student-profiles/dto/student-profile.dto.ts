@@ -135,6 +135,13 @@ export class StudentProfileDTO {
   @IsOptional()
   linkedSchool?: SchoolProfileDTO;
 
+  @ApiProperty({
+    description: 'Date of last profile update',
+    example: '2024-01-31T12:00:00Z',
+  })
+  @Expose()
+  updatedAt?: Date;
+
   // Obligatory for use with casl ability
   constructor(data: Partial<StudentProfileDTO>) {
     Object.assign(this, data);

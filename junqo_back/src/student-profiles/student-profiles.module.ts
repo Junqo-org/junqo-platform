@@ -7,7 +7,7 @@ import { CaslModule } from '../casl/casl.module';
 @Module({
   controllers: [StudentProfilesController],
   providers: [StudentProfilesService],
-  exports: [StudentProfilesService],
+  exports: [StudentProfilesService, StudentProfilesRepositoryModule],
   imports: [StudentProfilesRepositoryModule, CaslModule],
 })
 export class StudentProfilesModule {}

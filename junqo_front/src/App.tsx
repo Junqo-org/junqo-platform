@@ -22,7 +22,8 @@ const RecruiterDashboardPage = lazy(() => import('./pages/RecruiterDashboardPage
 const SwipingPage = lazy(() => import('./pages/SwipingPage'))
 const ApplicationsTrackingPage = lazy(() => import('./pages/ApplicationsTrackingPage'))
 const ApplicationManagementPage = lazy(() => import('./pages/ApplicationManagementPage'))
-const SchoolDashboardPage = lazy(() => import('./pages/SchoolDashboardPage'))
+const SchoolDashboardPage = lazy(() => import('@/pages/SchoolDashboardPage'))
+const SchoolStudentDashboardPage = lazy(() => import('@/pages/SchoolStudentDashboardPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const CGUPage = lazy(() => import('./pages/CGUPage'))
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'))
@@ -68,6 +69,7 @@ function App() {
               <Route path="/recruiter/applications" element={<ApplicationManagementPage />} />
               <Route path="/recruiter/swiping" element={<SwipingPage />} />
               <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
+              <Route path="/school/student/:studentId" element={<SchoolStudentDashboardPage />} />
             </Route>
 
             {/* 404 */}
@@ -82,4 +84,3 @@ function App() {
 }
 
 export default App
-

@@ -111,6 +111,7 @@ export class StudentProfileModel extends Model {
       experiences: this.experiences?.map((exp) => exp.toExperienceDTO()) || [],
       linkedSchoolId: this.linkedSchoolId,
       linkedSchool: this.linkedSchool?.toSchoolProfileDTO?.() || undefined,
+      updatedAt: this.updatedAt,
     });
   }
 }
