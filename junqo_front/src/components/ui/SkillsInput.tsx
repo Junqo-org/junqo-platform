@@ -15,7 +15,10 @@ export function SkillsInput({ value = [], onChange, placeholder = "Add a skill" 
 
   const handleAddSkill = () => {
     const trimmedSkill = inputValue.trim()
-    if (trimmedSkill && !value.includes(trimmedSkill)) {
+    const existsCaseInsensitive = value.some(
+      (skill) => skill.toLowerCase() === trimmedSkill.toLowerCase()
+    )
+    if (trimmedSkill && !existsCaseInsensitive) {
       onChange([...value, trimmedSkill])
       setInputValue('')
     }
