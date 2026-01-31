@@ -15,6 +15,7 @@ import { ProfileCompletionCard } from '@/components/profile/ProfileCompletionCar
 import { ExperienceCard } from '@/components/profile/ExperienceCard'
 import { ExperienceModal } from '@/components/profile/ExperienceModal'
 import { Experience } from '@/types'
+import { SkillsInput } from '@/components/ui/SkillsInput'
 
 interface ProfileData {
   id?: string
@@ -211,6 +212,27 @@ export default function ProfilePage() {
         await apiService.createExperience(data)
         toast.success('Experience added successfully')
       }
+
+      // Sync skills from experience to profile
+      if (data.skills && data.skills.length > 0 && isStudent) {
+        const currentSkills = new Set(profile?.skills || [])
+        let hasNewSkills = false
+        
+        data.skills.forEach(skill => {
+          if (!currentSkills.has(skill)) {
+            currentSkills.add(skill)
+            hasNewSkills = true
+          }
+        })
+
+        if (hasNewSkills) {
+          const updatedSkills = Array.from(currentSkills)
+          await apiService.updateStudentProfile({ skills: updatedSkills })
+          setProfile(prev => prev ? ({ ...prev, skills: updatedSkills }) : prev)
+          toast.info('Compétences du profil mises à jour automatiquement')
+        }
+      }
+
       await loadExperiences()
       setIsExperienceModalOpen(false)
       setRefreshTrigger(prev => prev + 1)
@@ -449,15 +471,10 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <Label>Compétences</Label>
                 {isEditing ? (
-                  <Input
-                    value={profile?.skills?.join(', ') || ''}
-                    onChange={(e) =>
-                      setProfile({
-                        ...profile,
-                        skills: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
-                      })
-                    }
-                    placeholder="JavaScript, React, Node.js (séparés par des virgules)"
+                  <SkillsInput
+                    value={profile?.skills || []}
+                    onChange={(newSkills) => setProfile({ ...profile, skills: newSkills })}
+                    placeholder="Ajouter une compétence..."
                   />
                 ) : (
                   <div className="flex flex-wrap gap-2">
