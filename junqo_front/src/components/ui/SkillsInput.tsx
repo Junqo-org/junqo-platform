@@ -1,0 +1,97 @@
+import { useState, KeyboardEvent, useMemo } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { X, Plus } from 'lucide-react'
+
+interface SkillsInputProps {
+  value?: string[]
+  onChange: (skills: string[]) => void
+  placeholder?: string
+}
+
+export function SkillsInput({ value = [], onChange, placeholder = "Add a skill" }: SkillsInputProps) {
+  const [inputValue, setInputValue] = useState('')
+
+  const dedupedSkills = useMemo(() => {
+    const unique: string[] = []
+    const seen = new Set<string>()
+    for (const skill of value) {
+      const lower = skill.toLowerCase()
+      if (!seen.has(lower)) {
+        seen.add(lower)
+        unique.push(skill)
+      }
+    }
+    return unique
+  }, [value])
+
+  const handleAddSkill = () => {
+    const trimmedSkill = inputValue.trim()
+    if (!trimmedSkill) return
+
+    const exists = dedupedSkills.some(
+      (skill) => skill.toLowerCase() === trimmedSkill.toLowerCase()
+    )
+
+    if (!exists) {
+      onChange([...dedupedSkills, trimmedSkill])
+      setInputValue('')
+    }
+  }
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    onChange(dedupedSkills.filter((skill) => 
+      skill.toLowerCase() !== skillToRemove.toLowerCase()
+    ))
+  }
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleAddSkill()
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <Input
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          className="flex-1"
+        />
+        <Button
+          type="button" 
+          onClick={handleAddSkill} 
+          variant="secondary"
+          size="icon"
+          disabled={!inputValue.trim()}
+          aria-label="Add skill"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      {dedupedSkills.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {dedupedSkills.map((skill) => (
+            <Badge key={skill} variant="secondary" className="pl-3 pr-1 py-1 gap-1 flex items-center">
+              {skill}
+              <button
+                type="button"
+                onClick={() => handleRemoveSkill(skill)}
+                className="ml-1 rounded-full p-0.5 hover:bg-muted-foreground/20 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={`Remove skill ${skill}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
