@@ -6,6 +6,7 @@ import { OffersModule } from '../offers/offers.module';
 import { ApplicationsService } from './applications.service';
 import { ConversationsModule } from '../conversations/conversations.module';
 import { MessagesModule } from '../messages/messages.module';
+import { StudentProfilesModule } from '../student-profiles/student-profiles.module';
 
 @Module({
   controllers: [ApplicationsController],
@@ -16,7 +17,8 @@ import { MessagesModule } from '../messages/messages.module';
     OffersModule,
     ConversationsModule,
     MessagesModule,
+    StudentProfilesModule,
   ],
   exports: [ApplicationsService],
 })
-export class ApplicationsModule { }
+export class ApplicationsModule {}

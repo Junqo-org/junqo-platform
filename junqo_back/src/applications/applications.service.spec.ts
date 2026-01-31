@@ -23,7 +23,10 @@ import { OffersService } from '../offers/offers.service';
 import { OfferDTO } from '../offers/dto/offer.dto';
 import { OfferStatus } from '../offers/dto/offer-status.enum';
 import { ConversationsService } from '../conversations/conversations.service';
-import { CreateConversationDTO, ConversationDTO } from '../conversations/dto/conversation.dto';
+import {
+  CreateConversationDTO,
+  ConversationDTO,
+} from '../conversations/dto/conversation.dto';
 import { StudentProfileDTO } from '../student-profiles/dto/student-profile.dto';
 import { CompanyProfileDTO } from '../company-profiles/dto/company-profile.dto';
 
@@ -523,8 +526,10 @@ describe('ApplicationsService', () => {
       const createConversationDto: CreateConversationDTO = {
         participantsIds: [applications[0].studentId, applications[0].companyId],
         participantTitles: {
-          [applications[0].studentId]: `${applications[0].offer?.title || 'Offer'} - ${applications[0].company?.name || 'Company'}`,
-          [applications[0].companyId]: `${applications[0].offer?.title || 'Offer'} - ${applications[0].student?.name || 'Student'}`,
+          [applications[0].studentId]:
+            `${applications[0].offer?.title || 'Offer'} - ${applications[0].company?.name || 'Company'}`,
+          [applications[0].companyId]:
+            `${applications[0].offer?.title || 'Offer'} - ${applications[0].student?.name || 'Student'}`,
         },
         title: `Application Discussion - ${applications[0].offer?.title || 'Offer'}`,
         offerId: applications[0].offerId,
