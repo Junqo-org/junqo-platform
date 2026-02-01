@@ -1,18 +1,8 @@
 name: Build and Push Docker Images
 
 on:
+  workflow_call:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Backend Tests", "Frontend Tests", "Deployment Tests"]
-    types:
-      - completed
-    branches:
-      - main
-      - dev
-
-concurrency:
-  group: build-docker-images-${{ github.event.workflow_run.head_sha || github.sha }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -20,110 +10,12 @@ permissions:
   actions: read
 
 jobs:
-  check-tests:
-    runs-on: ubuntu-latest
-    outputs:
-      all-success: ${{ steps.check.outputs.all-success }}
-    steps:
-      - name: Check if all tests passed
-        id: check
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const workflows = ['Deployment Tests', 'Frontend Tests', 'Backend Tests'];
-            const isWorkflowRun = context.eventName === 'workflow_run';
-
-            // If triggered by workflow_run, use the SHA from the event.
-            // If manual dispatch, use the current head (or let the user decide, but here we assume current).
-            // For manual dispatch, we default to "check latest runs on this branch" logic or just skip check?
-            // The original logic checked generic runs. We'll stick to robust logic.
-
-            let targetSha = null;
-            let targetBranch = null;
-
-            if (isWorkflowRun) {
-              targetSha = context.payload.workflow_run.head_sha;
-              console.log(`Triggered by workflow_run for SHA: ${targetSha}`);
-            } else {
-              targetBranch = context.ref.replace('refs/heads/', '');
-              console.log(`Triggered manually for branch: ${targetBranch}`);
-            }
-
-            let allSuccess = true;
-            let pending = false;
-
-            if (isWorkflowRun && targetSha) {
-              // SHA-based check (Exact match)
-              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head_sha: targetSha,
-              });
-              
-              for (const name of workflows) {
-                const run = runs.workflow_runs.find(r => r.name === name);
-                if (!run) {
-                  console.log(`[${name}] Not found for SHA ${targetSha}. Pending...`);
-                  pending = true;
-                  allSuccess = false;
-                  continue;
-                }
-                if (run.status !== 'completed') {
-                  console.log(`[${name}] Status: ${run.status}. Pending...`);
-                  pending = true;
-                  allSuccess = false;
-                  continue;
-                }
-                if (run.conclusion !== 'success') {
-                  console.log(`[${name}] Conclusion: ${run.conclusion}. Failed.`);
-                  allSuccess = false;
-                } else {
-                  console.log(`[${name}] Success.`);
-                }
-              }
-            } else {
-              // Legacy/Branch-based check for manual dispatch
-              for (const workflowName of workflows) {
-                const runs = await github.rest.actions.listWorkflowRunsForRepo({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  branch: targetBranch,
-                  status: 'completed',
-                  per_page: 1
-                });
-
-                const workflowRun = runs.data.workflow_runs.find(run => run.name === workflowName);
-                if (!workflowRun || workflowRun.conclusion !== 'success') {
-                  console.log(`[${workflowName}] Last run not success or not found.`);
-                  allSuccess = false;
-                  break;
-                } else {
-                  console.log(`[${workflowName}] Last run Success.`);
-                }
-              }
-            }
-
-            if (pending) {
-               console.log("Some workflows are pending. Skipping build.");
-               core.setOutput('all-success', 'false');
-            } else if (!allSuccess) {
-               console.log("Some workflows failed. Skipping build.");
-               core.setOutput('all-success', 'false');
-            } else {
-               console.log("All workflows passed! Proceeding.");
-               core.setOutput('all-success', 'true');
-            }
-
   build-and-push:
-    needs: check-tests
     runs-on: ubuntu-latest
-    if: needs.check-tests.outputs.all-success == 'true'
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -142,11 +34,8 @@ jobs:
       - name: Determine image tag
         id: get_tag
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
-             BRANCH="${{ github.event.workflow_run.head_branch }}"
-          else
-             BRANCH="${{ github.ref_name }}"
-          fi
+          BRANCH="${{ github.ref_name }}"
+          echo "Current branch: $BRANCH"
 
           if [[ "$BRANCH" == "dev" ]]; then
             echo "tag_suffix=dev" >> $GITHUB_ENV

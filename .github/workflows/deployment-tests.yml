@@ -1,10 +1,7 @@
 name: Deployment Tests
 
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -39,6 +36,7 @@ jobs:
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.dev.yaml
+    secrets: inherit
 
   deployment-prod-tests:
     needs: changes-check
@@ -48,6 +46,7 @@ jobs:
     uses: ./.github/workflows/deployment-test-template.yml
     with:
       compose_file: docker-compose.yaml
+    secrets: inherit
 
   deployment-tests-ok:
     needs: [changes-check, deployment-dev-tests, deployment-prod-tests]
