@@ -8,6 +8,10 @@ on:
     branches: [main, dev]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   changes-check:
     runs-on: ubuntu-latest
