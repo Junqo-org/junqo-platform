@@ -17,6 +17,7 @@ import {
 } from '../dto/student-profile-query.dto';
 import { Includeable, Op } from 'sequelize';
 import { ExperienceModel } from '../../experiences/repository/models/experience.model';
+import { SchoolProfileModel } from '../../school-profiles/repository/models/school-profile.model';
 
 @Injectable()
 export class StudentProfilesRepository {
@@ -25,7 +26,7 @@ export class StudentProfilesRepository {
     private readonly studentProfileModel: typeof StudentProfileModel,
   ) {}
 
-  private includeOptions: Includeable[] = [ExperienceModel];
+  private includeOptions: Includeable[] = [ExperienceModel, SchoolProfileModel];
 
   /**
    * Retrieves student profiles matching the query.

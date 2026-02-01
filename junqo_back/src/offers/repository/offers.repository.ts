@@ -352,8 +352,7 @@ export class OffersRepository {
         return [];
       }
 
-      // Applications are not included by default - would need to add ApplicationModel to includes
-      return [];
+      return offer.applications || [];
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to get offer applications: ${error.message}`,

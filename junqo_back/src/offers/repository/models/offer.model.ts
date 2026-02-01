@@ -15,6 +15,8 @@ import { OfferDTO } from '../../dto/offer.dto';
 import { plainToInstance } from 'class-transformer';
 import { OfferType } from '../../dto/offer-type.enum';
 import { WorkContext } from '../../dto/work-context.enum';
+import { ApplicationModel } from '../../../applications/repository/models/application.model';
+import { HasMany } from 'sequelize-typescript';
 
 @Table({ tableName: 'Offers', timestamps: true, paranoid: true })
 export class OfferModel extends Model {
@@ -93,6 +95,9 @@ export class OfferModel extends Model {
   // Number of year distant to bac (0 correspond to BAC level)
   @Column({ type: DataType.INTEGER })
   educationLevel?: number;
+
+  @HasMany(() => ApplicationModel)
+  applications: ApplicationModel[];
 
   public toOfferDTO(): OfferDTO {
     return plainToInstance(OfferDTO, {

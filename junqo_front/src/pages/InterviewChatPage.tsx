@@ -15,7 +15,7 @@ import {
   User, 
   Sparkles,
   Loader2,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react'
 import { apiService } from '@/services/api'
 import ReactMarkdown from 'react-markdown'
@@ -31,13 +31,14 @@ interface Message {
 export default function InterviewChatPage() {
   const location = useLocation()
   const navigate = useNavigate()
+  // Default to 'general' if no context provided from previous page
   const context = (location.state as { context?: string })?.context || 'general'
   
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: `Bonjour ! Je suis votre recruteur virtuel pour cet entretien ${context !== 'general' ? `de ${context}` : ''}. Je vais vous poser quelques questions pour mieux vous connaître. Commençons par une question simple : Pouvez-vous vous présenter en quelques mots ?`,
+      content: `Bonjour ! Je suis votre recruteur virtuel${context !== 'general' ? ` pour : ${context}` : ''}. Je vais vous poser quelques questions pour mieux vous connaître. Commençons par une question simple : Pouvez-vous vous présenter en quelques mots ?`,
       timestamp: new Date(),
     },
   ])
@@ -160,9 +161,11 @@ export default function InterviewChatPage() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Sparkles className="h-8 w-8 text-purple-600" />
-              {contextLabels[context] || 'Simulation d\'Entretien'}
+              {contextLabels[context] || (context !== 'general' ? 'Entretien Personnalisé' : 'Entretien Général')}
             </h1>
-            <p className="text-muted-foreground">Pratiquez avec notre IA recruteur</p>
+            <p className="text-muted-foreground line-clamp-1 max-w-md" title={context === 'general' ? 'Pratiquez avec notre IA recruteur' : context}>
+               {context === 'general' ? 'Pratiquez avec notre IA recruteur' : context}
+            </p>
           </div>
         </div>
         <Badge variant="secondary" className="text-sm">
