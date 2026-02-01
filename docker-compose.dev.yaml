@@ -90,7 +90,7 @@ services:
     networks:
       - back-net
     volumes:
-      - db_data_dev:/var/lib/postgresql/data
+      - db_data_dev:/var/lib/postgresql
       - junqo_logs:/var/log/junqo
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}
