@@ -5,6 +5,9 @@ on:
   delete:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   mirror_to_eip:
     if: github.repository == 'junqo-org/junqo-platform'
