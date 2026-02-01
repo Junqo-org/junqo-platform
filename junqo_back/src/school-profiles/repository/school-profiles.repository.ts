@@ -22,7 +22,7 @@ export class SchoolProfilesRepository {
   constructor(
     @InjectModel(SchoolProfileModel)
     private readonly schoolProfileModel: typeof SchoolProfileModel,
-  ) { }
+  ) {}
 
   /**
    * Search school profiles by name (partial match).

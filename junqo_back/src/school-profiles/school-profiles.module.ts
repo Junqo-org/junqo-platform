@@ -9,7 +9,10 @@ import { StudentProfilesRepositoryModule } from '../student-profiles/repository/
   controllers: [SchoolProfilesController],
   providers: [SchoolProfilesService],
   exports: [SchoolProfilesService],
-  imports: [SchoolProfilesRepositoryModule, CaslModule, StudentProfilesRepositoryModule],
+  imports: [
+    SchoolProfilesRepositoryModule,
+    CaslModule,
+    StudentProfilesRepositoryModule,
+  ],
 })
-export class SchoolProfilesModule { }
-
+export class SchoolProfilesModule {}

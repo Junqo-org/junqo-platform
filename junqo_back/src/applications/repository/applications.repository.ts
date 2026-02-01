@@ -23,7 +23,7 @@ export class ApplicationsRepository {
   constructor(
     @InjectModel(ApplicationModel)
     private readonly applicationModel: typeof ApplicationModel,
-  ) { }
+  ) {}
 
   private includeOption = {
     include: [StudentProfileModel, CompanyProfileModel, OfferModel],

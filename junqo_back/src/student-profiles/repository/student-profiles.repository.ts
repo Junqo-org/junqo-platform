@@ -17,15 +17,16 @@ import {
 } from '../dto/student-profile-query.dto';
 import { Includeable, Op } from 'sequelize';
 import { ExperienceModel } from '../../experiences/repository/models/experience.model';
+import { SchoolProfileModel } from '../../school-profiles/repository/models/school-profile.model';
 
 @Injectable()
 export class StudentProfilesRepository {
   constructor(
     @InjectModel(StudentProfileModel)
     private readonly studentProfileModel: typeof StudentProfileModel,
-  ) { }
+  ) {}
 
-  private includeOptions: Includeable[] = [ExperienceModel];
+  private includeOptions: Includeable[] = [ExperienceModel, SchoolProfileModel];
 
   /**
    * Retrieves student profiles matching the query.
@@ -258,7 +259,9 @@ export class StudentProfilesRepository {
   /**
    * Find all students linked to a specific school.
    */
-  public async findByLinkedSchoolId(schoolId: string): Promise<StudentProfileDTO[]> {
+  public async findByLinkedSchoolId(
+    schoolId: string,
+  ): Promise<StudentProfileDTO[]> {
     try {
       const profiles = await this.studentProfileModel.findAll({
         where: { linkedSchoolId: schoolId },

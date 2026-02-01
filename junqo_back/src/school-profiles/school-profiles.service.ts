@@ -28,7 +28,7 @@ export class SchoolProfilesService {
     private readonly caslAbilityFactory: CaslAbilityFactory,
     private readonly profilesRepository: SchoolProfilesRepository,
     private readonly studentProfilesRepository: StudentProfilesRepository,
-  ) { }
+  ) {}
 
   /**
    * Retrieves school profiles matching the query if the current user has the required permissions.
@@ -286,7 +286,9 @@ export class SchoolProfilesService {
     currentUser: AuthUserDTO,
   ): Promise<StudentProfileDTO[]> {
     if (currentUser.type !== UserType.SCHOOL) {
-      throw new ForbiddenException('Only schools can view their linked students');
+      throw new ForbiddenException(
+        'Only schools can view their linked students',
+      );
     }
 
     return this.studentProfilesRepository.findByLinkedSchoolId(currentUser.id);

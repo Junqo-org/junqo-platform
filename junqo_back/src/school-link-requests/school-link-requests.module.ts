@@ -8,16 +8,15 @@ import { CaslModule } from '../casl/casl.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-    imports: [
-        SchoolLinkRequestsRepositoryModule,
-        StudentProfilesRepositoryModule,
-        SchoolProfilesRepositoryModule,
-        CaslModule,
-        AuthModule,
-    ],
-    controllers: [SchoolLinkRequestsController],
-    providers: [SchoolLinkRequestsService],
-    exports: [SchoolLinkRequestsService],
+  imports: [
+    SchoolLinkRequestsRepositoryModule,
+    StudentProfilesRepositoryModule,
+    SchoolProfilesRepositoryModule,
+    CaslModule,
+    AuthModule,
+  ],
+  controllers: [SchoolLinkRequestsController],
+  providers: [SchoolLinkRequestsService],
+  exports: [SchoolLinkRequestsService],
 })
-export class SchoolLinkRequestsModule { }
-
+export class SchoolLinkRequestsModule {}

@@ -102,6 +102,9 @@ export class CaslAbilityFactory {
       can(Actions.READ, OfferResource);
       can(Actions.READ, StudentProfileResource);
       can(Actions.READ, CompanyProfileResource);
+      can(Actions.READ, ApplicationResource, {
+        studentLinkedSchoolId: user.id,
+      });
     }
 
     if (user.type === UserType.ADMIN) {

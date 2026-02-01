@@ -50,6 +50,16 @@ const offers: OfferDTO[] = [
     status: OfferStatus.INACTIVE,
     viewCount: 10,
   }),
+  plainToInstance(OfferDTO, {
+    id: 'e69cc25b-0cc4-4032-83c2-0d34c84318bc',
+    userId: 'e42cc25b-0cc4-4032-83c2-0d34c84318ba',
+    title: 'Offer 3',
+    description: 'Desc 3',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    status: OfferStatus.CLOSED,
+    viewCount: 0,
+  }),
 ];
 
 describe('OffersService', () => {

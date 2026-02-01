@@ -16,7 +16,7 @@ export class OffersRepository {
     private readonly offerModel: typeof OfferModel,
     @InjectModel(OfferSeenModel)
     private readonly offerSeenModel: typeof OfferSeenModel,
-  ) { }
+  ) {}
 
   public async findAll(): Promise<OfferDTO[]> {
     try {
@@ -222,6 +222,9 @@ export class OffersRepository {
               ...(updateOfferDto.status != undefined && {
                 status: updateOfferDto.status,
               }),
+              ...(updateOfferDto.offerType != undefined && {
+                offerType: updateOfferDto.offerType,
+              }),
               ...(updateOfferDto.duration != undefined && {
                 duration: updateOfferDto.duration,
               }),
@@ -349,8 +352,7 @@ export class OffersRepository {
         return [];
       }
 
-      // Applications are not included by default - would need to add ApplicationModel to includes
-      return [];
+      return offer.applications || [];
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to get offer applications: ${error.message}`,

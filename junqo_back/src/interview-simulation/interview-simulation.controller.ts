@@ -23,7 +23,7 @@ import {
 export class InterviewSimulationController {
   constructor(
     private readonly interviewSimulationService: InterviewSimulationService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiBearerAuth()
@@ -67,12 +67,20 @@ export class InterviewSimulationController {
   @Post('feedback')
   @ApiBearerAuth()
   @ApiOperation({
-    summary: "Obtenir un feedback sur une réponse du candidat",
+    summary: 'Obtenir un feedback sur une réponse du candidat',
   })
   @ApiResponse({
     status: 200,
     description: 'Feedback généré avec succès',
     type: InterviewSimulationResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Requête invalide',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Erreur serveur',
   })
   async getFeedback(
     @Body() feedbackRequest: FeedbackRequestDto,

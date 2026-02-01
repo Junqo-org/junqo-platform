@@ -693,9 +693,40 @@ describe('CaslAbilityFactory', () => {
         },
       );
 
-      expect(ability.can(Actions.READ, applicationResource)).toBeFalsy();
-      expect(ability.can(Actions.UPDATE, applicationResource)).toBeFalsy();
       expect(ability.can(Actions.DELETE, applicationResource)).toBeFalsy();
+    });
+
+    it('should allow school user to read application resource if student is linked to the school', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const applicationResource = new ApplicationResource(
+        'student-id',
+        undefined,
+        schoolUser.id,
+      );
+
+      expect(ability.can(Actions.READ, applicationResource)).toBeTruthy();
+    });
+
+    it('should not allow school user to read application resource if student is NOT linked to the school', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const applicationResource = new ApplicationResource(
+        'student-id',
+        undefined,
+        schoolUser2.id,
+      );
+
+      expect(ability.can(Actions.READ, applicationResource)).toBeFalsy();
+    });
+
+    it('should not allow school user to read application resource if linked school is undefined', () => {
+      const ability = caslAbilityFactory.createForUser(schoolUser);
+      const applicationResource = new ApplicationResource(
+        'student-id',
+        undefined,
+        undefined,
+      );
+
+      expect(ability.can(Actions.READ, applicationResource)).toBeFalsy();
     });
   });
 

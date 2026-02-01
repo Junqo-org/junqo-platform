@@ -25,7 +25,7 @@ export class StudentProfilesService {
   constructor(
     private readonly caslAbilityFactory: CaslAbilityFactory,
     private readonly profilesRepository: StudentProfilesRepository,
-  ) { }
+  ) {}
 
   /**
    * Retrieves student profiles matching the query if the current user has the required permissions.
