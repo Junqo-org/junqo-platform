@@ -51,6 +51,19 @@ describe('OffersController', () => {
       offerType: OfferType.APPRENTICESHIP,
       workLocationType: WorkContext.ON_SITE,
     }),
+    new OfferDTO({
+      id: '3oec0948-58dd-40b2-b085-5a47244036c2',
+      userId: '1uec0948-58dd-40b2-b085-5a47244036c2',
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-02T00:00:00Z'),
+      title: 'Sample Offer 3',
+      description: 'This is a closed offer.',
+      status: OfferStatus.CLOSED,
+      viewCount: 5,
+      skills: ['nestjs'],
+      offerType: OfferType.FULL_TIME,
+      workLocationType: WorkContext.TELEWORKING,
+    }),
   ];
 
   const mockCreateOffer: CreateOfferDTO = {

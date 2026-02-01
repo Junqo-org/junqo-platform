@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('fr-FR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -24,10 +24,10 @@ export function formatRelativeTime(date: Date | string): string {
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)
 
-  if (days > 0) return `${days}d ago`
-  if (hours > 0) return `${hours}h ago`
-  if (minutes > 0) return `${minutes}m ago`
-  return 'Just now'
+  if (days > 0) return `Il y a ${days} jour${days > 1 ? 's' : ''}`
+  if (hours > 0) return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`
+  if (minutes > 0) return `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`
+  return "À l'instant"
 }
 
 export function truncate(str: string, length: number): string {

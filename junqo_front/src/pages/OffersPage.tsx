@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -39,6 +39,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
+import { OfferStatusBadge } from '@/components/offers/OfferStatusBadge'
+import { OfferTypeBadge } from '@/components/offers/OfferTypeBadge'
 
 export default function OffersPage() {
   const navigate = useNavigate()
@@ -54,6 +56,7 @@ export default function OffersPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [locationFilter, setLocationFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'swipe'>('grid')
   const latestRequestIdRef = useRef(0)
 
@@ -79,6 +82,7 @@ export default function OffersPage() {
       if (searchQuery) query.title = searchQuery
       if (typeFilter !== 'all') query.offerType = typeFilter
       if (locationFilter !== 'all') query.workLocationType = locationFilter
+      if (statusFilter !== 'all') query.status = statusFilter
 
       const data = user?.type === 'COMPANY'
         ? await apiService.getMyOffers()
@@ -121,7 +125,7 @@ export default function OffersPage() {
         setIsLoading(false)
       }
     }
-  }, [user, searchQuery, typeFilter, locationFilter, itemsPerPage])
+  }, [user, searchQuery, typeFilter, locationFilter, statusFilter, itemsPerPage])
 
   useEffect(() => {
     // Reset to page 1 when filters change
@@ -175,7 +179,8 @@ export default function OffersPage() {
       const matchesSearch = title.includes(searchLower) || description.includes(searchLower)
       const matchesType = typeFilter === 'all' || offer.offerType === typeFilter
       const matchesLocation = locationFilter === 'all' || offer.workLocationType === locationFilter
-      return matchesSearch && matchesType && matchesLocation
+      const matchesStatus = statusFilter === 'all' || offer.status === statusFilter
+      return matchesSearch && matchesType && matchesLocation && matchesStatus
     })
     : offers
 
@@ -234,15 +239,11 @@ export default function OffersPage() {
     )
   }
 
-  const getOfferTypeBadge = (type: string) => {
-    const badges = {
-      'INTERNSHIP': { label: 'Stage', color: 'bg-muted text-foreground border-border' },
-      'FULL_TIME': { label: 'Temps plein', color: 'bg-muted text-foreground border-border' },
-      'PART_TIME': { label: 'Temps partiel', color: 'bg-muted text-foreground border-border' },
-      'CONTRACT': { label: 'Contrat', color: 'bg-muted text-foreground border-border' },
-    }
-    return badges[type as keyof typeof badges] || { label: type, color: 'bg-muted text-foreground border-border' }
-  }
+
+
+
+
+
 
   const getLocationBadge = (location: string) => {
     const badges = {
@@ -288,9 +289,6 @@ export default function OffersPage() {
   }
 
   const renderOfferCard = (offer: Offer) => {
-    const offerTypeBadge = getOfferTypeBadge(offer.offerType)
-    const locationBadge = getLocationBadge(offer.workLocationType)
-
     return (
       <Card
         className="h-full bg-card border-border shadow-xl"
@@ -306,9 +304,10 @@ export default function OffersPage() {
                 <span className="whitespace-nowrap">{formatRelativeTime(new Date(offer.createdAt))}</span>
               </p>
             </div>
-            <Badge className="flex-shrink-0 bg-muted text-foreground border-border border">
-              {offerTypeBadge.label}
-            </Badge>
+            <div className="flex gap-2 flex-wrap justify-end">
+              <OfferTypeBadge type={offer.offerType} className="flex-shrink-0" />
+              <OfferStatusBadge status={offer.status} className="flex-shrink-0" />
+            </div>
           </div>
 
           <p className="text-card-foreground mb-6 leading-relaxed line-clamp-4">
@@ -328,12 +327,13 @@ export default function OffersPage() {
               </div>
             )}
 
+
             <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
               <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
               <div className="min-w-0">
                 <div className="text-xs text-muted-foreground">Localisation</div>
                 <div className="font-semibold text-foreground truncate">
-                  {locationBadge.label}
+                  {getLocationBadge(offer.workLocationType).label}
                 </div>
               </div>
             </div>
@@ -467,9 +467,9 @@ export default function OffersPage() {
                   <SelectContent>
                     <SelectItem value="all">Tous les types</SelectItem>
                     <SelectItem value="INTERNSHIP">Stage</SelectItem>
+                    <SelectItem value="APPRENTICESHIP">Alternance</SelectItem>
                     <SelectItem value="FULL_TIME">Temps plein</SelectItem>
                     <SelectItem value="PART_TIME">Temps partiel</SelectItem>
-                    <SelectItem value="CONTRACT">Contrat</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -482,6 +482,18 @@ export default function OffersPage() {
                     <SelectItem value="ON_SITE">Sur site</SelectItem>
                     <SelectItem value="TELEWORKING">Télétravail</SelectItem>
                     <SelectItem value="HYBRID">Hybride</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les statuts</SelectItem>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
+                    <SelectItem value="CLOSED">Fermée</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -535,9 +547,6 @@ export default function OffersPage() {
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {displayOffers.map((offer) => {
-                const offerTypeBadge = getOfferTypeBadge(offer.offerType)
-                const locationBadge = getLocationBadge(offer.workLocationType)
-
                 return (
                   <motion.div
                     key={offer.id}
@@ -565,9 +574,10 @@ export default function OffersPage() {
                                 <span className="whitespace-nowrap">{formatRelativeTime(new Date(offer.createdAt))}</span>
                               </p>
                             </div>
-                            <Badge variant="secondary" className="flex-shrink-0">
-                              {offerTypeBadge.label}
-                            </Badge>
+                            <div className="flex gap-2 flex-wrap justify-end">
+                              <OfferTypeBadge type={offer.offerType} className="flex-shrink-0" />
+                              <OfferStatusBadge status={offer.status} className="flex-shrink-0" />
+                            </div>
                           </div>
 
                           {/* Description */}
@@ -592,7 +602,7 @@ export default function OffersPage() {
                               <div className="h-6 w-6 rounded bg-muted border border-border flex items-center justify-center flex-shrink-0">
                                 <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                               </div>
-                              <span className="truncate">{locationBadge.label}</span>
+                              <span className="truncate">{getLocationBadge(offer.workLocationType).label}</span>
                             </div>
 
                             {offer.duration && offer.duration > 0 && (
