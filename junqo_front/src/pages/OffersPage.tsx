@@ -467,9 +467,9 @@ export default function OffersPage() {
                   <SelectContent>
                     <SelectItem value="all">Tous les types</SelectItem>
                     <SelectItem value="INTERNSHIP">Stage</SelectItem>
+                    <SelectItem value="APPRENTICESHIP">Alternance</SelectItem>
                     <SelectItem value="FULL_TIME">Temps plein</SelectItem>
                     <SelectItem value="PART_TIME">Temps partiel</SelectItem>
-                    <SelectItem value="CONTRACT">Contrat</SelectItem>
                   </SelectContent>
                 </Select>
 

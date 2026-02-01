@@ -23,7 +23,7 @@ import {
 export class InterviewSimulationController {
   constructor(
     private readonly interviewSimulationService: InterviewSimulationService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiBearerAuth()
@@ -67,7 +67,7 @@ export class InterviewSimulationController {
   @Post('feedback')
   @ApiBearerAuth()
   @ApiOperation({
-    summary: "Obtenir un feedback sur une réponse du candidat",
+    summary: 'Obtenir un feedback sur une réponse du candidat',
   })
   @ApiResponse({
     status: 200,

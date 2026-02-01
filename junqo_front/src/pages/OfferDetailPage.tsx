@@ -69,6 +69,7 @@ export default function OfferDetailPage() {
     if (!offerId) return
 
     setIsLoading(true)
+    setCompany(null)
     try {
       const data = await apiService.getOffer(offerId)
       setOffer(data)
@@ -235,13 +236,15 @@ export default function OfferDetailPage() {
                     />
                   </div>
                   {company && (
-                    <div 
-                      className="flex items-center gap-2 mb-2 cursor-pointer hover:underline text-primary group"
+                    <Button
+                      variant="link"
+                      type="button"
+                      className="flex items-center gap-2 mb-2 cursor-pointer hover:underline text-primary group p-0 h-auto justify-start"
                       onClick={() => navigate(`/company/${offer.userId}`)}
                     >
                       <Building2 className="h-4 w-4" />
                       <span className="font-semibold text-lg">{company.name || 'Entreprise inconnue'}</span>
-                    </div>
+                    </Button>
                   )}
                   <CardTitle className="text-3xl font-bold text-foreground mb-3 break-words break-all whitespace-normal">
                     {offer.title}

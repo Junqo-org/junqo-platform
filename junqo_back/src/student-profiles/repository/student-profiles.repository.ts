@@ -23,7 +23,7 @@ export class StudentProfilesRepository {
   constructor(
     @InjectModel(StudentProfileModel)
     private readonly studentProfileModel: typeof StudentProfileModel,
-  ) { }
+  ) {}
 
   private includeOptions: Includeable[] = [ExperienceModel];
 
@@ -258,7 +258,9 @@ export class StudentProfilesRepository {
   /**
    * Find all students linked to a specific school.
    */
-  public async findByLinkedSchoolId(schoolId: string): Promise<StudentProfileDTO[]> {
+  public async findByLinkedSchoolId(
+    schoolId: string,
+  ): Promise<StudentProfileDTO[]> {
     try {
       const profiles = await this.studentProfileModel.findAll({
         where: { linkedSchoolId: schoolId },

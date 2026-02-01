@@ -4,8 +4,8 @@ import { SchoolLinkRequestModel } from './models/school-link-request.model';
 import { SchoolLinkRequestsRepository } from './school-link-requests.repository';
 
 @Module({
-    imports: [SequelizeModule.forFeature([SchoolLinkRequestModel])],
-    providers: [SchoolLinkRequestsRepository],
-    exports: [SchoolLinkRequestsRepository],
+  imports: [SequelizeModule.forFeature([SchoolLinkRequestModel])],
+  providers: [SchoolLinkRequestsRepository],
+  exports: [SchoolLinkRequestsRepository],
 })
-export class SchoolLinkRequestsRepositoryModule { }
+export class SchoolLinkRequestsRepositoryModule {}

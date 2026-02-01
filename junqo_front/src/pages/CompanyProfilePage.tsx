@@ -18,6 +18,15 @@ import { apiService } from '@/services/api'
 import { CompanyProfile } from '@/types'
 import { toast } from 'sonner'
 
+const isValidUrl = (url: string) => {
+  try {
+    const parsed = new URL(url)
+    return ['http:', 'https:'].includes(parsed.protocol)
+  } catch {
+    return false
+  }
+}
+
 export default function CompanyProfilePage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -146,14 +155,20 @@ export default function CompanyProfilePage() {
                             <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
                             <div>
                                 <p className="font-medium">Site Web</p>
-                                <a 
-                                    href={company.websiteUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-primary hover:underline break-all"
-                                >
-                                    {company.websiteUrl}
-                                </a>
+                                {isValidUrl(company.websiteUrl) ? (
+                                    <a 
+                                        href={company.websiteUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-primary hover:underline break-all"
+                                    >
+                                        {company.websiteUrl}
+                                    </a>
+                                ) : (
+                                    <span className="text-muted-foreground break-all">
+                                        {company.websiteUrl}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     )}

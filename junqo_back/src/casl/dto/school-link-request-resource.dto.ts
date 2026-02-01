@@ -1,15 +1,15 @@
 import { Expose } from 'class-transformer';
 
 export class SchoolLinkRequestResource {
-    @Expose()
-    id?: string;
+  @Expose()
+  id?: string;
 
-    @Expose()
-    studentId?: string;
+  @Expose()
+  studentId?: string;
 
-    @Expose()
-    schoolId?: string;
+  @Expose()
+  schoolId?: string;
 
-    @Expose()
-    status?: string;
+  @Expose()
+  status?: string;
 }

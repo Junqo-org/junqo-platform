@@ -19,4 +19,4 @@ import { MessagesModule } from '../messages/messages.module';
   ],
   exports: [ApplicationsService],
 })
-export class ApplicationsModule { }
+export class ApplicationsModule {}

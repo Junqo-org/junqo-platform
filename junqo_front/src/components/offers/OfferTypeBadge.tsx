@@ -10,9 +10,9 @@ export function OfferTypeBadge({ type, className }: OfferTypeBadgeProps) {
   const getTypeConfig = (type: string) => {
     const badges = {
       'INTERNSHIP': { label: 'Stage', className: 'bg-muted text-foreground border-border' },
+      'APPRENTICESHIP': { label: 'Alternance', className: 'bg-muted text-foreground border-border' },
       'FULL_TIME': { label: 'Temps plein', className: 'bg-muted text-foreground border-border' },
       'PART_TIME': { label: 'Temps partiel', className: 'bg-muted text-foreground border-border' },
-      'CONTRACT': { label: 'Contrat', className: 'bg-muted text-foreground border-border' },
     }
     return badges[type as keyof typeof badges] || { label: type, className: 'bg-muted text-foreground border-border' }
   }

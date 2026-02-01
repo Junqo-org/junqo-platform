@@ -26,7 +26,7 @@ const offerSchema = z.object({
   title: z.string().min(3, 'Le titre doit contenir au moins 3 caractères'),
   description: z.string().min(20, 'La description doit contenir au moins 20 caractères'),
   status: z.enum(['ACTIVE', 'INACTIVE', 'CLOSED']),
-  offerType: z.enum(['INTERNSHIP', 'FULL_TIME', 'PART_TIME', 'CONTRACT']),
+  offerType: z.enum(['INTERNSHIP', 'FULL_TIME', 'PART_TIME', 'APPRENTICESHIP']),
   workLocationType: z.enum(['ON_SITE', 'TELEWORKING', 'HYBRID']),
   // Optional fields - can be empty string and will be converted
   duration: z.string().optional(),
@@ -40,7 +40,7 @@ interface OfferCreateData {
   title: string
   description: string
   status: 'ACTIVE' | 'INACTIVE' | 'CLOSED'
-  offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT'
+  offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'APPRENTICESHIP'
   workLocationType: 'ON_SITE' | 'TELEWORKING' | 'HYBRID'
   duration?: number
   salary?: number
@@ -212,9 +212,9 @@ export default function OfferCreationPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="INTERNSHIP">Stage</SelectItem>
+                          <SelectItem value="APPRENTICESHIP">Alternance</SelectItem>
                           <SelectItem value="FULL_TIME">CDI</SelectItem>
                           <SelectItem value="PART_TIME">Temps partiel</SelectItem>
-                          <SelectItem value="CONTRACT">Contrat</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
