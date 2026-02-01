@@ -18,11 +18,14 @@ import {
   AlertCircle,
   Loader2,
   Edit,
-  Trash2
+  Trash2,
+  Building2
 } from 'lucide-react'
 import { apiService } from '@/services/api'
-import { Offer } from '@/types'
+import { Offer, CompanyProfile } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
+import { OfferStatusBadge } from '@/components/offers/OfferStatusBadge'
+import { OfferTypeBadge } from '@/components/offers/OfferTypeBadge'
 
 interface Application {
   id: string
@@ -55,6 +58,7 @@ export default function OfferDetailPage() {
   const isCompany = user?.type === 'COMPANY'
 
   const [offer, setOffer] = useState<Offer | null>(null)
+  const [company, setCompany] = useState<CompanyProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
   const [hasApplied, setHasApplied] = useState(false)
@@ -65,9 +69,21 @@ export default function OfferDetailPage() {
     if (!offerId) return
 
     setIsLoading(true)
+    setCompany(null)
     try {
       const data = await apiService.getOffer(offerId)
       setOffer(data)
+
+      // Fetch company profile
+      if (data.userId) {
+        try {
+          const companyData = await apiService.getCompanyProfile(data.userId)
+          setCompany(companyData)
+        } catch (error) {
+          console.error('Failed to load company profile:', error)
+          // Don't show error to user, just log it. Company info is optional.
+        }
+      }
 
       // Check if already applied
       if (isStudent && offerId) {
@@ -96,6 +112,7 @@ export default function OfferDetailPage() {
       navigate('/offers')
     }
   }, [offerId, loadOffer, navigate])
+
   const handleApply = async () => {
     if (!offerId) return
 
@@ -133,16 +150,6 @@ export default function OfferDetailPage() {
     } finally {
       setIsDeleting(false)
     }
-  }
-
-  const getOfferTypeBadge = (type: string) => {
-    const badges = {
-      'INTERNSHIP': { label: 'Stage', variant: 'default' as const },
-      'FULL_TIME': { label: 'CDI', variant: 'secondary' as const },
-      'PART_TIME': { label: 'Temps partiel', variant: 'outline' as const },
-      'CONTRACT': { label: 'Contrat', variant: 'outline' as const },
-    }
-    return badges[type as keyof typeof badges] || { label: type, variant: 'secondary' as const }
   }
 
   const getLocationLabel = (location: string) => {
@@ -204,8 +211,6 @@ export default function OfferDetailPage() {
     )
   }
 
-  const offerTypeBadge = getOfferTypeBadge(offer.offerType)
-
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -225,16 +230,22 @@ export default function OfferDetailPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="secondary">
-                      {offerTypeBadge.label}
-                    </Badge>
-                    {offer.status === 'ACTIVE' && (
-                      <Badge variant="secondary">
-                        <CheckCircle className="mr-1 h-3 w-3 text-green-500" />
-                        Actif
-                      </Badge>
-                    )}
+                    <OfferTypeBadge type={offer.offerType} />
+                    <OfferStatusBadge 
+                      status={offer.status} 
+                    />
                   </div>
+                  {company && (
+                    <Button
+                      variant="link"
+                      type="button"
+                      className="flex items-center gap-2 mb-2 cursor-pointer hover:underline text-primary group p-0 h-auto justify-start"
+                      onClick={() => navigate(`/company/${offer.userId}`)}
+                    >
+                      <Building2 className="h-4 w-4" />
+                      <span className="font-semibold text-lg">{company.name || 'Entreprise inconnue'}</span>
+                    </Button>
+                  )}
                   <CardTitle className="text-3xl font-bold text-foreground mb-3 break-words break-all whitespace-normal">
                     {offer.title}
                   </CardTitle>
@@ -268,7 +279,7 @@ export default function OfferDetailPage() {
                     <TrendingUp className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                     <div>
                       <div className="text-xs text-muted-foreground">Salaire</div>
-                      <p className="font-semibold text-foreground">€{offer.salary}/month</p>
+                      <p className="font-semibold text-foreground">€{offer.salary}/mois</p>
                     </div>
                   </div>
                 )}
@@ -278,7 +289,7 @@ export default function OfferDetailPage() {
                     <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                     <div>
                       <div className="text-xs text-muted-foreground">Durée</div>
-                      <p className="font-semibold text-foreground">{offer.duration} months</p>
+                      <p className="font-semibold text-foreground">{offer.duration} mois</p>
                     </div>
                   </div>
                 )}

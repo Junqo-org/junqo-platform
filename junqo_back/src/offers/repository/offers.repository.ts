@@ -16,7 +16,7 @@ export class OffersRepository {
     private readonly offerModel: typeof OfferModel,
     @InjectModel(OfferSeenModel)
     private readonly offerSeenModel: typeof OfferSeenModel,
-  ) { }
+  ) {}
 
   public async findAll(): Promise<OfferDTO[]> {
     try {
@@ -221,6 +221,9 @@ export class OffersRepository {
               }),
               ...(updateOfferDto.status != undefined && {
                 status: updateOfferDto.status,
+              }),
+              ...(updateOfferDto.offerType != undefined && {
+                offerType: updateOfferDto.offerType,
               }),
               ...(updateOfferDto.duration != undefined && {
                 duration: updateOfferDto.duration,
