@@ -60,7 +60,7 @@ services:
 
   db:
     container_name: junqo_db
-    image: postgres:alpine
+    image: postgres:17-alpine
     restart: always
     shm_size: ${DATABASE_SHM_SIZE:-128mb}
     networks:

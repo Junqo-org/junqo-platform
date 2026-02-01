@@ -1,4 +1,6 @@
 name: Create Release on Merge
+# Automatically creates and pushes a tag, and publishes a release when a pull request is merged into the 'main' branch
+# if the commit message matches a version pattern.
 
 on:
   pull_request:
@@ -15,6 +17,9 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
+      REGEX_PATTERN: '([0-9]+\.[0-9]+(\.[0-9]+)?)$'
+      MAX_TITLE_LENGTH: 200
+      MAX_BODY_LENGTH: 5000
       PR_BODY_FILE: pr_body.txt
 
     steps:
@@ -23,10 +28,12 @@ jobs:
 
       - name: Check PR title for version
         id: check_version
+        env:
+          PR_TITLE: "${{ github.event.pull_request.title }}"
         run: |
           # Sanitize PR title - limit length and extract version safely
-          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | head -c 200)
-          if [[ "$PR_TITLE" =~ ([0-9]+\.[0-9]+(\.[0-9]+)?) ]]; then
+          PR_TITLE=$(echo "$PR_TITLE" | head -c $MAX_TITLE_LENGTH)
+          if [[ "$PR_TITLE" =~ ${REGEX_PATTERN} ]]; then
             VERSION="${BASH_REMATCH[1]}"
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
             echo "has_version=true" >> "$GITHUB_OUTPUT"
@@ -38,17 +45,29 @@ jobs:
         id: sanitize_body
         if: steps.check_version.outputs.has_version == 'true'
         run: |
-          # Limit body length and escape special characters
-          PR_BODY=$(echo "${{ github.event.pull_request.body }}" | head -c 5000)
-          # Save to file to avoid issues with multiline content and special characters
-          echo "$PR_BODY" > "$PR_BODY_FILE"
+          # Safely extract PR body from event payload using jq
+          PR_BODY=$(jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" | head -c $MAX_BODY_LENGTH)
+          # Save to file using safe write to avoid shell injection
+          printf '%s' "$PR_BODY" > "$PR_BODY_FILE"
+
+      - name: Create and push git tag
+        if: steps.check_version.outputs.has_version == 'true'
+        run: |
+          # Configure git for tag creation
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create annotated tag
+          git tag -a "v${{ steps.check_version.outputs.version }}" -m "Release v${{ steps.check_version.outputs.version }}"
+
+          # Push tag to origin
+          git push origin "v${{ steps.check_version.outputs.version }}"
 
       - name: Create Release
         if: steps.check_version.outputs.has_version == 'true'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.check_version.outputs.version }}
-          release_name: Release v${{ steps.check_version.outputs.version }}
+          name: Release v${{ steps.check_version.outputs.version }}
           body_path: ${{ env.PR_BODY_FILE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
