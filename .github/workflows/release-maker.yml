@@ -1,9 +1,8 @@
 name: Create Release on Merge
-# Automatically creates and pushes a tag, and publishes a release when a pull request is merged into the 'main' branch
-# if the commit message matches a version pattern.
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
 
@@ -13,59 +12,43 @@ permissions:
 
 jobs:
   create-release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
-      REGEX_PATTERN: '([0-9]+\.[0-9]+(\.[0-9]+)?)$'
+      PR_BODY_FILE: pr_body.txt
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Get Pull Request Details
-      id: get_pr
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        PR_NUMBER=$(gh pr view --json number -q .number)
-        PR_TITLE=$(gh pr view $PR_NUMBER --json title -q .title)
-        PR_BODY=$(gh pr view $PR_NUMBER --json body -q .body)
-        sanitized_title=$(echo "$PR_TITLE" | sed -e 's/\"/\\\"/g' -e 's/\$/\\\$/g' -e 's/`/\\`/g' -e 's/\\/\\\\/g')
-        sanitized_body=$(echo "$PR_BODY" | sed -e 's/\"/\\\"/g' -e 's/\$/\\\$/g' -e 's/`/\\`/g' -e 's/\\/\\\\/g')
-        echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-        echo "PR_TITLE=$sanitized_title" >> $GITHUB_ENV
-        echo "PR_BODY=$sanitized_body" >> $GITHUB_ENV
+      - name: Check PR title for version
+        id: check_version
+        run: |
+          # Sanitize PR title - limit length and extract version safely
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | head -c 200)
+          if [[ "$PR_TITLE" =~ ([0-9]+\.[0-9]+(\.[0-9]+)?) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "has_version=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_version=false" >> "$GITHUB_OUTPUT"
+          fi
 
-    - name: Check Pull Request Title with Regex
-      id: check_pr_title
-      run: |
-        if [[ "$PR_TITLE" =~ $REGEX_PATTERN ]]; then
-          echo "match=true" >> $GITHUB_ENV
-        else
-          echo "match=false" >> $GITHUB_ENV
-        fi
+      - name: Sanitize PR body
+        id: sanitize_body
+        if: steps.check_version.outputs.has_version == 'true'
+        run: |
+          # Limit body length and escape special characters
+          PR_BODY=$(echo "${{ github.event.pull_request.body }}" | head -c 5000)
+          # Save to file to avoid issues with multiline content and special characters
+          echo "$PR_BODY" > "$PR_BODY_FILE"
 
-    - name: Create Tag
-      if: env.match == 'true'
-      id: create_tag
-      run: |
-        tag=$(echo "$PR_TITLE" | grep -oP "$REGEX_PATTERN")
-        echo "tag=$tag" >> $GITHUB_ENV
-
-    - name: Push Tag
-      if: env.match == 'true'
-      run: |
-        git tag ${{ env.tag }}
-        git push origin ${{ env.tag }}
-
-    - name: Create Release
-      if: env.match == 'true'
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.tag }}
-        release_name: Release ${{ env.tag }}
-        body: |
-          ${{ env.PR_BODY }}
-        draft: false
-        prerelease: false
+      - name: Create Release
+        if: steps.check_version.outputs.has_version == 'true'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.check_version.outputs.version }}
+          release_name: Release v${{ steps.check_version.outputs.version }}
+          body_path: ${{ env.PR_BODY_FILE }}

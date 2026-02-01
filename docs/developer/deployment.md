@@ -626,7 +626,7 @@ These can be set in a `.env` file at the project root:
 | `DATABASE_PASSWORD_FILE` | `./db_password.conf`      | Path to database password file        |
 | `GRAFANA_PASSWORD_FILE`  | `./grafana_password.conf` | Path to Grafana password file         |
 | `SSL_CERTS_PATH`         | `/etc/letsencrypt`        | Path to SSL certificates (production) |
-| `VITE_API_URL`                | `/api/v1`                 | Backend API URL for frontend          |
+| `VITE_API_URL`           | `/api/v1`                 | Backend API URL for frontend          |
 
 **Development-only Variables:**
 
@@ -667,8 +667,8 @@ openssl rand -base64 24
 
 Frontend configuration is managed through `junqo_front/config/.env`:
 
-| Variable  | Default                        | Description              |
-| --------- | ------------------------------ | ------------------------ |
+| Variable       | Default   | Description              |
+| -------------- | --------- | ------------------------ |
 | `VITE_API_URL` | `/api/v1` | Backend API endpoint URL |
 
 **Environment-specific URLs:**

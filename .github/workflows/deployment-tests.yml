@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  actions: write
 
 jobs:
   changes-check:
@@ -63,3 +64,4 @@ jobs:
             echo "❌ Deployment tests failed or were required but skipped."
             exit 1
           fi
+
