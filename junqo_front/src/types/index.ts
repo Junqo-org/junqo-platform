@@ -47,7 +47,7 @@ export interface Offer {
   description: string
   status: 'ACTIVE' | 'INACTIVE' | 'CLOSED'
   viewCount: number
-  offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT'
+  offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'APPRENTICESHIP'
   duration?: number
   salary?: number
   workLocationType: 'ON_SITE' | 'TELEWORKING' | 'HYBRID'
@@ -63,7 +63,7 @@ export interface CreateOfferInput {
   title: string
   description: string
   status: 'ACTIVE' | 'INACTIVE' | 'CLOSED'
-  offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT'
+  offerType: 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'APPRENTICESHIP'
   duration?: number
   salary?: number
   workLocationType: 'ON_SITE' | 'TELEWORKING' | 'HYBRID'

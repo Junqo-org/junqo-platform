@@ -5,4 +5,6 @@ export enum OfferStatus {
   INACTIVE = 'INACTIVE',
   // The offer is deleted.
   DELETED = 'DELETED',
+  // The offer is closed.
+  CLOSED = 'CLOSED',
 }
