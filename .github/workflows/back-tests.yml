@@ -2,15 +2,13 @@
 name: Backend Tests
 
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+  workflow_call:
   workflow_dispatch:
 
 permissions:
   contents: read
   pull-requests: read
+  actions: write
 
 jobs:
   changes-check:
@@ -27,13 +25,13 @@ jobs:
               - 'junqo_back/**'
               - '.github/workflows/back-tests.yml'
 
-  backend-tests:
+  back-tests:
     needs: changes-check
     if: needs.changes-check.outputs.any_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -63,17 +61,18 @@ jobs:
         run: npm run lint
 
   back-tests-ok:
-    needs: [changes-check, backend-tests]
+    needs: [changes-check, back-tests]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Set backend tests status
         run: |
           if [[ "${{ needs.changes-check.outputs.any_changed }}" == "false" ]] ||
-            [[ "${{ needs.changes-check.outputs.any_changed }}" == "true" && "${{ needs.backend-tests.result }}" == "success" ]]; then
+            [[ "${{ needs.changes-check.outputs.any_changed }}" == "true" && "${{ needs.back-tests.result }}" == "success" ]]; then
             echo "✅ Backend tests condition met."
             exit 0
           else
             echo "❌ Backend tests failed or were required but skipped."
             exit 1
           fi
+

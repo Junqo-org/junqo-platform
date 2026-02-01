@@ -1,15 +1,13 @@
 name: Frontend Tests
 
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+  workflow_call:
   workflow_dispatch:
 
 permissions:
   contents: read
   pull-requests: read
+  actions: write
 
 jobs:
   changes-check:
@@ -38,8 +36,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
           cache-dependency-path: junqo_front/package-lock.json
 
       - name: Install dependencies
@@ -73,3 +71,4 @@ jobs:
             echo "❌ Frontend tests failed or were required but skipped."
             exit 1
           fi
+

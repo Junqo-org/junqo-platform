@@ -6,11 +6,11 @@ Create a `.env` file at the root of `junqo_front/` to configure the backend API.
 
 ### Local Mode (Default Development)
 
-**Do NOT create a `.env` file** or leave `API_URL` empty:
+**Do NOT create a `.env` file** or leave `VITE_API_URL` empty:
 
 ```env
 # .env (or no file at all)
-# API_URL=
+# VITE_API_URL=
 ```
 
 ➡️ The Vite proxy will automatically redirect to `http://localhost:4200`
@@ -21,7 +21,7 @@ Create a `.env` file with:
 
 ```env
 # .env
-API_URL=http://dev.junqo.fr:4200/api/v1
+VITE_API_URL=http://dev.junqo.fr:4200/api/v1
 ```
 
 ➡️ The Vite proxy will redirect to the remote server
@@ -30,12 +30,12 @@ API_URL=http://dev.junqo.fr:4200/api/v1
 
 ```env
 # .env.production
-API_URL=https://api.junqo.fr/api/v1
+VITE_API_URL=https://api.junqo.fr/api/v1
 ```
 
 ## WebSocket (Optional)
 
-By default, the WebSocket URL is derived from `API_URL`. 
+By default, the WebSocket URL is derived from `VITE_API_URL`. 
 You can specify it manually if needed:
 
 ```env
@@ -56,7 +56,7 @@ npm run dev
 
 ```bash
 # Create .env with:
-echo "API_URL=http://dev.junqo.fr:4200/api/v1" > .env
+echo "VITE_API_URL=http://dev.junqo.fr:4200/api/v1" > .env
 npm run dev
 # Output: 🔧 Vite proxy configured to: http://dev.junqo.fr:4200
 ```

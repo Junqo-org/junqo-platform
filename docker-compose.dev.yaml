@@ -10,8 +10,7 @@ services:
       context: ./
       dockerfile: ./junqo_front/dockerfile.dev
       args:
-        - FLUTTER_VERSION=${FLUTTER_VERSION:-3.35.3}
-        - API_URL=${API_URL:-/api/v1}
+        - VITE_API_URL=${VITE_API_URL:-/api/v1}
     env_file:
       - ${FRONT_ENV_FILE:-./junqo_front/config/.env}
     restart: unless-stopped
@@ -84,13 +83,13 @@ services:
 
   db:
     container_name: junqo_db_dev
-    image: postgres:alpine
+    image: postgres:17-alpine
     restart: unless-stopped
     shm_size: ${DATABASE_SHM_SIZE:-128mb}
     networks:
       - back-net
     volumes:
-      - db_data_dev:/var/lib/postgresql
+      - db_data_dev:/var/lib/postgresql/data
       - junqo_logs:/var/log/junqo
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-junqo}

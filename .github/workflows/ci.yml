@@ -1,0 +1,59 @@
+name: CI / Release Pipeline
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  actions: read
+  pull-requests: read
+
+jobs:
+  # 1. Run Tests in Parallel
+
+  front-tests:
+    uses: ./.github/workflows/front-tests.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: write
+
+  back-tests:
+    uses: ./.github/workflows/back-tests.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: write
+
+  deployment-tests:
+    uses: ./.github/workflows/deployment-tests.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: write
+
+  # 2. Build Docker Images (Only on push to main/dev and if tests passed)
+  build-push:
+    needs: [front-tests, back-tests, deployment-tests]
+    if: |
+      always() &&
+      (needs.front-tests.result == 'success' || needs.front-tests.result == 'skipped') &&
+      (needs.back-tests.result == 'success' || needs.back-tests.result == 'skipped') &&
+      (needs.deployment-tests.result == 'success' || needs.deployment-tests.result == 'skipped') &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+
+    uses: ./.github/workflows/build-docker-images.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      actions: read
