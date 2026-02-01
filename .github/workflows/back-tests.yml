@@ -25,7 +25,7 @@ jobs:
               - 'junqo_back/**'
               - '.github/workflows/back-tests.yml'
 
-  backend-tests:
+  back-tests:
     needs: changes-check
     if: needs.changes-check.outputs.any_changed == 'true'
     runs-on: ubuntu-latest
@@ -60,15 +60,15 @@ jobs:
         working-directory: junqo_back
         run: npm run lint
 
-  backend-tests-ok:
-    needs: [changes-check, backend-tests]
+  back-tests-ok:
+    needs: [changes-check, back-tests]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Set backend tests status
         run: |
           if [[ "${{ needs.changes-check.outputs.any_changed }}" == "false" ]] ||
-            [[ "${{ needs.changes-check.outputs.any_changed }}" == "true" && "${{ needs.backend-tests.result }}" == "success" ]]; then
+            [[ "${{ needs.changes-check.outputs.any_changed }}" == "true" && "${{ needs.back-tests.result }}" == "success" ]]; then
             echo "✅ Backend tests condition met."
             exit 0
           else
