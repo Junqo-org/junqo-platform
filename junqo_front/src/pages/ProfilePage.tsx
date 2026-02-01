@@ -9,6 +9,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Camera, Mail, Plus, School, Search, X, Check, Clock, XCircle } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { getInitials } from '@/lib/utils'
 import { apiService } from '@/services/api'
 import { ProfileCompletionCard } from '@/components/profile/ProfileCompletionCard'
@@ -63,6 +71,7 @@ export default function ProfilePage() {
   const [experiences, setExperiences] = useState<Experience[]>([])
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false)
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null)
+  const [experienceToDelete, setExperienceToDelete] = useState<string | null>(null)
 
   // School linking state
   const [schoolSearch, setSchoolSearch] = useState('')
@@ -190,16 +199,23 @@ export default function ProfilePage() {
     setIsExperienceModalOpen(true)
   }
 
-  const handleDeleteExperience = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this experience?')) return
+  const confirmDeleteExperience = (id: string) => {
+    setExperienceToDelete(id)
+  }
+
+  const handleDeleteExperience = async () => {
+    if (!experienceToDelete) return
+    
     try {
-      await apiService.deleteExperience(id)
+      await apiService.deleteExperience(experienceToDelete)
       await loadExperiences()
       setRefreshTrigger(prev => prev + 1)
-      toast.success('Experience deleted successfully')
+      toast.success('Expérience supprimée avec succès')
     } catch (error) {
       console.error('Failed to delete experience', error)
-      toast.error('Failed to delete experience')
+      toast.error("Erreur lors de la suppression de l'expérience")
+    } finally {
+      setExperienceToDelete(null)
     }
   }
 
@@ -802,7 +818,7 @@ export default function ProfilePage() {
                   key={experience.id}
                   experience={experience}
                   onEdit={handleEditExperience}
-                  onDelete={handleDeleteExperience}
+                  onDelete={confirmDeleteExperience}
                 />
               ))
             ) : (
@@ -821,6 +837,25 @@ export default function ProfilePage() {
         onSave={handleSaveExperience}
         experience={editingExperience}
       />
+
+      <Dialog open={!!experienceToDelete} onOpenChange={(open) => !open && setExperienceToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Supprimer l'expérience</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer cette expérience ? Cette action ne peut pas être annulée.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExperienceToDelete(null)}>
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteExperience}>
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
