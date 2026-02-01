@@ -204,10 +204,10 @@ Development deployment provides a local environment for development with hot-rel
 
    ```env
    # API URL for development (pointing to local backend)
-   API_URL=/api/v1
+   VITE_API_URL=/api/v1
    ```
 
-   If you are running the backend on a different host or port, adjust the `API_URL` accordingly (e.g., `http://localhost:4200/api/v1`).
+   If you are running the backend on a different host or port, adjust the `VITE_API_URL` accordingly (e.g., `http://localhost:4200/api/v1`).
 
    For platform-specific build and run instructions (Flutter setup, pub packages, etc.) see the [Frontend documentation](./frontend.md).
 
@@ -371,7 +371,7 @@ Production deployment is designed for running the platform in a live environment
 
    ```env
    # API URL for production
-   API_URL=https://yourdomain.com/api/v1
+   VITE_API_URL=https://yourdomain.com/api/v1
    ```
 
 4. **Global Environment Variables**
@@ -626,7 +626,7 @@ These can be set in a `.env` file at the project root:
 | `DATABASE_PASSWORD_FILE` | `./db_password.conf`      | Path to database password file        |
 | `GRAFANA_PASSWORD_FILE`  | `./grafana_password.conf` | Path to Grafana password file         |
 | `SSL_CERTS_PATH`         | `/etc/letsencrypt`        | Path to SSL certificates (production) |
-| `API_URL`                | `/api/v1`                 | Backend API URL for frontend          |
+| `VITE_API_URL`                | `/api/v1`                 | Backend API URL for frontend          |
 
 **Development-only Variables:**
 
@@ -669,7 +669,7 @@ Frontend configuration is managed through `junqo_front/config/.env`:
 
 | Variable  | Default                        | Description              |
 | --------- | ------------------------------ | ------------------------ |
-| `API_URL` | `/api/v1` | Backend API endpoint URL |
+| `VITE_API_URL` | `/api/v1` | Backend API endpoint URL |
 
 **Environment-specific URLs:**
 
