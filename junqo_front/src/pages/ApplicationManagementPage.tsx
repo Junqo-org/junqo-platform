@@ -18,7 +18,8 @@ import {
   Phone,
   Linkedin,
   User,
-  MessageSquare
+  MessageSquare,
+  UserCheck
 } from 'lucide-react'
 import { apiService } from '@/services/api'
 import { Application } from '@/types'
@@ -54,7 +55,7 @@ export default function ApplicationManagementPage() {
 
     // Filter by status/history
     if (!showHistory && statusFilter === 'ALL') {
-      filtered = filtered.filter(app => app.status !== 'ACCEPTED' && app.status !== 'DENIED')
+      filtered = filtered.filter(app => app.status !== 'ACCEPTED' && app.status !== 'DENIED' && app.status !== 'PRE_ACCEPTED')
     }
 
     if (statusFilter !== 'ALL') {
@@ -186,8 +187,8 @@ export default function ApplicationManagementPage() {
   const toggleSelection = (applicationId: string) => {
     // Find the application to check its status
     const application = applications.find(app => app.id === applicationId)
-    // Don't allow selecting finalized applications (ACCEPTED or DENIED)
-    if (application && (application.status === 'ACCEPTED' || application.status === 'DENIED')) {
+    // Don't allow selecting finalized applications (ACCEPTED, DENIED, or PRE_ACCEPTED)
+    if (application && (application.status === 'ACCEPTED' || application.status === 'DENIED' || application.status === 'PRE_ACCEPTED')) {
       toast.error('Cette candidature a déjà été traitée')
       return
     }
@@ -206,9 +207,9 @@ export default function ApplicationManagementPage() {
 
 
   const toggleSelectAll = () => {
-    // Only select potentially actionable applications (not ACCEPTED or DENIED)
+    // Only select potentially actionable applications (not ACCEPTED, DENIED, or PRE_ACCEPTED)
     const actionableApplications = filteredApplications.filter(
-      app => app.status !== 'ACCEPTED' && app.status !== 'DENIED'
+      app => app.status !== 'ACCEPTED' && app.status !== 'DENIED' && app.status !== 'PRE_ACCEPTED'
     )
 
     if (selectedApplications.size === actionableApplications.length && actionableApplications.length > 0) {
@@ -228,6 +229,8 @@ export default function ApplicationManagementPage() {
         return { label: 'Acceptée', color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700' }
       case 'DENIED':
         return { label: 'Refusée', color: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-300 dark:border-red-700' }
+      case 'PRE_ACCEPTED':
+        return { label: 'Pré-acceptée', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-700' }
       default:
         return { label: status, color: 'bg-muted text-muted-foreground border-border' }
     }
@@ -243,6 +246,8 @@ export default function ApplicationManagementPage() {
         return <CheckCircle className="h-4 w-4" />
       case 'DENIED':
         return <XCircle className="h-4 w-4" />
+      case 'PRE_ACCEPTED':
+        return <UserCheck className="h-4 w-4" />
       default:
         return <Clock className="h-4 w-4" />
     }
@@ -254,6 +259,7 @@ export default function ApplicationManagementPage() {
     pending: applications.filter((a) => a.status === 'PENDING').length,
     accepted: applications.filter((a) => a.status === 'ACCEPTED').length,
     denied: applications.filter((a) => a.status === 'DENIED').length,
+    preAccepted: applications.filter((a) => a.status === 'PRE_ACCEPTED').length,
   }
 
   if (isLoading) {
@@ -285,6 +291,13 @@ export default function ApplicationManagementPage() {
               Examinez et gérez les candidatures reçues
             </p>
           </div>
+          <Button
+            onClick={() => navigate('/recruiter/candidates/search')}
+            className="gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Recherche Globale
+          </Button>
         </motion.div>
 
         {/* Stats Cards */}
@@ -370,6 +383,7 @@ export default function ApplicationManagementPage() {
                     <SelectItem value="ALL">Tous les statuts</SelectItem>
                     <SelectItem value="NOT_OPENED">Non lues</SelectItem>
                     <SelectItem value="PENDING">En attente</SelectItem>
+                    <SelectItem value="PRE_ACCEPTED">Pré-acceptées</SelectItem>
                     <SelectItem value="ACCEPTED">Acceptées</SelectItem>
                     <SelectItem value="DENIED">Refusées</SelectItem>
                   </SelectContent>

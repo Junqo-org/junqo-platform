@@ -12,6 +12,7 @@ import {
   CreateApplicationDTO,
   UpdateApplicationDTO,
 } from './dto/application.dto';
+import { PreAcceptApplicationDTO } from './dto/pre-accept-application.dto';
 import {
   ApplicationQueryDTO,
   ApplicationQueryOutputDTO,
@@ -40,7 +41,7 @@ export class ApplicationsService {
     private readonly conversationsService: ConversationsService,
     private readonly messagesService: MessagesService,
     private readonly studentProfileRepository: StudentProfilesRepository,
-  ) {}
+  ) { }
 
   /**
    * Retrieves applications matching the query if the current user has the required permissions.
@@ -608,5 +609,119 @@ export class ApplicationsService {
       });
     }
     return application;
+  }
+
+  /**
+   * Pre-accept a student for an offer (companies only).
+   * This allows a company to express interest in a student before final acceptance.
+   * Creates an application with PRE_ACCEPTED status or updates an existing one.
+   *
+   * @param currentUser - The authenticated company user
+   * @param preAcceptDto - The DTO containing studentId and offerId
+   * @returns The created or updated application with PRE_ACCEPTED status
+   * @throws ForbiddenException if the user is not a company or doesn't own the offer
+   * @throws NotFoundException if the student or offer doesn't exist
+   */
+  public async preAccept(
+    currentUser: AuthUserDTO,
+    preAcceptDto: PreAcceptApplicationDTO,
+  ): Promise<ApplicationDTO> {
+    // Only companies can pre-accept
+    if (currentUser.type !== UserType.COMPANY) {
+      throw new ForbiddenException(
+        'Only companies can pre-accept candidates',
+      );
+    }
+
+    try {
+      // Verify the offer exists and belongs to the current company
+      const offer: OfferDTO = await this.offersService.findOneById(
+        currentUser,
+        preAcceptDto.offerId,
+      );
+
+      if (!offer) {
+        throw new NotFoundException(
+          `Offer #${preAcceptDto.offerId} not found`,
+        );
+      }
+
+      if (offer.userId !== currentUser.id) {
+        throw new ForbiddenException(
+          'You can only pre-accept candidates for your own offers',
+        );
+      }
+
+      // Verify the student profile exists
+      const studentProfile = await this.studentProfileRepository.findOneById(
+        preAcceptDto.studentId,
+      );
+
+      if (!studentProfile) {
+        throw new NotFoundException(
+          `Student #${preAcceptDto.studentId} not found`,
+        );
+      }
+
+      // Check if an application already exists for this student/offer pair
+      try {
+        const existingApps = await this.applicationsRepository.findByQuery({
+          studentId: preAcceptDto.studentId,
+          offerId: preAcceptDto.offerId,
+          limit: 1,
+        });
+
+        if (existingApps.rows && existingApps.rows.length > 0) {
+          const existingApp = existingApps.rows[0];
+
+          // If already accepted, don't downgrade to pre-accepted
+          if (existingApp.status === ApplicationStatus.ACCEPTED) {
+            return existingApp;
+          }
+
+          // Update existing application to PRE_ACCEPTED
+          return this.applicationsRepository.update(existingApp.id, {
+            status: ApplicationStatus.PRE_ACCEPTED,
+          });
+        }
+      } catch (error) {
+        // NotFoundException means no existing application, which is okay
+        if (!(error instanceof NotFoundException)) {
+          throw error;
+        }
+      }
+
+      // Create new application with PRE_ACCEPTED status
+      const createApplicationDto: CreateApplicationDTO = plainToInstance(
+        CreateApplicationDTO,
+        {
+          offerId: preAcceptDto.offerId,
+          companyId: currentUser.id,
+          studentId: preAcceptDto.studentId,
+          status: ApplicationStatus.PRE_ACCEPTED,
+        },
+      );
+
+      const createdApplication: ApplicationDTO =
+        await this.applicationsRepository.create(createApplicationDto);
+
+      if (!createdApplication) {
+        throw new InternalServerErrorException(
+          'Failed to create pre-accepted application',
+        );
+      }
+
+      this.logger.log(
+        `Company ${currentUser.id} pre-accepted student ${preAcceptDto.studentId} for offer ${preAcceptDto.offerId}`,
+      );
+
+      return createdApplication;
+    } catch (error) {
+      if (error instanceof ForbiddenException) throw error;
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Failed to pre-accept candidate: ${error.message}`,
+      );
+    }
   }
 }

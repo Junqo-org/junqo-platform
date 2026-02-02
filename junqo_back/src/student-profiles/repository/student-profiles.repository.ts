@@ -24,7 +24,7 @@ export class StudentProfilesRepository {
   constructor(
     @InjectModel(StudentProfileModel)
     private readonly studentProfileModel: typeof StudentProfileModel,
-  ) {}
+  ) { }
 
   private includeOptions: Includeable[] = [ExperienceModel, SchoolProfileModel];
 
@@ -39,9 +39,22 @@ export class StudentProfilesRepository {
   public async findByQuery(
     query: StudentProfileQueryDTO = {},
   ): Promise<StudentProfileQueryOutputDTO> {
-    const { skills, mode, offset, limit } = query;
+    const { skills, mode, offset, limit, name, educationLevel } = query;
     const where = {};
 
+    // Name filter (partial match, case-insensitive)
+    if (name && typeof name === 'string' && name.trim().length > 0) {
+      where['name'] = {
+        [Op.iLike]: `%${name.trim()}%`,
+      };
+    }
+
+    // Education level filter (exact match)
+    if (educationLevel && typeof educationLevel === 'string' && educationLevel.trim().length > 0) {
+      where['educationLevel'] = educationLevel.trim();
+    }
+
+    // Skills filter
     if (skills && Array.isArray(skills) && skills.length > 0) {
       if (mode === 'all') {
         where['skills'] = {
@@ -62,11 +75,7 @@ export class StudentProfilesRepository {
         limit,
       });
 
-      if (count === 0) {
-        throw new NotFoundException(
-          'No student profiles found matching the criteria',
-        );
-      }
+      // Return results (empty or not) - for search, 0 results is valid
       const queryResult: StudentProfileQueryOutputDTO = {
         rows: rows.map((profile) => profile.toStudentProfileDTO()),
         count,
@@ -74,7 +83,6 @@ export class StudentProfilesRepository {
 
       return queryResult;
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch student profiles: ${error.message}`,
       );

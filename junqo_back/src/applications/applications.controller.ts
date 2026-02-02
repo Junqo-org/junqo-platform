@@ -34,11 +34,12 @@ import {
   BulkUpdateApplicationsDTO,
   BulkUpdateResultDTO,
 } from './dto/bulk-update-applications.dto';
+import { PreAcceptApplicationDTO } from './dto/pre-accept-application.dto';
 
 @ApiBearerAuth()
 @Controller('applications')
 export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) {}
+  constructor(private readonly applicationsService: ApplicationsService) { }
 
   @Get()
   @ApiOperation({ summary: 'Get applications by query parameters' })
@@ -202,5 +203,32 @@ export class ApplicationsController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<ApplicationDTO> {
     return this.applicationsService.markAsOpened(currentUser, id);
+  }
+
+  @Post('pre-accept')
+  @ApiOperation({
+    summary: 'Pre-accept a student for an offer (companies only)',
+    description:
+      'Allows a company to express interest in a student before final acceptance. Creates an application with PRE_ACCEPTED status.',
+  })
+  @ApiBody({
+    type: PreAcceptApplicationDTO,
+    description: 'Student and offer IDs for pre-acceptance',
+  })
+  @ApiCreatedResponse({
+    description: 'The created or updated application with PRE_ACCEPTED status',
+    type: ApplicationDTO,
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to pre-accept for this offer',
+  })
+  @ApiNotFoundResponse({ description: 'Student or offer not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  public async preAccept(
+    @CurrentUser() currentUser: AuthUserDTO,
+    @Body() preAcceptDto: PreAcceptApplicationDTO,
+  ): Promise<ApplicationDTO> {
+    return this.applicationsService.preAccept(currentUser, preAcceptDto);
   }
 }

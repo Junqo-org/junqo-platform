@@ -77,7 +77,7 @@ export interface Application {
   studentId: string  // UUID
   companyId: string  // UUID
   offerId: string  // UUID
-  status: 'NOT_OPENED' | 'PENDING' | 'ACCEPTED' | 'DENIED'  // Updated to match backend
+  status: 'NOT_OPENED' | 'PENDING' | 'ACCEPTED' | 'DENIED' | 'PRE_ACCEPTED'  // Updated to include PRE_ACCEPTED
   createdAt: string | Date
   updatedAt: string | Date
   deletedAt?: string | Date
