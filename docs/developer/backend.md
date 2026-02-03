@@ -94,7 +94,7 @@ Here is the list of environment variables used by the **backend**:
     # Minimum 32 characters, randomly generated
     # Example: openssl rand -base64 32
     # CORS Configuration (authorized source url). Default accept requests from every origin.
-    # CORS_ORIGINS='http://localhost:80,http://localhost:4200,http://localhost'"
+    # CORS_ORIGINS='http://localhost:80,http://localhost:4200,http://localhost'
     # OPENAI_API_KEY='not_for_production'
     ```
 
