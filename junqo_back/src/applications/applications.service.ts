@@ -41,7 +41,7 @@ export class ApplicationsService {
     private readonly conversationsService: ConversationsService,
     private readonly messagesService: MessagesService,
     private readonly studentProfileService: StudentProfilesService,
-  ) { }
+  ) {}
 
   /**
    * Retrieves applications matching the query if the current user has the required permissions.

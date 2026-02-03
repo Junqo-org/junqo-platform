@@ -31,17 +31,17 @@ export enum Actions {
 // Describes what resources user can interact with
 type Subjects =
   | InferSubjects<
-    | typeof UserDTO
-    | typeof AuthUserDTO
-    | typeof UserResource
-    | typeof StudentProfileResource
-    | typeof CompanyProfileResource
-    | typeof SchoolProfileResource
-    | typeof OfferResource
-    | typeof ApplicationResource
-    | typeof ConversationResource
-    | typeof MessageResource
-  >
+      | typeof UserDTO
+      | typeof AuthUserDTO
+      | typeof UserResource
+      | typeof StudentProfileResource
+      | typeof CompanyProfileResource
+      | typeof SchoolProfileResource
+      | typeof OfferResource
+      | typeof ApplicationResource
+      | typeof ConversationResource
+      | typeof MessageResource
+    >
   | 'all'; // `all` is a special keyword in CASL which represents "any" resource
 
 export type AppAbility = MongoAbility<[Actions, Subjects]>;
