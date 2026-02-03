@@ -40,6 +40,14 @@ interface StudentSearchResult {
     count: number
 }
 
+interface ApiError {
+    response?: {
+        status: number
+        data?: unknown
+    }
+    message?: string
+}
+
 const EDUCATION_LEVELS = [
     { value: 'ALL', label: 'Tous les niveaux' },
     { value: 'BAC', label: 'Baccalauréat' },
@@ -99,8 +107,13 @@ export default function GlobalCandidateSearchPage() {
             const data = await apiService.getMyOffers()
             setOffers(data.rows || data || [])
         } catch (error) {
+            const apiError = error as ApiError
             console.error('Failed to load offers:', error)
-            toast.error('Échec du chargement des offres')
+            // Don't show error toast for 404 (no offers found)
+            if (apiError?.response?.status !== 404) {
+                toast.error('Échec du chargement des offres')
+            }
+            setOffers([])
         } finally {
             setIsLoadingOffers(false)
         }
@@ -138,8 +151,12 @@ export default function GlobalCandidateSearchPage() {
             setCandidates(result.rows || [])
             setTotalCount(result.count || 0)
         } catch (error) {
+            const apiError = error as ApiError
             console.error('Failed to search candidates:', error)
-            toast.error('Échec de la recherche de candidats')
+            // Don't show error toast for 404 (no candidates found)
+            if (apiError?.response?.status !== 404) {
+                toast.error('Échec de la recherche de candidats')
+            }
             setCandidates([])
             setTotalCount(0)
         } finally {
@@ -188,8 +205,14 @@ export default function GlobalCandidateSearchPage() {
             setPreAcceptDialogOpen(false)
             setSelectedCandidate(null)
         } catch (error) {
+            const apiError = error as ApiError
             console.error('Failed to pre-accept candidate:', error)
-            toast.error('Échec de la pré-acceptation')
+            // Provide specific error message for 404
+            if (apiError?.response?.status === 404) {
+                toast.error('Candidat ou offre introuvable')
+            } else {
+                toast.error('Échec de la pré-acceptation')
+            }
         } finally {
             setIsPreAccepting(false)
         }

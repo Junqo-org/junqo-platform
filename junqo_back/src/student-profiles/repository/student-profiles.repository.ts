@@ -79,7 +79,12 @@ export class StudentProfilesRepository {
         limit,
       });
 
-      // Return results (empty or not) - for search, 0 results is valid
+      if (count === 0) {
+        throw new NotFoundException(
+          'No student profiles found matching the criteria',
+        );
+      }
+
       const queryResult: StudentProfileQueryOutputDTO = {
         rows: rows.map((profile) => profile.toStudentProfileDTO()),
         count,
@@ -87,6 +92,7 @@ export class StudentProfilesRepository {
 
       return queryResult;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch student profiles: ${error.message}`,
       );

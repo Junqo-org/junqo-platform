@@ -53,9 +53,14 @@ export class StudentProfilesService {
       const queryResult: StudentProfileQueryOutputDTO =
         await this.profilesRepository.findByQuery(query);
 
-      // Return empty result set if no profiles found (valid for search)
-      return queryResult || { rows: [], count: 0 };
+      if (!queryResult || queryResult.count === 0) {
+        throw new NotFoundException(
+          `No student profiles found matching query: ${query}`,
+        );
+      }
+      return queryResult;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       if (error instanceof ForbiddenException) throw error;
       throw new InternalServerErrorException(
         `Failed to fetch student profiles: ${error.message}`,
