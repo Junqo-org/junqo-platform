@@ -444,11 +444,10 @@ class ApiService {
   }
 
   // Pre-accept candidate endpoints
-  async preAcceptCandidate(studentId: string, offerId: string, message?: string) {
+  async preAcceptCandidate(studentId: string, offerId: string) {
     const response = await this.client.post('/applications/pre-accept', {
       studentId,
       offerId,
-      message,
     })
     return response.data
   }
