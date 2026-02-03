@@ -435,6 +435,10 @@ describe('ApplicationsService', () => {
       );
 
       offersService.findOneById.mockResolvedValue(offers[0]);
+      applicationsRepository.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
       applicationsRepository.create.mockResolvedValue(applications[0]);
 
       const result = await applicationsService.create(

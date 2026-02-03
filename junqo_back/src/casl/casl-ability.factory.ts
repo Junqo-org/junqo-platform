@@ -97,10 +97,13 @@ export class CaslAbilityFactory {
       can(Actions.MANAGE, OfferResource, { userId: user.id });
       can(Actions.READ, StudentProfileResource);
       can(Actions.READ, SchoolProfileResource);
-      can(Actions.CREATE, ApplicationResource, { companyId: user.id });
-      can([Actions.READ, Actions.UPDATE, Actions.DELETE], ApplicationResource, {
-        companyId: user.id,
-      });
+      can(
+        [Actions.CREATE, Actions.READ, Actions.UPDATE, Actions.DELETE],
+        ApplicationResource,
+        {
+          companyId: user.id,
+        },
+      );
     }
     if (user.type === UserType.SCHOOL) {
       can(Actions.CREATE, SchoolProfileResource, { userId: user.id });

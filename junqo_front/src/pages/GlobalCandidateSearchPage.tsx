@@ -15,7 +15,7 @@ import {
     X,
 } from 'lucide-react'
 import { apiService } from '@/services/api'
-import { StudentProfile, Offer } from '@/types'
+import { StudentProfile, Offer, Application } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import {
@@ -109,9 +109,9 @@ export default function GlobalCandidateSearchPage() {
             const apps = await apiService.getMyApplications()
             const appSet = new Set<string>()
             if (Array.isArray(apps)) {
-                apps.forEach((app: any) => app.studentId && appSet.add(app.studentId))
+                apps.forEach((app: Application) => app.studentId && appSet.add(app.studentId))
             } else if (apps.items) {
-                 apps.items.forEach((app: any) => app.studentId && appSet.add(app.studentId))
+                 apps.items.forEach((app: Application) => app.studentId && appSet.add(app.studentId))
             }
             setExistingApplications(appSet)
         } catch (error) {
