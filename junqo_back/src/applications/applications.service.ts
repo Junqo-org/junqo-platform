@@ -710,9 +710,9 @@ export class ApplicationsService {
         },
       );
 
-      if (ability.can(Actions.CREATE, applicationResource)) {
+      if (ability.cannot(Actions.CREATE, applicationResource)) {
         throw new ForbiddenException(
-          'You do not have permission to delete this application',
+          'You do not have permission to create this application',
         );
       }
 
