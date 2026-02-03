@@ -211,12 +211,14 @@ export default function ApplicationManagementPage() {
 
 
 
-  const toggleSelectAll = () => {
-    // Only select potentially actionable applications (not ACCEPTED, DENIED, or PRE_ACCEPTED)
-    const actionableApplications = filteredApplications.filter(
+
+  const actionableApplications = useMemo(() => {
+    return filteredApplications.filter(
       app => app.status !== 'ACCEPTED' && app.status !== 'DENIED' && app.status !== 'PRE_ACCEPTED'
     )
+  }, [filteredApplications])
 
+  const toggleSelectAll = () => {
     if (selectedApplications.size === actionableApplications.length && actionableApplications.length > 0) {
       setSelectedApplications(new Set())
     } else {
@@ -480,10 +482,10 @@ export default function ApplicationManagementPage() {
               <CardTitle className="text-foreground">
                 Candidatures ({filteredApplications.length})
               </CardTitle>
-              {filteredApplications.length > 0 && (
+              {actionableApplications.length > 0 && (
                 <div className="flex items-center gap-2">
                   <Checkbox
-                    checked={selectedApplications.size === filteredApplications.length}
+                    checked={selectedApplications.size === actionableApplications.length}
                     onCheckedChange={toggleSelectAll}
                   />
                   <span className="text-sm text-foreground whitespace-nowrap">Tout sélectionner</span>

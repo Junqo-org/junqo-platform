@@ -75,8 +75,8 @@ export default function GlobalCandidateSearchPage() {
     // Results state
     const [candidates, setCandidates] = useState<StudentProfile[]>([])
     const [totalCount, setTotalCount] = useState(0)
-    const [isLoading, setIsLoading] = useState(false)
-    const [hasSearched, setHasSearched] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [hasSearched, setHasSearched] = useState(true)
 
     // Offers for pre-accept
     const [offers, setOffers] = useState<Offer[]>([])
@@ -109,9 +109,17 @@ export default function GlobalCandidateSearchPage() {
             const apps = await apiService.getMyApplications()
             const appSet = new Set<string>()
             if (Array.isArray(apps)) {
-                apps.forEach((app: Application) => app.studentId && appSet.add(app.studentId))
+                apps.forEach((app: Application) => {
+                    if (app.studentId) {
+                        appSet.add(app.studentId)
+                    }
+                })
             } else if (apps.items) {
-                 apps.items.forEach((app: Application) => app.studentId && appSet.add(app.studentId))
+                apps.items.forEach((app: Application) => {
+                    if (app.studentId) {
+                        appSet.add(app.studentId)
+                    }
+                })
             }
             setExistingApplications(appSet)
         } catch (error) {
@@ -241,7 +249,13 @@ export default function GlobalCandidateSearchPage() {
         }
     }
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
+    const handleNameKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            searchCandidates()
+        }
+    }
+
+    const handleSkillKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             if (skillInput.trim()) {
                 handleAddSkill(skillInput)
@@ -310,7 +324,7 @@ export default function GlobalCandidateSearchPage() {
                                         placeholder="Rechercher par nom..."
                                         value={nameSearch}
                                         onChange={(e) => setNameSearch(e.target.value)}
-                                        onKeyPress={handleKeyPress}
+                                        onKeyPress={handleNameKeyPress}
                                         className="pl-10"
                                     />
                                 </div>
@@ -362,7 +376,7 @@ export default function GlobalCandidateSearchPage() {
                                         placeholder="Ajouter une compétence..."
                                         value={skillInput}
                                         onChange={(e) => setSkillInput(e.target.value)}
-                                        onKeyPress={handleKeyPress}
+                                        onKeyPress={handleSkillKeyPress}
                                         className="flex-1"
                                     />
                                     <Button
