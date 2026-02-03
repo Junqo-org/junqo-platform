@@ -93,12 +93,31 @@ export default function GlobalCandidateSearchPage() {
     const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
     const [selectedStudentName, setSelectedStudentName] = useState<string | undefined>(undefined)
 
+    // Existing applications state
+    const [existingApplications, setExistingApplications] = useState<Set<string>>(new Set())
+
     // Load company's offers and all candidates on mount
     useEffect(() => {
         loadOffers()
+        loadExistingApplications()
         // Auto-load all candidates when page opens
         searchCandidates()
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    const loadExistingApplications = async () => {
+        try {
+            const apps = await apiService.getMyApplications()
+            const appSet = new Set<string>()
+            if (Array.isArray(apps)) {
+                apps.forEach((app: any) => app.studentId && appSet.add(app.studentId))
+            } else if (apps.items) {
+                 apps.items.forEach((app: any) => app.studentId && appSet.add(app.studentId))
+            }
+            setExistingApplications(appSet)
+        } catch (error) {
+            console.error('Failed to load existing applications:', error)
+        }
+    }
 
     const loadOffers = async () => {
         try {
@@ -201,6 +220,10 @@ export default function GlobalCandidateSearchPage() {
         try {
             setIsPreAccepting(true)
             await apiService.preAcceptCandidate(selectedCandidate.userId, selectedOfferId)
+            
+            // Update local state to disable button immediately
+            setExistingApplications(prev => new Set(prev).add(selectedCandidate.userId))
+            
             toast.success(`${selectedCandidate.name} a été pré-accepté(e) avec succès !`)
             setPreAcceptDialogOpen(false)
             setSelectedCandidate(null)
@@ -476,15 +499,27 @@ export default function GlobalCandidateSearchPage() {
                                                             <User className="h-4 w-4 mr-1" />
                                                             Voir profil
                                                         </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            className="flex-1"
-                                                            onClick={() => handleOpenPreAcceptDialog(candidate)}
-                                                            disabled={isLoadingOffers || offers.length === 0}
-                                                        >
-                                                            <CheckCircle className="h-4 w-4 mr-1" />
-                                                            Pré-accepter
-                                                        </Button>
+                                                        {existingApplications.has(candidate.userId) ? (
+                                                            <Button
+                                                                size="sm"
+                                                                className="flex-1"
+                                                                disabled
+                                                                variant="ghost"
+                                                            >
+                                                                <CheckCircle className="h-4 w-4 mr-1" />
+                                                                Déjà contacté
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                size="sm"
+                                                                className="flex-1"
+                                                                onClick={() => handleOpenPreAcceptDialog(candidate)}
+                                                                disabled={isLoadingOffers || offers.length === 0}
+                                                            >
+                                                                <CheckCircle className="h-4 w-4 mr-1" />
+                                                                Pré-accepter
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </CardContent>
                                             </Card>

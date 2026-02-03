@@ -90,7 +90,7 @@ export default function OfferDetailPage() {
         try {
           const applications = await apiService.getMyApplications()
           const applicationsArray = Array.isArray(applications) ? applications : (applications.items || applications.data || [])
-          const hasAppliedToThis = applicationsArray.some((app: Application) => app.offerId === offerId)
+          const hasAppliedToThis = applicationsArray.some((app: Application) => app.offerId === offerId && app.status !== 'PRE_ACCEPTED')
           setHasApplied(hasAppliedToThis)
         } catch {
           // Don't show error to user, just assume not applied

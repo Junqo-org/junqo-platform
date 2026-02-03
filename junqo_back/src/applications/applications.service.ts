@@ -41,7 +41,7 @@ export class ApplicationsService {
     private readonly conversationsService: ConversationsService,
     private readonly messagesService: MessagesService,
     private readonly studentProfileService: StudentProfilesService,
-  ) {}
+  ) { }
 
   /**
    * Retrieves applications matching the query if the current user has the required permissions.
@@ -340,6 +340,25 @@ export class ApplicationsService {
         },
       );
 
+      // Check for existing application
+      const existingApps = await this.applicationsRepository.findByQuery({
+        studentId: currentUser.id,
+        offerId: offerId,
+        limit: 1,
+      });
+
+      if (existingApps.rows && existingApps.rows.length > 0) {
+        const existingApp = existingApps.rows[0];
+        if (existingApp.status === ApplicationStatus.PRE_ACCEPTED) {
+          // Update to ACCEPTED - this will automatically trigger conversation creation
+          return this.update(currentUser, existingApp.id, {
+            status: ApplicationStatus.ACCEPTED,
+          });
+        }
+        // If already exists, return it (idempotent)
+        return existingApp;
+      }
+
       const createdApplication: ApplicationDTO =
         await this.applicationsRepository.create(createApplicationDto);
 
@@ -380,12 +399,11 @@ export class ApplicationsService {
       currentUser,
       applicationID,
     );
-    const applicationResource: ApplicationResource = plainToInstance(
-      ApplicationResource,
-      application,
-      {
-        excludeExtraneousValues: true,
-      },
+    const applicationResource = new ApplicationResource(
+      application.studentId,
+      application.companyId,
+      undefined,
+      application.status,
     );
 
     if (ability.cannot(Actions.UPDATE, applicationResource)) {
@@ -704,9 +722,9 @@ export class ApplicationsService {
 
       const applicationResource: ApplicationResource = plainToInstance(
         ApplicationResource,
-        createApplicationDto,
         {
-          excludeExtraneousValues: true,
+          studentId: preAcceptDto.studentId,
+          companyId: currentUser.id,
         },
       );
 
