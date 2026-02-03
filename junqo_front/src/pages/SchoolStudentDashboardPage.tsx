@@ -145,7 +145,7 @@ export default function SchoolStudentDashboardPage() {
                         )}
                     </div>
 
-                    <p className="text-sm text-balance max-w-2xl">{profile.bio}</p>
+                    <p className="text-sm text-balance max-w-2xl whitespace-pre-wrap break-words">{profile.bio}</p>
 
                     <div className="flex flex-wrap gap-4 pt-2">
                         {profile.phoneNumber && (
