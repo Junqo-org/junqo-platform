@@ -299,7 +299,7 @@ export default function ApplicationManagementPage() {
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <Card className="bg-card border-border shadow-md">
               <CardContent className="pt-6">
@@ -350,6 +350,17 @@ export default function ApplicationManagementPage() {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.denied}</div>
                   <p className="text-xs text-muted-foreground mt-1">Refusées</p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+            <Card className="bg-card border-purple-500 dark:border-purple-500/60 shadow-md">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.preAccepted}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Pré-acceptées</p>
                 </div>
               </CardContent>
             </Card>

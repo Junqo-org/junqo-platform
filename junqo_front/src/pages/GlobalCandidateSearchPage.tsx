@@ -327,6 +327,7 @@ export default function GlobalCandidateSearchPage() {
                                             <button
                                                 onClick={() => handleRemoveSkill(skill)}
                                                 className="ml-1 hover:text-destructive"
+                                                aria-label={`Remove ${skill}`}
                                             >
                                                 <X className="h-3 w-3" />
                                             </button>
