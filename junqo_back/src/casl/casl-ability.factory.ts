@@ -17,6 +17,7 @@ import { CompanyProfileResource } from './dto/company-profile-resource.dto';
 import { ApplicationResource } from './dto/application-resource.dto';
 import { ConversationResource } from './dto/conversation-resource.dto';
 import { MessageResource } from './dto/message-resource.dto';
+import { ApplicationStatus } from '../applications/dto/application-status.enum';
 
 // Describes what user can actually do in the application
 export enum Actions {
@@ -81,6 +82,10 @@ export class CaslAbilityFactory {
       can(Actions.READ, SchoolProfileResource);
       can(Actions.READ, CompanyProfileResource);
       can(Actions.CREATE, ApplicationResource, { studentId: user.id });
+      can(Actions.UPDATE, ApplicationResource, {
+        studentId: user.id,
+        status: ApplicationStatus.PRE_ACCEPTED,
+      });
       can([Actions.READ, Actions.DELETE], ApplicationResource, {
         studentId: user.id,
       });
@@ -92,9 +97,13 @@ export class CaslAbilityFactory {
       can(Actions.MANAGE, OfferResource, { userId: user.id });
       can(Actions.READ, StudentProfileResource);
       can(Actions.READ, SchoolProfileResource);
-      can([Actions.READ, Actions.UPDATE, Actions.DELETE], ApplicationResource, {
-        companyId: user.id,
-      });
+      can(
+        [Actions.CREATE, Actions.READ, Actions.UPDATE, Actions.DELETE],
+        ApplicationResource,
+        {
+          companyId: user.id,
+        },
+      );
     }
     if (user.type === UserType.SCHOOL) {
       can(Actions.CREATE, SchoolProfileResource, { userId: user.id });

@@ -606,7 +606,7 @@ describe('CaslAbilityFactory', () => {
       ).toBeFalsy();
     });
 
-    it('should not allow company user to create application resource', () => {
+    it('should allow company user to create application resource', () => {
       const ability = caslAbilityFactory.createForUser(companyUser);
 
       expect(
@@ -614,7 +614,7 @@ describe('CaslAbilityFactory', () => {
           Actions.CREATE,
           new ApplicationResource(undefined, companyUser.id),
         ),
-      ).toBeFalsy();
+      ).toBeTruthy();
     });
 
     it('should not allow school user to create application resource', () => {

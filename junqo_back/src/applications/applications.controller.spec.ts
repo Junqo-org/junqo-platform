@@ -100,4 +100,23 @@ describe('ApplicationsController', () => {
       ).toEqual(mockApplications[0]);
     });
   });
+  describe('preAccept', () => {
+    it('should pre-accept and return an application', async () => {
+      const preAcceptDto = {
+        offerId: 'o19cc25b-0cc4-4032-83c2-0d34c84318ba',
+        studentId: 's19cc25b-0cc4-4032-83c2-0d34c84318ba',
+      };
+      const expectedApplication = mockApplications[0];
+
+      service.preAccept.mockResolvedValue(expectedApplication);
+
+      const result = await controller.preAccept(mockCurrentUser, preAcceptDto);
+
+      expect(result).toBe(expectedApplication);
+      expect(service.preAccept).toHaveBeenCalledWith(
+        mockCurrentUser,
+        preAcceptDto,
+      );
+    });
+  });
 });

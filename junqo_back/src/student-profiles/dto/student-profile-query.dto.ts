@@ -12,6 +12,24 @@ import { StudentProfileDTO } from './student-profile.dto';
 
 export class StudentProfileQueryDTO {
   @ApiPropertyOptional({
+    description: 'Filter by name (partial match, case-insensitive)',
+    example: 'John',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by education level',
+    example: 'BAC+3',
+  })
+  @Expose()
+  @IsOptional()
+  @IsString()
+  educationLevel?: string;
+
+  @ApiPropertyOptional({
     description: 'Filter by skills (comma-separated string or array)',
     example: ['JavaScript', 'React', 'Node.js'],
   })

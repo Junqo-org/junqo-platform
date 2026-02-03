@@ -28,6 +28,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const CGUPage = lazy(() => import('./pages/CGUPage'))
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'))
 const CompanyProfilePage = lazy(() => import('./pages/CompanyProfilePage'))
+const GlobalCandidateSearchPage = lazy(() => import('./pages/GlobalCandidateSearchPage'))
 
 
 // Layout
@@ -71,6 +72,7 @@ function App() {
               <Route path="/recruiter/dashboard" element={<RecruiterDashboardPage />} />
               <Route path="/recruiter/applications" element={<ApplicationManagementPage />} />
               <Route path="/recruiter/swiping" element={<SwipingPage />} />
+              <Route path="/recruiter/candidates/search" element={<GlobalCandidateSearchPage />} />
               <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
               <Route path="/school/student/:studentId" element={<SchoolStudentDashboardPage />} />
             </Route>
