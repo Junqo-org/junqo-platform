@@ -103,9 +103,14 @@ export default function ApplicationManagementPage() {
     try {
       const data = await apiService.getMyApplications()
       setApplications(data)
-    } catch (error) {
-      console.error('Failed to load applications:', error)
-      toast.error('Échec du chargement des candidatures')
+    } catch (error: unknown) {
+      // Handle 404 as empty applications list (no candidatures yet)
+      if ((error as { response?: { status?: number } })?.response?.status === 404) {
+        setApplications([])
+      } else {
+        console.error('Failed to load applications:', error)
+        toast.error('Échec du chargement des candidatures')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -291,13 +296,6 @@ export default function ApplicationManagementPage() {
               Examinez et gérez les candidatures reçues
             </p>
           </div>
-          <Button
-            onClick={() => navigate('/recruiter/candidates/search')}
-            className="gap-2"
-          >
-            <Search className="h-4 w-4" />
-            Recherche Globale
-          </Button>
         </motion.div>
 
         {/* Stats Cards */}

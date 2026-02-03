@@ -39,7 +39,7 @@ import { PreAcceptApplicationDTO } from './dto/pre-accept-application.dto';
 @ApiBearerAuth()
 @Controller('applications')
 export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) { }
+  constructor(private readonly applicationsService: ApplicationsService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get applications by query parameters' })

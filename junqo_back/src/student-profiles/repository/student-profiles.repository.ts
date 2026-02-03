@@ -24,7 +24,7 @@ export class StudentProfilesRepository {
   constructor(
     @InjectModel(StudentProfileModel)
     private readonly studentProfileModel: typeof StudentProfileModel,
-  ) { }
+  ) {}
 
   private includeOptions: Includeable[] = [ExperienceModel, SchoolProfileModel];
 
@@ -50,7 +50,11 @@ export class StudentProfilesRepository {
     }
 
     // Education level filter (exact match)
-    if (educationLevel && typeof educationLevel === 'string' && educationLevel.trim().length > 0) {
+    if (
+      educationLevel &&
+      typeof educationLevel === 'string' &&
+      educationLevel.trim().length > 0
+    ) {
       where['educationLevel'] = educationLevel.trim();
     }
 

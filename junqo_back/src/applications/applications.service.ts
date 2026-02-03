@@ -41,7 +41,7 @@ export class ApplicationsService {
     private readonly conversationsService: ConversationsService,
     private readonly messagesService: MessagesService,
     private readonly studentProfileRepository: StudentProfilesRepository,
-  ) { }
+  ) {}
 
   /**
    * Retrieves applications matching the query if the current user has the required permissions.
@@ -628,9 +628,7 @@ export class ApplicationsService {
   ): Promise<ApplicationDTO> {
     // Only companies can pre-accept
     if (currentUser.type !== UserType.COMPANY) {
-      throw new ForbiddenException(
-        'Only companies can pre-accept candidates',
-      );
+      throw new ForbiddenException('Only companies can pre-accept candidates');
     }
 
     try {
@@ -641,9 +639,7 @@ export class ApplicationsService {
       );
 
       if (!offer) {
-        throw new NotFoundException(
-          `Offer #${preAcceptDto.offerId} not found`,
-        );
+        throw new NotFoundException(`Offer #${preAcceptDto.offerId} not found`);
       }
 
       if (offer.userId !== currentUser.id) {
@@ -680,7 +676,7 @@ export class ApplicationsService {
           }
 
           // Update existing application to PRE_ACCEPTED
-          return this.applicationsRepository.update(existingApp.id, {
+          return this.update(currentUser, existingApp.id, {
             status: ApplicationStatus.PRE_ACCEPTED,
           });
         }
@@ -691,21 +687,23 @@ export class ApplicationsService {
         }
       }
 
-      // Create new application with PRE_ACCEPTED status
-      const createApplicationDto: CreateApplicationDTO = plainToInstance(
-        CreateApplicationDTO,
-        {
-          offerId: preAcceptDto.offerId,
-          companyId: currentUser.id,
-          studentId: preAcceptDto.studentId,
-          status: ApplicationStatus.PRE_ACCEPTED,
-        },
+      const studentUser: AuthUserDTO = {
+        id: preAcceptDto.studentId,
+        type: UserType.STUDENT,
+      };
+
+      const createdApplication: ApplicationDTO = await this.create(
+        studentUser,
+        preAcceptDto.offerId,
       );
 
-      const createdApplication: ApplicationDTO =
-        await this.applicationsRepository.create(createApplicationDto);
+      const updatedApplication: ApplicationDTO = await this.update(
+        currentUser,
+        createdApplication.id,
+        { status: ApplicationStatus.PRE_ACCEPTED },
+      );
 
-      if (!createdApplication) {
+      if (!updatedApplication) {
         throw new InternalServerErrorException(
           'Failed to create pre-accepted application',
         );
@@ -715,7 +713,7 @@ export class ApplicationsService {
         `Company ${currentUser.id} pre-accepted student ${preAcceptDto.studentId} for offer ${preAcceptDto.offerId}`,
       );
 
-      return createdApplication;
+      return updatedApplication;
     } catch (error) {
       if (error instanceof ForbiddenException) throw error;
       if (error instanceof NotFoundException) throw error;
