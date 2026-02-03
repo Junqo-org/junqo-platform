@@ -33,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { StudentProfileModal } from '@/components/candidates/StudentProfileModal'
 
 export default function ApplicationManagementPage() {
   const navigate = useNavigate()
@@ -45,9 +44,6 @@ export default function ApplicationManagementPage() {
   const [offerFilter, setOfferFilter] = useState<string>('ALL')
   const [selectedApplications, setSelectedApplications] = useState<Set<string>>(new Set())
   const [isUpdating, setIsUpdating] = useState(false)
-  const [profileModalOpen, setProfileModalOpen] = useState(false)
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
-  const [selectedStudentName, setSelectedStudentName] = useState<string | undefined>(undefined)
   const [showHistory, setShowHistory] = useState(false)
 
   const filterApplications = useCallback(() => {
@@ -116,10 +112,8 @@ export default function ApplicationManagementPage() {
     }
   }
 
-  const handleViewProfile = (studentId: string, studentName?: string) => {
-    setSelectedStudentId(studentId)
-    setSelectedStudentName(studentName)
-    setProfileModalOpen(true)
+  const handleViewProfile = (studentId: string) => {
+    navigate(`/recruiter/candidate/${studentId}`)
   }
 
   const handleUpdateStatus = async (applicationId: string, newStatus: string) => {
@@ -568,7 +562,7 @@ export default function ApplicationManagementPage() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => handleViewProfile(application.studentId, application.student?.name)}
+                                    onClick={() => handleViewProfile(application.studentId)}
                                   >
                                     <User className="h-3 w-3 mr-1" />
                                     Voir profil
@@ -632,13 +626,7 @@ export default function ApplicationManagementPage() {
         </Card>
       </div>
 
-      {/* Student Profile Modal */}
-      <StudentProfileModal
-        open={profileModalOpen}
-        onClose={() => setProfileModalOpen(false)}
-        studentId={selectedStudentId}
-        studentName={selectedStudentName}
-      />
+
     </div>
   )
 }

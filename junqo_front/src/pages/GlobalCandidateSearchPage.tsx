@@ -33,7 +33,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
-import { StudentProfileModal } from '@/components/candidates/StudentProfileModal'
 
 interface StudentSearchResult {
     rows: StudentProfile[]
@@ -88,10 +87,7 @@ export default function GlobalCandidateSearchPage() {
     const [selectedOfferId, setSelectedOfferId] = useState<string>('')
     const [isPreAccepting, setIsPreAccepting] = useState(false)
 
-    // Profile modal state
-    const [profileModalOpen, setProfileModalOpen] = useState(false)
-    const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
-    const [selectedStudentName, setSelectedStudentName] = useState<string | undefined>(undefined)
+
 
     // Existing applications state
     const [existingApplications, setExistingApplications] = useState<Set<string>>(new Set())
@@ -203,10 +199,8 @@ export default function GlobalCandidateSearchPage() {
         setSelectedSkills(selectedSkills.filter(s => s !== skill))
     }
 
-    const handleViewProfile = (studentId: string, studentName?: string) => {
-        setSelectedStudentId(studentId)
-        setSelectedStudentName(studentName)
-        setProfileModalOpen(true)
+    const handleViewProfile = (studentId: string) => {
+        navigate(`/recruiter/candidate/${studentId}`)
     }
 
     const handleOpenPreAcceptDialog = (candidate: StudentProfile) => {
@@ -508,7 +502,7 @@ export default function GlobalCandidateSearchPage() {
                                                             variant="outline"
                                                             size="sm"
                                                             className="flex-1"
-                                                            onClick={() => handleViewProfile(candidate.userId, candidate.name)}
+                                                            onClick={() => handleViewProfile(candidate.userId)}
                                                         >
                                                             <User className="h-4 w-4 mr-1" />
                                                             Voir profil
@@ -619,13 +613,7 @@ export default function GlobalCandidateSearchPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Student Profile Modal */}
-            <StudentProfileModal
-                open={profileModalOpen}
-                onClose={() => setProfileModalOpen(false)}
-                studentId={selectedStudentId}
-                studentName={selectedStudentName}
-            />
+
         </div>
     )
 }
