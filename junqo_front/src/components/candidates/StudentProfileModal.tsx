@@ -169,7 +169,7 @@ export function StudentProfileModal({
                                 <Separator />
                                 <div>
                                     <h4 className="font-medium mb-2">À propos</h4>
-                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
                                         {profile.bio}
                                     </p>
                                 </div>

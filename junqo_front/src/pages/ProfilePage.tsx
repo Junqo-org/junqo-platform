@@ -428,7 +428,7 @@ export default function ProfilePage() {
                     rows={4}
                   />
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
                     {profile?.bio || 'Aucune bio ajoutée'}
                   </p>
                 )}
@@ -524,7 +524,7 @@ export default function ProfilePage() {
                     rows={4}
                   />
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
                     {profile?.description || 'Aucune description ajoutée'}
                   </p>
                 )}
@@ -564,7 +564,7 @@ export default function ProfilePage() {
                     rows={4}
                   />
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
                     {profile?.description || 'Aucune description ajoutée'}
                   </p>
                 )}
