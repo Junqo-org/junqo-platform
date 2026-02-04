@@ -29,6 +29,8 @@ import {
 } from '../conversations/dto/conversation.dto';
 import { StudentProfileDTO } from '../student-profiles/dto/student-profile.dto';
 import { CompanyProfileDTO } from '../company-profiles/dto/company-profile.dto';
+import { PreAcceptApplicationDTO } from './dto/pre-accept-application.dto';
+import { StudentProfilesService } from '../student-profiles/student-profiles.service';
 
 const currentUser: AuthUserDTO = plainToInstance(AuthUserDTO, {
   id: 'e69cc25b-0cc4-4032-83c2-0d34c84318ba',
@@ -101,6 +103,7 @@ describe('ApplicationsService', () => {
   let applicationsService: ApplicationsService;
   let offersService: Mocked<OffersService>;
   let conversationsService: Mocked<ConversationsService>;
+  let studentProfileService: Mocked<StudentProfilesService>;
   let applicationsRepository: Mocked<ApplicationsRepository>;
   let caslAbilityFactory: Mocked<CaslAbilityFactory>;
   let canMockFn: jest.Mock;
@@ -132,6 +135,7 @@ describe('ApplicationsService', () => {
     applicationsService = unit;
     offersService = unitRef.get(OffersService);
     conversationsService = unitRef.get(ConversationsService);
+    studentProfileService = unitRef.get(StudentProfilesService);
     applicationsRepository = unitRef.get(ApplicationsRepository);
     caslAbilityFactory = unitRef.get(CaslAbilityFactory);
   });
@@ -431,6 +435,10 @@ describe('ApplicationsService', () => {
       );
 
       offersService.findOneById.mockResolvedValue(offers[0]);
+      applicationsRepository.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
       applicationsRepository.create.mockResolvedValue(applications[0]);
 
       const result = await applicationsService.create(
@@ -707,6 +715,180 @@ describe('ApplicationsService', () => {
       await expect(
         applicationsService.delete(currentUser, applications[0].id),
       ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('preAccept', () => {
+    const preAcceptDto: PreAcceptApplicationDTO = {
+      offerId: 'o19cc25b-0cc4-4032-83c2-0d34c84318ba',
+      studentId: 's19cc25b-0cc4-4032-83c2-0d34c84318ba',
+    };
+
+    const studentProfile = plainToInstance(StudentProfileDTO, {
+      id: preAcceptDto.studentId,
+      userId: preAcceptDto.studentId,
+      firstName: 'Student',
+      lastName: 'User',
+      name: 'Student',
+    });
+
+    const offer = plainToInstance(OfferDTO, {
+      id: preAcceptDto.offerId,
+      userId: currentUser.id, // Offer belongs to current user (company)
+      title: 'Offer',
+      status: OfferStatus.ACTIVE,
+    });
+
+    it('should pre-accept a student (create new application)', async () => {
+      offersService.findOneById.mockResolvedValue(offer);
+      studentProfileService.findOneById.mockResolvedValue(studentProfile);
+      applicationsRepository.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
+
+      const newApplication = plainToInstance(ApplicationDTO, {
+        id: 'new-app-id',
+        studentId: preAcceptDto.studentId,
+        companyId: currentUser.id,
+        offerId: preAcceptDto.offerId,
+        status: ApplicationStatus.PRE_ACCEPTED,
+      });
+
+      applicationsRepository.create.mockResolvedValue(newApplication);
+
+      // Setup ability to allow CREATE
+      caslAbilityFactory.createForUser.mockReturnValue({
+        can: jest.fn().mockReturnValue(true), // Allow create
+        cannot: jest.fn().mockReturnValue(false),
+      } as any);
+
+      const result = await applicationsService.preAccept(
+        currentUser,
+        preAcceptDto,
+      );
+
+      expect(result).toBe(newApplication);
+      expect(offersService.findOneById).toHaveBeenCalledWith(
+        currentUser,
+        preAcceptDto.offerId,
+      );
+      expect(studentProfileService.findOneById).toHaveBeenCalledWith(
+        currentUser,
+        preAcceptDto.studentId,
+      );
+      expect(applicationsRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: ApplicationStatus.PRE_ACCEPTED,
+        }),
+      );
+    });
+
+    it('should update existing application to PRE_ACCEPTED', async () => {
+      offersService.findOneById.mockResolvedValue(offer);
+      studentProfileService.findOneById.mockResolvedValue(studentProfile);
+
+      const existingApplication = plainToInstance(ApplicationDTO, {
+        id: 'existing-app-id',
+        status: ApplicationStatus.PENDING,
+        studentId: preAcceptDto.studentId,
+        companyId: currentUser.id,
+        offerId: preAcceptDto.offerId,
+      });
+
+      applicationsRepository.findByQuery.mockResolvedValue({
+        rows: [existingApplication],
+        count: 1,
+      });
+
+      const updatedApplication = {
+        ...existingApplication,
+        status: ApplicationStatus.PRE_ACCEPTED,
+      };
+
+      applicationsRepository.findOneById.mockResolvedValue(existingApplication);
+      applicationsRepository.update.mockResolvedValue(updatedApplication);
+      // Mock conversation creation which happens on update
+      conversationsService.create.mockResolvedValue({} as any);
+
+      // Setup ability to allow UPDATE
+      caslAbilityFactory.createForUser.mockReturnValue({
+        can: jest.fn().mockReturnValue(true), // Allow update
+        cannot: jest.fn().mockReturnValue(false),
+      } as any);
+
+      const result = await applicationsService.preAccept(
+        currentUser,
+        preAcceptDto,
+      );
+
+      expect(result).toEqual(updatedApplication);
+      expect(applicationsRepository.update).toHaveBeenCalledWith(
+        existingApplication.id,
+        expect.objectContaining({
+          status: ApplicationStatus.PRE_ACCEPTED,
+        }),
+      );
+    });
+
+    it('should throw ForbiddenException if user does not own the offer', async () => {
+      const otherOffer = { ...offer, userId: 'other-company' };
+      offersService.findOneById.mockResolvedValue(otherOffer);
+
+      await expect(
+        applicationsService.preAccept(currentUser, preAcceptDto),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw NotFoundException if student profile not found', async () => {
+      offersService.findOneById.mockResolvedValue(offer);
+      studentProfileService.findOneById.mockResolvedValue(null);
+
+      await expect(
+        applicationsService.preAccept(currentUser, preAcceptDto),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should return existing application if already ACCEPTED', async () => {
+      offersService.findOneById.mockResolvedValue(offer);
+      studentProfileService.findOneById.mockResolvedValue(studentProfile);
+
+      const acceptedApp = plainToInstance(ApplicationDTO, {
+        id: 'app-id',
+        status: ApplicationStatus.ACCEPTED,
+      });
+
+      applicationsRepository.findByQuery.mockResolvedValue({
+        rows: [acceptedApp],
+        count: 1,
+      });
+
+      const result = await applicationsService.preAccept(
+        currentUser,
+        preAcceptDto,
+      );
+
+      expect(result).toBe(acceptedApp);
+      expect(applicationsRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException if permission denied for create', async () => {
+      offersService.findOneById.mockResolvedValue(offer);
+      studentProfileService.findOneById.mockResolvedValue(studentProfile);
+      applicationsRepository.findByQuery.mockResolvedValue({
+        rows: [],
+        count: 0,
+      });
+
+      // Setup ability to DENY create
+      caslAbilityFactory.createForUser.mockReturnValue({
+        can: jest.fn().mockReturnValue(false),
+        cannot: jest.fn().mockReturnValue(true), // Deny create
+      } as any);
+
+      await expect(
+        applicationsService.preAccept(currentUser, preAcceptDto),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

@@ -424,6 +424,33 @@ class ApiService {
     const response = await this.client.get('/school-profiles/my/students')
     return response.data
   }
+
+  // Candidate Search endpoints
+  async searchStudentProfiles(query: {
+    name?: string
+    skills?: string[]
+    educationLevel?: string
+    limit?: number
+    offset?: number
+    mode?: 'all' | 'any'
+  }) {
+    const params: Record<string, unknown> = { ...query }
+    // Convert skills array to comma-separated string for API
+    if (query.skills && query.skills.length > 0) {
+      params.skills = query.skills.join(',')
+    }
+    const response = await this.client.get('/student-profiles', { params })
+    return response.data
+  }
+
+  // Pre-accept candidate endpoints
+  async preAcceptCandidate(studentId: string, offerId: string) {
+    const response = await this.client.post('/applications/pre-accept', {
+      studentId,
+      offerId,
+    })
+    return response.data
+  }
 }
 
 export const apiService = new ApiService()

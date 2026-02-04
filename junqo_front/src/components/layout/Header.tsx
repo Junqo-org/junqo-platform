@@ -101,6 +101,14 @@ export function Header() {
                     </Button>
                   </motion.div>
                 </Link>
+                <Link to="/recruiter/candidates/search">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button variant="ghost" size="sm">
+                      <Users className="mr-2 h-4 w-4" />
+                      Candidats
+                    </Button>
+                  </motion.div>
+                </Link>
                 <Link to="/recruiter/dashboard">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button variant="ghost" size="sm">

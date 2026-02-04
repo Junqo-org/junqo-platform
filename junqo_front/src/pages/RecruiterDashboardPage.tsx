@@ -11,7 +11,8 @@ import {
   XCircle,
   Clock,
   ArrowUpRight,
-  BarChart3
+  BarChart3,
+  Search
 } from 'lucide-react'
 import { apiService } from '@/services/api'
 import { useNavigate } from 'react-router-dom'
@@ -136,6 +137,13 @@ export default function RecruiterDashboardPage() {
             </p>
           </div>
           <div className="flex gap-3">
+            <Button
+              onClick={() => navigate('/recruiter/candidates/search')}
+              className="gap-2"
+            >
+              <Search className="h-4 w-4" />
+              Recherche Globale
+            </Button>
             <Button
               onClick={() => navigate('/offers/create')}
               className="bg-blue-600 hover:bg-blue-700"

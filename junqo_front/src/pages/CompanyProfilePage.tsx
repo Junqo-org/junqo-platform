@@ -133,7 +133,7 @@ export default function CompanyProfilePage() {
                         <Building2 className="h-5 w-5 text-primary" />
                         À propos
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">
                         {company.description || "Aucune description disponible pour cette entreprise."}
                     </p>
                 </div>

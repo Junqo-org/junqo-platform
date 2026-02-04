@@ -56,9 +56,24 @@ export default function SchoolStudentDashboardPage() {
                 // Need to implement or use existing endpoint to get specific student profile
                 // Currently apiService.getStudentProfile(userId) should work if backend allows
                 // For applications, we use the new query capability for schools
+                // Fetch profile and applications in parallel, but handle application 404s gracefully
+                const profilePromise = apiService.getStudentProfile(studentId)
+                
+                // If applications return 404, it just means no applications found
+                const applicationsPromise = apiService.getApplications({ studentId: studentId, limit: 100 })
+                    .catch(error => {
+                        // Check if it's a 404 error
+                        if (error.response && error.response.status === 404) {
+                            return [] // Return empty array if not found
+                        }
+                        // For other errors, we might want to log them but not block the profile from loading
+                        console.error('Error fetching applications:', error)
+                        return [] // Fallback to empty array to allow profile to load
+                    })
+
                 const [profileData, applicationsData] = await Promise.all([
-                    apiService.getStudentProfile(studentId),
-                    apiService.getApplications({ studentId: studentId, limit: 100 })
+                    profilePromise,
+                    applicationsPromise
                 ])
                 
                 // Handle pagination wrapper if present
@@ -130,7 +145,7 @@ export default function SchoolStudentDashboardPage() {
                         )}
                     </div>
 
-                    <p className="text-sm text-balance max-w-2xl">{profile.bio}</p>
+                    <p className="text-sm text-balance max-w-2xl whitespace-pre-wrap break-words">{profile.bio}</p>
 
                     <div className="flex flex-wrap gap-4 pt-2">
                         {profile.phoneNumber && (

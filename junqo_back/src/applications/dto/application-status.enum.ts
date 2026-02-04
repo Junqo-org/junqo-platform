@@ -7,4 +7,6 @@ export enum ApplicationStatus {
   DENIED = 'DENIED',
   // The application has been accepted by the company.
   ACCEPTED = 'ACCEPTED',
+  // The company has pre-accepted a candidate (expressed interest before final acceptance).
+  PRE_ACCEPTED = 'PRE_ACCEPTED',
 }
