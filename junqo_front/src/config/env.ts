@@ -12,13 +12,28 @@ const getEnvVar = (key: string, defaultValue?: string): string => {
 }
 
 const rawApiUrl = getEnvVar('VITE_API_URL', 'http://localhost:4200/api/v1')
+let apiUrl: string
+if (!import.meta.env.VITE_API_URL) {
+  console.warn(
+    `VITE_API_URL is not set, defaulting to ${rawApiUrl}. This may cause issues if the backend is not running on localhost:4200.`
+  )
+  if (import.meta.env.PROD) {
+    console.error(
+      `In production, VITE_API_URL must be set to the correct backend URL. Defaulting to ${rawApiUrl} may cause the app to break.`
+    )
+    throw new Error('VITE_API_URL is required in production')
+  }
+  apiUrl = rawApiUrl
+} else {
+  apiUrl = import.meta.env.VITE_API_URL
+}
+
+const wsUrl = new URL(
+  apiUrl,
+  typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
+).origin
 
 export const config = {
-  // In development mode, always use proxy (relative URLs)
-  // In production/build mode, use the full URL from env variable or default to localhost
-  apiUrl: import.meta.env.DEV
-    ? '/api/v1'  // Proxy will forward based on VITE_API_URL (or localhost:4200 by default)
-    : rawApiUrl,
-  wsUrl: new URL(rawApiUrl).origin,
+  apiUrl,
+  wsUrl,
 } as const
-
