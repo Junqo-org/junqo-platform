@@ -213,7 +213,7 @@ npm run build
 ### WebSocket connection fails
 Check that:
 1. Backend server is running
-3. CORS is properly configured on backend
+2. CORS is properly configured on backend
 
 ## 📚 Additional Resources
 
