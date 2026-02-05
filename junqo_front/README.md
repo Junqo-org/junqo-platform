@@ -39,7 +39,6 @@ cp config/exemple.env config/.env
 3. Configure your `.env`:
 ```env
 VITE_API_URL=http://localhost:4200/api/v1
-VITE_WS_URL=http://localhost:4200
 ```
 
 4. Start development server:
@@ -214,7 +213,6 @@ npm run build
 ### WebSocket connection fails
 Check that:
 1. Backend server is running
-2. VITE_WS_URL is correctly configured
 3. CORS is properly configured on backend
 
 ## 📚 Additional Resources

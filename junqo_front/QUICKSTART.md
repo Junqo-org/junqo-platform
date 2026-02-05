@@ -56,7 +56,6 @@ Create a `.env` file (optional, as defaults are set):
 
 ```env
 VITE_API_URL=http://dev.junqo.fr:4200/api/v1
-VITE_WS_URL=http://dev.junqo.fr:4200
 ```
 
 ## Features Overview
