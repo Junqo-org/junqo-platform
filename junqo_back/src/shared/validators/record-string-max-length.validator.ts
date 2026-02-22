@@ -25,7 +25,7 @@ export function RecordStringMaxLength(
           if (value === null || value === undefined) {
             return true; // Let @IsOptional handle null/undefined
           }
-          if (typeof value !== 'object') {
+          if (typeof value !== 'object' || Array.isArray(value)) {
             return false;
           }
           const [maxLen] = args.constraints;
