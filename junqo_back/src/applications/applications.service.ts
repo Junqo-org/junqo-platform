@@ -533,7 +533,7 @@ export class ApplicationsService {
           ),
         },
         title: truncateString(
-          `Application Discussion - ${offerTitle || 'Job Application'}`,
+          `Application Discussion - ${offerTitle}`,
           MAX_CONVERSATION_TITLE_LENGTH,
         ),
         offerId: application.offerId,

@@ -11,6 +11,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { MessageDTO } from '../../messages/dto/message.dto';
 import { MAX_CONVERSATION_TITLE_LENGTH } from '../../shared/user-validation-constants';
+import { RecordStringMaxLength } from '../../shared/validators/record-string-max-length.validator';
 
 // Conversation retrieved from database
 export class ConversationDTO {
@@ -175,6 +176,9 @@ export class CreateConversationDTO {
   })
   @Expose()
   @IsOptional()
+  @RecordStringMaxLength(MAX_CONVERSATION_TITLE_LENGTH, {
+    message: `Each participant title must be ${MAX_CONVERSATION_TITLE_LENGTH} characters or less`,
+  })
   participantTitles?: Record<string, string>;
 }
 
