@@ -28,6 +28,8 @@ import { UserType } from '../users/dto/user-type.enum';
 import { ConversationsService } from '../conversations/conversations.service';
 import { CreateConversationDTO } from '../conversations/dto/conversation.dto';
 import { MessagesService } from '../messages/messages.service';
+import { MAX_CONVERSATION_TITLE_LENGTH } from '../shared/user-validation-constants';
+import { truncateString } from '../shared/string-utils';
 import { StudentProfilesService } from '../student-profiles/student-profiles.service';
 
 @Injectable()
@@ -521,10 +523,19 @@ export class ApplicationsService {
       const createConversationDto: CreateConversationDTO = {
         participantsIds: [application.studentId, application.companyId],
         participantTitles: {
-          [application.studentId]: `${offerTitle} - ${companyName}`,
-          [application.companyId]: `${offerTitle} - ${studentName}`,
+          [application.studentId]: truncateString(
+            `${offerTitle} - ${companyName}`,
+            MAX_CONVERSATION_TITLE_LENGTH,
+          ),
+          [application.companyId]: truncateString(
+            `${offerTitle} - ${studentName}`,
+            MAX_CONVERSATION_TITLE_LENGTH,
+          ),
         },
-        title: `Application Discussion - ${offerTitle || 'Job Application'}`,
+        title: truncateString(
+          `Application Discussion - ${offerTitle}`,
+          MAX_CONVERSATION_TITLE_LENGTH,
+        ),
         offerId: application.offerId,
         applicationId: application.id,
       };

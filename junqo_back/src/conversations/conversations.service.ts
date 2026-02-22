@@ -83,6 +83,7 @@ export class ConversationsService {
     const conversationData: CreateConversationDTO = {
       participantsIds: participantsIds,
       title: createConversationDto.title,
+      participantTitles: createConversationDto.participantTitles,
       offerId: createConversationDto.offerId,
       applicationId: createConversationDto.applicationId,
     };
