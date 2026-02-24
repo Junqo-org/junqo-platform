@@ -1,7 +1,7 @@
 <!-- omit in toc -->
-# junqo_front
+# junqo_old_front
 
-The mobile and web application for Junqo.
+The old, deprecated Flutter mobile and web application for Junqo.
 
 <!-- omit in toc -->
 ## Table of Contents

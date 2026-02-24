@@ -49,7 +49,7 @@ nav_order: 8
 
 The **Junqo-platform** is a multi-platform solution designed to help young people find internships and work-study programs. The platform consists of:
 
-- **Frontend**: A Flutter web application providing the user interface
+- **Frontend**: A React web application providing the user interface
 - **Backend**: A NestJS REST API with WebSocket support
 - **Database**: PostgreSQL database for data persistence
 - **Reverse Proxy**: Nginx for routing and SSL termination
@@ -96,7 +96,7 @@ The Junqo platform uses a microservices architecture deployed with Docker Compos
 └─────────────────────┬─────────────────────┬─────────────────┘
                       │                     │
             ┌─────────▼──────────┐ ┌────────▼───────┐
-            │   Flutter Frontend │ │ NestJS Backend │
+            │   React Frontend   │ │ NestJS Backend │
             │    (Port 80)       │ │  (Port 4200)   │
             └────────────────────┘ └────────┬───────┘
                                             │
@@ -209,7 +209,7 @@ Development deployment provides a local environment for development with hot-rel
 
    If you are running the backend on a different host or port, adjust the `VITE_API_URL` accordingly (e.g., `http://localhost:4200/api/v1`).
 
-   For platform-specific build and run instructions (Flutter setup, pub packages, etc.) see the [Frontend documentation](./frontend.md).
+   For component overview and run instructions (React setup, npm packages, etc.) see the [Frontend documentation](./frontend.md).
 
 ### Running the Development Environment
 
