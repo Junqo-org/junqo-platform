@@ -4,7 +4,7 @@ nav_order: 2
 ---
 
 <!-- omit in toc -->
-# Frontend
+# Old Frontend (Flutter)
 
 <!-- omit in toc -->
 ## Table of contents
@@ -23,8 +23,8 @@ nav_order: 2
 
 ## Getting started
 
-The frontend of the **Junqo-platform** is a Flutter application.  
-Its main goal is to provide a user interface to interact with the backend.
+The old frontend of the **Junqo-platform** was a Flutter application.  
+Its main goal was to provide a user interface to interact with the backend.
 
 ### Prerequisites
 

@@ -347,8 +347,10 @@ The project uses the following technologies:
 - CI/CD
   - [GitHub Actions](https://docs.github.com/en/actions)
 - Frontend
-  - [Flutter](https://flutter.dev/)
-  - [Dio](https://pub.dev/packages/dio)
+  - [React](https://react.dev/)
+  - [TypeScript](https://www.typescriptlang.org/)
+  - [Vite](https://vitejs.dev/)
+  - [Tailwind CSS](https://tailwindcss.com/)
 - Backend
   - [NestJs](https://nestjs.com/)
   - [PostgreSQL](https://www.postgresql.org/)
