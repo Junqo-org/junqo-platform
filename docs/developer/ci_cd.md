@@ -210,7 +210,7 @@ If an environment variable is not found, the default value will be used.
 
 Here is the list of environment variables used by the **Junqo-platform**:
 
-- `FLUTTER_VERSION`: The version of Flutter to use. Default value is `3.35.3`.
+- `FLUTTER_VERSION`: The version of Flutter to use for building the old frontend (if necessary). Default value is `3.35.3`.
 - `BACK_PORT`: The port of the back server. Default value is `4200`.
 - `DATABASE_SHM_SIZE`: The size of the shared memory for the database container. Default value is `256MB`.
 - `DATABASE_USER`: The user of the database. Default value is `junqo`.
@@ -307,9 +307,11 @@ The workflow is triggered when the following conditions are met:
 The workflow runs the following steps:
 
 1. Checkout the repository.
-2. Install Flutter.
-3. Install the dependencies.
-4. Run the front tests using [flutter test](https://flutter.dev/docs/testing).
+2. Set up Node.js.
+3. Install the dependencies via `npm ci`.
+4. Run TypeScript type checks (`npx tsc --noEmit`).
+5. Run ESLint.
+6. Build the frontend (`npm run build`).
 
 ### Back tests
 
